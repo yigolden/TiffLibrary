@@ -31,7 +31,7 @@ To install this library, add this feed to your nuget.config: https://www.myget.o
 Install the latest version from the feed.
 
 ```
-dotnet add package TiffLibrary --version 0.5.0-alpha --source https://www.myget.org/F/yigolden/api/v3/index.json 
+dotnet add package TiffLibrary --version 0.5.1-beta --source https://www.myget.org/F/yigolden/api/v3/index.json 
 ```
 
 Add the following using statement to your source files.

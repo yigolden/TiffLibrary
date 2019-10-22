@@ -1,0 +1,340 @@
+﻿<#@ template language="C#" #><#@ import namespace="System.Collections.Generic" #>
+<#
+    var Fields = new[]
+    {
+        new
+        {
+            Name = "Artist",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "BitsPerSample",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffValueCollection<ushort>",
+            ResultHandling = "result.IsEmpty ? new TiffValueCollection<ushort>(1) : result"
+        },
+        new
+        {
+            Name = "CellLength",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort?",
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "CellWidth",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort?",
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "ColorMap",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "Compression",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffCompression",
+            ResultHandling = "result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "Copyright",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "DateTime",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "ExtraSamples",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffValueCollection<TiffExtraSample>",
+            ResultHandling = "result.ConvertAll(i => (TiffExtraSample)i)"
+        },
+        new
+        {
+            Name = "FillOrder",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffFillOrder",
+            ResultHandling = "result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "FreeByteCounts",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "uint?",
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "FreeOffsets",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "uint?",
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "GrayResponseCurve",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffValueCollection<ushort>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "GrayResponseUnit",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffGrayResponseUnit",
+            ResultHandling = "result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "HostComputer",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "ImageDescription",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "ImageLength",
+            Type = "ulong",
+            TypeName = "Long8",
+            ReturnType = "ulong",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "ImageWidth",
+            Type = "ulong",
+            TypeName = "Long8",
+            ReturnType = "ulong",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "Make",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "MaxSampleValue",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffValueCollection<ushort>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "MinSampleValue",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffValueCollection<ushort>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "Model",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "NewSubfileType",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "TiffNewSubfileType",
+            ResultHandling = "(TiffNewSubfileType)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "Orientation",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffOrientation",
+            ResultHandling = "result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "PhotometricInterpretation",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffPhotometricInterpretation?",
+            ResultHandling = "result.IsEmpty ? default(TiffPhotometricInterpretation?) : (TiffPhotometricInterpretation)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "PlanarConfiguration",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffPlanarConfiguration",
+            ResultHandling = "result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "ResolutionUnit",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffResolutionUnit",
+            ResultHandling = "result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "RowsPerStrip",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "uint",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "SamplesPerPixel",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort",
+            ResultHandling = "result.IsEmpty ? (ushort)1 : result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "Software",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string",
+            ResultHandling = "result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "StripByteCounts",
+            Type = "ulong",
+            TypeName = "Long8",
+            ReturnType = "TiffValueCollection<ulong>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "StripOffsets",
+            Type = "ulong",
+            TypeName = "Long8",
+            ReturnType = "TiffValueCollection<ulong>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "SubFileType",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffSubfileType?",
+            ResultHandling = "result.IsEmpty ? default(TiffSubfileType?) : (TiffSubfileType)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "Threshholding",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffThreshholding",
+            ResultHandling = "result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "XResolution",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "YResolution",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault"
+        }
+        
+        
+    };
+
+#>
+using System.Threading.Tasks;
+
+namespace TiffLibrary
+{
+    public static partial class TiffTagReaderExtensions
+    {
+    <#
+    foreach (var field in Fields)
+    {
+    #>
+
+        #region <#= field.Name #>
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.<#= field.Name #>"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
+        public static ValueTask<<#= field.ReturnType #>> Read<#= field.Name #>Async(this TiffTagReader tagReader)
+        {
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync(TiffTag.<#= field.Name #>);
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();
+                return new ValueTask<<#= field.ReturnType #>>(<#= field.ResultHandling #>);
+            }
+
+            return new ValueTask<<#= field.ReturnType #>>(TransformValueTaskAsync(valueTask));
+
+            static async Task<<#= field.ReturnType #>> TransformValueTaskAsync(ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask)
+            {
+                TiffValueCollection<<#= field.Type #>> result = await valueTask.ConfigureAwait(false);
+                return <#= field.ResultHandling #>;
+            }
+        }
+
+        #endregion
+    <#
+    }
+    #>
+
+    }
+}

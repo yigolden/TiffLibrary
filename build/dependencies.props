@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup Label="Package Versions">
+    <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>2.9.6</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
+    
+    <MicrosoftBclAsyncInterfacesPackageVersion>1.0.0</MicrosoftBclAsyncInterfacesPackageVersion>
+    <SystemMemoryPackageVersion>4.5.3</SystemMemoryPackageVersion>
+    <SystemNumericsVectorsPackageVersion>4.5.0</SystemNumericsVectorsPackageVersion>
+    <SystemRuntimeCompilerServicesUnsafePackageVersion>4.6.0</SystemRuntimeCompilerServicesUnsafePackageVersion>
+    <SystemThreadingTasksExtensionsPackageVersion>4.5.3</SystemThreadingTasksExtensionsPackageVersion>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,12 @@
+{
+  "version": "0.5-beta",
+  "publicReleaseRefSpec": [
+    "^refs/heads/master$",
+    "^refs/heads/release/\\d+(?:\\.\\d+)?$"
+  ],
+  "cloudBuild": {
+    "buildNumber": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,66 @@
+﻿<#@ template language="C#" #><#@ import namespace="System.Collections.Generic" #>
+<#
+    var Fields = new[]
+    {
+        new
+        {
+            Name = "T4Options",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "TiffT4Options",
+            ResultHandling = "result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault"
+        },
+        new
+        {
+            Name = "T6Options",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "TiffT6Options",
+            ResultHandling = "result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault"
+        }
+    };
+
+#>
+using System.Threading.Tasks;
+
+namespace TiffLibrary
+{
+    public static partial class TiffTagReaderExtensions
+    {
+    <#
+    foreach (var field in Fields)
+    {
+    #>
+
+        #region <#= field.Name #>
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.<#= field.Name #>"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
+        public static ValueTask<<#= field.ReturnType #>> Read<#= field.Name #>Async(this TiffTagReader tagReader)
+        {
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync(TiffTag.<#= field.Name #>);
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();
+                return new ValueTask<<#= field.ReturnType #>>(<#= field.ResultHandling #>);
+            }
+
+            return new ValueTask<<#= field.ReturnType #>>(TransformValueTaskAsync(valueTask));
+
+            static async Task<<#= field.ReturnType #>> TransformValueTaskAsync(ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask)
+            {
+                TiffValueCollection<<#= field.Type #>> result = await valueTask.ConfigureAwait(false);
+                return <#= field.ResultHandling #>;
+            }
+        }
+
+        #endregion
+    <#
+    }
+    #>
+
+    }
+}

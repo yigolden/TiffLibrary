@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net46;net472;netstandard1.3;netstandard2.0;netcoreapp2.1;netstandard2.1;netcoreapp3.0</TargetFrameworks>
+    <NoWarn>$(NoWarn);CA1028;CA1051;CA1303;CA1716;CA1720;CA2000;CA2119;CA2213</NoWarn>
+    <!-- CA1028: Enum storage should be Int32 -->
+    <!-- CA1051: Do not declare visible instance fields -->
+    <!-- CA1303: Do not pass literals as localized parameters -->
+    <!-- CA1716: Identifiers should not match keywords -->
+    <!-- CA1720: Identifiers should not contain type names -->
+    <!-- CA2000: Dispose objects before losing scope -->
+    <!-- CA2119: Seal methods that satisfy private interfaces (This should be removed when we drop net46/netstandard1.3 support) -->
+    <!-- CA2213: Disposable fields should be disposed -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>$(DefineConstants);NO_APM_ASYNC;NO_SYSTEM_CONVERTER;NO_MATH_DIVREM</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_INTERFACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp2.1'">
+    <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_ON_STREAM</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="$(MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="$(SystemRuntimeCompilerServicesUnsafePackageVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsPackageVersion)" />
+  </ItemGroup>
+  
+  <!-- DefineConstants for JpegLibrary -->
+  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp2.1' AND '$(TargetFramework)' != 'netstandard2.1' AND '$(TargetFramework)' != 'netcoreapp3.0'">
+    <DefineConstants>$(DefineConstants);NO_MATHF</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0'">
+    <DefineConstants>$(DefineConstants);NO_READONLYSEQUENCE_FISTSPAN</DefineConstants>
+  </PropertyGroup>
+  
+  <!-- PackageReference for JpegLibrary-->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Numerics.Vectors" Version="$(SystemNumericsVectorsPackageVersion)" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="TiffTagReaderBaselineExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderBaselineExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderCCITTBilevelEncodingsExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderCCITTBilevelEncodingsExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderCMYKExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderCMYKExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderDocumentExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderDocumentExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderHalftoneHintsExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderHalftoneHintsExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderJPEGExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderJPEGExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderPredictorExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderPredictorExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderRGBImageColorimetryExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderRGBImageColorimetryExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderTiledExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderTiledExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderYCbCrExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderYCbCrExtensions.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="TiffTagReaderBaselineExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderBaselineExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderCCITTBilevelEncodingsExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderCCITTBilevelEncodingsExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderCMYKExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderCMYKExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderDocumentExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderDocumentExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderHalftoneHintsExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderHalftoneHintsExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderJPEGExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderJPEGExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderPredictorExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderPredictorExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderRGBImageColorimetryExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderRGBImageColorimetryExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderTiledExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderTiledExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderYCbCrExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderYCbCrExtensions.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+</Project>

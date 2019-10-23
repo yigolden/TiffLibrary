@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 using System.Threading.Tasks;
 using JpegLibrary;
 using TiffLibrary.ImageEncoder;
@@ -11,6 +12,8 @@ namespace TiffLibrary.Compression
     /// </summary>
     public sealed class JpegCompressionAlgorithm : ITiffCompressionAlgorithm
     {
+        private const int MinimumBufferSegmentSize = 16384;
+
         private readonly TiffPhotometricInterpretation _photometricInterpretation;
         private int _componentCounnt;
         private readonly int _quality;
@@ -53,7 +56,7 @@ namespace TiffLibrary.Compression
             {
                 case TiffPhotometricInterpretation.BlackIsZero:
                     _componentCounnt = 1;
-                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: 16384);
+                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
                     encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
@@ -61,7 +64,7 @@ namespace TiffLibrary.Compression
                     break;
                 case TiffPhotometricInterpretation.RGB:
                     _componentCounnt = 3;
-                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: 16384);
+                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
                     encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
@@ -71,7 +74,7 @@ namespace TiffLibrary.Compression
                     break;
                 case TiffPhotometricInterpretation.Seperated:
                     _componentCounnt = 4;
-                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: 16384);
+                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
                     encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
@@ -82,7 +85,7 @@ namespace TiffLibrary.Compression
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
                     _componentCounnt = 3;
-                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: 16384);
+                    encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetChrominanceTable(JpegElementPrecision.Precision8Bit, 1), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
@@ -139,14 +142,10 @@ namespace TiffLibrary.Compression
             }
             CheckBitsPerSample(context.BitsPerSample);
 
-            TiffJpegEncoder encoder = _encoder;
+            TiffJpegEncoder encoder = _encoder.CloneParameter();
 
             // Input
-            JpegBufferInputReader inputReader = _inputReader;
-            if (inputReader is null)
-            {
-                _inputReader = inputReader = new JpegBufferInputReader();
-            }
+            JpegBufferInputReader inputReader = Interlocked.Exchange(ref _inputReader, null) ?? new JpegBufferInputReader();
             encoder.SetInputReader(inputReader);
 
             // Update InputReader
@@ -166,9 +165,10 @@ namespace TiffLibrary.Compression
             }
 
             // Reset state
-            encoder.ResetInputReader();
-            encoder.ResetOutput();
             inputReader.Reset();
+
+            // Cache the input reader instance
+            Interlocked.CompareExchange(ref _inputReader, inputReader, null);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace TiffLibrary.Compression
                     throw new ArgumentNullException(nameof(buffer));
                 }
 
-                var writer = new JpegWriter(buffer, minimumBufferSize: 16384);
+                var writer = new JpegWriter(buffer, minimumBufferSize: MinimumBufferSegmentSize);
 
                 WriteStartOfImage(ref writer);
                 WriteQuantizationTables(ref writer);
@@ -257,6 +257,11 @@ namespace TiffLibrary.Compression
                 WriteEndOfImage(ref writer);
 
                 writer.Flush();
+            }
+
+            public TiffJpegEncoder CloneParameter()
+            {
+                return CloneParameters<TiffJpegEncoder>();
             }
         }
     }

@@ -9,7 +9,7 @@ namespace JpegLibrary
 {
     internal class JpegEncoder
     {
-        private readonly int _minimumBufferSegmentSize;
+        private int _minimumBufferSegmentSize;
 
         private JpegBlockInputReader _input;
         private IBufferWriter<byte> _output;
@@ -23,6 +23,19 @@ namespace JpegLibrary
         public JpegEncoder(int minimumBufferSegmentSize)
         {
             _minimumBufferSegmentSize = minimumBufferSegmentSize;
+        }
+
+        protected int MinimumBufferSegmentSize => _minimumBufferSegmentSize;
+
+        protected T CloneParameters<T>() where T : JpegEncoder, new()
+        {
+            return new T()
+            {
+                _minimumBufferSegmentSize = _minimumBufferSegmentSize,
+                _quantizationTables = _quantizationTables,
+                _huffmanTables = _huffmanTables,
+                _encodeComponents = _encodeComponents
+            };
         }
 
         public void SetInputReader(JpegBlockInputReader input)
@@ -346,8 +359,10 @@ namespace JpegLibrary
             ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref temp);
 
             int th = horizontalSubsampling, tv = verticalSubsampling, hShift = 0, vShift = 0;
-            while ((th = th / 2) != 0) hShift++;
-            while ((tv = tv / 2) != 0) vShift++;
+            while ((th = th / 2) != 0)
+                hShift++;
+            while ((tv = tv / 2) != 0)
+                vShift++;
 
             int hBlockShift = 3 - hShift;
             int vBlockShift = 3 - vShift;

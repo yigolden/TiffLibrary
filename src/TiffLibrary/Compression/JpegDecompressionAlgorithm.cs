@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using JpegLibrary;
 
 namespace TiffLibrary.Compression
@@ -10,6 +11,7 @@ namespace TiffLibrary.Compression
     public sealed class JpegDecompressionAlgorithm : ITiffDecompressionAlgorithm
     {
         private readonly int _numberOfComponents;
+        private readonly byte[] _jpegTables;
         private JpegDecoder _decoder;
         private JpegBufferOutputWriter _outputWriter;
 
@@ -20,13 +22,19 @@ namespace TiffLibrary.Compression
         /// <param name="numberOfComponents">The number of component to be expected.</param>
         public JpegDecompressionAlgorithm(byte[] jpegTables, int numberOfComponents)
         {
-            _decoder = new JpegDecoder();
-            if (jpegTables?.Length > 0)
-            {
-                _decoder.LoadTables(jpegTables);
-            }
-            _outputWriter = new JpegBufferOutputWriter();
+            _jpegTables = jpegTables;
+            _decoder = LoadJpegDecoder();
             _numberOfComponents = numberOfComponents;
+        }
+
+        private JpegDecoder LoadJpegDecoder()
+        {
+            var decoder = new JpegDecoder();
+            if (_jpegTables?.Length > 0)
+            {
+                decoder.LoadTables(_jpegTables);
+            }
+            return decoder;
         }
 
         /// <summary>
@@ -43,7 +51,7 @@ namespace TiffLibrary.Compression
             }
 
             // Identify this block
-            JpegDecoder decoder = _decoder;
+            JpegDecoder decoder = Interlocked.Exchange(ref _decoder, null) ?? LoadJpegDecoder();
             decoder.SetInput(input);
             decoder.Identify();
 
@@ -66,17 +74,22 @@ namespace TiffLibrary.Compression
             }
 
             // Output writer 
-            _outputWriter.Update(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
+            JpegBufferOutputWriter outputWriter = Interlocked.Exchange(ref _outputWriter, null) ?? new JpegBufferOutputWriter();
+            outputWriter.Update(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
 
             // Decode
-            decoder.SetOutputWriter(_outputWriter);
+            decoder.SetOutputWriter(outputWriter);
             decoder.Decode();
 
             // Reset state
             decoder.ResetInput();
             decoder.ResetHeader();
             decoder.ResetOutputWriter();
-            _outputWriter.Reset();
+
+            // Cache the instances
+            outputWriter.Reset();
+            Interlocked.CompareExchange(ref _decoder, decoder, null);
+            Interlocked.CompareExchange(ref _outputWriter, outputWriter, null);
         }
     }
 }

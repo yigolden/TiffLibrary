@@ -2,6 +2,8 @@
 
 A library for reading and writing TIFF format files implemented in pure C# code, **providing only asynchronous APIs**.
 
+[![Build Status](https://dev.azure.com/jinyi0679/yigolden/_apis/build/status/yigolden.TiffLibrary?branchName=master)](https://dev.azure.com/jinyi0679/yigolden/_build/latest?definitionId=1&branchName=master)
+
 ## Features
 
 * Implemented completely in C# code. No native dependencies.

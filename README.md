@@ -32,8 +32,13 @@ To install this library, add this feed to your nuget.config: https://www.myget.o
 
 Install the latest version from the feed.
 
+NuGet: [![NuGet](https://img.shields.io/nuget/v/TiffLibrary.svg)](https://www.nuget.org/packages/TiffLibrary/)
+
+MyGet: [![MyGet](https://img.shields.io/myget/yigolden/v/TiffLibrary.svg)](https://www.myget.org/feed/yigolden/package/nuget/TiffLibrary)
+
+
 ```
-dotnet add package TiffLibrary --version 0.5.1-beta --source https://www.myget.org/F/yigolden/api/v3/index.json 
+dotnet add package TiffLibrary --version <VERSION> --source https://www.myget.org/F/yigolden/api/v3/index.json 
 ```
 
 Add the following using statement to your source files.
@@ -54,7 +59,7 @@ Stream stream = GetStream();
 using TiffFileReader tiff = await TiffFileReader.OpenAsync(stream, leaveOpen: false);
 ```
 
-Read from byte buffer
+Read from byte buffer:
 ``` csharp
 byte[] buffer = GetBuffer();
 using TiffFileReader tiff = await TiffFileReader.OpenAsync(buffer, 0, buffer.Length);
@@ -134,7 +139,7 @@ using TiffLibray.PixelFormats;
 using TiffFileReader tiff = await TiffFileReader.OpenAsync(stream, leaveOpen: false);
 TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync();
 
-// Creates the decoder for the specified IFD.
+// Create the decoder for the specified IFD.
 TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync(ifd);
 
 // Create an array to hold the pixels

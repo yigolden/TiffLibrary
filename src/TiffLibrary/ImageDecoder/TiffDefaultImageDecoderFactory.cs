@@ -37,53 +37,60 @@ namespace TiffLibrary.ImageDecoder
             TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                using var fieldReader = new TiffFieldReader(reader, operationContext);
-                var tagReader = new TiffTagReader(fieldReader, ifd);
-
-                // Basic Informations
-                TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync().ConfigureAwait(false)).GetValueOrDefault();
-                TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
-                int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
-                int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
-                TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
-                TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
-
-                size = new TiffSize(width, height);
-
-                // Calculate BytesPerScanline
-                bytesPerScanline = planarConfiguration == TiffPlanarConfiguration.Planar ? CalculatePlanarBytesPerScanline(photometricInterpretation, bitsPerSample, width) : CalculateChunkyBytesPerScanline(photometricInterpretation, compression, bitsPerSample, width);
-
-                // Middleware: ApplyOrientation
-                if (!options.IgnoreOrientation)
+                var fieldReader = new TiffFieldReader(reader, operationContext);
+                try
                 {
-                    orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
-                    BuildApplyOrientationMiddleware(builder, orientation);
+                    var tagReader = new TiffTagReader(fieldReader, ifd);
+
+                    // Basic Informations
+                    TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync().ConfigureAwait(false)).GetValueOrDefault();
+                    TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
+                    int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
+                    int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
+                    TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
+                    TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
+
+                    size = new TiffSize(width, height);
+
+                    // Calculate BytesPerScanline
+                    bytesPerScanline = planarConfiguration == TiffPlanarConfiguration.Planar ? CalculatePlanarBytesPerScanline(photometricInterpretation, bitsPerSample, width) : CalculateChunkyBytesPerScanline(photometricInterpretation, compression, bitsPerSample, width);
+
+                    // Middleware: ApplyOrientation
+                    if (!options.IgnoreOrientation)
+                    {
+                        orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
+                        BuildApplyOrientationMiddleware(builder, orientation);
+                    }
+
+                    // Middleware: ImageEnumerator
+                    await BuildStrippedImageEnumerator(builder, tagReader, compression, height, bytesPerScanline).ConfigureAwait(false);
+
+                    // Middleware: Decompression
+                    builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
+
+                    // Middleware: ReverseYCbCrSubsampling
+                    if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
+                    {
+                        await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, tagReader).ConfigureAwait(false);
+                    }
+
+                    // Middleware: ReversePredictor
+                    TiffPredictor prediction = await tagReader.ReadPredictorAsync();
+                    if (prediction != TiffPredictor.None)
+                    {
+                        builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
+                    }
+
+                    // Middleware: Photometric Interpretation
+                    ITiffImageDecoderMiddleware photometricInterpretationMiddleware = planarConfiguration == TiffPlanarConfiguration.Planar ?
+                        await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options).ConfigureAwait(false) :
+                        await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options).ConfigureAwait(false);
+                    builder.Add(photometricInterpretationMiddleware);
                 }
-
-                // Middleware: ImageEnumerator
-                await BuildStrippedImageEnumerator(builder, tagReader, compression, height, bytesPerScanline).ConfigureAwait(false);
-
-                // Middleware: Decompression
-                builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
-
-                // Middleware: ReverseYCbCrSubsampling
-                if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
+                finally
                 {
-                    await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, tagReader).ConfigureAwait(false);
+                    await fieldReader.DisposeAsync().ConfigureAwait(false);
                 }
-
-                // Middleware: ReversePredictor
-                TiffPredictor prediction = await tagReader.ReadPredictorAsync();
-                if (prediction != TiffPredictor.None)
-                {
-                    builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
-                }
-
-                // Middleware: Photometric Interpretation
-                ITiffImageDecoderMiddleware photometricInterpretationMiddleware = planarConfiguration == TiffPlanarConfiguration.Planar ?
-                    await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options).ConfigureAwait(false) :
-                    await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options).ConfigureAwait(false);
-                builder.Add(photometricInterpretationMiddleware);
             }
             finally
             {
@@ -114,55 +121,62 @@ namespace TiffLibrary.ImageDecoder
             TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                using var fieldReader = new TiffFieldReader(reader, operationContext);
-                var tagReader = new TiffTagReader(fieldReader, ifd);
-
-                // Basic Informations
-                TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync().ConfigureAwait(false)).GetValueOrDefault();
-                TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
-                int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
-                int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
-                TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
-                TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
-                uint? tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
-                Debug.Assert(tileWidth.HasValue);
-
-                size = new TiffSize(width, height);
-
-                // Calculate BytesPerScanline
-                bytesPerScanline = planarConfiguration == TiffPlanarConfiguration.Planar ? CalculatePlanarBytesPerScanline(photometricInterpretation, bitsPerSample, (int)tileWidth.GetValueOrDefault()) : CalculateChunkyBytesPerScanline(photometricInterpretation, compression, bitsPerSample, (int)tileWidth.GetValueOrDefault());
-
-                // Middleware: ApplyOrientation
-                if (!options.IgnoreOrientation)
+                var fieldReader = new TiffFieldReader(reader, operationContext);
+                try
                 {
-                    orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
-                    BuildApplyOrientationMiddleware(builder, orientation);
+                    var tagReader = new TiffTagReader(fieldReader, ifd);
+
+                    // Basic Informations
+                    TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync().ConfigureAwait(false)).GetValueOrDefault();
+                    TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
+                    int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
+                    int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
+                    TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
+                    TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
+                    uint? tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
+                    Debug.Assert(tileWidth.HasValue);
+
+                    size = new TiffSize(width, height);
+
+                    // Calculate BytesPerScanline
+                    bytesPerScanline = planarConfiguration == TiffPlanarConfiguration.Planar ? CalculatePlanarBytesPerScanline(photometricInterpretation, bitsPerSample, (int)tileWidth.GetValueOrDefault()) : CalculateChunkyBytesPerScanline(photometricInterpretation, compression, bitsPerSample, (int)tileWidth.GetValueOrDefault());
+
+                    // Middleware: ApplyOrientation
+                    if (!options.IgnoreOrientation)
+                    {
+                        orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
+                        BuildApplyOrientationMiddleware(builder, orientation);
+                    }
+
+                    // Middleware: ImageEnumerator
+                    await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count).ConfigureAwait(false);
+
+                    // Middleware: Decompression
+                    builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
+
+                    // Middleware: ReverseYCbCrSubsampling
+                    if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
+                    {
+                        await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, tagReader).ConfigureAwait(false);
+                    }
+
+                    // Middleware: ReversePredictor
+                    TiffPredictor prediction = await tagReader.ReadPredictorAsync();
+                    if (prediction != TiffPredictor.None)
+                    {
+                        builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
+                    }
+
+                    // Middleware: Photometric Interpretation
+                    ITiffImageDecoderMiddleware photometricInterpretationMiddleware = planarConfiguration == TiffPlanarConfiguration.Planar ?
+                        await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options).ConfigureAwait(false) :
+                        await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options).ConfigureAwait(false);
+                    builder.Add(photometricInterpretationMiddleware);
                 }
-
-                // Middleware: ImageEnumerator
-                await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count).ConfigureAwait(false);
-
-                // Middleware: Decompression
-                builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
-
-                // Middleware: ReverseYCbCrSubsampling
-                if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
+                finally
                 {
-                    await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, tagReader).ConfigureAwait(false);
+                    await fieldReader.DisposeAsync().ConfigureAwait(false);
                 }
-
-                // Middleware: ReversePredictor
-                TiffPredictor prediction = await tagReader.ReadPredictorAsync();
-                if (prediction != TiffPredictor.None)
-                {
-                    builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
-                }
-
-                // Middleware: Photometric Interpretation
-                ITiffImageDecoderMiddleware photometricInterpretationMiddleware = planarConfiguration == TiffPlanarConfiguration.Planar ?
-                    await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options).ConfigureAwait(false) :
-                    await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options).ConfigureAwait(false);
-                builder.Add(photometricInterpretationMiddleware);
             }
             finally
             {

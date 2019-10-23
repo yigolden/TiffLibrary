@@ -30,15 +30,25 @@ steps:
   inputs:
     command: build
     projects: 'src/**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)  --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
+  displayName: Run Tests
   inputs:
     command: test
     projects: 'tests/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
+- task: CopyFiles@2
+  displayName: Collect Artifacts
+  inputs:
+    sourceFolder: 'src'
+    contents: '**/*.nupkg'
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
+
 - task: PublishBuildArtifacts@1
+  displayName: Publish Artifacts
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
     artifactName: 'Packages'

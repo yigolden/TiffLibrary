@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <CopyTiffTestAssets>true</CopyTiffTestAssets>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\TiffLibrary\Utils\ArrayPoolBufferWriter.cs" Link="Utils\ArrayPoolBufferWriter.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\BitReader.cs" Link="Utils\BitReader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\BitWriter.cs" Link="Utils\BitWriter.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\TiffMathHelper.cs" Link="Utils\TiffMathHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TiffLibrary\TiffLibrary.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -61,8 +61,8 @@ namespace TiffLibrary
 
         private void FlushSlow()
         {
-            var usedBufferBits = _usedBufferBits;
-            var bitsBuffer = _bitsBuffer << (64 - usedBufferBits);
+            sbyte usedBufferBits = _usedBufferBits;
+            ulong bitsBuffer = _bitsBuffer << (64 - usedBufferBits);
             if (_higherOrderBitsFirst)
             {
                 while (usedBufferBits > 0)

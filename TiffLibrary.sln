@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiffLibrary", "src\TiffLibr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiffLibrary.ImageSharpAdapter", "src\TiffLibrary.ImageSharpAdapter\TiffLibrary.ImageSharpAdapter.csproj", "{C30B9A3C-9A1F-4A8E-BF26-6A9DC870A904}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7FFF9921-E30D-478F-BF15-3AC049E533DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiffLibrary.Tests", "tests\TiffLibrary.Tests\TiffLibrary.Tests.csproj", "{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +47,18 @@ Global
 		{C30B9A3C-9A1F-4A8E-BF26-6A9DC870A904}.Release|x64.Build.0 = Release|Any CPU
 		{C30B9A3C-9A1F-4A8E-BF26-6A9DC870A904}.Release|x86.ActiveCfg = Release|Any CPU
 		{C30B9A3C-9A1F-4A8E-BF26-6A9DC870A904}.Release|x86.Build.0 = Release|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Debug|x64.Build.0 = Debug|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Debug|x86.Build.0 = Debug|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Release|x64.ActiveCfg = Release|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Release|x64.Build.0 = Release|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Release|x86.ActiveCfg = Release|Any CPU
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +66,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0D6249AC-D364-440F-9F9F-C62DFCF20AC3} = {B4728960-C7EE-4EB3-8AD8-071C7CB693D6}
 		{C30B9A3C-9A1F-4A8E-BF26-6A9DC870A904} = {B4728960-C7EE-4EB3-8AD8-071C7CB693D6}
+		{522B326F-8464-4B5A-9AC0-0330A5EA8EA4} = {7FFF9921-E30D-478F-BF15-3AC049E533DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8A0390E8-E74C-4DD7-9B5E-9E922550F19C}

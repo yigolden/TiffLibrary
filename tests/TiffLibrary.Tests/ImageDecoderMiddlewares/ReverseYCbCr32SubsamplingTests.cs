@@ -279,6 +279,7 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
             input.AsSpan().CopyTo(buffer);
             var context = new TestDecoderContext
             {
+                MemoryPool = MemoryPool<byte>.Shared,
                 UncompressedData = buffer,
                 SourceImageSize = new TiffSize(width, height)
             };

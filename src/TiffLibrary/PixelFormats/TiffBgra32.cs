@@ -53,7 +53,7 @@ namespace TiffLibrary.PixelFormats
         /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
         public bool Equals(TiffBgra32 other)
         {
-            return B == other.B && G == other.B && R == other.R && A == other.A;
+            return B == other.B && G == other.G && R == other.R && A == other.A;
         }
 
         /// <summary>

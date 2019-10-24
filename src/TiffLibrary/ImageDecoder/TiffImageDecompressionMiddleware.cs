@@ -80,20 +80,19 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // allocate the raw data buffer and the uncompressed data buffer
-            byte[] raw = ArrayPool<byte>.Shared.Rent(readCount);
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(uncompressedDataLength);
-            try
-            {
-                int planarUncompressedByteCount = 0;
-                TiffFileContentReader reader = context.ContentReader;
+            using IMemoryOwner<byte> bufferMemory = context.MemoryPool.Rent(uncompressedDataLength);
+            int planarUncompressedByteCount = 0;
+            TiffFileContentReader reader = context.ContentReader;
 
+            using (var rawBuffer = context.MemoryPool.Rent(readCount))
+            {
                 // decompress each plane
                 for (int i = 0; i < planeCount; i++)
                 {
                     TiffStreamRegion region = context.PlanarRegions[i];
 
                     // Read from stream
-                    readCount = await reader.ReadAsync(region.Offset, new ArraySegment<byte>(raw, 0, region.Length)).ConfigureAwait(false);
+                    readCount = await reader.ReadAsync(region.Offset, rawBuffer.Memory.Slice(0, region.Length)).ConfigureAwait(false);
                     if (readCount != region.Length)
                     {
                         throw new InvalidDataException();
@@ -110,26 +109,15 @@ namespace TiffLibrary.ImageDecoder
                         SkippedScanlines = context.SourceReadOffset.Y,
                         RequestedScanlines = context.ReadSize.Height
                     };
-                    _decompressionAlgorithm.Decompress(decompressionContext, raw.AsMemory(0, readCount), buffer.AsMemory(planarUncompressedByteCount, bytesPerScanline * imageHeight));
+                    _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(planarUncompressedByteCount, bytesPerScanline * imageHeight));
                     planarUncompressedByteCount += bytesPerScanline * imageHeight;
                 }
-
-                ArrayPool<byte>.Shared.Return(raw);
-                raw = null;
-
-                // Pass down the data
-                context.UncompressedData = buffer.AsMemory(0, uncompressedDataLength);
-                await next.RunAsync(context).ConfigureAwait(false);
-                context.UncompressedData = default;
             }
-            finally
-            {
-                if (!(raw is null))
-                {
-                    ArrayPool<byte>.Shared.Return(raw);
-                }
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
+
+            // Pass down the data
+            context.UncompressedData = bufferMemory.Memory.Slice(0, uncompressedDataLength);
+            await next.RunAsync(context).ConfigureAwait(false);
+            context.UncompressedData = default;
 
         }
     }

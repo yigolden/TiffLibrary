@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -99,6 +100,7 @@ namespace TiffLibrary.ImageDecoder
 
             var parameters = new TiffImageDecoderParameters()
             {
+                MemoryPool = options.MemoryPool ?? MemoryPool<byte>.Shared,
                 OperationContext = operationContext,
                 ContentSource = contentSource,
                 ImageFileDirectory = ifd,

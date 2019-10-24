@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 
 namespace TiffLibrary.ImageDecoder
 {
@@ -13,6 +14,7 @@ namespace TiffLibrary.ImageDecoder
             _innerContext = innerContext;
         }
 
+        public override MemoryPool<byte> MemoryPool { get => _innerContext.MemoryPool; set => _innerContext.MemoryPool = value; }
         public override TiffOperationContext OperationContext { get => _innerContext.OperationContext; set => _innerContext.OperationContext = value; }
         public override TiffFileContentReader ContentReader { get => _innerContext.ContentReader; set => _innerContext.ContentReader = value; }
         public override TiffValueCollection<TiffStreamRegion> PlanarRegions { get => _innerContext.PlanarRegions; set => _innerContext.PlanarRegions = value; }

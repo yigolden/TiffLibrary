@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 
 namespace TiffLibrary.ImageDecoder
 {
@@ -7,6 +8,11 @@ namespace TiffLibrary.ImageDecoder
     /// </summary>
     public abstract class TiffImageDecoderContext
     {
+        /// <summary>
+        /// The memory pool to use when allocating large chunk of memory.
+        /// </summary>
+        public abstract MemoryPool<byte> MemoryPool { get; set; }
+
         /// <summary>
         /// Parameters of how the TIFF file should be parsed.
         /// </summary>

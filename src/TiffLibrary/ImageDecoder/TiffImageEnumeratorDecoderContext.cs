@@ -2,18 +2,9 @@
 
 namespace TiffLibrary.ImageDecoder
 {
-    internal sealed class TiffImageEnumeratorDecoderContext : TiffImageDecoderContext
+    internal sealed class TiffImageEnumeratorDecoderContext : TiffDelegatingImageDecoderContext
     {
-        private readonly TiffImageDecoderContext _innerContext;
-
-        public TiffImageEnumeratorDecoderContext(TiffImageDecoderContext innerContext)
-        {
-            _innerContext = innerContext;
-        }
-
-        public override TiffOperationContext OperationContext { get => _innerContext.OperationContext; set => _innerContext.OperationContext = value; }
-        public override TiffFileContentReader ContentReader { get => _innerContext.ContentReader; set => _innerContext.ContentReader = value; }
-        public override Memory<byte> UncompressedData { get => _innerContext.UncompressedData; set => _innerContext.UncompressedData = value; }
+        public TiffImageEnumeratorDecoderContext(TiffImageDecoderContext innerContext) : base(innerContext) { }
 
         public override TiffValueCollection<TiffStreamRegion> PlanarRegions { get; set; }
         public override TiffSize SourceImageSize { get; set; }
@@ -35,7 +26,7 @@ namespace TiffLibrary.ImageDecoder
 
         public override TiffPixelBufferWriter<TPixel> GetWriter<TPixel>()
         {
-            return _innerContext.GetWriter<TPixel>().Crop(CropOffset, ReadSize);
+            return InnerContext.GetWriter<TPixel>().Crop(CropOffset, ReadSize);
         }
 
     }

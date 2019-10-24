@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelConverter;
 
@@ -10,6 +11,11 @@ namespace TiffLibrary.ImageDecoder
     /// <typeparam name="TDestinationPixel">The pixel type of the destination writer.</typeparam>
     public class TiffDefaultImageDecoderContext<TDestinationPixel> : TiffImageDecoderContext where TDestinationPixel : unmanaged
     {
+        /// <summary>
+        /// The memory pool to use when allocating large chunk of memory.
+        /// </summary>
+        public override MemoryPool<byte> MemoryPool { get; set; }
+
         /// <summary>
         /// Parameters of how the TIFF file should be parsed.
         /// </summary>

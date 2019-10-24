@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Threading.Tasks;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelConverter;
@@ -83,6 +84,7 @@ namespace TiffLibrary.ImageDecoder
             {
                 var context = new TiffDefaultImageDecoderContext<TPixel>()
                 {
+                    MemoryPool = _parameters.MemoryPool ?? MemoryPool<byte>.Shared,
                     OperationContext = _parameters.OperationContext,
                     ContentReader = reader,
                     SourceImageSize = _parameters.ImageSize,

@@ -1,4 +1,5 @@
-﻿using TiffLibrary.PixelConverter;
+﻿using System.Buffers;
+using TiffLibrary.PixelConverter;
 
 namespace TiffLibrary
 {
@@ -8,6 +9,11 @@ namespace TiffLibrary
     public class TiffImageDecoderOptions
     {
         internal static TiffImageDecoderOptions Default { get; } = new TiffImageDecoderOptions();
+
+        /// <summary>
+        /// The memory pool to use when allocating large chunk of memory.
+        /// </summary>
+        public MemoryPool<byte> MemoryPool { get; set; }
 
         /// <summary>
         /// An <see cref="ITiffPixelConverterFactory"/> instance used to create pixel converters to convert pixels in one color space to another.

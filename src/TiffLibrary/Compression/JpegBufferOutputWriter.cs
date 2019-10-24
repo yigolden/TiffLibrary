@@ -14,10 +14,6 @@ namespace TiffLibrary.Compression
         private int _componentCount;
         private Memory<byte> _output;
 
-        public JpegBufferOutputWriter()
-        {
-        }
-
         public void Update(int width, int skippedScanlines, int height, int componentsCount, Memory<byte> output)
         {
             if (output.Length < (width * height * componentsCount))

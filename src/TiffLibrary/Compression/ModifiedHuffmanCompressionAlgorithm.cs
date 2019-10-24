@@ -90,11 +90,7 @@ namespace TiffLibrary.Compression
 
                     if (tableEntry.IsEol)
                     {
-                        // TODO: is EOL code even used in modified huffman algorithm?
-                        // fill the rest of scanline
-                        //scanline.Fill(fillValue);
-                        //bitReader.Advance(tableEntry.BitsRequired);
-                        //break;
+                        // EOL code is not used in modified huffman algorithm
                         throw new InvalidDataException();
                     }
 

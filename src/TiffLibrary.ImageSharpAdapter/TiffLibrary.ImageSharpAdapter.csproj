@@ -4,7 +4,8 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;netstandard2.0;netcoreapp2.1;netstandard2.1</TargetFrameworks>
     <SignAssembly>false</SignAssembly> <!-- ImageSharp is not strong-name signed. -->
-    <NoWarn>$(NoWarn);CA2000;CA2213</NoWarn>
+    <NoWarn>$(NoWarn);CA1001;CA2000;CA2213</NoWarn>
+    <!-- CA1001: Types that own disposable fields should be disposable -->
     <!-- CA2000: Dispose objects before losing scope -->
     <!-- CA2213: Disposable fields should be disposed -->
   </PropertyGroup>

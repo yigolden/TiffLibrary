@@ -11,6 +11,11 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream) where TPixel : struct, IPixel<TPixel>
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             var decoder = new TiffDecoderCore(configuration, this);
             return decoder.Decode<TPixel>(stream);
         }
@@ -20,6 +25,11 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public IImageInfo Identify(Configuration configuration, Stream stream)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             var decoder = new TiffDecoderCore(configuration, this);
             return decoder.Identify(stream);
         }

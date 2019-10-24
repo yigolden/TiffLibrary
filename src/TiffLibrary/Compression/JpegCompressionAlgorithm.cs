@@ -15,7 +15,7 @@ namespace TiffLibrary.Compression
         private const int MinimumBufferSegmentSize = 16384;
 
         private readonly TiffPhotometricInterpretation _photometricInterpretation;
-        private int _componentCounnt;
+        private int _componentCount;
         private readonly int _quality;
         private readonly bool _useSharedJpegTables;
 
@@ -55,7 +55,7 @@ namespace TiffLibrary.Compression
             switch (_photometricInterpretation)
             {
                 case TiffPhotometricInterpretation.BlackIsZero:
-                    _componentCounnt = 1;
+                    _componentCount = 1;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
@@ -63,7 +63,7 @@ namespace TiffLibrary.Compression
                     encoder.AddComponent(0, 0, 0, 1, 1); // Y component
                     break;
                 case TiffPhotometricInterpretation.RGB:
-                    _componentCounnt = 3;
+                    _componentCount = 3;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
@@ -73,7 +73,7 @@ namespace TiffLibrary.Compression
                     encoder.AddComponent(0, 0, 0, 1, 1); // B component
                     break;
                 case TiffPhotometricInterpretation.Seperated:
-                    _componentCounnt = 4;
+                    _componentCount = 4;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
@@ -84,7 +84,7 @@ namespace TiffLibrary.Compression
                     encoder.AddComponent(0, 0, 0, 1, 1); // K component
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
-                    _componentCounnt = 3;
+                    _componentCount = 3;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetChrominanceTable(JpegElementPrecision.Precision8Bit, 1), _quality));
@@ -104,7 +104,7 @@ namespace TiffLibrary.Compression
 
         private void CheckBitsPerSample(TiffValueCollection<ushort> bitsPerSample)
         {
-            if (bitsPerSample.Count != _componentCounnt)
+            if (bitsPerSample.Count != _componentCount)
             {
                 throw new InvalidOperationException();
             }
@@ -149,7 +149,7 @@ namespace TiffLibrary.Compression
             encoder.SetInputReader(inputReader);
 
             // Update InputReader
-            inputReader.Update(context.ImageSize.Width, context.ImageSize.Height, _componentCounnt, input);
+            inputReader.Update(context.ImageSize.Width, context.ImageSize.Height, _componentCount, input);
 
             // Output
             encoder.SetOutput(outputWriter);

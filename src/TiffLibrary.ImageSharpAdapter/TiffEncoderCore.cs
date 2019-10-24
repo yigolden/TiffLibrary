@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Buffers;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
@@ -11,11 +12,13 @@ namespace TiffLibrary.ImageSharpAdapter
     {
         private readonly Configuration _configuration;
         private readonly ITiffEncoderOptions _options;
+        private readonly MemoryPool<byte> _memoryPool;
 
         public TiffEncoderCore(Configuration configuration, ITiffEncoderOptions options)
         {
             _configuration = configuration;
             _options = options;
+            _memoryPool = new ImageSharpMemoryPool(configuration.MemoryAllocator);
         }
 
         public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : struct, IPixel<TPixel>
@@ -47,6 +50,7 @@ namespace TiffLibrary.ImageSharpAdapter
             ITiffEncoderOptions options = _options;
 
             var builder = new TiffImageEncoderBuilder();
+            builder.MemoryPool = _memoryPool;
             builder.PhotometricInterpretation = options.PhotometricInterpretation;
             builder.Compression = options.Compression;
             builder.IsTiled = options.IsTiled;

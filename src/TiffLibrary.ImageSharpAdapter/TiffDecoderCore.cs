@@ -16,7 +16,7 @@ namespace TiffLibrary.ImageSharpAdapter
         public TiffDecoderCore(Configuration configuration, ITiffDecoderOptions options)
         {
             _configuration = configuration;
-            _options = new TiffImageDecoderOptions { IgnoreOrientation = options.IgnoreOrientation };
+            _options = new TiffImageDecoderOptions { MemoryPool = new ImageSharpMemoryPool(configuration.MemoryAllocator), IgnoreOrientation = options.IgnoreOrientation };
         }
 
         public IImageInfo Identify(Stream stream)

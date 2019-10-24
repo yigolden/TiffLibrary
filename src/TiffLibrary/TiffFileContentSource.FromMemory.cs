@@ -55,6 +55,14 @@ namespace TiffLibrary
                 return new ValueTask<int>(span.Length);
             }
 
+            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer)
+            {
+                int offset32 = checked((int)offset);
+                ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
+                span = span.Slice(0, Math.Min(buffer.Length, span.Length));
+                span.CopyTo(buffer.Span);
+                return new ValueTask<int>(span.Length);
+            }
         }
     }
 }

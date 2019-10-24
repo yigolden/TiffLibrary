@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -101,6 +103,49 @@ namespace TiffLibrary
                 stream.Seek(offset, SeekOrigin.Begin);
                 return new ValueTask<int>(stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count));
             }
+
+            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer)
+            {
+#if !NO_FAST_SPAN
+                Stream stream = _stream;
+                if (stream is null)
+                {
+                    throw new ObjectDisposedException(nameof(ContentReader));
+                }
+                stream.Seek(offset, SeekOrigin.Begin);
+                return stream.ReadAsync(buffer);
+#else
+                return new ValueTask<int>(ReadFromStreamSlow());
+
+                async Task<int> ReadFromStreamSlow()
+                {
+                    Stream stream = _stream;
+                    if (stream is null)
+                    {
+                        throw new ObjectDisposedException(nameof(ContentReader));
+                    }
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
+                    {
+                        return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count).ConfigureAwait(false);
+                    }
+
+                    // Slow path
+                    byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                    try
+                    {
+                        int count = await stream.ReadAsync(temp, 0, buffer.Length).ConfigureAwait(false);
+                        temp.AsMemory(0, count).CopyTo(buffer);
+                        return count;
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(temp);
+                    }
+                }
+#endif
+            }
+
 
         }
     }

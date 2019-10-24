@@ -627,7 +627,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <param name="buffer">
         /// the input.
         /// </param>
-        public void SetInput(byte[] buffer)
+        public void SetInput(ReadOnlyMemory<byte> buffer)
         {
             SetInput(buffer, 0, buffer.Length);
         }
@@ -651,7 +651,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <exception cref="ArgumentOutOfRangeException">
         /// The index and/or count are wrong.
         /// </exception>
-        public void SetInput(byte[] buffer, int index, int count)
+        public void SetInput(ReadOnlyMemory<byte> buffer, int index, int count)
         {
             input.SetInput(buffer, index, count);
             totalIn += count;

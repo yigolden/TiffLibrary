@@ -129,7 +129,7 @@ namespace ICSharpCode.SharpZipLib.Checksum
         /// <param name = "span">
         /// The chunk of data to add
         /// </param>
-        public void Update(Span<byte> span)
+        public void Update(ReadOnlySpan<byte> span)
         {
             //(By Per Bothner)
             uint s1 = (ushort)checkValue;

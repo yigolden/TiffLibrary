@@ -36,8 +36,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
                 {
                     return -1; // ok
                 }
-                buffer_ |= (uint)((window_[windowStart_++] & 0xff |
-                                 (window_[windowStart_++] & 0xff) << 8) << bitsInBuffer_);
+
+                ReadOnlySpan<byte> windowSpan = window_.Span;
+                buffer_ |= (uint)((windowSpan[windowStart_++] & 0xff |
+                                 (windowSpan[windowStart_++] & 0xff) << 8) << bitsInBuffer_);
                 bitsInBuffer_ += 16;
             }
             return (int)(buffer_ & ((1 << bitCount) - 1));
@@ -213,13 +215,14 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
             {
                 length = avail;
             }
-            Array.Copy(window_, windowStart_, output, offset, length);
+
+            window_.Span.Slice(windowStart_, length).CopyTo(output.AsSpan(offset, length));
             windowStart_ += length;
 
             if (((windowStart_ - windowEnd_) & 1) != 0)
             {
                 // We always want an even number of bytes in input, see peekBits
-                buffer_ = (uint)(window_[windowStart_++] & 0xff);
+                buffer_ = (uint)(window_.Span[windowStart_++] & 0xff);
                 bitsInBuffer_ = 8;
             }
             return count + length;
@@ -241,13 +244,8 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         /// <param name="buffer">data to be input</param>
         /// <param name="offset">offset of first byte of input</param>
         /// <param name="count">number of bytes of input to add.</param>
-        public void SetInput(byte[] buffer, int offset, int count)
+        public void SetInput(ReadOnlyMemory<byte> buffer, int offset, int count)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset), "Cannot be negative");
@@ -263,6 +261,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
                 throw new InvalidOperationException("Old input was not completely processed");
             }
 
+            ReadOnlySpan<byte> bufferSpan = buffer.Span;
             int end = offset + count;
 
             // We want to throw an ArrayIndexOutOfBoundsException early.
@@ -275,7 +274,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
             if ((count & 1) != 0)
             {
                 // We always want an even number of bytes in input, see PeekBits
-                buffer_ |= (uint)((buffer[offset++] & 0xff) << bitsInBuffer_);
+                buffer_ |= (uint)((bufferSpan[offset++] & 0xff) << bitsInBuffer_);
                 bitsInBuffer_ += 8;
             }
 
@@ -286,7 +285,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
         #region Instance Fields
 
-        private byte[] window_;
+        private ReadOnlyMemory<byte> window_;
         private int windowStart_;
         private int windowEnd_;
 

@@ -145,13 +145,8 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <param name="buffer">The buffer containing input data.</param>
         /// <param name="offset">The offset of the first byte of data.</param>
         /// <param name="count">The number of bytes of data to use as input.</param>
-        public void SetInput(byte[] buffer, int offset, int count)
+        public void SetInput(ReadOnlyMemory<byte> buffer, int offset, int count)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -387,9 +382,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     more = inputEnd - inputOff;
                 }
 
-                Array.Copy(inputBuf, inputOff, window, strstart + lookahead, more);
-                adler?.Update(inputBuf.AsSpan(inputOff, more));
-
+                inputBuf.Span.Slice(inputOff, more).CopyTo(window.AsSpan(strstart + lookahead, more));
+                adler?.Update(inputBuf.Span.Slice(inputOff, more));
+                
                 inputOff += more;
                 totalIn += more;
                 lookahead += more;
@@ -954,7 +949,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <summary>
         /// The input data for compression.
         /// </summary>
-        private byte[] inputBuf;
+        private ReadOnlyMemory<byte> inputBuf;
 
         /// <summary>
         /// The total bytes of input read.

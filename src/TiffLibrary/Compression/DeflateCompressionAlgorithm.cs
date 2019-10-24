@@ -74,30 +74,18 @@ namespace TiffLibrary.Compression
 
             var deflater = new Deflater((int)_compressionLevel, noZlibHeaderOrFooter: false);
 
-            if (MemoryMarshal.TryGetArray(input, out ArraySegment<byte> segment))
-            {
-                CompressOnArray(deflater, segment, outputWriter);
-            }
-            else
-            {
-                CompressOnSpan(deflater, input.Span, outputWriter);
-            }
-        }
+            int bytesWritten = deflater.Deflate(outputWriter.GetSpan());
+            outputWriter.Advance(bytesWritten);
 
-        private static void CompressOnArray(Deflater deflater, ArraySegment<byte> source, IBufferWriter<byte> destinationWriter)
-        {
-            int bytesWritten = deflater.Deflate(destinationWriter.GetSpan());
-            destinationWriter.Advance(bytesWritten);
-
-            deflater.SetInput(source.Array, source.Offset, source.Count);
+            deflater.SetInput(input);
 
             while (true)
             {
-                bytesWritten = deflater.Deflate(destinationWriter.GetSpan());
+                bytesWritten = deflater.Deflate(outputWriter.GetSpan());
 
                 if (bytesWritten != 0)
                 {
-                    destinationWriter.Advance(bytesWritten);
+                    outputWriter.Advance(bytesWritten);
                 }
 
                 if (deflater.IsFinished)
@@ -108,51 +96,7 @@ namespace TiffLibrary.Compression
                 if (deflater.IsNeedingInput)
                 {
                     deflater.Finish();
-                    continue;
                 }
-            }
-
-        }
-
-        private static void CompressOnSpan(Deflater deflater, ReadOnlySpan<byte> source, IBufferWriter<byte> destinationWriter)
-        {
-            byte[] buf1 = ArrayPool<byte>.Shared.Rent(8192);
-            try
-            {
-                while (true)
-                {
-                    int bytesWritten = deflater.Deflate(destinationWriter.GetSpan());
-
-                    if (bytesWritten != 0)
-                    {
-                        destinationWriter.Advance(bytesWritten);
-                    }
-
-                    if (deflater.IsFinished)
-                    {
-                        break;
-                    }
-
-                    if (deflater.IsNeedingInput)
-                    {
-                        int bytesToRead = Math.Min(source.Length, 8192);
-
-                        if (bytesToRead == 0)
-                        {
-                            deflater.Finish();
-                            continue;
-                        }
-
-                        source.Slice(0, bytesToRead).CopyTo(buf1);
-                        source = source.Slice(bytesToRead);
-
-                        deflater.SetInput(buf1, 0, bytesToRead);
-                    }
-                }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buf1);
             }
         }
 
@@ -167,18 +111,8 @@ namespace TiffLibrary.Compression
         {
             var inflater = new Inflater(noHeader: false);
 
-            if (MemoryMarshal.TryGetArray(input, out ArraySegment<byte> segment))
-            {
-                DecompressOnArray(inflater, segment, output.Span);
-            }
-            else
-            {
-                DecompressOnSpan(inflater, input.Span, output.Span);
-            }
-        }
+            Span<byte> destination = output.Span;
 
-        private void DecompressOnArray(Inflater inflater, ArraySegment<byte> source, Span<byte> destination)
-        {
             while (!destination.IsEmpty)
             {
                 int bytesWritten = inflater.Inflate(destination);
@@ -190,13 +124,13 @@ namespace TiffLibrary.Compression
 
                 if (inflater.IsNeedingInput)
                 {
-                    if (source.Count == 0)
+                    if (input.IsEmpty)
                     {
                         throw new InvalidDataException();
                     }
 
-                    inflater.SetInput(source.Array, source.Offset, source.Count);
-                    source = default;
+                    inflater.SetInput(input);
+                    input = default;
                 }
                 else if (bytesWritten == 0)
                 {
@@ -204,48 +138,6 @@ namespace TiffLibrary.Compression
                 }
 
                 destination = destination.Slice(bytesWritten);
-            }
-        }
-
-        private void DecompressOnSpan(Inflater inflater, ReadOnlySpan<byte> source, Span<byte> destination)
-        {
-            byte[] buf1 = ArrayPool<byte>.Shared.Rent(8192);
-            try
-            {
-                while (!destination.IsEmpty)
-                {
-                    int bytesWritten = inflater.Inflate(destination);
-
-                    if (inflater.IsFinished)
-                    {
-                        break;
-                    }
-
-                    if (inflater.IsNeedingInput)
-                    {
-                        int bytesToRead = Math.Min(source.Length, 8192);
-
-                        if (bytesToRead == 0)
-                        {
-                            throw new InvalidDataException();
-                        }
-
-                        source.Slice(0, bytesToRead).CopyTo(buf1);
-                        source = source.Slice(bytesToRead);
-
-                        inflater.SetInput(buf1, 0, bytesToRead);
-                    }
-                    else if (bytesWritten == 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-
-                    destination = destination.Slice(bytesWritten);
-                }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buf1);
             }
         }
 

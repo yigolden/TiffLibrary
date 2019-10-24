@@ -305,7 +305,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <exception cref="InvalidOperationException">
         /// if the buffer was finished() or ended().
         /// </exception>
-        public void SetInput(byte[] input)
+        public void SetInput(ReadOnlyMemory<byte> input)
         {
             SetInput(input, 0, input.Length);
         }
@@ -328,7 +328,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <exception cref="InvalidOperationException">
         /// if the buffer was Finish()ed or if previous input is still pending.
         /// </exception>
-        public void SetInput(byte[] input, int offset, int count)
+        public void SetInput(ReadOnlyMemory<byte> input, int offset, int count)
         {
             if ((state & IS_FINISHING) != 0)
             {

@@ -69,8 +69,8 @@ namespace TiffLibrary
                 if (!(_stream is null) && !_leaveOpen)
                 {
                     _stream.Dispose();
+                    _stream = null;
                 }
-                _stream = null;
                 return default;
             }
 #else
@@ -79,8 +79,8 @@ namespace TiffLibrary
                 if (!(_stream is null) && !_leaveOpen)
                 {
                     await _stream.DisposeAsync().ConfigureAwait(false);
-                }
                 _stream = null;
+                }
             }
 #endif
 
@@ -89,8 +89,8 @@ namespace TiffLibrary
                 if (disposing && !(_stream is null) && !_leaveOpen)
                 {
                     _stream.Dispose();
+                    _stream = null;
                 }
-                _stream = null;
             }
 
             public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)

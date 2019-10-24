@@ -38,7 +38,7 @@ MyGet: [![MyGet](https://img.shields.io/myget/yigolden/v/TiffLibrary.svg)](https
 
 
 ```
-dotnet add package TiffLibrary --version <VERSION> --source https://www.myget.org/F/yigolden/api/v3/index.json 
+dotnet add package TiffLibrary --version <VERSION> --source https://www.myget.org/F/yigolden/api/v3/index.json
 ```
 
 Add the following using statement to your source files.
@@ -220,6 +220,30 @@ Still, if you only want TiffLibrary to call synchronous APIs when reading from y
 ## Adapter for SixLabors.ImageSharp
 
 A work-in-progress project to add TIFF decoding and encoding supports into SixLabors.ImageSharp library.
+
+Add the following code to the start up process of your application (eg. Main method) to add TIFF support to SixLabors.ImageSharp.
+``` csharp
+SixLabors.ImageSharp.Configuration.Default.Configure(new TiffLibrary.ImageSharpAdapter.TiffConfigurationModule());
+```
+
+Now you should be able to decode or encode TIFF files using ImageSharp APIs.
+
+``` csharp
+using (Image<Rgba32> image = Image.Load<Rgba32>(@"C:\Data\test.tif"))
+{
+    image.Save(@"C:\Data\test2.tif");
+    // Or
+    image.Save(@"C:\Data\test2.tif", new TiffEncoder
+    {
+        PhotometricInterpretation = TiffPhotometricInterpretation.RGB,
+        EnableTransparencyForRgb = true,
+        IsTiled = true,
+        TileSize = new Size(256, 256),
+        Compression = TiffCompression.Deflate,
+        ApplyPredictor = TiffPredictor.HorizontalDifferencing
+    });
+}
+```
 
 ## Advanced Topics (TODO)
 

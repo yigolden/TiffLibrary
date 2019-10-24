@@ -2,6 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Title>TiffLibrary</Title>
+    <Description>A .NET library for decoding and encoding TIFF files.</Description>
     <TargetFrameworks>net46;net472;netstandard1.3;netstandard2.0;netcoreapp2.1;netstandard2.1;netcoreapp3.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CA1028;CA1051;CA1303;CA1716;CA1720;CA2000;CA2119;CA2213</NoWarn>
     <!-- CA1028: Enum storage should be Int32 -->

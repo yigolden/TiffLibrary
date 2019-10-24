@@ -1,5 +1,4 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Threading.Tasks;
 using TiffLibrary.PixelFormats;
 using TiffLibrary.PixelFormats.Converters;
@@ -12,11 +11,10 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
         {
             TiffSize imageSize = context.ImageSize;
             int arraySize = imageSize.Width * imageSize.Height;
-            byte[] pixelData = ArrayPool<byte>.Shared.Rent(arraySize);
-            try
+            using (IMemoryOwner<byte> pixelData = context.MemoryPool.Rent(arraySize))
             {
-                using (var white8Writer = new TiffArrayPixelBufferWriter<TiffGray8Reversed>(pixelData, imageSize.Width, imageSize.Height))
-                using (var gray8Writer = new TiffGray8ToGray8ReversedPixelConverter(white8Writer))
+                using (var writer = new TiffMemoryPixelBufferWriter<TiffGray8Reversed>(context.MemoryPool, pixelData.Memory, imageSize.Width, imageSize.Height))
+                using (var gray8Writer = new TiffGray8ToGray8ReversedPixelConverter(writer))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(gray8Writer.AsPixelBufferWriter()))
                 {
                     await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
@@ -24,14 +22,11 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.WhiteIsZero;
                 context.BitsPerSample = new TiffValueCollection<ushort>(8);
-                context.UncompressedData = pixelData.AsMemory(0, arraySize);
+                context.UncompressedData = pixelData.Memory.Slice(0, arraySize);
 
                 await next.RunAsync(context).ConfigureAwait(false);
-            }
-            finally
-            {
+
                 context.UncompressedData = default;
-                ArrayPool<byte>.Shared.Return(pixelData);
             }
 
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;

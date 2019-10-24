@@ -1,5 +1,4 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Threading.Tasks;
 using TiffLibrary.PixelFormats;
 
@@ -13,10 +12,9 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
         {
             TiffSize imageSize = context.ImageSize;
             int arraySize = 4 * imageSize.Width * imageSize.Height;
-            byte[] pixelData = ArrayPool<byte>.Shared.Rent(arraySize);
-            try
+            using (IMemoryOwner<byte> pixelData = context.MemoryPool.Rent(arraySize))
             {
-                using (var writer = new TiffArrayPixelBufferWriter<TiffCmyk32>(pixelData, imageSize.Width, imageSize.Height))
+                using (var writer = new TiffMemoryPixelBufferWriter<TiffCmyk32>(context.MemoryPool, pixelData.Memory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
                     await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
@@ -24,14 +22,11 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.Seperated;
                 context.BitsPerSample = new TiffValueCollection<ushort>(s_bitsPerSample);
-                context.UncompressedData = pixelData.AsMemory(0, arraySize);
+                context.UncompressedData = pixelData.Memory.Slice(0, arraySize);
 
                 await next.RunAsync(context).ConfigureAwait(false);
-            }
-            finally
-            {
+
                 context.UncompressedData = default;
-                ArrayPool<byte>.Shared.Return(pixelData);
             }
 
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;

@@ -28,28 +28,26 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
         {
             TiffSize imageSize = context.ImageSize;
             int arraySize = 3 * imageSize.Width * imageSize.Height;
-            byte[] pixelData = ArrayPool<byte>.Shared.Rent(arraySize);
-            try
+            using (IMemoryOwner<byte> pixelData = context.MemoryPool.Rent(arraySize))
             {
-                using (var writer = new TiffArrayPixelBufferWriter<TiffRgb24>(pixelData, imageSize.Width, imageSize.Height))
+                Memory<byte> pixelDataMemory = pixelData.Memory;
+                using (var writer = new TiffMemoryPixelBufferWriter<TiffRgb24>(context.MemoryPool, pixelDataMemory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
                     await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
                 }
 
-                JpegRgbToYCbCrConverter.Shared.ConvertRgb24ToYCbCr8(pixelData, pixelData, imageSize.Width * imageSize.Height);
+                JpegRgbToYCbCrConverter.Shared.ConvertRgb24ToYCbCr8(pixelDataMemory.Span, pixelDataMemory.Span, imageSize.Width * imageSize.Height);
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.YCbCr;
                 context.BitsPerSample = new TiffValueCollection<ushort>(s_bitsPerSample);
-                context.UncompressedData = pixelData.AsMemory(0, arraySize);
+                context.UncompressedData = pixelDataMemory.Slice(0, arraySize);
 
                 await next.RunAsync(context).ConfigureAwait(false);
-            }
-            finally
-            {
+
                 context.UncompressedData = default;
-                ArrayPool<byte>.Shared.Return(pixelData);
             }
+
 
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelConverter;
 
@@ -10,6 +11,11 @@ namespace TiffLibrary.ImageEncoder
     /// <typeparam name="TPixel">The pixel type.</typeparam>
     public class TiffDefaultImageEncoderContext<TPixel> : TiffImageEncoderContext<TPixel> where TPixel : unmanaged
     {
+        /// <summary>
+        /// The memory pool to use when allocating large chunk of memory.
+        /// </summary>
+        public override MemoryPool<byte> MemoryPool { get; set; }
+
         /// <summary>
         /// The <see cref="TiffFileWriter"/> to write image data as well as fields data to.
         /// </summary>

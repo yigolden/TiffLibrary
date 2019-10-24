@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using TiffLibrary.Compression;
 using TiffLibrary.ImageEncoder;
 using TiffLibrary.ImageEncoder.PhotometricEncoder;
@@ -10,6 +11,11 @@ namespace TiffLibrary
     /// </summary>
     public sealed class TiffImageEncoderBuilder
     {
+        /// <summary>
+        /// The memory pool to use when allocating large chunk of memory.
+        /// </summary>
+        public MemoryPool<byte> MemoryPool { get; set; }
+
         /// <summary>
         /// Gets or sets the photometric interpretation to use for the input image.
         /// </summary>
@@ -150,7 +156,7 @@ namespace TiffLibrary
                 ifdEncoder = PrependOrientationMiddleware(ifdEncoder);
             }
 
-            return new TiffImageEncoderPipelineAdapter<TPixel>(imageEncoder, ifdEncoder);
+            return new TiffImageEncoderPipelineAdapter<TPixel>(MemoryPool, imageEncoder, ifdEncoder);
         }
 
         private ITiffImageEncoderPipelineNode<TPixel> PrependOrientationMiddleware<TPixel>(ITiffImageEncoderPipelineNode<TPixel> node) where TPixel : unmanaged

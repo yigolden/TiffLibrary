@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -15,7 +14,8 @@ namespace TiffLibrary
         /// <param name="offset">The offset in the file.</param>
         /// <param name="buffer">The buffer to hold bytes.</param>
         /// <returns>The count of bytes read from file.</returns>
-        public abstract ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer);
+        public virtual ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
+            => ReadAsync(offset, buffer.AsMemory());
 
         /// <summary>
         /// Read bytes from TIFF file source.

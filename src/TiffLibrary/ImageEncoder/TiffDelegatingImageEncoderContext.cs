@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 
 namespace TiffLibrary.ImageEncoder
 {
@@ -18,6 +19,8 @@ namespace TiffLibrary.ImageEncoder
             _innerContext = innerContext;
         }
 
+
+        public override MemoryPool<byte> MemoryPool { get => _innerContext.MemoryPool; set => _innerContext.MemoryPool = value; }
         public override TiffFileWriter FileWriter { get => _innerContext.FileWriter; set => _innerContext.FileWriter = value; }
         public override TiffImageFileDirectoryWriter IfdWriter { get => _innerContext.IfdWriter; set => _innerContext.IfdWriter = value; }
         public override TiffPhotometricInterpretation PhotometricInterpretation { get => _innerContext.PhotometricInterpretation; set => _innerContext.PhotometricInterpretation = value; }

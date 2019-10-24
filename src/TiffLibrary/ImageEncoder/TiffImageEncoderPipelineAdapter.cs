@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Threading.Tasks;
 using TiffLibrary.PixelConverter;
 
@@ -10,16 +11,19 @@ namespace TiffLibrary.ImageEncoder
     /// <typeparam name="TPixel">The pixel type.</typeparam>
     public sealed class TiffImageEncoderPipelineAdapter<TPixel> : TiffImageEncoder<TPixel> where TPixel : unmanaged
     {
+        private readonly MemoryPool<byte> _memoryPool;
         private readonly ITiffImageEncoderPipelineNode<TPixel> _imageEncoder;
         private readonly ITiffImageEncoderPipelineNode<TPixel> _ifdEncoder;
 
         /// <summary>
         /// Initialize the adapter with the specified pipelines.
         /// </summary>
+        /// <param name="memoryPool">The memory pool to use when allocating large chunk of memory.</param>
         /// <param name="imageEncoder">The pipeline to use for encoding a single image.</param>
         /// <param name="ifdEncoder">The pipeline to use for encoding an IFD.</param>
-        public TiffImageEncoderPipelineAdapter(ITiffImageEncoderPipelineNode<TPixel> imageEncoder, ITiffImageEncoderPipelineNode<TPixel> ifdEncoder)
+        public TiffImageEncoderPipelineAdapter(MemoryPool<byte> memoryPool, ITiffImageEncoderPipelineNode<TPixel> imageEncoder, ITiffImageEncoderPipelineNode<TPixel> ifdEncoder)
         {
+            _memoryPool = memoryPool;
             _imageEncoder = imageEncoder;
             _ifdEncoder = ifdEncoder;
         }
@@ -58,6 +62,7 @@ namespace TiffLibrary.ImageEncoder
 
             var context = new TiffDefaultImageEncoderContext<TPixel>
             {
+                MemoryPool = _memoryPool ?? MemoryPool<byte>.Shared,
                 FileWriter = writer,
                 ImageSize = size,
                 PixelConverterFactory = TiffDefaultPixelConverterFactory.Instance,
@@ -103,6 +108,7 @@ namespace TiffLibrary.ImageEncoder
 
             var context = new TiffDefaultImageEncoderContext<TPixel>
             {
+                MemoryPool = _memoryPool ?? MemoryPool<byte>.Shared,
                 FileWriter = writer.FileWriter,
                 IfdWriter = writer,
                 ImageSize = size,

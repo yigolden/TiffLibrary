@@ -8,23 +8,25 @@ namespace TiffLibrary
     {
         private sealed class BufferSegment : ReadOnlySequenceSegment<byte>
         {
-            private byte[] _array;
+            private IMemoryOwner<byte> _memoryOwner;
+            private Memory<byte> _memory;
             private BufferSegment _next;
             private int _consumed;
 
             public int Length => _consumed;
 
-            public int AvailableLength => _array.Length - _consumed;
+            public int AvailableLength => _memory.Length - _consumed;
 
-            public Memory<byte> AvailableMemory => _array.AsMemory(_consumed);
+            public Memory<byte> AvailableMemory => _memory.Slice(_consumed);
 
-            public Span<byte> AvailableSpan => _array.AsSpan(_consumed);
+            public Span<byte> AvailableSpan => _memory.Span.Slice(_consumed);
 
             public BufferSegment NextSegment => _next;
 
-            public BufferSegment(long runningIndex, int sizeHint)
+            public BufferSegment(long runningIndex, IMemoryOwner<byte> memoryOwner)
             {
-                _array = ArrayPool<byte>.Shared.Rent(Math.Max(sizeHint, 16384));
+                _memoryOwner = memoryOwner;
+                _memory = memoryOwner.Memory;
                 _consumed = 0;
 
                 Memory = default;
@@ -36,7 +38,7 @@ namespace TiffLibrary
                 Debug.Assert(count <= AvailableLength);
 
                 _consumed += count;
-                Memory = _array.AsMemory(0, _consumed);
+                Memory = _memory.Slice(0, _consumed);
             }
 
             public void SetNext(BufferSegment segment)
@@ -48,16 +50,16 @@ namespace TiffLibrary
 
             public void CopyTo(Span<byte> destination)
             {
-                _array.AsSpan(0, _consumed).CopyTo(destination);
+                _memory.Span.Slice(0, _consumed).CopyTo(destination);
             }
 
-            public BufferSegment ReturnArray()
+            public BufferSegment ReturnMemory()
             {
                 BufferSegment next = _next;
 
-                ArrayPool<byte>.Shared.Return(_array);
-
-                _array = null;
+                _memoryOwner.Dispose();
+                _memoryOwner = null;
+                _memory = default;
                 _next = null;
 
                 Memory = default;
@@ -67,25 +69,31 @@ namespace TiffLibrary
             }
         }
 
+        private MemoryPool<byte> _memoryPool;
         private BufferSegment _head;
         private BufferSegment _current;
         private int _length;
 
         public int Length => _length;
 
+        public ArrayPoolBufferWriter(MemoryPool<byte> memoryPool = null)
+        {
+            _memoryPool = memoryPool ?? MemoryPool<byte>.Shared;
+        }
+
         private BufferSegment GetBufferSegment(int sizeHint)
         {
             BufferSegment current = _current;
             if (current is null)
             {
-                _head = _current = current = new BufferSegment(0, sizeHint);
+                _head = _current = current = new BufferSegment(0, _memoryPool.Rent(Math.Max(sizeHint, 16384)));
             }
             if (sizeHint < current.AvailableLength)
             {
                 return current;
             }
 
-            current = new BufferSegment(_length, sizeHint);
+            current = new BufferSegment(_length, _memoryPool.Rent(Math.Max(sizeHint, 16384)));
             _current.SetNext(current);
             _current = current;
 
@@ -167,7 +175,7 @@ namespace TiffLibrary
             BufferSegment segment = _head;
             while (segment != null)
             {
-                segment = segment.ReturnArray();
+                segment = segment.ReturnMemory();
             }
             _head = _current = null;
             _length = 0;

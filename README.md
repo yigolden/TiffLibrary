@@ -219,7 +219,7 @@ Still, if you only want TiffLibrary to call synchronous APIs when reading from y
 
 ## Adapter for SixLabors.ImageSharp
 
-A work-in-progress project to add TIFF decoding and encoding supports into SixLabors.ImageSharp library.
+A work-in-progress project to add TIFF decoding and encoding supports into [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) library.
 
 Add the following code to the start up process of your application (eg. Main method) to add TIFF support to SixLabors.ImageSharp.
 ``` csharp

@@ -12,6 +12,6 @@ namespace TiffLibrary.ImageDecoder
         /// </summary>
         /// <param name="context">Information of the current decoding process.</param>
         /// <returns>A <see cref="Task"/> that completes when this middlware completes running.</returns>
-        Task RunAsync(TiffImageDecoderContext context);
+        ValueTask RunAsync(TiffImageDecoderContext context);
     }
 }

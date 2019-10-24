@@ -14,7 +14,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             _threshold = threshold;
         }
 
-        public async Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             TiffSize imageSize = context.ImageSize;
             byte[] pixelData = ArrayPool<byte>.Shared.Rent(imageSize.Width * imageSize.Height);

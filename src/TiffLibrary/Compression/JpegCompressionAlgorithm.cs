@@ -193,7 +193,7 @@ namespace TiffLibrary.Compression
                 _isEnabled = isEnabled;
             }
 
-            public Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+            public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
                 TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
                 if (_isEnabled && !(ifdWriter is null))
@@ -202,7 +202,7 @@ namespace TiffLibrary.Compression
                     {
                         InitializeTables();
                     }
-                    return WriteTablesAndContinueAsync(context, next);
+                    return new ValueTask(WriteTablesAndContinueAsync(context, next));
                 }
 
                 return next.RunAsync(context);

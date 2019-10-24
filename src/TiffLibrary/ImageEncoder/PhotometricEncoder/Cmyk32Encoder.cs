@@ -9,7 +9,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
     {
         private static readonly ushort[] s_bitsPerSample = new ushort[] { 8, 8, 8, 8 };
 
-        public async Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             TiffSize imageSize = context.ImageSize;
             int arraySize = 4 * imageSize.Width * imageSize.Height;

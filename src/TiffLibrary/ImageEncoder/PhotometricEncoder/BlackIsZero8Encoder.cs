@@ -7,7 +7,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 {
     internal class BlackIsZero8Encoder<TPixel> : ITiffImageEncoderMiddleware<TPixel> where TPixel : unmanaged
     {
-        public async Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             TiffSize imageSize = context.ImageSize;
             int arraySize = imageSize.Width * imageSize.Height;

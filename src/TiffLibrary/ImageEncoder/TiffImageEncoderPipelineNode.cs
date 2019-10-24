@@ -12,7 +12,7 @@ namespace TiffLibrary.ImageEncoder
             Middleware = middleware;
         }
 
-        public Task RunAsync(TiffImageEncoderContext<TPixel> context)
+        public ValueTask RunAsync(TiffImageEncoderContext<TPixel> context)
         {
             ITiffImageEncoderMiddleware<TPixel> middleware = Middleware;
             ITiffImageEncoderPipelineNode<TPixel> next = Next;
@@ -31,9 +31,9 @@ namespace TiffLibrary.ImageEncoder
         {
             public static ITiffImageEncoderPipelineNode<TPixel> Instance { get; } = new EmptyImplementation();
 
-            public Task RunAsync(TiffImageEncoderContext<TPixel> context)
+            public ValueTask RunAsync(TiffImageEncoderContext<TPixel> context)
             {
-                return Task.CompletedTask;
+                return default;
             }
         }
 

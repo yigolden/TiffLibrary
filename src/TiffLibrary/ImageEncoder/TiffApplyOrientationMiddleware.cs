@@ -26,7 +26,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">The encoder context.</param>
         /// <param name="next">The next middleware.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been encoded.</returns>
-        public Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             if (context is null)
             {
@@ -46,7 +46,7 @@ namespace TiffLibrary.ImageEncoder
             return WrapContextAndRunAsync(context, next);
         }
 
-        private async Task WrapContextAndRunAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        private async ValueTask WrapContextAndRunAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             await next.RunAsync(new TiffOrientatedImageEncoderContext<TPixel>(context, _orientation)).ConfigureAwait(false);
 

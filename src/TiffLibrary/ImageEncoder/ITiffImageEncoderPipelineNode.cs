@@ -13,6 +13,6 @@ namespace TiffLibrary.ImageEncoder
         /// </summary>
         /// <param name="context">Information of the current encoding process.</param>
         /// <returns>A <see cref="Task"/> that completes when this middlware completes running.</returns>
-        Task RunAsync(TiffImageEncoderContext<TPixel> context);
+        ValueTask RunAsync(TiffImageEncoderContext<TPixel> context);
     }
 }

@@ -24,7 +24,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             new TiffRational(128, 1), new TiffRational(255, 1)
         };
 
-        public async Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             TiffSize imageSize = context.ImageSize;
             int arraySize = 3 * imageSize.Width * imageSize.Height;

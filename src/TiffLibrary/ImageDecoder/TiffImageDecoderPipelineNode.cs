@@ -12,7 +12,7 @@ namespace TiffLibrary.ImageDecoder
             Middleware = middleware;
         }
 
-        public Task RunAsync(TiffImageDecoderContext context)
+        public ValueTask RunAsync(TiffImageDecoderContext context)
         {
             ITiffImageDecoderMiddleware middleware = Middleware;
             ITiffImageDecoderPipelineNode next = Next;
@@ -31,9 +31,9 @@ namespace TiffLibrary.ImageDecoder
         {
             public static ITiffImageDecoderPipelineNode Instance { get; } = new EmptyImplementation();
 
-            public Task RunAsync(TiffImageDecoderContext context)
+            public ValueTask RunAsync(TiffImageDecoderContext context)
             {
-                return Task.CompletedTask;
+                return default;
             }
         }
 

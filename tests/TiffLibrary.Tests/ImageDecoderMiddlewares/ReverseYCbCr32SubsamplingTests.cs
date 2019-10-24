@@ -321,9 +321,9 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
 
         internal class EmptyPipelineNode : ITiffImageDecoderPipelineNode
         {
-            public Task RunAsync(TiffImageDecoderContext context)
+            public ValueTask RunAsync(TiffImageDecoderContext context)
             {
-                return Task.CompletedTask;
+                return default;
             }
         }
     }

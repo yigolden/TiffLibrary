@@ -14,6 +14,6 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">Information of the current encoding process.</param>
         /// <param name="next">The next middleware in the encoder pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when this middlware completes running.</returns>
-        Task InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next);
+        ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next);
     }
 }

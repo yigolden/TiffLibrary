@@ -52,7 +52,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         /// <returns>true if enough bits could be read, otherwise false</returns>
         public bool TryGetBits(int bitCount, ref int output, int outputOffset = 0)
         {
-            var bits = PeekBits(bitCount);
+            int bits = PeekBits(bitCount);
             if (bits < 0)
             {
                 return false;
@@ -69,7 +69,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         /// <returns>true if enough bits could be read, otherwise false</returns>
         public bool TryGetBits(int bitCount, ref byte[] array, int index)
         {
-            var bits = PeekBits(bitCount);
+            int bits = PeekBits(bitCount);
             if (bits < 0)
             {
                 return false;

@@ -62,7 +62,7 @@ namespace TiffLibrary.ImageEncoder
             using (var bufferWriter = new ArrayPoolBufferWriter(context.MemoryPool))
             {
                 _compressionAlgorithm.Compress(compressionContext, context.UncompressedData, bufferWriter);
-                var length = bufferWriter.Length;
+                int length = bufferWriter.Length;
                 TiffStreamOffset offset = await context.FileWriter.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
 
                 context.Compression = _compression;

@@ -139,7 +139,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    byte item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 
@@ -172,7 +172,7 @@ namespace TiffLibrary
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<string> values)
         {
             int estimatedLength = 0;
-            foreach (var value in values)
+            foreach (string value in values)
             {
                 estimatedLength += Encoding.ASCII.GetByteCount(value) + 1;
             }
@@ -182,7 +182,7 @@ namespace TiffLibrary
                 Span<byte> stackBuffer = stackalloc byte[8];
 
                 int bytesWritten = 0;
-                foreach (var value in values)
+                foreach (string value in values)
                 {
                     int writeCount = EncodingASCIIWriteString(value.AsSpan(), stackBuffer.Slice(bytesWritten));
                     stackBuffer[bytesWritten] = 0;
@@ -254,7 +254,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    ushort item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 
@@ -303,7 +303,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    short item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 
@@ -352,7 +352,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    uint item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 
@@ -401,7 +401,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    int item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 
@@ -442,7 +442,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    ulong item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 
@@ -483,7 +483,7 @@ namespace TiffLibrary
                 int i;
                 for (i = 0; i < values.Count; i++)
                 {
-                    var item = values[i];
+                    long item = values[i];
                     MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
                 }
 

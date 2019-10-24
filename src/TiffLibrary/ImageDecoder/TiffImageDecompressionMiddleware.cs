@@ -64,7 +64,7 @@ namespace TiffLibrary.ImageDecoder
             // calculate the uncompressed data buffer length
             int uncompressedDataLength = 0;
             int imageHeight = context.SourceImageSize.Height;
-            foreach (var bytesPerScanline in _bytesPerScanlines)
+            foreach (int bytesPerScanline in _bytesPerScanlines)
             {
                 uncompressedDataLength += bytesPerScanline * imageHeight;
             }
@@ -84,7 +84,7 @@ namespace TiffLibrary.ImageDecoder
             int planarUncompressedByteCount = 0;
             TiffFileContentReader reader = context.ContentReader;
 
-            using (var rawBuffer = context.MemoryPool.Rent(readCount))
+            using (IMemoryOwner<byte> rawBuffer = context.MemoryPool.Rent(readCount))
             {
                 // decompress each plane
                 for (int i = 0; i < planeCount; i++)

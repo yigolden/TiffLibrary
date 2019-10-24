@@ -71,7 +71,7 @@ namespace TiffLibrary
         {
             _entries.Sort(TiffImageFileDirectoryEntryComparer.Instance);
 
-            var buffer = _writer.InternalBuffer;
+            byte[] buffer = _writer.InternalBuffer;
             Stream stream = _writer.InnerStream;
 
             if (_writer.UseBigTiff)

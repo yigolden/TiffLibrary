@@ -56,7 +56,7 @@ namespace TiffLibrary.Tests.PhotometricInterpretations
                 Assert.False(ifdOffset.IsZero);
             }
             ifd = await refTiff.ReadImageFileDirectoryAsync(ifdOffset);
-            var refDecoder = await refTiff.CreateImageDecoderAsync(ifd);
+            TiffImageDecoder refDecoder = await refTiff.CreateImageDecoderAsync(ifd);
 
             // Load test image
             await using TiffFileReader testTiff = await TiffFileReader.OpenAsync(testImage);
@@ -69,7 +69,7 @@ namespace TiffLibrary.Tests.PhotometricInterpretations
                 Assert.False(ifdOffset.IsZero);
             }
             ifd = await testTiff.ReadImageFileDirectoryAsync(ifdOffset);
-            var testDecoder = await testTiff.CreateImageDecoderAsync(ifd);
+            TiffImageDecoder testDecoder = await testTiff.CreateImageDecoderAsync(ifd);
 
             Assert.Equal(refDecoder.Width, testDecoder.Width);
             Assert.Equal(refDecoder.Height, testDecoder.Height);

@@ -109,7 +109,7 @@ namespace TiffLibrary.Compression
                 throw new InvalidOperationException();
             }
             // Currently only 8 bit is supported.
-            foreach (var item in bitsPerSample)
+            foreach (ushort item in bitsPerSample)
             {
                 if (item != 8)
                 {

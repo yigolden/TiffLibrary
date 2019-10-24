@@ -70,7 +70,7 @@ namespace TiffLibrary
             }
 
             stream.Seek(0, SeekOrigin.Begin);
-            var smallBuffer = new byte[SmallBufferSize];
+            byte[] smallBuffer = new byte[SmallBufferSize];
             await stream.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
             return new TiffFileWriter(stream, leaveOpen, useBigTiff, smallBuffer);
         }
@@ -86,7 +86,7 @@ namespace TiffLibrary
             var fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
             try
             {
-                var smallBuffer = new byte[SmallBufferSize];
+                byte[] smallBuffer = new byte[SmallBufferSize];
                 await fs.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
                 return new TiffFileWriter(Interlocked.Exchange(ref fs, null), false, useBigTiff, smallBuffer);
             }
@@ -354,7 +354,7 @@ namespace TiffLibrary
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             int maxByteCount = 0;
-            foreach (var item in values)
+            foreach (string item in values)
             {
                 maxByteCount = Math.Max(maxByteCount, Encoding.ASCII.GetMaxByteCount(item.Length));
             }
@@ -363,7 +363,7 @@ namespace TiffLibrary
             byte[] buffer = ArrayPool<byte>.Shared.Rent(maxByteCount + 1);
             try
             {
-                foreach (var item in values)
+                foreach (string item in values)
                 {
                     int length = Encoding.ASCII.GetBytes(item, 0, item.Length, buffer, 0);
                     buffer[length] = 0;

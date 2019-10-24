@@ -49,7 +49,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                 yield return false;
             while (!input.TryGetBits(4, ref metaCodeCount, 4))
                 yield return false;
-            var dataCodeCount = litLenCodeCount + distanceCodeCount;
+            int dataCodeCount = litLenCodeCount + distanceCodeCount;
 
             if (litLenCodeCount > LITLEN_MAX)
                 throw new Exception(nameof(litLenCodeCount));

@@ -264,8 +264,8 @@ namespace TiffLibrary.ImageDecoder
         private static async Task BuildTiledImageEnumerator(TiffImageDecoderPipelineBuilder builder, TiffTagReader tagReader, int planeCount)
         {
             // Read Tile Size 
-            var tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
-            var tileHeight = await tagReader.ReadTileLengthAsync().ConfigureAwait(false);
+            uint? tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
+            uint? tileHeight = await tagReader.ReadTileLengthAsync().ConfigureAwait(false);
             // TileWidth and TileHeight can not be null because they were checked in TiffFileReader.InternalCreateImageDecoderInstance
             Debug.Assert(tileWidth != null && tileHeight != null);
 

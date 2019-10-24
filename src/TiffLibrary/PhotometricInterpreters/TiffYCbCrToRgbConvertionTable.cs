@@ -106,7 +106,7 @@ namespace TiffLibrary.PhotometricInterpreters
         */
         private void Init(TiffRational[] luma, TiffRational[] referenceBlackWhite)
         {
-            var clampTable = _clampTable;
+            byte[] clampTable = _clampTable;
 
             float referenceBlackWhite0 = referenceBlackWhite[0].ToSingle();
             float referenceBlackWhite1 = referenceBlackWhite[1].ToSingle();
@@ -177,8 +177,8 @@ namespace TiffLibrary.PhotometricInterpreters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TiffRgba32 Convert(byte y, byte cb, byte cr)
         {
-            var clampTable = _clampTable;
-            var yTable = _yTable;
+            byte[] clampTable = _clampTable;
+            int[] yTable = _yTable;
 
             TiffRgba32 pixel;
             pixel.R = clampTable[ClampTableOffset + yTable[y] + _crRTable[cr]];
@@ -191,8 +191,8 @@ namespace TiffLibrary.PhotometricInterpreters
 
         public void Convert(ReadOnlySpan<byte> ycbcr, Span<TiffRgba32> destination, int count)
         {
-            var clampTable = _clampTable;
-            var yTable = _yTable;
+            byte[] clampTable = _clampTable;
+            int[] yTable = _yTable;
 
             ref byte sourceRef = ref MemoryMarshal.GetReference(ycbcr);
             ref TiffRgba32 destinationRef = ref MemoryMarshal.GetReference(destination);

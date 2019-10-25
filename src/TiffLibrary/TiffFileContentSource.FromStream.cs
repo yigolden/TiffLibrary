@@ -15,6 +15,10 @@ namespace TiffLibrary
         public TiffStreamContentSource(Stream stream, bool leaveOpen)
         {
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+            if (!stream.CanSeek)
+            {
+                throw new ArgumentException("Stream must be seekable.", nameof(stream));
+            }
             _reader = new ContentReader(stream, true);
             _leaveOpen = leaveOpen;
         }
@@ -100,6 +104,10 @@ namespace TiffLibrary
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
                 }
+                if (offset > stream.Length)
+                {
+                    return default;
+                }
                 stream.Seek(offset, SeekOrigin.Begin);
                 return new ValueTask<int>(stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count));
             }
@@ -112,6 +120,10 @@ namespace TiffLibrary
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
                 }
+                if (offset > stream.Length)
+                {
+                    return default;
+                }
                 stream.Seek(offset, SeekOrigin.Begin);
                 return stream.ReadAsync(buffer);
 #else
@@ -123,6 +135,10 @@ namespace TiffLibrary
                     if (stream is null)
                     {
                         throw new ObjectDisposedException(nameof(ContentReader));
+                    }
+                    if (offset > stream.Length)
+                    {
+                        return 0;
                     }
                     stream.Seek(offset, SeekOrigin.Begin);
                     if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))

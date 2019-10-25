@@ -48,6 +48,10 @@ namespace TiffLibrary
 
             public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
             {
+                if (offset > _memory.Length)
+                {
+                    return default;
+                }
                 int offset32 = checked((int)offset);
                 ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
                 span = span.Slice(0, Math.Min(buffer.Count, span.Length));
@@ -57,6 +61,10 @@ namespace TiffLibrary
 
             public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer)
             {
+                if (offset > _memory.Length)
+                {
+                    return default;
+                }
                 int offset32 = checked((int)offset);
                 ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
                 span = span.Slice(0, Math.Min(buffer.Length, span.Length));

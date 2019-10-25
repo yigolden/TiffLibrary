@@ -137,13 +137,13 @@ namespace TiffLibrary.Tests
             public DelayedReadMemoryStream(byte[] buffer) : base(buffer) { }
             public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
-                await Task.Delay(200);
+                await Task.Delay(200).ConfigureAwait(false);
                 return await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
             }
             public override async ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
             {
-                await Task.Delay(200);
-                return await base.ReadAsync(destination, cancellationToken);
+                await Task.Delay(200).ConfigureAwait(false);
+                return await base.ReadAsync(destination, cancellationToken).ConfigureAwait(false);
             }
         }
     }

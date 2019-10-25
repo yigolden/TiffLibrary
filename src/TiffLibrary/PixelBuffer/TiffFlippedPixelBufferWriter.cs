@@ -41,7 +41,7 @@ namespace TiffLibrary.PixelBuffer
             {
                 throw new ArgumentOutOfRangeException(nameof(start));
             }
-            if ((uint)(start + length) > (uint)width)
+            if (length < 0 || (uint)(start + length) > (uint)width)
             {
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
@@ -78,7 +78,7 @@ namespace TiffLibrary.PixelBuffer
             {
                 throw new ArgumentOutOfRangeException(nameof(start));
             }
-            if ((uint)(start + length) > (uint)height)
+            if (length < 0 || (uint)(start + length) > (uint)height)
             {
                 throw new ArgumentOutOfRangeException(nameof(length));
             }

@@ -53,7 +53,7 @@ namespace TiffLibrary.Tests
             var rand = new Random(42);
             try
             {
-                var reader = await source.OpenReaderAsync();
+                TiffFileContentReader reader = await source.OpenReaderAsync();
 
                 // Random read within the range of the file.
                 for (int i = 0; i < 100; i++)

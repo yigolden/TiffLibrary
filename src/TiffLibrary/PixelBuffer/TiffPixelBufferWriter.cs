@@ -65,7 +65,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
         public TiffPixelSpanHandle<TPixel> GetRowSpan(int rowIndex)
         {
-            if ((uint)rowIndex > (uint)_size.Height)
+            if ((uint)rowIndex >= (uint)_size.Height)
             {
                 throw new ArgumentOutOfRangeException(nameof(rowIndex));
             }
@@ -86,7 +86,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
         public TiffPixelSpanHandle<TPixel> GetRowSpan(int rowIndex, int start, int length)
         {
-            if ((uint)rowIndex > (uint)_size.Height)
+            if ((uint)rowIndex >= (uint)_size.Height)
             {
                 throw new ArgumentOutOfRangeException(nameof(rowIndex));
             }
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
         public TiffPixelSpanHandle<TPixel> GetColumnSpan(int colIndex, int start, int length)
         {
-            if ((uint)colIndex > (uint)_size.Width)
+            if ((uint)colIndex >= (uint)_size.Width)
             {
                 throw new ArgumentOutOfRangeException(nameof(colIndex));
             }

@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -105,5 +106,45 @@ namespace TiffLibrary.Tests
             }
         }
 
+        [Fact]
+        public async Task ConcurrentAccessOnStreamSourceShouldFail()
+        {
+            var ms = new DelayedReadMemoryStream(new byte[4096]);
+            using (var contentSource = TiffFileContentSource.Create(ms, leaveOpen: true))
+            {
+                var reader = await contentSource.OpenReaderAsync();
+
+                Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount * 2, 4, 32)];
+                
+                // ArraySegment API
+                for (int t = 0; t < tasks.Length; t++)
+                {
+                    tasks[t] = Task.Run(async () => await reader.ReadAsync(0, new ArraySegment<byte>(new byte[4096])));
+                }
+                await Assert.ThrowsAsync<InvalidOperationException>(() => Task.WhenAll(tasks));
+
+                // Memory API
+                for (int t = 0; t < tasks.Length; t++)
+                {
+                    tasks[t] = Task.Run(async () => await reader.ReadAsync(0, new Memory<byte>(new byte[4096])));
+                }
+                await Assert.ThrowsAsync<InvalidOperationException>(() => Task.WhenAll(tasks));
+            }
+        }
+
+        class DelayedReadMemoryStream : MemoryStream
+        {
+            public DelayedReadMemoryStream(byte[] buffer) : base(buffer) { }
+            public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                await Task.Delay(200);
+                return await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+            }
+            public override async ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
+            {
+                await Task.Delay(200);
+                return await base.ReadAsync(destination, cancellationToken);
+            }
+        }
     }
 }

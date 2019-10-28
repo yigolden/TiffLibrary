@@ -247,27 +247,6 @@ using (Image<Rgba32> image = Image.Load<Rgba32>(@"C:\Data\test.tif"))
 
 ## Advanced Topics (TODO)
 
+* [Supported TIFF Features](./Documentation/supported-tiff-features.md)
 * [Working with Pixel Buffer](./Documentation/working-with-pixel-buffer.md)
 * Using TiffImageDecoder
-
-## Supported Photometric Interpretation (for Decoding)
-
-* WhiteIsZero (1 to 16 bits)
-* BlackIsZero (1 to 16 bits)
-* Chunky RGB/RGBA (1 to 16 bits)
-* Planar RGB/RGBA (1 to 16 bits)
-* PaletteColor (1 to 8 bits)
-* Chunky/Planar CMYK (8/16 bits)
-* Chunky/Planar YCbCr (8 bits)
-
-## Supported Compression (for Decoding)
-
-* ModifiedHuffmanCompression (CompressionTag=2)
-* T4 (CompressionTag=3)
-* T6 (CompressionTag=4)
-* LZW (CompressionTag=5)
-* JPEG (CompressionTag=7)
-* Deflate (CompressionTag=8/32946)
-* PackBits (CompressionTag=32773)
-
-Notes about JPEG: Only baseline JPEG is supported. The JPEG compression schema (CompressionTag=6) defined in the TIFF 6.0 specification is also not supported.

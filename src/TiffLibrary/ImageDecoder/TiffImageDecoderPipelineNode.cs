@@ -17,6 +17,8 @@ namespace TiffLibrary.ImageDecoder
             ITiffImageDecoderMiddleware middleware = Middleware;
             ITiffImageDecoderPipelineNode next = Next;
 
+            context.CancellationToken.ThrowIfCancellationRequested();
+
             if (next is null)
             {
                 return middleware.InvokeAsync(context, EmptyImplementation.Instance);

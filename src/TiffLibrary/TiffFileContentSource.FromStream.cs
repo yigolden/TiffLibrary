@@ -100,7 +100,7 @@ namespace TiffLibrary
                 }
             }
 
-            public override async ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
+            public override async ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
             {
                 Stream stream = _stream;
                 if (stream is null)
@@ -118,7 +118,7 @@ namespace TiffLibrary
                 try
                 {
                     stream.Seek(offset, SeekOrigin.Begin);
-                    return await stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count).ConfigureAwait(false);
+                    return await stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -126,7 +126,7 @@ namespace TiffLibrary
                 }
             }
 
-            public override async ValueTask<int> ReadAsync(long offset, Memory<byte> buffer)
+            public override async ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken)
             {
                 Stream stream = _stream;
                 if (stream is null)
@@ -147,19 +147,19 @@ namespace TiffLibrary
 
 #if !NO_FAST_SPAN
                     stream.Seek(offset, SeekOrigin.Begin);
-                    return await stream.ReadAsync(buffer).ConfigureAwait(false);
+                    return await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
 #else
                     stream.Seek(offset, SeekOrigin.Begin);
                     if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
                     {
-                        return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count).ConfigureAwait(false);
+                        return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count, cancellationToken).ConfigureAwait(false);
                     }
 
                     // Slow path
                     byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
                     try
                     {
-                        int count = await stream.ReadAsync(temp, 0, buffer.Length).ConfigureAwait(false);
+                        int count = await stream.ReadAsync(temp, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
                         temp.AsMemory(0, count).CopyTo(buffer);
                         return count;
                     }

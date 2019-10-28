@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageSharpAdapter
@@ -52,7 +53,7 @@ namespace TiffLibrary.ImageSharpAdapter
                 // Noop
             }
 
-            public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
+            public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
             {
                 Stream stream = _stream;
                 if (stream is null)
@@ -60,10 +61,10 @@ namespace TiffLibrary.ImageSharpAdapter
                     throw new ObjectDisposedException(nameof(ContentReader));
                 }
                 stream.Seek(offset, SeekOrigin.Begin);
-                return new ValueTask<int>(stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count));
+                return new ValueTask<int>(stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
             }
 
-            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer)
+            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken)
             {
 #if !NO_FAST_SPAN
                 Stream stream = _stream;
@@ -72,7 +73,7 @@ namespace TiffLibrary.ImageSharpAdapter
                     throw new ObjectDisposedException(nameof(ContentReader));
                 }
                 stream.Seek(offset, SeekOrigin.Begin);
-                return stream.ReadAsync(buffer);
+                return stream.ReadAsync(buffer, cancellationToken);
 #else
                 return new ValueTask<int>(ReadFromStreamSlow());
 
@@ -86,14 +87,14 @@ namespace TiffLibrary.ImageSharpAdapter
                     stream.Seek(offset, SeekOrigin.Begin);
                     if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
                     {
-                        return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count).ConfigureAwait(false);
+                        return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count, cancellationToken).ConfigureAwait(false);
                     }
 
                     // Slow path
                     byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
                     try
                     {
-                        int count = await stream.ReadAsync(temp, 0, buffer.Length).ConfigureAwait(false);
+                        int count = await stream.ReadAsync(temp, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
                         temp.AsMemory(0, count).CopyTo(buffer);
                         return count;
                     }

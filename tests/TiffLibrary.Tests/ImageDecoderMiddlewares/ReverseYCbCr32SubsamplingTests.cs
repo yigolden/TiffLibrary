@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.ImageDecoder;
 using Xunit;
@@ -308,6 +309,7 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
         internal class TestDecoderContext : TiffImageDecoderContext
         {
             public override MemoryPool<byte> MemoryPool { get; set; }
+            public override CancellationToken CancellationToken { get; set; }
             public override TiffOperationContext OperationContext { get; set; }
             public override TiffFileContentReader ContentReader { get; set; }
             public override TiffValueCollection<TiffStreamRegion> PlanarRegions { get; set; }

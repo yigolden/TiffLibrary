@@ -98,6 +98,8 @@ namespace TiffLibrary.ImageDecoder
                 }
                 wrapperContext.PlanarRegions = planarRegions.GetReadOnlyView();
 
+                context.CancellationToken.ThrowIfCancellationRequested();
+
                 // Pass down the data
                 await next.RunAsync(wrapperContext).ConfigureAwait(false);
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -46,7 +47,7 @@ namespace TiffLibrary
                 // Noop
             }
 
-            public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
+            public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
             {
                 if (offset > _memory.Length)
                 {
@@ -59,7 +60,7 @@ namespace TiffLibrary
                 return new ValueTask<int>(span.Length);
             }
 
-            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer)
+            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken)
             {
                 if (offset > _memory.Length)
                 {

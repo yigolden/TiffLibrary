@@ -92,7 +92,7 @@ namespace TiffLibrary.ImageDecoder
                     TiffStreamRegion region = context.PlanarRegions[i];
 
                     // Read from stream
-                    readCount = await reader.ReadAsync(region.Offset, rawBuffer.Memory.Slice(0, region.Length)).ConfigureAwait(false);
+                    readCount = await reader.ReadAsync(region.Offset, rawBuffer.Memory.Slice(0, region.Length), context.CancellationToken).ConfigureAwait(false);
                     if (readCount != region.Length)
                     {
                         throw new InvalidDataException();

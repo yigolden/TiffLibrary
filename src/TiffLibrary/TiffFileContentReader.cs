@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -13,17 +14,19 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="offset">The offset in the file.</param>
         /// <param name="buffer">The buffer to hold bytes.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires when the users has requested to stop the IO process.</param>
         /// <returns>The count of bytes read from file.</returns>
-        public virtual ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
-            => ReadAsync(offset, buffer.AsMemory());
+        public virtual ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken = default)
+            => ReadAsync(offset, buffer.AsMemory(), cancellationToken);
 
         /// <summary>
         /// Read bytes from TIFF file source.
         /// </summary>
         /// <param name="offset">The offset in the file.</param>
         /// <param name="buffer">The buffer to hold bytes.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires when the users has requested to stop the IO process.</param>
         /// <returns>The count of bytes read from file.</returns>
-        public abstract ValueTask<int> ReadAsync(long offset, Memory<byte> buffer);
+        public abstract ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Dispose this instance.

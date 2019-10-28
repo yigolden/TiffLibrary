@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelFormats;
 using Xunit;

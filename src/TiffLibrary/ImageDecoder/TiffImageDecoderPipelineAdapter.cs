@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelConverter;
@@ -65,8 +66,9 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="readSize">Number of columns and rows to read from the source image.</param>
         /// <param name="destinationOffset">Number of columns and rows to skip in the destination writer.</param>
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public override async Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer)
+        public override async Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default)
         {
             if (writer is null)
             {
@@ -85,6 +87,7 @@ namespace TiffLibrary.ImageDecoder
                 var context = new TiffDefaultImageDecoderContext<TPixel>()
                 {
                     MemoryPool = _parameters.MemoryPool ?? MemoryPool<byte>.Shared,
+                    CancellationToken = cancellationToken,
                     OperationContext = _parameters.OperationContext,
                     ContentReader = reader,
                     SourceImageSize = _parameters.ImageSize,

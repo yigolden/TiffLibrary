@@ -89,13 +89,13 @@ namespace TiffLibrary.Tests
                 {
                     // Use Memory API
                     Array.Clear(buffer, 0, count);
-                    readCount = await reader.ReadAsync(fileOffset, new Memory<byte>(buffer, 0, count));
+                    readCount = await reader.ReadAsync(fileOffset, new Memory<byte>(buffer, 0, count), CancellationToken.None);
                     Assert.Equal(expectedCount, readCount);
                     Assert.True(buffer.AsSpan(0, readCount).SequenceEqual(referenceContent.AsSpan(Math.Min(referenceContent.Length, fileOffset), expectedCount)));
 
                     // Use ArraySegment API
                     Array.Clear(buffer, 0, count);
-                    readCount = await reader.ReadAsync(fileOffset, new ArraySegment<byte>(buffer, 0, count));
+                    readCount = await reader.ReadAsync(fileOffset, new ArraySegment<byte>(buffer, 0, count), CancellationToken.None);
                     Assert.Equal(expectedCount, readCount);
                     Assert.True(buffer.AsSpan(0, readCount).SequenceEqual(referenceContent.AsSpan(Math.Min(referenceContent.Length, fileOffset), expectedCount)));
                 }
@@ -119,14 +119,14 @@ namespace TiffLibrary.Tests
                 // ArraySegment API
                 for (int t = 0; t < tasks.Length; t++)
                 {
-                    tasks[t] = Task.Run(async () => await reader.ReadAsync(0, new ArraySegment<byte>(new byte[4096])));
+                    tasks[t] = Task.Run(async () => await reader.ReadAsync(0, new ArraySegment<byte>(new byte[4096]), CancellationToken.None));
                 }
                 await Assert.ThrowsAsync<InvalidOperationException>(() => Task.WhenAll(tasks));
 
                 // Memory API
                 for (int t = 0; t < tasks.Length; t++)
                 {
-                    tasks[t] = Task.Run(async () => await reader.ReadAsync(0, new Memory<byte>(new byte[4096])));
+                    tasks[t] = Task.Run(async () => await reader.ReadAsync(0, new Memory<byte>(new byte[4096]), CancellationToken.None));
                 }
                 await Assert.ThrowsAsync<InvalidOperationException>(() => Task.WhenAll(tasks));
             }

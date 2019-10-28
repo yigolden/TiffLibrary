@@ -29,7 +29,7 @@ steps:
   displayName: Build
   inputs:
     command: build
-    projects: 'src/**/*.csproj'
+    projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
@@ -43,12 +43,12 @@ steps:
   displayName: Collect Artifacts
   inputs:
     sourceFolder: 'src'
-    contents: '**/*.nupkg'
+    contents: '**/bin/*nupkg'
     targetFolder: '$(Build.ArtifactStagingDirectory)'
     flattenFolders: true
 
 - task: PublishBuildArtifacts@1
   displayName: Publish Artifacts
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: 'Packages'

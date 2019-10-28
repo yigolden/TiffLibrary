@@ -43,7 +43,15 @@ steps:
   displayName: Collect Artifacts
   inputs:
     sourceFolder: 'src'
-    contents: '**/bin/*nupkg'
+    contents: '**/*.nupkg'
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
+
+- task: CopyFiles@2
+  displayName: Collect Artifacts 2
+  inputs:
+    sourceFolder: 'src'
+    contents: '**/*.snupkg'
     targetFolder: '$(Build.ArtifactStagingDirectory)'
     flattenFolders: true
 

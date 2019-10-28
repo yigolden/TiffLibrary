@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.PixelBuffer;
 
@@ -16,8 +17,9 @@ namespace TiffLibrary
         /// <param name="encoder">The image encoder.</param>
         /// <param name="writer">The <see cref="TiffFileWriter"/> instance of the output TIFF file.</param>
         /// <param name="reader">The pixel buffer reader object.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
-        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPixelBufferReader<TPixel> reader) where TPixel : unmanaged
+        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
             if (encoder is null)
             {
@@ -32,7 +34,7 @@ namespace TiffLibrary
                 throw new ArgumentException("No image data is provided.", nameof(reader));
             }
             ITiffPixelBufferReader<TPixel> innerReader = TiffPixelBufferUnsafeMarshal.GetBuffer(reader, out TiffPoint offset, out TiffSize size);
-            return encoder.EncodeAsync(writer, offset, size, innerReader);
+            return encoder.EncodeAsync(writer, offset, size, innerReader, cancellationToken);
         }
 
         /// <summary>
@@ -42,8 +44,9 @@ namespace TiffLibrary
         /// <param name="encoder">The image encoder.</param>
         /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
         /// <param name="reader">The pixel buffer reader object.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
-        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPixelBufferReader<TPixel> reader) where TPixel : unmanaged
+        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
             if (encoder is null)
             {
@@ -58,7 +61,7 @@ namespace TiffLibrary
                 throw new ArgumentException("No image data is provided.", nameof(reader));
             }
             ITiffPixelBufferReader<TPixel> innerReader = TiffPixelBufferUnsafeMarshal.GetBuffer(reader, out TiffPoint offset, out TiffSize size);
-            return encoder.EncodeAsync(writer, offset, size, innerReader);
+            return encoder.EncodeAsync(writer, offset, size, innerReader, cancellationToken);
         }
 
         /// <summary>
@@ -68,8 +71,9 @@ namespace TiffLibrary
         /// <param name="encoder">The image encoder.</param>
         /// <param name="writer">The <see cref="TiffFileWriter"/> instance of the output TIFF file.</param>
         /// <param name="buffer">The pixel buffer </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
-        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
+        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
             if (encoder is null)
             {
@@ -85,7 +89,7 @@ namespace TiffLibrary
             }
             ITiffPixelBuffer<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(buffer, out TiffPoint offset, out TiffSize size);
             var reader = new TiffPixelBufferReaderAdapter<TPixel>(innerBuffer);
-            return encoder.EncodeAsync(writer, offset, size, reader);
+            return encoder.EncodeAsync(writer, offset, size, reader, cancellationToken);
         }
 
         /// <summary>
@@ -95,8 +99,9 @@ namespace TiffLibrary
         /// <param name="encoder">The image encoder.</param>
         /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
         /// <param name="buffer">The pixel buffer </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
-        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
+        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
             if (encoder is null)
             {
@@ -112,7 +117,7 @@ namespace TiffLibrary
             }
             ITiffPixelBuffer<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(buffer, out TiffPoint offset, out TiffSize size);
             var reader = new TiffPixelBufferReaderAdapter<TPixel>(innerBuffer);
-            return encoder.EncodeAsync(writer, offset, size, reader);
+            return encoder.EncodeAsync(writer, offset, size, reader, cancellationToken);
         }
 
         /// <summary>
@@ -122,9 +127,10 @@ namespace TiffLibrary
         /// <param name="encoder">The image encoder.</param>
         /// <param name="writer">The <see cref="TiffFileWriter"/> instance of the output TIFF file.</param>
         /// <param name="buffer">The pixel buffer </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
-        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
-            => EncodeAsync(encoder, writer, buffer.AsPixelBuffer());
+        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+            => EncodeAsync(encoder, writer, buffer.AsPixelBuffer(), cancellationToken);
 
         /// <summary>
         /// Encode an image as well as associated IFD fields into TIFF stream.
@@ -133,9 +139,10 @@ namespace TiffLibrary
         /// <param name="encoder">The image encoder.</param>
         /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
         /// <param name="buffer">The pixel buffer </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
-        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
-            => EncodeAsync(encoder, writer, buffer.AsPixelBuffer());
+        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+            => EncodeAsync(encoder, writer, buffer.AsPixelBuffer(), cancellationToken);
 
     }
 }

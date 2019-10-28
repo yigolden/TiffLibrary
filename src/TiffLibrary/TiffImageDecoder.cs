@@ -28,6 +28,6 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public abstract Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken) where TPixel : unmanaged;
+        public abstract Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
     }
 }

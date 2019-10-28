@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 
 namespace TiffLibrary.ImageEncoder
 {
@@ -13,6 +14,11 @@ namespace TiffLibrary.ImageEncoder
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
         public abstract MemoryPool<byte> MemoryPool { get; set; }
+
+        /// <summary>
+        /// The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.
+        /// </summary>
+        public abstract CancellationToken CancellationToken { get; set; }
 
         /// <summary>
         /// The <see cref="TiffFileWriter"/> to write image data as well as fields data to.

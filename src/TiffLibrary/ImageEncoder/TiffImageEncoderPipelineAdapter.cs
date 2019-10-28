@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.PixelConverter;
 
@@ -35,8 +36,9 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="offset">The number of columns and rows to skip in <paramref name="reader"/>.</param>
         /// <param name="size">The number of columns and rows to encode in <paramref name="reader"/>.</param>
         /// <param name="reader">The pixel buffer reader object.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
-        public override async Task<TiffStreamRegion> EncodeAsync(TiffFileWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader)
+        public override async Task<TiffStreamRegion> EncodeAsync(TiffFileWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken)
         {
             if (writer is null)
             {
@@ -63,6 +65,7 @@ namespace TiffLibrary.ImageEncoder
             var context = new TiffDefaultImageEncoderContext<TPixel>
             {
                 MemoryPool = _memoryPool ?? MemoryPool<byte>.Shared,
+                CancellationToken = cancellationToken,
                 FileWriter = writer,
                 ImageSize = size,
                 PixelConverterFactory = TiffDefaultPixelConverterFactory.Instance,
@@ -81,8 +84,9 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="offset">The number of columns and rows to skip in <paramref name="reader"/>.</param>
         /// <param name="size">The number of columns and rows to encode in <paramref name="reader"/>.</param>
         /// <param name="reader">The pixel buffer reader object.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
-        public override async Task EncodeAsync(TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader)
+        public override async Task EncodeAsync(TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken)
         {
             if (writer is null)
             {
@@ -109,6 +113,7 @@ namespace TiffLibrary.ImageEncoder
             var context = new TiffDefaultImageEncoderContext<TPixel>
             {
                 MemoryPool = _memoryPool ?? MemoryPool<byte>.Shared,
+                CancellationToken = cancellationToken,
                 FileWriter = writer.FileWriter,
                 IfdWriter = writer,
                 ImageSize = size,

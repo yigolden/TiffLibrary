@@ -17,6 +17,8 @@ namespace TiffLibrary.ImageEncoder
             ITiffImageEncoderMiddleware<TPixel> middleware = Middleware;
             ITiffImageEncoderPipelineNode<TPixel> next = Next;
 
+            context.CancellationToken.ThrowIfCancellationRequested();
+
             if (next is null)
             {
                 return middleware.InvokeAsync(context, EmptyImplementation.Instance);

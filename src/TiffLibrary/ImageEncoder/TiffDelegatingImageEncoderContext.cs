@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 
 namespace TiffLibrary.ImageEncoder
 {
@@ -21,6 +22,7 @@ namespace TiffLibrary.ImageEncoder
 
 
         public override MemoryPool<byte> MemoryPool { get => _innerContext.MemoryPool; set => _innerContext.MemoryPool = value; }
+        public override CancellationToken CancellationToken { get => _innerContext.CancellationToken; set => _innerContext.CancellationToken = value; }
         public override TiffFileWriter FileWriter { get => _innerContext.FileWriter; set => _innerContext.FileWriter = value; }
         public override TiffImageFileDirectoryWriter IfdWriter { get => _innerContext.IfdWriter; set => _innerContext.IfdWriter = value; }
         public override TiffPhotometricInterpretation PhotometricInterpretation { get => _innerContext.PhotometricInterpretation; set => _innerContext.PhotometricInterpretation = value; }

@@ -227,18 +227,20 @@ namespace TiffLibrary
         /// <summary>
         /// Read the first IFD.
         /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the IFD is read and returns <see cref="TiffImageFileDirectory"/>.</returns>
-        public Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync()
+        public Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync(CancellationToken cancellationToken = default)
         {
-            return ReadImageFileDirectoryAsync(FirstImageFileDirectoryOffset);
+            return ReadImageFileDirectoryAsync(FirstImageFileDirectoryOffset, cancellationToken);
         }
 
         /// <summary>
         /// Read the IFD from the specified offset.
         /// </summary>
         /// <param name="offset">The offset of the IFD.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the IFD is read and returns <see cref="TiffImageFileDirectory"/>.</returns>
-        public async Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync(TiffStreamOffset offset)
+        public async Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync(TiffStreamOffset offset, CancellationToken cancellationToken = default)
         {
             if (offset.IsZero)
             {
@@ -247,7 +249,7 @@ namespace TiffLibrary
             TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                return await ReadImageFileDirectoryAsync(reader, _operationContext, offset.ToInt64()).ConfigureAwait(false);
+                return await ReadImageFileDirectoryAsync(reader, _operationContext, offset.ToInt64(), cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -279,7 +281,7 @@ namespace TiffLibrary
             return BinaryPrimitives.ReadInt64LittleEndian(buffer);
         }
 
-        internal static async Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync(TiffFileContentReader reader, TiffOperationContext context, long offset)
+        internal static async Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync(TiffFileContentReader reader, TiffOperationContext context, long offset, CancellationToken cancellationToken)
         {
             Debug.Assert(offset != 0);
 
@@ -289,7 +291,7 @@ namespace TiffLibrary
             try
             {
                 smallBuffer = ArrayPool<byte>.Shared.Rent(8);
-                await reader.ReadAsync(offset, new ArraySegment<byte>(smallBuffer, 0, 8)).ConfigureAwait(false);
+                await reader.ReadAsync(offset, new ArraySegment<byte>(smallBuffer, 0, 8), cancellationToken).ConfigureAwait(false);
                 count = ParseImageFileDirectoryEntryCount(context, smallBuffer);
             }
             finally
@@ -316,7 +318,7 @@ namespace TiffLibrary
                 int readCount;
                 while (count >= 25)
                 {
-                    readCount = await reader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, entryFieldLength * 25)).ConfigureAwait(false);
+                    readCount = await reader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, entryFieldLength * 25), cancellationToken).ConfigureAwait(false);
                     if (readCount != entryFieldLength * 25)
                     {
                         throw new InvalidDataException();
@@ -336,7 +338,7 @@ namespace TiffLibrary
 
                 // Read remaining entries + the offset.
                 count = (short)(entryFieldLength * count);
-                readCount = await reader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, count + context.ByteCountOfValueOffsetField)).ConfigureAwait(false);
+                readCount = await reader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, count + context.ByteCountOfValueOffsetField), cancellationToken).ConfigureAwait(false);
                 if (readCount != (count + context.ByteCountOfValueOffsetField))
                 {
                     throw new InvalidDataException();

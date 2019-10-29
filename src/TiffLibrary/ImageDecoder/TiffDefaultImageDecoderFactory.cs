@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.Compression;
 using TiffLibrary.PhotometricInterpreters;
@@ -11,7 +12,7 @@ namespace TiffLibrary.ImageDecoder
     internal static class TiffDefaultImageDecoderFactory
     {
 
-        public static Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public static Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             if (!ifd.Contains(TiffTag.PhotometricInterpretation))
             {
@@ -19,16 +20,16 @@ namespace TiffLibrary.ImageDecoder
             }
             if (ifd.Contains(TiffTag.TileWidth) && ifd.Contains(TiffTag.TileLength))
             {
-                return CreateTiledImageDecoderAsync(operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default);
+                return CreateTiledImageDecoderAsync(operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default, cancellationToken);
             }
             if (ifd.Contains(TiffTag.StripOffsets))
             {
-                return CreateStrippedImageDecoderAsync(operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default);
+                return CreateStrippedImageDecoderAsync(operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default, cancellationToken);
             }
             throw new InvalidDataException("This IFD seems not to be a valid image.");
         }
 
-        public static async Task<TiffImageDecoder> CreateStrippedImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public static async Task<TiffImageDecoder> CreateStrippedImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             TiffSize size;
             TiffValueCollection<int> bytesPerScanline;
@@ -38,7 +39,7 @@ namespace TiffLibrary.ImageDecoder
             TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                var fieldReader = new TiffFieldReader(reader, operationContext);
+                var fieldReader = new TiffFieldReader(reader, operationContext, cancellationToken);
                 try
                 {
                     var tagReader = new TiffTagReader(fieldReader, ifd);
@@ -113,7 +114,7 @@ namespace TiffLibrary.ImageDecoder
             return new TiffImageDecoderPipelineAdapter(parameters, builder.Build());
         }
 
-        public static async Task<TiffImageDecoder> CreateTiledImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public static async Task<TiffImageDecoder> CreateTiledImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             TiffSize size;
             TiffValueCollection<int> bytesPerScanline;
@@ -123,7 +124,7 @@ namespace TiffLibrary.ImageDecoder
             TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                var fieldReader = new TiffFieldReader(reader, operationContext);
+                var fieldReader = new TiffFieldReader(reader, operationContext, cancellationToken);
                 try
                 {
                     var tagReader = new TiffTagReader(fieldReader, ifd);

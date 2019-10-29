@@ -57,16 +57,18 @@ namespace TiffLibrary
             int readCount;
             int length = destination.Length;
 
+            _cancellationToken.ThrowIfCancellationRequested();
+
             if (MemoryMarshal.TryGetArray(destination, out ArraySegment<byte> segment))
             {
-                readCount = await _reader.ReadAsync(entry.ValueOffset, segment).ConfigureAwait(false);
+                readCount = await _reader.ReadAsync(entry.ValueOffset, segment, _cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(length);
                 try
                 {
-                    readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, length)).ConfigureAwait(false);
+                    readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, length), _cancellationToken).ConfigureAwait(false);
                     new Span<byte>(buffer, 0, readCount).CopyTo(destination.Span);
                 }
                 finally
@@ -114,9 +116,11 @@ namespace TiffLibrary
 
         private async Task<TiffValueCollection<byte>> SlowReadByteFieldAsync(TiffImageFileDirectoryEntry entry)
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             byte[] buffer = new byte[entry.ValueCount];
 
-            int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, checked((int)entry.ValueCount))).ConfigureAwait(false);
+            int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, checked((int)entry.ValueCount)), _cancellationToken).ConfigureAwait(false);
             if (readCount != entry.ValueCount)
             {
                 throw new InvalidDataException();
@@ -128,11 +132,13 @@ namespace TiffLibrary
         private async Task<TiffValueCollection<TDest>> SlowReadByteFieldAsync<TDest>(TiffImageFileDirectoryEntry entry,
             Func<byte, TDest> convertFunc) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked((int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != entry.ValueCount)
                 {
                     throw new InvalidDataException();
@@ -185,11 +191,13 @@ namespace TiffLibrary
 
         private async Task<TiffValueCollection<sbyte>> SlowReadSByteFieldAsync(TiffImageFileDirectoryEntry entry)
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked((int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != entry.ValueCount)
                 {
                     throw new InvalidDataException();
@@ -236,11 +244,13 @@ namespace TiffLibrary
 
         private async Task<TiffValueCollection<string>> SlowReadASCIIFieldAsync(TiffImageFileDirectoryEntry entry)
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked((int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != entry.ValueCount)
                 {
                     throw new InvalidDataException();
@@ -313,11 +323,13 @@ namespace TiffLibrary
         private async Task<TiffValueCollection<TDest>> SlowReadShortFieldAsync<TDest>(
             TiffImageFileDirectoryEntry entry, Func<short, TDest> convertFunc = null) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked(sizeof(ushort) * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
                     throw new InvalidDataException();
@@ -466,11 +478,13 @@ namespace TiffLibrary
 
         private async Task<TiffValueCollection<TDest>> SlowReadLongFieldAsync<TDest>(TiffImageFileDirectoryEntry entry, Func<int, TDest> convertFunc = null) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked(sizeof(uint) * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
                     throw new InvalidDataException();
@@ -696,11 +710,13 @@ namespace TiffLibrary
 
         private async Task<TiffValueCollection<TDest>> SlowReadLong8FieldAsync<TDest>(TiffImageFileDirectoryEntry entry, Func<long, TDest> convertFunc = null) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked(sizeof(ulong) * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
                     throw new InvalidDataException();
@@ -856,11 +872,13 @@ namespace TiffLibrary
         private async Task<TiffValueCollection<TDest>> SlowReadFloatFieldAsync<TDest>(
             TiffImageFileDirectoryEntry entry, Func<float, TDest> convertFunc = null) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked(sizeof(float) * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
                     throw new InvalidDataException();
@@ -920,11 +938,13 @@ namespace TiffLibrary
         private async Task<TiffValueCollection<TDest>> SlowReadDoubleFieldAsync<TDest>(
             TiffImageFileDirectoryEntry entry, Func<double, TDest> convertFunc = null) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked(sizeof(float) * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
                     throw new InvalidDataException();
@@ -980,11 +1000,13 @@ namespace TiffLibrary
         private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(
             TiffImageFileDirectoryEntry entry, Func<TiffRational, TDest> convertFunc = null) where TDest : struct
         {
+            _cancellationToken.ThrowIfCancellationRequested();
+
             int fieldLength = checked(8 * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {
-                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength)).ConfigureAwait(false);
+                int readCount = await _reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), _cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
                     throw new InvalidDataException();

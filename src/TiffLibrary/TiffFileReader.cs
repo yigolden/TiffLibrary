@@ -367,8 +367,9 @@ namespace TiffLibrary
         /// <summary>
         /// Creates a <see cref="TiffFieldReader"/> to read field values. A new stream will be created from stream source if possible.
         /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that is preserved and used by the <see cref="TiffFieldReader"/> created. Cancel the token will cause the field reader to stop the on-going reading tasks and turns the field reader into an unusable state.</param>
         /// <returns>The field reader.</returns>
-        public async Task<TiffFieldReader> CreateFieldReaderAsync()
+        public async Task<TiffFieldReader> CreateFieldReaderAsync(CancellationToken cancellationToken = default)
         {
             TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
             return new TiffFieldReader(reader, _operationContext);
@@ -382,15 +383,16 @@ namespace TiffLibrary
         /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
         /// </summary>
         /// <param name="ifd">The ifd to decode.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
         /// <returns>An image decoder.</returns>
-        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd)
+        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd, CancellationToken cancellationToken = default)
         {
             if (ifd is null)
             {
                 throw new ArgumentNullException(nameof(ifd));
             }
 
-            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, null);
+            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, null, cancellationToken);
         }
 
 
@@ -399,15 +401,16 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="ifd">The ifd to decode.</param>
         /// <param name="options">The options to use when decoding image.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
         /// <returns>An image decoder.</returns>
-        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken = default)
         {
             if (ifd is null)
             {
                 throw new ArgumentNullException(nameof(ifd));
             }
 
-            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, options);
+            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, options, cancellationToken);
         }
 
         #endregion

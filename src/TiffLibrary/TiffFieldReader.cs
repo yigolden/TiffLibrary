@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -14,11 +15,13 @@ namespace TiffLibrary
     {
         private TiffFileContentReader _reader;
         private TiffOperationContext _context;
+        private CancellationToken _cancellationToken;
 
-        internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context)
+        internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context, CancellationToken cancellationToken = default)
         {
             _reader = reader;
             _context = context;
+            _cancellationToken = default;
         }
 
         /// <summary>
@@ -29,6 +32,7 @@ namespace TiffLibrary
             _context = null;
             _reader?.Dispose();
             _reader = null;
+            _cancellationToken = default;
         }
 
         /// <summary>
@@ -43,6 +47,7 @@ namespace TiffLibrary
                 await _reader.DisposeAsync().ConfigureAwait(false);
                 _reader = null;
             }
+            _cancellationToken = default;
         }
 
         #region Copy values

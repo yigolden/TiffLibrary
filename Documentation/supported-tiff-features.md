@@ -10,7 +10,7 @@ This page lists features of TIFF format supported by TiffLibrary.
 
 ## Pixel Formats
 
-The following pixel formats are supported by the decoder and the encoder. The encoder and the encoder can accept buffers of these types and automatically convert from and to the photometric interpretations used in the TIFF files. These types resides in TiffLibrary.PixelFormats namespace.
+The following pixel formats are supported by the decoder and the encoder. The decoder and the encoder can accept buffers of these types and automatically convert from and to the photometric interpretations used in the TIFF files. These types resides in TiffLibrary.PixelFormats namespace.
 
 * TiffGray8
 * TiffGray16
@@ -48,6 +48,13 @@ Note that although files with bits per sample greater than 16 bits can be read b
 
 Notes about JPEG: Only baseline JPEG is supported. The JPEG compression schema (CompressionTag=6) defined in the TIFF 6.0 specification is also not supported.
 
+## Predictor for Decoding
+
+* None (PredictorTag=1)
+* Horizontal Predictor (PredictorTag=2)
+
+Horizontal predictor is usually used along with LZW and Deflate compression to further reduce file size while preserving image quality.
+
 ## Photometric Interpretations for Encoding
 
 * TransparencyMask (1 bit)
@@ -64,3 +71,12 @@ Notes about JPEG: Only baseline JPEG is supported. The JPEG compression schema (
 * JPEG (CompressionTag=7)
 * Deflate (CompressionTag=8)
 * PackBits (CompressionTag=32773)
+
+Notes about JPEG: JPEG compression only supports 8-bit BlackIsZero, RGB, CMYK and YCbCr photometric interpretations. Currently, the image encoder does not support chroma subsampling for YCbCr images.
+
+## Predictor for Encoding
+
+* None (PredictorTag=1)
+* Horizontal Predictor (PredictorTag=2)
+
+It is not recommended to apply horizontal predictor to image compressed with compression methods other than LZW and Deflate, because such TIFF files may confuse other TIFF readers.

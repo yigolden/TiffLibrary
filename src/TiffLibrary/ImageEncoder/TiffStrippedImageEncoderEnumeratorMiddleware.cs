@@ -63,14 +63,14 @@ namespace TiffLibrary.ImageEncoder
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, new TiffValueCollection<uint>((uint)width)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, new TiffValueCollection<uint>((uint)height)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, new TiffValueCollection<ushort>((ushort)_rowsPerStrip)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)_rowsPerStrip)).ConfigureAwait(false);
 
                 if (context.FileWriter.UseBigTiff)
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, new TiffValueCollection<ulong>(stripOffsets)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, new TiffValueCollection<ulong>(stripByteCounts)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts)).ConfigureAwait(false);
                 }
                 else
                 {
@@ -83,8 +83,8 @@ namespace TiffLibrary.ImageEncoder
                         stripByteCounts32[i] = (uint)stripByteCounts[i];
                     }
 
-                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, new TiffValueCollection<uint>(stripOffsets32)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, new TiffValueCollection<uint>(stripByteCounts32)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets32)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts32)).ConfigureAwait(false);
                 }
             }
         }

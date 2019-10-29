@@ -72,7 +72,7 @@ namespace TiffLibrary.ImageEncoder
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.Compression, new TiffValueCollection<ushort>((ushort)_compression)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.Compression, TiffValueCollection.Single((ushort)_compression)).ConfigureAwait(false);
             }
 
             await next.RunAsync(context).ConfigureAwait(false);

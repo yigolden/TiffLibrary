@@ -21,7 +21,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 }
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.WhiteIsZero;
-                context.BitsPerSample = new TiffValueCollection<ushort>(8);
+                context.BitsPerSample = TiffValueCollection.Single<ushort>(8);
                 context.UncompressedData = pixelData.Memory.Slice(0, arraySize);
 
                 await next.RunAsync(context).ConfigureAwait(false);
@@ -32,7 +32,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, new TiffValueCollection<ushort>((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
             }
         }

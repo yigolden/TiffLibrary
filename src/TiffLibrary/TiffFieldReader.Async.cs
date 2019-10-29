@@ -104,11 +104,11 @@ namespace TiffLibrary
                 entry.RestoreRawOffsetBytes(_context, rawOffset);
                 if (valueCount == 1)
                 {
-                    return new ValueTask<TiffValueCollection<byte>>(new TiffValueCollection<byte>(rawOffset[0]));
+                    return new ValueTask<TiffValueCollection<byte>>(TiffValueCollection.Single(rawOffset[0]));
                 }
                 byte[] values = new byte[valueCount];
                 rawOffset.Slice(0, (int)valueCount).CopyTo(values);
-                return new ValueTask<TiffValueCollection<byte>>(new TiffValueCollection<byte>(values));
+                return new ValueTask<TiffValueCollection<byte>>(TiffValueCollection.UnsafeWrap(values));
             }
 
             return new ValueTask<TiffValueCollection<byte>>(SlowReadByteFieldAsync(entry));
@@ -126,7 +126,7 @@ namespace TiffLibrary
                 throw new InvalidDataException();
             }
 
-            return new TiffValueCollection<byte>(buffer);
+            return TiffValueCollection.UnsafeWrap(buffer);
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadByteFieldAsync<TDest>(TiffImageFileDirectoryEntry entry,
@@ -146,7 +146,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[readCount];
                 InternalCopyByteValues(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -179,11 +179,11 @@ namespace TiffLibrary
                 entry.RestoreRawOffsetBytes(_context, rawOffset);
                 if (valueCount == 1)
                 {
-                    return new ValueTask<TiffValueCollection<sbyte>>(new TiffValueCollection<sbyte>((sbyte)rawOffset[0]));
+                    return new ValueTask<TiffValueCollection<sbyte>>(TiffValueCollection.Single((sbyte)rawOffset[0]));
                 }
                 sbyte[] values = new sbyte[valueCount];
                 MemoryMarshal.Cast<byte, sbyte>(rawOffset).Slice(0, (int)valueCount).CopyTo(values);
-                return new ValueTask<TiffValueCollection<sbyte>>(new TiffValueCollection<sbyte>(values));
+                return new ValueTask<TiffValueCollection<sbyte>>(TiffValueCollection.UnsafeWrap(values));
             }
 
             return new ValueTask<TiffValueCollection<sbyte>>(SlowReadSByteFieldAsync(entry));
@@ -205,7 +205,7 @@ namespace TiffLibrary
 
                 sbyte[] values = new sbyte[readCount];
                 MemoryMarshal.Cast<byte, sbyte>(new Span<byte>(buffer, 0, readCount)).CopyTo(values);
-                return new TiffValueCollection<sbyte>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -287,14 +287,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<ushort>>(new TiffValueCollection<ushort>(
+                        return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.Single(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt16BigEndian(rawOffset)));
                     }
                     ushort[] values = new ushort[valueCount];
                     InternalCopyInt16Values<ushort>(rawOffset, values, null);
-                    return new ValueTask<TiffValueCollection<ushort>>(new TiffValueCollection<ushort>(values));
+                    return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<ushort>>(SlowReadShortFieldAsync<ushort>(entry));
@@ -307,11 +307,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<ushort>>(new TiffValueCollection<ushort>(rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.Single<ushort>(rawOffset[0]));
                     }
                     ushort[] values = new ushort[valueCount];
                     InternalCopyByteValues<ushort>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<ushort>>(new TiffValueCollection<ushort>(values));
+                    return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<ushort>>(SlowReadByteFieldAsync<ushort>(entry, v => v));
@@ -337,7 +337,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[entry.ValueCount];
                 InternalCopyInt16Values(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -368,14 +368,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<short>>(new TiffValueCollection<short>(
+                        return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.Single(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadInt16BigEndian(rawOffset)));
                     }
                     short[] values = new short[valueCount];
                     InternalCopyInt16Values<short>(rawOffset, values, null);
-                    return new ValueTask<TiffValueCollection<short>>(new TiffValueCollection<short>(values));
+                    return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<short>>(SlowReadShortFieldAsync<short>(entry));
@@ -388,11 +388,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<short>>(new TiffValueCollection<short>(rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.Single<short>(rawOffset[0]));
                     }
                     short[] values = new short[valueCount];
                     InternalCopyByteValues<short>(rawOffset, values, v => (sbyte)v);
-                    return new ValueTask<TiffValueCollection<short>>(new TiffValueCollection<short>(values));
+                    return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<short>>(SlowReadByteFieldAsync<short>(entry, v => (sbyte)v));
@@ -423,14 +423,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<uint>>(new TiffValueCollection<uint>(
+                        return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.Single(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt32LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt32BigEndian(rawOffset)));
                     }
                     uint[] values = new uint[valueCount];
                     InternalCopyInt32Values<uint>(rawOffset, values, null);
-                    return new ValueTask<TiffValueCollection<uint>>(new TiffValueCollection<uint>(values));
+                    return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<uint>>(SlowReadLongFieldAsync<uint>(entry));
@@ -443,14 +443,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<uint>>(new TiffValueCollection<uint>(
+                        return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.Single<uint>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt16BigEndian(rawOffset)));
                     }
                     uint[] values = new uint[valueCount];
                     InternalCopyInt16Values<uint>(rawOffset, values, v => (ushort)v);
-                    return new ValueTask<TiffValueCollection<uint>>(new TiffValueCollection<uint>(values));
+                    return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<uint>>(SlowReadShortFieldAsync<uint>(entry, v => (ushort)v));
@@ -463,11 +463,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<uint>>(new TiffValueCollection<uint>(rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.Single<uint>(rawOffset[0]));
                     }
                     uint[] values = new uint[valueCount];
                     InternalCopyByteValues<uint>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<uint>>(new TiffValueCollection<uint>(values));
+                    return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<uint>>(SlowReadByteFieldAsync<uint>(entry, v => v));
@@ -492,7 +492,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[entry.ValueCount];
                 InternalCopyInt32Values(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -522,14 +522,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(
+                        return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Single<int>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadInt32LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadInt32BigEndian(rawOffset)));
                     }
                     int[] values = new int[valueCount];
                     InternalCopyInt32Values<int>(rawOffset, values, null);
-                    return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(values));
+                    return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<int>>(SlowReadLongFieldAsync<int>(entry));
@@ -542,14 +542,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(
+                        return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Single<int>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt16BigEndian(rawOffset)));
                     }
                     int[] values = new int[valueCount];
                     InternalCopyInt16Values<int>(rawOffset, values, v => (ushort)v);
-                    return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(values));
+                    return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<int>>(SlowReadShortFieldAsync<int>(entry, v => (ushort)v));
@@ -562,14 +562,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(
+                        return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Single<int>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadInt16BigEndian(rawOffset)));
                     }
                     int[] values = new int[valueCount];
                     InternalCopyInt16Values<int>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(values));
+                    return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<int>>(SlowReadShortFieldAsync<int>(entry, v => v));
@@ -582,11 +582,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Single<int>(rawOffset[0]));
                     }
                     int[] values = new int[valueCount];
                     InternalCopyByteValues<int>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(values));
+                    return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(entry, v => v));
@@ -599,11 +599,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>((sbyte)rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Single<int>((sbyte)rawOffset[0]));
                     }
                     int[] values = new int[valueCount];
                     InternalCopyByteValues<int>(rawOffset, values, v => (sbyte)v);
-                    return new ValueTask<TiffValueCollection<int>>(new TiffValueCollection<int>(values));
+                    return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(entry, v => (sbyte)v));
@@ -635,14 +635,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(
+                        return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.Single(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt64LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt64BigEndian(rawOffset)));
                     }
                     ulong[] values = new ulong[valueCount];
                     InternalCopyInt64Values<ulong>(rawOffset, values, null);
-                    return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(values));
+                    return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<ulong>>(SlowReadLong8FieldAsync<ulong>(entry));
@@ -655,14 +655,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(
+                        return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.Single<ulong>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt32LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt32BigEndian(rawOffset)));
                     }
                     ulong[] values = new ulong[valueCount];
                     InternalCopyInt32Values<ulong>(rawOffset, values, v => (uint)v);
-                    return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(values));
+                    return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<ulong>>(SlowReadLongFieldAsync<ulong>(entry, v => (uint)v));
@@ -675,14 +675,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(
+                        return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.Single<ulong>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadUInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadUInt16BigEndian(rawOffset)));
                     }
                     ulong[] values = new ulong[valueCount];
                     InternalCopyInt16Values<ulong>(rawOffset, values, v => (ushort)v);
-                    return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(values));
+                    return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<ulong>>(SlowReadShortFieldAsync<ulong>(entry, v => (ushort)v));
@@ -695,11 +695,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.Single<ulong>(rawOffset[0]));
                     }
                     ulong[] values = new ulong[valueCount];
                     InternalCopyByteValues<ulong>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<ulong>>(new TiffValueCollection<ulong>(values));
+                    return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<ulong>>(SlowReadByteFieldAsync<ulong>(entry, v => v));
@@ -724,7 +724,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[entry.ValueCount];
                 InternalCopyInt64Values(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -754,14 +754,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(
+                        return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.Single(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadInt64LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadInt64BigEndian(rawOffset)));
                     }
                     long[] values = new long[valueCount];
                     InternalCopyInt64Values<long>(rawOffset, values, null);
-                    return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(values));
+                    return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<long>>(SlowReadLong8FieldAsync<long>(entry));
@@ -774,14 +774,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(
+                        return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.Single<long>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadInt32LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadInt32BigEndian(rawOffset)));
                     }
                     long[] values = new long[valueCount];
                     InternalCopyInt32Values<long>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(values));
+                    return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<long>>(SlowReadLongFieldAsync<long>(entry, v => v));
@@ -794,14 +794,14 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(
+                        return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.Single<long>(
                             _context.IsLittleEndian
                                 ? BinaryPrimitives.ReadInt16LittleEndian(rawOffset)
                                 : BinaryPrimitives.ReadInt16BigEndian(rawOffset)));
                     }
                     long[] values = new long[valueCount];
                     InternalCopyInt16Values<long>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(values));
+                    return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<long>>(SlowReadShortFieldAsync<long>(entry, v => v));
@@ -814,11 +814,11 @@ namespace TiffLibrary
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
-                        return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(rawOffset[0]));
+                        return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.Single<long>(rawOffset[0]));
                     }
                     long[] values = new long[valueCount];
                     InternalCopyByteValues<long>(rawOffset, values, v => v);
-                    return new ValueTask<TiffValueCollection<long>>(new TiffValueCollection<long>(values));
+                    return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<long>>(SlowReadByteFieldAsync<long>(entry, v => v));
@@ -858,11 +858,11 @@ namespace TiffLibrary
                     {
                         value = BinaryPrimitives.ReverseEndianness(value);
                     }
-                    return new ValueTask<TiffValueCollection<float>>(new TiffValueCollection<float>(Int32BitsToSingle(value)));
+                    return new ValueTask<TiffValueCollection<float>>(TiffValueCollection.Single(Int32BitsToSingle(value)));
                 }
                 float[] values = new float[valueCount];
                 InternalCopyFloatValues<float>(rawOffset, values, null);
-                return new ValueTask<TiffValueCollection<float>>(new TiffValueCollection<float>(values));
+                return new ValueTask<TiffValueCollection<float>>(TiffValueCollection.UnsafeWrap(values));
             }
 
             return new ValueTask<TiffValueCollection<float>>(SlowReadFloatFieldAsync<float>(entry));
@@ -886,7 +886,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[entry.ValueCount];
                 InternalCopyFloatValues(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -925,11 +925,11 @@ namespace TiffLibrary
                     {
                         value = BinaryPrimitives.ReverseEndianness(value);
                     }
-                    return new ValueTask<TiffValueCollection<double>>(new TiffValueCollection<double>(Int64BitsToDouble(value)));
+                    return new ValueTask<TiffValueCollection<double>>(TiffValueCollection.Single(Int64BitsToDouble(value)));
                 }
                 double[] values = new double[valueCount];
                 InternalCopyDoubleValues<double>(rawOffset, values, null);
-                return new ValueTask<TiffValueCollection<double>>(new TiffValueCollection<double>(values));
+                return new ValueTask<TiffValueCollection<double>>(TiffValueCollection.UnsafeWrap(values));
             }
 
             return new ValueTask<TiffValueCollection<double>>(SlowReadDoubleFieldAsync<double>(entry));
@@ -952,7 +952,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[entry.ValueCount];
                 InternalCopyDoubleValues(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -987,11 +987,11 @@ namespace TiffLibrary
                 {
                     Span<TiffRational> singleValueSpan = stackalloc TiffRational[1];
                     InternalCopyRationalValues(rawOffset, singleValueSpan, null);
-                    return new ValueTask<TiffValueCollection<TiffRational>>(new TiffValueCollection<TiffRational>(singleValueSpan[0]));
+                    return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Single(singleValueSpan[0]));
                 }
                 TiffRational[] values = new TiffRational[valueCount];
                 InternalCopyRationalValues<TiffRational>(rawOffset, values, null);
-                return new ValueTask<TiffValueCollection<TiffRational>>(new TiffValueCollection<TiffRational>(values));
+                return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
             }
 
             return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadRationalFieldAsync<TiffRational>(entry));
@@ -1014,7 +1014,7 @@ namespace TiffLibrary
 
                 TDest[] values = new TDest[entry.ValueCount];
                 InternalCopyRationalValues<TDest>(buffer, values, convertFunc);
-                return new TiffValueCollection<TDest>(values);
+                return TiffValueCollection.UnsafeWrap(values);
             }
             finally
             {
@@ -1049,11 +1049,11 @@ namespace TiffLibrary
                 {
                     Span<TiffSRational> singleValueSpan = stackalloc TiffSRational[1];
                     InternalCopyRationalValues(rawOffset, singleValueSpan, null);
-                    return new ValueTask<TiffValueCollection<TiffSRational>>(new TiffValueCollection<TiffSRational>(singleValueSpan[0]));
+                    return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Single(singleValueSpan[0]));
                 }
                 TiffSRational[] values = new TiffSRational[valueCount];
                 InternalCopyRationalValues<TiffSRational>(rawOffset, values, null);
-                return new ValueTask<TiffValueCollection<TiffSRational>>(new TiffValueCollection<TiffSRational>(values));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
             }
 
             return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadRationalFieldAsync<TiffSRational>(entry));
@@ -1082,7 +1082,7 @@ namespace TiffLibrary
                     if (valueCount == 1)
                     {
                         return new ValueTask<TiffValueCollection<TiffStreamOffset>>(
-                                new TiffValueCollection<TiffStreamOffset>(
+                                TiffValueCollection.Single(
                                     new TiffStreamOffset(
                                         _context.IsLittleEndian
                                             ? BinaryPrimitives.ReadInt32LittleEndian(rawOffset)
@@ -1090,7 +1090,7 @@ namespace TiffLibrary
                     }
                     TiffStreamOffset[] values = new TiffStreamOffset[valueCount];
                     InternalCopyInt32Values(rawOffset, values, offset => new TiffStreamOffset(offset));
-                    return new ValueTask<TiffValueCollection<TiffStreamOffset>>(new TiffValueCollection<TiffStreamOffset>(values));
+                    return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(entry, offset => new TiffStreamOffset(offset)));
@@ -1122,7 +1122,7 @@ namespace TiffLibrary
                     if (valueCount == 1)
                     {
                         return new ValueTask<TiffValueCollection<TiffStreamOffset>>(
-                                new TiffValueCollection<TiffStreamOffset>(
+                                TiffValueCollection.Single(
                                     new TiffStreamOffset(
                                         _context.IsLittleEndian
                                             ? BinaryPrimitives.ReadInt64LittleEndian(rawOffset)
@@ -1130,7 +1130,7 @@ namespace TiffLibrary
                     }
                     TiffStreamOffset[] values = new TiffStreamOffset[valueCount];
                     InternalCopyInt64Values(rawOffset, values, offset => new TiffStreamOffset(offset));
-                    return new ValueTask<TiffValueCollection<TiffStreamOffset>>(new TiffValueCollection<TiffStreamOffset>(values));
+                    return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLong8FieldAsync(entry, offset => new TiffStreamOffset(offset)));

@@ -16,7 +16,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffValueCollection<ushort>",
-            ResultHandling = "result.IsEmpty ? new TiffValueCollection<ushort>(1) : result"
+            ResultHandling = "result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result"
         },
         new
         {

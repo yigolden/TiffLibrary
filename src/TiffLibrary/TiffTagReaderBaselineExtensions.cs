@@ -45,7 +45,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffValueCollection<ushort>>(result.IsEmpty ? new TiffValueCollection<ushort>(1) : result);
+                return new ValueTask<TiffValueCollection<ushort>>(result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result);
             }
 
             return new ValueTask<TiffValueCollection<ushort>>(TransformValueTaskAsync(valueTask));
@@ -53,7 +53,7 @@ namespace TiffLibrary
             static async Task<TiffValueCollection<ushort>> TransformValueTaskAsync(ValueTask<TiffValueCollection<ushort>> valueTask)
             {
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? new TiffValueCollection<ushort>(1) : result;
+                return result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result;
             }
         }
 

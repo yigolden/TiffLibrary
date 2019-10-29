@@ -245,6 +245,27 @@ namespace TiffLibrary
 
             return new TiffValueCollection<T>(array);
         }
+
+        /// <summary>
+        /// Create a <see cref="TiffValueCollection{T}"/> that contains a single element.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="value">Value of the element.</param>
+        /// <returns>The created <see cref="TiffValueCollection{T}"/>.</returns>
+        public static TiffValueCollection<T> Single<T>(T value)
+        {
+            return new TiffValueCollection<T>(value);
+        }
+
+        /// <summary>
+        /// Create a <see cref="TiffValueCollection{T}"/> that contains no element.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <returns>The created <see cref="TiffValueCollection{T}"/>.</returns>
+        public static TiffValueCollection<T> Empty<T>()
+        {
+            return default;
+        }
     }
 
     internal static class TiffValueCollectionExtensionsInternal

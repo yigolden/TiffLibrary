@@ -258,7 +258,7 @@ namespace TiffLibrary.ImageDecoder
                     }
                 }
 
-                return new TiffValueCollection<int>(stripsByteCount);
+                return TiffValueCollection.UnsafeWrap(stripsByteCount);
             }
         }
 
@@ -319,7 +319,7 @@ namespace TiffLibrary.ImageDecoder
         {
             if (compression == TiffCompression.ModifiedHuffmanCompression || compression == TiffCompression.T4Encoding || compression == TiffCompression.T6Encoding)
             {
-                return new TiffValueCollection<int>(width);
+                return TiffValueCollection.Single(width);
             }
 
             switch (photometricInterpretation)
@@ -328,7 +328,7 @@ namespace TiffLibrary.ImageDecoder
                 case TiffPhotometricInterpretation.BlackIsZero:
                     if (bitsPerSample.FirstOrDefault <= 32)
                     {
-                        return new TiffValueCollection<int>((bitsPerSample.FirstOrDefault * width + 7) / 8);
+                        return TiffValueCollection.Single((bitsPerSample.FirstOrDefault * width + 7) / 8);
                     }
                     break;
                 case TiffPhotometricInterpretation.RGB:
@@ -336,43 +336,43 @@ namespace TiffLibrary.ImageDecoder
                     {
                         if (bitsPerSample[0] <= 32 && bitsPerSample[1] <= 32 && bitsPerSample[2] <= 32)
                         {
-                            return new TiffValueCollection<int>((width * (bitsPerSample[0] + bitsPerSample[1] + bitsPerSample[2]) + 7) / 8);
+                            return TiffValueCollection.Single((width * (bitsPerSample[0] + bitsPerSample[1] + bitsPerSample[2]) + 7) / 8);
                         }
                     }
                     else if (bitsPerSample.Count == 4)
                     {
                         if (bitsPerSample[0] <= 32 && bitsPerSample[1] <= 32 && bitsPerSample[2] <= 32 && bitsPerSample[3] <= 32)
                         {
-                            return new TiffValueCollection<int>((width * (bitsPerSample[0] + bitsPerSample[1] + bitsPerSample[2] + bitsPerSample[3]) + 7) / 8);
+                            return TiffValueCollection.Single((width * (bitsPerSample[0] + bitsPerSample[1] + bitsPerSample[2] + bitsPerSample[3]) + 7) / 8);
                         }
                     }
                     break;
                 case TiffPhotometricInterpretation.PaletteColor:
                     if (bitsPerSample.FirstOrDefault <= 8)
                     {
-                        return new TiffValueCollection<int>((bitsPerSample.FirstOrDefault * width + 7) / 8);
+                        return TiffValueCollection.Single((bitsPerSample.FirstOrDefault * width + 7) / 8);
                     }
                     break;
                 case TiffPhotometricInterpretation.TransparencyMask:
                     if (bitsPerSample[0] == 1)
                     {
-                        return new TiffValueCollection<int>((width + 7) / 8);
+                        return TiffValueCollection.Single((width + 7) / 8);
                     }
                     break;
                 case TiffPhotometricInterpretation.Seperated:
                     if (bitsPerSample.Count == 4)
                     {
                         if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8 && bitsPerSample[3] == 8)
-                            return new TiffValueCollection<int>(4 * width);
+                            return TiffValueCollection.Single(4 * width);
                         if (bitsPerSample[0] == 16 && bitsPerSample[1] == 16 && bitsPerSample[2] == 16 && bitsPerSample[3] == 16)
-                            return new TiffValueCollection<int>(8 * width);
+                            return TiffValueCollection.Single(8 * width);
                     }
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
                     if (bitsPerSample.Count == 3)
                     {
                         if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8)
-                            return new TiffValueCollection<int>(3 * width);
+                            return TiffValueCollection.Single(3 * width);
                     }
                     break;
             }
@@ -388,14 +388,14 @@ namespace TiffLibrary.ImageDecoder
                     {
                         if (bitsPerSample[0] <= 32 && bitsPerSample[1] <= 32 && bitsPerSample[2] <= 32)
                         {
-                            return new TiffValueCollection<int>(new int[] { (width * bitsPerSample[0] + 7) / 8, (width * bitsPerSample[1] + 7) / 8, (width * bitsPerSample[2] + 7) / 8 });
+                            return TiffValueCollection.UnsafeWrap(new int[] { (width * bitsPerSample[0] + 7) / 8, (width * bitsPerSample[1] + 7) / 8, (width * bitsPerSample[2] + 7) / 8 });
                         }
                     }
                     else if (bitsPerSample.Count == 4)
                     {
                         if (bitsPerSample[0] <= 32 && bitsPerSample[1] <= 32 && bitsPerSample[2] <= 32 && bitsPerSample[3] <= 32)
                         {
-                            return new TiffValueCollection<int>(new int[] { (width * bitsPerSample[0] + 7) / 8, (width * bitsPerSample[1] + 7) / 8, (width * bitsPerSample[2] + 7) / 8, (width * bitsPerSample[3] + 7) / 8 });
+                            return TiffValueCollection.UnsafeWrap(new int[] { (width * bitsPerSample[0] + 7) / 8, (width * bitsPerSample[1] + 7) / 8, (width * bitsPerSample[2] + 7) / 8, (width * bitsPerSample[3] + 7) / 8 });
                         }
                     }
                     break;
@@ -403,16 +403,16 @@ namespace TiffLibrary.ImageDecoder
                     if (bitsPerSample.Count == 4)
                     {
                         if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8 && bitsPerSample[3] == 8)
-                            return new TiffValueCollection<int>(new int[] { width, width, width, width });
+                            return TiffValueCollection.UnsafeWrap(new int[] { width, width, width, width });
                         if (bitsPerSample[0] == 16 && bitsPerSample[1] == 16 && bitsPerSample[2] == 16 && bitsPerSample[3] == 16)
-                            return new TiffValueCollection<int>(new int[] { 2 * width, 2 * width, 2 * width, 2 * width });
+                            return TiffValueCollection.UnsafeWrap(new int[] { 2 * width, 2 * width, 2 * width, 2 * width });
                     }
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
                     if (bitsPerSample.Count == 3)
                     {
                         if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8)
-                            return new TiffValueCollection<int>(new int[] { width, width, width });
+                            return TiffValueCollection.UnsafeWrap(new int[] { width, width, width });
                     }
                     break;
             }
@@ -756,7 +756,7 @@ namespace TiffLibrary.ImageDecoder
                 {
                     TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
                     TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
-                    return new TiffChunkyYCbCr888Interpreter(new TiffValueCollection<TiffRational>(coefficients), new TiffValueCollection<TiffRational>(referenceBlackWhite));
+                    return new TiffChunkyYCbCr888Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
@@ -866,7 +866,7 @@ namespace TiffLibrary.ImageDecoder
                 {
                     TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
                     TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
-                    return new TiffPlanarYCbCr888Interpreter(new TiffValueCollection<TiffRational>(coefficients), new TiffValueCollection<TiffRational>(referenceBlackWhite));
+                    return new TiffPlanarYCbCr888Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }

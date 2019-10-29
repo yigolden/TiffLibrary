@@ -29,7 +29,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 int count = PackBytesIntoBits(pixelDataMemory.Span, imageSize, _threshold);
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.TransparencyMask;
-                context.BitsPerSample = new TiffValueCollection<ushort>(1);
+                context.BitsPerSample = TiffValueCollection.Single<ushort>(1);
                 context.UncompressedData = pixelData.Memory.Slice(0, count);
 
                 await next.RunAsync(context).ConfigureAwait(false);
@@ -40,9 +40,9 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, new TiffValueCollection<ushort>((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.FillOrder, new TiffValueCollection<ushort>((ushort)TiffFillOrder.HigherOrderBitsFirst));
+                await ifdWriter.WriteTagAsync(TiffTag.FillOrder, TiffValueCollection.Single((ushort)TiffFillOrder.HigherOrderBitsFirst));
             }
         }
 

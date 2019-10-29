@@ -375,7 +375,7 @@ namespace TiffLibrary
 
             if (count == 0)
             {
-                return new TiffValueCollection<string>(string.Empty);
+                return TiffValueCollection.Empty<string>();
             }
 
             // Find the null terminator of the first string.
@@ -394,7 +394,7 @@ namespace TiffLibrary
 
             if (nullIndex >= endIndex)
             {
-                return new TiffValueCollection<string>(firstValue);
+                return TiffValueCollection.Single(firstValue);
             }
 
             // Find the count of all strings.
@@ -431,7 +431,7 @@ namespace TiffLibrary
                 values[index] = EncodingASCIIGetString(buffer.Slice(startIndex, endIndex - startIndex + 1));
             }
 
-            return new TiffValueCollection<string>(values);
+            return TiffValueCollection.UnsafeWrap(values);
         }
 
         private static unsafe string EncodingASCIIGetString(ReadOnlySpan<byte> data)

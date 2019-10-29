@@ -40,7 +40,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 JpegRgbToYCbCrConverter.Shared.ConvertRgb24ToYCbCr8(pixelDataMemory.Span, pixelDataMemory.Span, imageSize.Width * imageSize.Height);
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.YCbCr;
-                context.BitsPerSample = new TiffValueCollection<ushort>(s_bitsPerSample);
+                context.BitsPerSample = TiffValueCollection.UnsafeWrap(s_bitsPerSample);
                 context.UncompressedData = pixelDataMemory.Slice(0, arraySize);
 
                 await next.RunAsync(context).ConfigureAwait(false);
@@ -52,12 +52,12 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, new TiffValueCollection<ushort>((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, new TiffValueCollection<ushort>(3));
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrSubSampling, new TiffValueCollection<ushort>(s_yCbCrSubSampling));
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrCoefficients, new TiffValueCollection<TiffRational>(s_defaultLuma));
-                await ifdWriter.WriteTagAsync(TiffTag.ReferenceBlackWhite, new TiffValueCollection<TiffRational>(s_defaultReferenceBlackWhite));
+                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(3));
+                await ifdWriter.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(s_yCbCrSubSampling));
+                await ifdWriter.WriteTagAsync(TiffTag.YCbCrCoefficients, TiffValueCollection.UnsafeWrap(s_defaultLuma));
+                await ifdWriter.WriteTagAsync(TiffTag.ReferenceBlackWhite, TiffValueCollection.UnsafeWrap(s_defaultReferenceBlackWhite));
             }
         }
     }

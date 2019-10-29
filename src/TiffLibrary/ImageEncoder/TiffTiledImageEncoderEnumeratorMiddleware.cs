@@ -83,15 +83,15 @@ namespace TiffLibrary.ImageEncoder
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, new TiffValueCollection<uint>((uint)width)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, new TiffValueCollection<uint>((uint)height)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.TileWidth, new TiffValueCollection<ushort>((ushort)tileWidth)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.TileLength, new TiffValueCollection<ushort>((ushort)tileHeight)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.TileWidth, TiffValueCollection.Single((ushort)tileWidth)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.TileLength, TiffValueCollection.Single((ushort)tileHeight)).ConfigureAwait(false);
 
                 if (context.FileWriter.UseBigTiff)
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, new TiffValueCollection<ulong>(tileOffsets)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, new TiffValueCollection<ulong>(tileByteCounts)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts)).ConfigureAwait(false);
                 }
                 else
                 {
@@ -104,8 +104,8 @@ namespace TiffLibrary.ImageEncoder
                         tileByteCounts32[i] = (uint)tileByteCounts[i];
                     }
 
-                    await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, new TiffValueCollection<uint>(tileOffsets32)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, new TiffValueCollection<uint>(tileByteCounts32)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets32)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts32)).ConfigureAwait(false);
                 }
             }
         }

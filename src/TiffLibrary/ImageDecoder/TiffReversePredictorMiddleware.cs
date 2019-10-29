@@ -66,7 +66,7 @@ namespace TiffLibrary.ImageDecoder
                 // Skip scanlines that are not to be decoded
                 plane = plane.Slice(bytesPerScanline * context.SourceReadOffset.Y);
 
-                TiffValueCollection<ushort> bitsPerSample = isMultiplePlanar ? new TiffValueCollection<ushort>(_bitsPerSample[planarIndex]) : _bitsPerSample;
+                TiffValueCollection<ushort> bitsPerSample = isMultiplePlanar ? TiffValueCollection.Single(_bitsPerSample[planarIndex]) : _bitsPerSample;
 
                 for (int row = 0; row < context.ReadSize.Height; row++)
                 {

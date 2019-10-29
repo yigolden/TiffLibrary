@@ -211,7 +211,7 @@ namespace TiffLibrary.Compression
             private async Task WriteTablesAndContinueAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
                 TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
-                await ifdWriter.WriteTagAsync(TiffTag.JPEGTables, TiffFieldType.Undefined, new TiffValueCollection<byte>(_jpegTables)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.JPEGTables, TiffFieldType.Undefined, TiffValueCollection.UnsafeWrap(_jpegTables)).ConfigureAwait(false);
 
                 await next.RunAsync(context).ConfigureAwait(false);
             }

@@ -27,7 +27,7 @@ namespace TiffLibrary.ImageDecoder
             }
             if (verticalSubsampling != 1 && verticalSubsampling != 2 && verticalSubsampling != 4)
             {
-                throw new ArgumentOutOfRangeException(nameof(horizontalSubsampling), "Unsupported horizontal subsampling.");
+                throw new ArgumentOutOfRangeException(nameof(verticalSubsampling), "Unsupported vertical subsampling.");
             }
 
             _horizontalSubsampling = horizontalSubsampling;

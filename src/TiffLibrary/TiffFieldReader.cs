@@ -21,7 +21,7 @@ namespace TiffLibrary
         {
             _reader = reader;
             _context = context;
-            _cancellationToken = default;
+            _cancellationToken = cancellationToken;
         }
 
         /// <summary>

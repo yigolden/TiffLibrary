@@ -372,7 +372,7 @@ namespace TiffLibrary
         public async Task<TiffFieldReader> CreateFieldReaderAsync(CancellationToken cancellationToken = default)
         {
             TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
-            return new TiffFieldReader(reader, _operationContext);
+            return new TiffFieldReader(reader, _operationContext, cancellationToken);
         }
 
         #endregion

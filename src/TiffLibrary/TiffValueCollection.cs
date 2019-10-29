@@ -287,8 +287,6 @@ namespace TiffLibrary
             }
         }
 
-#if NO_SYSTEM_CONVERTER
-
         public static TResult[] GetOrCreateArray<T, TResult>(this TiffValueCollection<T> collection, Func<T, TResult> converter)
         {
             T[] values = collection._values;
@@ -338,48 +336,6 @@ namespace TiffLibrary
             }
         }
 
-#else
-
-        public static TResult[] GetOrCreateArray<T, TResult>(this TiffValueCollection<T> collection, Converter<T, TResult> converter)
-        {
-            T[] values = collection._values;
-            if (values is null)
-            {
-                return Array.Empty<TResult>();
-            }
-            else if (values.Length == 0)
-            {
-                return new TResult[] { converter(collection._firstValue) };
-            }
-            else
-            {
-                return Array.ConvertAll(values, converter);
-            }
-        }
-
-        public static TiffValueCollection<TDest> ConvertAll<T, TDest>(this TiffValueCollection<T> collection, Converter<T, TDest> convertFunc)
-        {
-            if (typeof(T) == typeof(TDest))
-            {
-                return Unsafe.As<TiffValueCollection<T>, TiffValueCollection<TDest>>(ref collection);
-            }
-
-            T[] values = collection._values;
-            if (values is null)
-            {
-                return default;
-            }
-            else if (values.Length == 0)
-            {
-                return new TiffValueCollection<TDest>(convertFunc(collection._firstValue));
-            }
-            else
-            {
-                return new TiffValueCollection<TDest>(Array.ConvertAll(values, convertFunc));
-            }
-        }
-
-#endif
 
         public static void CopyTo<T>(this TiffValueCollection<T> collection, Span<T> destination)
         {

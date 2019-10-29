@@ -12,7 +12,7 @@
     <!-- CA1716: Identifiers should not match keywords -->
     <!-- CA1720: Identifiers should not contain type names -->
     <!-- CA2000: Dispose objects before losing scope -->
-    <!-- CA2119: Seal methods that satisfy private interfaces (This should be removed when we drop net46/netstandard1.3 support) -->
+    <!-- CA2119: Seal methods that satisfy private interfaces (This should be removed when we drop net46/net472/netstandard1.3 support) -->
     <!-- CA2213: Disposable fields should be disposed -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -21,7 +21,7 @@
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <DefineConstants>$(DefineConstants);NO_APM_ASYNC;NO_SYSTEM_CONVERTER;NO_MATH_DIVREM</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_MATH_DIVREM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3'">
     <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_INTERFACE</DefineConstants>

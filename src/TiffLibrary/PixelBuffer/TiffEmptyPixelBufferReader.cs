@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary.PixelBuffer
 {
@@ -10,6 +11,6 @@ namespace TiffLibrary.PixelBuffer
 
         public int Height => 0;
 
-        public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination) => default;
+        public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination, CancellationToken cancellationToken) => default;
     }
 }

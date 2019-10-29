@@ -34,7 +34,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 using (var writer = new TiffMemoryPixelBufferWriter<TiffRgb24>(context.MemoryPool, pixelDataMemory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
-                    await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
+                    await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
                 }
 
                 JpegRgbToYCbCrConverter.Shared.ConvertRgb24ToYCbCr8(pixelDataMemory.Span, pixelDataMemory.Span, imageSize.Width * imageSize.Height);

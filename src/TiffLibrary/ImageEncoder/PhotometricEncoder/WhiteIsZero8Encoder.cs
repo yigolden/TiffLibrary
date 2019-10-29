@@ -17,7 +17,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 using (var gray8Writer = new TiffGray8ToGray8ReversedPixelConverter(writer))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(gray8Writer.AsPixelBufferWriter()))
                 {
-                    await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
+                    await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
                 }
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.WhiteIsZero;

@@ -17,7 +17,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 using (var writer = new TiffMemoryPixelBufferWriter<TiffRgb24>(context.MemoryPool, pixelData.Memory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
-                    await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
+                    await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
                 }
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.RGB;

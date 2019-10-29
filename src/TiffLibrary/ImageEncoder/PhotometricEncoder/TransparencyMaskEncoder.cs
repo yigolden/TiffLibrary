@@ -23,7 +23,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 using (var writer = new TiffMemoryPixelBufferWriter<TiffMask>(context.MemoryPool, pixelDataMemory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
-                    await context.GetReader().ReadAsync(convertedWriter).ConfigureAwait(false);
+                    await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
                 }
 
                 int count = PackBytesIntoBits(pixelDataMemory.Span, imageSize, _threshold);

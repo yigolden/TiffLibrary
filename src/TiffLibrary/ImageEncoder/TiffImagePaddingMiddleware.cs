@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
@@ -86,7 +87,7 @@ namespace TiffLibrary.ImageEncoder
 
             public int Height => _size.Height;
 
-            public async ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination)
+            public async ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination, CancellationToken cancellationToken)
             {
                 int width = 0, height = 0;
                 if (offset.Y < _reader.Height)
@@ -97,7 +98,7 @@ namespace TiffLibrary.ImageEncoder
                     {
                         width = Math.Min(_reader.Width - offset.X, destination.Width);
 
-                        await _reader.ReadAsync(offset, destination.Crop(default, new TiffSize(width, height))).ConfigureAwait(false);
+                        await _reader.ReadAsync(offset, destination.Crop(default, new TiffSize(width, height)), cancellationToken).ConfigureAwait(false);
                     }
 
                     FillEmpty(destination.Crop(new TiffPoint(width, 0), new TiffSize(destination.Width - width, height)));

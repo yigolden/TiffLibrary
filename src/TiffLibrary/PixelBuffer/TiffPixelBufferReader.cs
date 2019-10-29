@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.PixelBuffer;
 
@@ -63,8 +64,9 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="offset">The number rows and columns to skip. X represents the number of columns to skip; Y represents the number of rows to skip.</param>
         /// <param name="destination">The destination writer. It also limits the number of rows and columns to copy.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when all the requested pixels are copied.</returns>
-        public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination)
+        public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination, CancellationToken cancellationToken)
         {
             offset = new TiffPoint(offset.X + _offset.X, offset.Y + _offset.Y);
             var readSize = new TiffSize(Math.Min(_size.Width, destination.Width), Math.Min(_size.Height, destination.Height));
@@ -72,22 +74,23 @@ namespace TiffLibrary
             {
                 return default;
             }
-            return _reader.ReadAsync(offset, destination.Crop(default, readSize));
+            return _reader.ReadAsync(offset, destination.Crop(default, readSize), cancellationToken);
         }
 
         /// <summary>
         /// Copy the 2-dimensional pixel data into <paramref name="destination"/>.
         /// </summary>
         /// <param name="destination">The destination writer. It limits the number of rows and columns to copy.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when all the requested pixels are copied.</returns>
-        public ValueTask ReadAsync(TiffPixelBufferWriter<TPixel> destination)
+        public ValueTask ReadAsync(TiffPixelBufferWriter<TPixel> destination, CancellationToken cancellationToken)
         {
             var readSize = new TiffSize(Math.Min(_size.Width, destination.Width), Math.Min(_size.Height, destination.Height));
             if (readSize.IsAreaEmpty)
             {
                 return default;
             }
-            return _reader.ReadAsync(_offset, destination.Crop(default, readSize));
+            return _reader.ReadAsync(_offset, destination.Crop(default, readSize), cancellationToken);
         }
     }
 }

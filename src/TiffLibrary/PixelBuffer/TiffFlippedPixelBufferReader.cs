@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary.PixelBuffer
 {
@@ -19,7 +20,7 @@ namespace TiffLibrary.PixelBuffer
 
         public int Height => _reader.Height;
 
-        public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination)
+        public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination, CancellationToken cancellationToken)
         {
             if (_flipLeftRight)
             {
@@ -30,7 +31,7 @@ namespace TiffLibrary.PixelBuffer
                 offset = new TiffPoint(offset.X, Height - offset.Y - destination.Height);
             }
             destination = new TiffFlippedPixelBufferWriter<TPixel>(destination, _flipLeftRight, _flipTopBottom).AsPixelBufferWriter();
-            return _reader.ReadAsync(offset, destination);
+            return _reader.ReadAsync(offset, destination, cancellationToken);
         }
     }
 }

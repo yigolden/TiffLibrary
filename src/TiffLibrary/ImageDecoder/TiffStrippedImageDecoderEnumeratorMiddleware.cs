@@ -78,7 +78,7 @@ namespace TiffLibrary.ImageDecoder
                 wrapperContext.SourceReadOffset = new TiffPoint(context.SourceReadOffset.X, skippedScanlines);
                 wrapperContext.ReadSize = new TiffSize(context.ReadSize.Width, requestedScanlines);
 
-                // Updaet size info of the destination buffer
+                // Update size info of the destination buffer
                 wrapperContext.SetCropSize(new TiffPoint(0, Math.Max(0, currentYOffset - context.SourceReadOffset.Y)), context.ReadSize);
 
                 // Check to see if there is any region area to be read

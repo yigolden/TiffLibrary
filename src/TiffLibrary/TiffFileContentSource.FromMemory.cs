@@ -49,6 +49,7 @@ namespace TiffLibrary
 
             public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (offset > _memory.Length)
                 {
                     return default;
@@ -62,6 +63,7 @@ namespace TiffLibrary
 
             public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (offset > _memory.Length)
                 {
                     return default;

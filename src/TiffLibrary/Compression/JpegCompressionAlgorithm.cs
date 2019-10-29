@@ -218,7 +218,7 @@ namespace TiffLibrary.Compression
 
             private void InitializeTables()
             {
-                using var buffer = new ArrayPoolBufferWriter();
+                using var buffer = new MemoryPoolBufferWriter();
                 _encoder.WriteTables(buffer);
                 _jpegTables = buffer.ToArray();
             }

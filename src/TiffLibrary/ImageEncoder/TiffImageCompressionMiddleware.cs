@@ -59,7 +59,7 @@ namespace TiffLibrary.ImageEncoder
                 BytesPerScanline = bytesPerScanlines
             };
 
-            using (var bufferWriter = new ArrayPoolBufferWriter(context.MemoryPool))
+            using (var bufferWriter = new MemoryPoolBufferWriter(context.MemoryPool))
             {
                 _compressionAlgorithm.Compress(compressionContext, context.UncompressedData, bufferWriter);
                 int length = bufferWriter.Length;

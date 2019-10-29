@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace TiffLibrary
 {
-    internal sealed class ArrayPoolBufferWriter : IBufferWriter<byte>, IDisposable
+    internal sealed class MemoryPoolBufferWriter : IBufferWriter<byte>, IDisposable
     {
         private sealed class BufferSegment : ReadOnlySequenceSegment<byte>
         {
@@ -76,7 +76,7 @@ namespace TiffLibrary
 
         public int Length => _length;
 
-        public ArrayPoolBufferWriter(MemoryPool<byte> memoryPool = null)
+        public MemoryPoolBufferWriter(MemoryPool<byte> memoryPool = null)
         {
             _memoryPool = memoryPool ?? MemoryPool<byte>.Shared;
         }

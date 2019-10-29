@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\TiffLibrary\Utils\ArrayPoolBufferWriter.cs" Link="Utils\ArrayPoolBufferWriter.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\MemoryPoolBufferWriter.cs" Link="Utils\MemoryPoolBufferWriter.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\BitReader.cs" Link="Utils\BitReader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\BitWriter.cs" Link="Utils\BitWriter.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\TiffMathHelper.cs" Link="Utils\TiffMathHelper.cs" />

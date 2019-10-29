@@ -310,21 +310,21 @@ namespace TiffLibrary
             // entryFieldLength should be 12 (Standard TIFF) or 20 (BigTiff)
             int entryFieldLength = 4 + context.ByteCountOfValueOffsetField + context.ByteCountOfValueOffsetField;
             offset = offset + context.ByteCountOfImageFileDirectoryCountField;
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(512); // 512 should be large enough to contain 25 entries plus a offset ((20 * 25 + 8) < 512)
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(1024); // 1024 should be large enough to contain 50 entries plus a offset ((20 * 50 + 8) < 1024)
             try
             {
                 // Loop through entries
                 int index = 0;
                 int readCount;
-                while (count >= 25)
+                while (count >= 50)
                 {
-                    readCount = await reader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, entryFieldLength * 25), cancellationToken).ConfigureAwait(false);
-                    if (readCount != entryFieldLength * 25)
+                    readCount = await reader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, entryFieldLength * 50), cancellationToken).ConfigureAwait(false);
+                    if (readCount != entryFieldLength * 50)
                     {
                         throw new InvalidDataException();
                     }
                     offset += readCount;
-                    for (int i = 0; i < entryFieldLength * 25; i += entryFieldLength)
+                    for (int i = 0; i < entryFieldLength * 50; i += entryFieldLength)
                     {
                         if (!TiffImageFileDirectoryEntry.TryParse(context, new ReadOnlySpan<byte>(buffer, i, entryFieldLength), out entries[index]))
                         {
@@ -333,7 +333,7 @@ namespace TiffLibrary
                         index++;
                     }
 
-                    count -= 25;
+                    count -= 50;
                 }
 
                 // Read remaining entries + the offset.

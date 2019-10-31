@@ -165,9 +165,9 @@ TiffMemoryPixelBuffer<TiffRgba32> pixelBuffer = new TiffMemoryPixelBuffer<TiffRg
 await decoder.DecodeAsync(new TiffPoint(2048, 2048), pixelBuffer);
 ```
 
-If you want to decode the image into pixel buffer other than `Memory<TPixel>` (eg. An `Image<Rgba32>` instance from ImageSharp library), you can refer to **Working with Pixel Buffer** page in advanced topics.
+If you want to decode the image into pixel buffer other than `Memory<TPixel>` (eg. An `Image<Rgba32>` instance from ImageSharp library), you can refer to **[Working with Pixel Buffer](./Documentation/working-with-pixel-buffer.md)** page in advanced topics.
 
-For other usages of `TiffImageDecoder`, see **Using TiffImageDecoder** in advanced topics.
+For other usages of `TiffImageDecoder`, see **[Using Image Decoder APIs](./Documentation/using-image-decoder-apis.md)** in advanced topics.
 
 ### **Encode an Image into TIFF file**
 
@@ -245,8 +245,8 @@ using (Image<Rgba32> image = Image.Load<Rgba32>(@"C:\Data\test.tif"))
 }
 ```
 
-## Advanced Topics (TODO)
+## Advanced Topics
 
 * [Supported TIFF Features](./Documentation/supported-tiff-features.md)
 * [Working with Pixel Buffer](./Documentation/working-with-pixel-buffer.md)
-* Using TiffImageDecoder
+* [Using Image Decoder APIs](./Documentation/using-image-decoder-apis.md)

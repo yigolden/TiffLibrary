@@ -97,7 +97,7 @@ structBuffer = structBuffer.Crop(new TiffPoint(50, 50));
 structBuffer = structBuffer.Crop(new TiffPoint(50, 50), new TiffSize(100, 100));
 ```
 
-After `TiffPixelBuffer<TPixel>` is created, you can pass it to the encoder or the decoder to use. Apart from specifying the sub-region of the pixel buffer, you can also set a limit on the area to read when trying to decode images from TIFF files. This is a common technique when decoding images from massive-sized TIFF files. For more information, please see TODO.
+After `TiffPixelBuffer<TPixel>` is created, you can pass it to the encoder or the decoder to use. Apart from specifying the sub-region of the pixel buffer, you can also set a limit on the area to read when trying to decode images from TIFF files. This is a common technique when decoding images from massive-sized TIFF files. For more information, please see [Using Image Decoder APIs](./using-image-decoder-apis.md).
 
 
 ## ITiffPixelBufferWriter&lt;TPixel&gt; Interface

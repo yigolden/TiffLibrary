@@ -19,7 +19,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets a empty list.
         /// </summary>
-        public static readonly TiffValueCollection<T> Empty = default;
+        internal static readonly TiffValueCollection<T> s_empty = default;
 
         /// <summary>
         /// Create the list with a single element.
@@ -264,7 +264,7 @@ namespace TiffLibrary
         /// <returns>The created <see cref="TiffValueCollection{T}"/>.</returns>
         public static TiffValueCollection<T> Empty<T>()
         {
-            return default;
+            return TiffValueCollection<T>.s_empty;
         }
     }
 

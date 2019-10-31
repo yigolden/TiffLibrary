@@ -9,7 +9,7 @@ namespace TiffLibrary.Tests
         [Fact]
         public void TestEmpty()
         {
-            TiffValueCollection<int> emptyVal = TiffValueCollection<int>.Empty;
+            TiffValueCollection<int> emptyVal = TiffValueCollection.Empty<int>();
             Assert.Empty(emptyVal);
             Assert.True(emptyVal.IsEmpty);
             Assert.True(emptyVal.Count == 0);
@@ -29,7 +29,7 @@ namespace TiffLibrary.Tests
             Assert.True(emptyVal4.IsEmpty);
             Assert.True(emptyVal4.Count == 0);
 
-            TiffValueCollection<string> emptyRef = TiffValueCollection<string>.Empty;
+            TiffValueCollection<string> emptyRef = TiffValueCollection.Empty<string>();
             Assert.Empty(emptyVal);
             Assert.True(emptyVal.IsEmpty);
             Assert.True(emptyVal.Count == 0);

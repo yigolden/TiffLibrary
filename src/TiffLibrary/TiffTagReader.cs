@@ -51,7 +51,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<byte>>(TiffValueCollection<byte>.Empty);
+                return new ValueTask<TiffValueCollection<byte>>(TiffValueCollection.Empty<byte>());
             }
 
             return Reader.ReadByteFieldAsync(entry);
@@ -77,7 +77,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<sbyte>>(TiffValueCollection<sbyte>.Empty);
+                return new ValueTask<TiffValueCollection<sbyte>>(TiffValueCollection.Empty<sbyte>());
             }
 
             return Reader.ReadSByteFieldAsync(entry);
@@ -103,7 +103,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<string>>(TiffValueCollection<string>.Empty);
+                return new ValueTask<TiffValueCollection<string>>(TiffValueCollection.Empty<string>());
             }
 
             return Reader.ReadASCIIFieldAsync(entry);
@@ -129,7 +129,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection<ushort>.Empty);
+                return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.Empty<ushort>());
             }
 
             return Reader.ReadShortFieldAsync(entry);
@@ -155,7 +155,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<short>>(TiffValueCollection<short>.Empty);
+                return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.Empty<short>());
             }
 
             return Reader.ReadSShortFieldAsync(entry);
@@ -181,7 +181,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection<uint>.Empty);
+                return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.Empty<uint>());
             }
 
             return Reader.ReadLongFieldAsync(entry);
@@ -207,7 +207,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<int>>(TiffValueCollection<int>.Empty);
+                return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Empty<int>());
             }
 
             return Reader.ReadSLongFieldAsync(entry);
@@ -233,7 +233,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection<ulong>.Empty);
+                return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.Empty<ulong>());
             }
 
             return Reader.ReadLong8FieldAsync(entry);
@@ -259,7 +259,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<long>>(TiffValueCollection<long>.Empty);
+                return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.Empty<long>());
             }
 
             return Reader.ReadSLong8FieldAsync(entry);
@@ -285,7 +285,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection<TiffRational>.Empty);
+                return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Empty<TiffRational>());
             }
 
             return Reader.ReadRationalFieldAsync(entry);
@@ -311,7 +311,7 @@ namespace TiffLibrary
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
             if (entry.Tag == TiffTag.None)
             {
-                return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection<TiffSRational>.Empty);
+                return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Empty<TiffSRational>());
             }
 
             return Reader.ReadSRationalFieldAsync(entry);

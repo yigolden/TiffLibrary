@@ -17,7 +17,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <summary>
         /// Initialize the middleware with the default YCbCrCoefficients and ReferenceBlackWhite tags.
         /// </summary>
-        public TiffChunkyYCbCr888Interpreter() : this(TiffValueCollection<TiffRational>.Empty, TiffValueCollection<TiffRational>.Empty) { }
+        public TiffChunkyYCbCr888Interpreter() : this(TiffValueCollection.Empty<TiffRational>(), TiffValueCollection.Empty<TiffRational>()) { }
 
         /// <summary>
         /// Initialize the middleware.

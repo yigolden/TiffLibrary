@@ -10,7 +10,7 @@ namespace TiffLibrary
     public abstract class TiffImageEncoder<TPixel> where TPixel : unmanaged
     {
         /// <summary>
-        /// Encode a single image without writing any IFD fields.
+        /// Encode a single image without writing any IFD tag fields.
         /// </summary>
         /// <param name="writer">The <see cref="TiffFileWriter"/> object to write encoded image data to.</param>
         /// <param name="offset">The number of columns and rows to skip in <paramref name="reader"/>.</param>
@@ -21,12 +21,12 @@ namespace TiffLibrary
         public abstract Task<TiffStreamRegion> EncodeAsync(TiffFileWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Encode an image as well as associated IFD fields into TIFF stream.
+        /// Encode an image as well as associated tag fields into TIFF stream.
         /// </summary>
         /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
         /// <param name="offset">The number of columns and rows to skip in <paramref name="reader"/>.</param>
         /// <param name="size">The number of columns and rows to encode in <paramref name="reader"/>.</param>
-        /// <param name="reader">The pixel buffer reader object.</param>
+        /// <param name="reader">The pixel buffer reader.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
         public abstract Task EncodeAsync(TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default);

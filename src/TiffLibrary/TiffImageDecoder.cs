@@ -19,7 +19,7 @@ namespace TiffLibrary
         public abstract int Height { get; }
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer.
+        /// Decode the image into the specified pixel buffer writer.
         /// </summary>
         /// <typeparam name="TPixel">The pixel type.</typeparam>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>

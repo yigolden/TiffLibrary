@@ -700,9 +700,6 @@ namespace JpegLibrary
 
             JpegBlock8x8 outputBuffer;
 
-            // Output
-            JpegBlockOutputWriter outputWriter = _outputWriter;
-
             for (int rowMcu = 0; rowMcu < mcusPerColumn; rowMcu++)
             {
                 int offsetY = rowMcu * maxVerticalSampling;
@@ -735,7 +732,7 @@ namespace JpegLibrary
                                 ShiftDataLevel(ref outputFBuffer, ref outputBuffer, levelShift);
 
                                 // CopyToOutput
-                                outputWriter.WriteBlock(outputBuffer, index, (offsetX + x) * 8, (offsetY + y) * 8, maxHorizontalSampling / h, maxVerticalSampling / v);
+                                WriteBlock(outputBuffer, index, (offsetX + x) * 8, (offsetY + y) * 8, maxHorizontalSampling / h, maxVerticalSampling / v);
                             }
                         }
                     }
@@ -765,7 +762,6 @@ namespace JpegLibrary
 
                     }
                 }
-
             }
 
             bitReader.AdvanceAlignByte();
@@ -778,6 +774,48 @@ namespace JpegLibrary
                 }
             }
             reader.TryAdvance(bytesConsumed);
+        }
+
+        private void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSamplingFactor, int verticalSamplingFactor)
+        {
+            JpegBlockOutputWriter outputWriter = _outputWriter;
+
+            if (horizontalSamplingFactor == 1 && verticalSamplingFactor == 1)
+            {
+                outputWriter.WriteBlock(block, componentIndex, x, y);
+            }
+            else
+            {
+                JpegBlock8x8 tempBlock = default;
+
+                int hShift = 0, vShift = 0, hf = horizontalSamplingFactor, vf = verticalSamplingFactor;
+                while ((hf = hf / 2) != 0) hShift++;
+                while ((vf = vf / 2) != 0) vShift++;
+
+                ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
+                ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(tempBlock));
+
+                for (int v = 0; v < verticalSamplingFactor; v++)
+                {
+                    int yOffset = y + 8 * v;
+                    for (int h = 0; h < horizontalSamplingFactor; h++)
+                    {
+                        // Fill tempBlock
+                        for (int i = 0; i < 8; i++)
+                        {
+                            ref short tempRowRef = ref Unsafe.Add(ref tempRef, 8 * i);
+                            ref short blockRowRef = ref Unsafe.Add(ref blockRef, 8 * i >> vShift);
+                            for (int j = 0; j < 8; j++)
+                            {
+                                Unsafe.Add(ref tempRowRef, j) = Unsafe.Add(ref blockRowRef, j >> hShift);
+                            }
+                        }
+
+                        // Write tempBlock to output
+                        outputWriter.WriteBlock(tempBlock, componentIndex, x + 8 * h, yOffset);
+                    }
+                }
+            }
         }
 
         private static void ReadBlockBaseline(ref JpegBitReader reader, JpegDecodeComponent component, ref JpegBlock8x8 destinationBlock)

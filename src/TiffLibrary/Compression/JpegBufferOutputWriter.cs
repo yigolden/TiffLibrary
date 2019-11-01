@@ -36,46 +36,35 @@ namespace TiffLibrary.Compression
             _output = default;
         }
 
-        public override void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSamplingFactor, int verticalSamplingFactor)
+        public override void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y)
         {
             int componentCount = _componentCount;
             int width = _width;
+            int height = _height;
 
             if (x > width || y > _height)
             {
                 return;
             }
-            if ((y + 8 * verticalSamplingFactor) <= _skippedScanlines)
+            if ((y + 8) <= _skippedScanlines)
             {
                 // No need to decode region before the fist requested scanline.
                 return;
             }
 
-            int writeWidth = Math.Min(width - x, 8 * horizontalSamplingFactor);
-            int writeHeight = Math.Min(_height - y, 8 * verticalSamplingFactor);
+            int writeWidth = Math.Min(width - x, 8);
+            int writeHeight = Math.Min(height - y, 8);
 
-            int hShift = 0, vShift = 0;
-            while ((horizontalSamplingFactor = horizontalSamplingFactor / 2) != 0)
-                hShift++;
-            while ((verticalSamplingFactor = verticalSamplingFactor / 2) != 0)
-                vShift++;
-
-            ref short sourceRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(in block));
-
-            // destinationSpan Range check ?
+            ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
             ref byte destinationRef = ref MemoryMarshal.GetReference(_output.Span);
 
             for (int destY = 0; destY < writeHeight; destY++)
             {
-                ref short sourceRowRef = ref Unsafe.Add(ref sourceRef, 8 * (destY >> vShift));
-                ref byte rowRef = ref Unsafe.Add(ref destinationRef, ((y + destY) * width + x) * componentCount);
-
+                ref short blockRowRef = ref Unsafe.Add(ref blockRef, destY * 8);
+                ref byte destinationRowRef = ref Unsafe.Add(ref destinationRef, ((y + destY) * width + x) * componentCount + componentIndex);
                 for (int destX = 0; destX < writeWidth; destX++)
                 {
-                    // Use bit shift to accelerate
-                    //int blockOffset = destX / horizontalSamplingFactor;
-                    int blockOffset = destX >> hShift;
-                    Unsafe.Add(ref rowRef, destX * componentCount + componentIndex) = TiffMathHelper.ClampTo8Bit(Unsafe.Add(ref sourceRowRef, blockOffset));
+                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = TiffMathHelper.ClampTo8Bit(Unsafe.Add(ref blockRowRef, destX));
                 }
             }
         }

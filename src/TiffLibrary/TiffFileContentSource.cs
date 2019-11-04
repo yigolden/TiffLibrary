@@ -49,17 +49,17 @@ namespace TiffLibrary
         /// <summary>
         /// Create a <see cref="TiffFileContentSource"/> instance from the specified TIFF file name.
         /// </summary>
-        /// <param name="filename">The file name of the TIFF file.</param>
+        /// <param name="fileName">The file name of the TIFF file.</param>
         /// <param name="preferAsync">Whether asynchronous APIs should be preferred.</param>
         /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the <see cref="FileStream"/> of this file.</returns>
-        public static TiffFileContentSource Create(string filename, bool preferAsync = true)
+        public static TiffFileContentSource Create(string fileName, bool preferAsync = true)
         {
-            if (filename is null)
+            if (fileName is null)
             {
-                throw new ArgumentNullException(nameof(filename));
+                throw new ArgumentNullException(nameof(fileName));
             }
 
-            return new TiffFileStreamContentSource(filename, preferAsync);
+            return new TiffFileStreamContentSource(fileName, preferAsync);
         }
 
         /// <summary>

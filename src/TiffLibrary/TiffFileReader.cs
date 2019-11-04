@@ -48,11 +48,11 @@ namespace TiffLibrary
         /// <summary>
         /// Opens a TIFF file and creates <see cref="TiffFileReader"/>.
         /// </summary>
-        /// <param name="filename">The TIFF file.</param>
+        /// <param name="fileName">The TIFF file.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static Task<TiffFileReader> OpenAsync(string filename)
+        public static Task<TiffFileReader> OpenAsync(string fileName)
         {
-            var contentSource = TiffFileContentSource.Create(filename, preferAsync: true);
+            var contentSource = TiffFileContentSource.Create(fileName, preferAsync: true);
             return OpenAsync(contentSource, leaveOpen: false);
         }
 
@@ -95,11 +95,11 @@ namespace TiffLibrary
         /// <summary>
         /// Opens a TIFF file and creates <see cref="TiffFileReader"/>.
         /// </summary>
-        /// <param name="filename">The TIFF file.</param>
+        /// <param name="fileName">The TIFF file.</param>
         /// <returns>The reader instance.</returns>
-        public static TiffFileReader Open(string filename)
+        public static TiffFileReader Open(string fileName)
         {
-            var contentSource = TiffFileContentSource.Create(filename, preferAsync: true);
+            var contentSource = TiffFileContentSource.Create(fileName, preferAsync: true);
             return Open(contentSource, leaveOpen: false);
         }
 

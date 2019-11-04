@@ -78,12 +78,12 @@ namespace TiffLibrary
         /// <summary>
         /// Opens the specified file for writing and creates <see cref="TiffFileWriter"/>.
         /// </summary>
-        /// <param name="filename">The file to write to.</param>
+        /// <param name="fileName">The file to write to.</param>
         /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
-        public static async Task<TiffFileWriter> OpenAsync(string filename, bool useBigTiff = false)
+        public static async Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false)
         {
-            var fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
             try
             {
                 byte[] smallBuffer = new byte[SmallBufferSize];

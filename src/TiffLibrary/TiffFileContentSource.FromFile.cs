@@ -27,8 +27,8 @@ namespace TiffLibrary
         {
             lock (_lock)
             {
-                string filename = _fileName;
-                if (filename is null)
+                string fileName = _fileName;
+                if (fileName is null)
                 {
                     throw new ObjectDisposedException(nameof(TiffFileStreamContentSource));
                 }
@@ -38,7 +38,7 @@ namespace TiffLibrary
                     _fileStream = null;
                     return fs;
                 }
-                return new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync);
+                return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync);
             }
         }
 

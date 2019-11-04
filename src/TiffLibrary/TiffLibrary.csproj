@@ -86,6 +86,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>TiffTagReaderDocumentExtensions.tt</DependentUpon>
     </Compile>
+    <Compile Update="TiffTagReaderFacsimileExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderFacsimileExtensions.tt</DependentUpon>
+    </Compile>
     <Compile Update="TiffTagReaderHalftoneHintsExtensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -133,6 +138,10 @@
     <None Update="TiffTagReaderDocumentExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TiffTagReaderDocumentExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderFacsimileExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderFacsimileExtensions.cs</LastGenOutput>
     </None>
     <None Update="TiffTagReaderHalftoneHintsExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

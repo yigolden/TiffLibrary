@@ -261,6 +261,21 @@
         TileByteCounts = 0x145,
 
         /// <summary>
+        /// The BadFaxLines tag reports the number of scan lines with an incorrect number of pixels encountered by the facsimile during reception (but not necessarily in the file).
+        /// </summary>
+        BadFaxLines = 0x146,
+
+        /// <summary>
+        /// The CleanFaxData tag describes the error content of the data. That is, when the BadFaxLines and ImageLength tags indicate that the facsimile device encountered lines with an incorrect number of pixels during reception, the CleanFaxData tag indicates whether these lines are actually in the data or if the receiving facsimile device replaced them with regenerated lines.
+        /// </summary>
+        CleanFaxData = 0x147,
+
+        /// <summary>
+        /// The ConsecutiveBadFaxLines tag reports the maximum number of consecutive lines containing an incorrect number of pixels encountered by the facsimile device during reception (but not necessarily in the file).
+        /// </summary>
+        ConsecutiveBadFaxLines = 0x148,
+
+        /// <summary>
         /// InkSet.
         /// </summary>
         InkSet = 0x14C,

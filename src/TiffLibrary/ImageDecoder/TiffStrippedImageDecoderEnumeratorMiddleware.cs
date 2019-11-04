@@ -48,6 +48,12 @@ namespace TiffLibrary.ImageDecoder
 
             int rowsPerStrip = _rowsPerStrip;
 
+            // Special case for mailformed file.
+            if (rowsPerStrip <= 0 && _stripOffsets.Count == 1)
+            {
+                rowsPerStrip = context.SourceImageSize.Height;
+            }
+
             // Make sure the region to read is in the image boundary.
             if (context.SourceReadOffset.X >= context.SourceImageSize.Width || context.SourceReadOffset.Y >= context.SourceImageSize.Height)
             {

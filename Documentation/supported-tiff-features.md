@@ -55,6 +55,19 @@ Notes about JPEG: Only baseline JPEG is supported. The JPEG compression schema (
 
 Horizontal predictor is usually used along with LZW and Deflate compression to further reduce file size while preserving image quality.
 
+## Orientation for Decoding
+
+TiffLibrary supports decoding of the image in any of the following orientation.
+
+* TopLeft (OrientationTag=1)
+* TopRight (OrientationTag=2)
+* BottomRight (OrientationTag=3)
+* BottomLeft (OrientationTag=4)
+* LeftTop (OrientationTag=5)
+* RightTop (OrientationTag=6)
+* RightBottom (OrientationTag=7)
+* LeftBottom (OrientationTag=8)
+
 ## Photometric Interpretations for Encoding
 
 * TransparencyMask (1 bit)
@@ -80,3 +93,16 @@ Notes about JPEG: JPEG compression only supports 8-bit BlackIsZero, RGB, CMYK an
 * Horizontal Predictor (PredictorTag=2)
 
 It is not recommended to apply horizontal predictor to image compressed with compression methods other than LZW and Deflate, because such TIFF files may confuse other TIFF readers.
+
+## Orientation for Encoding
+
+TiffLibrary supports encoding of the image in any of the following orientation.
+
+* TopLeft (OrientationTag=1)
+* TopRight (OrientationTag=2)
+* BottomRight (OrientationTag=3)
+* BottomLeft (OrientationTag=4)
+* LeftTop (OrientationTag=5)
+* RightTop (OrientationTag=6)
+* RightBottom (OrientationTag=7)
+* LeftBottom (OrientationTag=8)

@@ -112,7 +112,7 @@ namespace TiffLibrary.Tests
             var ms = new DelayedReadMemoryStream(new byte[4096]);
             using (var contentSource = TiffFileContentSource.Create(ms, leaveOpen: true))
             {
-                var reader = await contentSource.OpenReaderAsync();
+                TiffFileContentReader reader = await contentSource.OpenReaderAsync();
 
                 Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount * 2, 4, 32)];
                 

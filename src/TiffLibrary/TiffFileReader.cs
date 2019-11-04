@@ -399,16 +399,15 @@ namespace TiffLibrary
         /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
         /// </summary>
         /// <param name="ifd">The ifd to decode.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
         /// <returns>An image decoder.</returns>
-        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd, CancellationToken cancellationToken = default)
+        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd)
         {
             if (ifd is null)
             {
                 throw new ArgumentNullException(nameof(ifd));
             }
 
-            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, null, cancellationToken).GetAwaiter().GetResult();
+            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, null, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -416,16 +415,15 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="ifd">The ifd to decode.</param>
         /// <param name="options">The options to use when decoding image.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
         /// <returns>An image decoder.</returns>
-        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken = default)
+        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
         {
             if (ifd is null)
             {
                 throw new ArgumentNullException(nameof(ifd));
             }
 
-            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, options, cancellationToken).GetAwaiter().GetResult();
+            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, options, CancellationToken.None).GetAwaiter().GetResult();
         }
 
 

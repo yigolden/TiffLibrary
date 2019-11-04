@@ -237,6 +237,30 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the first IFD.
+        /// </summary>
+        /// <returns>The <see cref="TiffImageFileDirectory"/> instance.</returns>
+        public TiffImageFileDirectory ReadImageFileDirectory()
+        {
+            return ReadImageFileDirectory(FirstImageFileDirectoryOffset);
+        }
+
+        /// <summary>
+        /// Read the IFD from the specified offset.
+        /// </summary>
+        /// <param name="offset">The offset of the IFD.</param>
+        /// <returns>The <see cref="TiffImageFileDirectory"/> instance.</returns>
+        public TiffImageFileDirectory ReadImageFileDirectory(TiffStreamOffset offset)
+        {
+            if (offset.IsZero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+            using TiffFileContentReader reader = TiffSyncFileContentSource.WrapReader(_contentSource.OpenReader());
+            return ReadImageFileDirectoryAsync(reader, _operationContext, offset.ToInt64(), CancellationToken.None).GetAwaiter().GetResult();
+        }
+
         internal static int ParseImageFileDirectoryEntryCount(TiffOperationContext context, Span<byte> buffer)
         {
             Debug.Assert(buffer.Length >= 8);

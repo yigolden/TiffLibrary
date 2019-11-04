@@ -24,6 +24,26 @@ namespace TiffLibrary
             _cancellationToken = cancellationToken;
         }
 
+        private TiffFileContentReader GetAsyncReader()
+        {
+            TiffFileContentReader reader = _reader;
+            if (reader is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+            return reader;
+        }
+
+        private TiffFileContentReader GetSyncReader()
+        {
+            TiffFileContentReader reader = _reader;
+            if (reader is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+            return TiffSyncFileContentSource.WrapReader(reader);
+        }
+
         /// <summary>
         /// Dispose this instance.
         /// </summary>

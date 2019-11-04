@@ -373,6 +373,16 @@ namespace TiffLibrary
         /// <summary>
         /// Creates a <see cref="TiffFieldReader"/> to read field values. A new stream will be created from stream source if possible.
         /// </summary>
+        /// <returns>The field reader.</returns>
+        public TiffFieldReader CreateFieldReader()
+        {
+            TiffFileContentReader reader = _contentSource.OpenReader();
+            return new TiffFieldReader(reader, _operationContext, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="TiffFieldReader"/> to read field values. A new stream will be created from stream source if possible.
+        /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> that is preserved and used by the <see cref="TiffFieldReader"/> created. Cancel the token will cause the field reader to stop the on-going reading tasks and turns the field reader into an unusable state.</param>
         /// <returns>The field reader.</returns>
         public async Task<TiffFieldReader> CreateFieldReaderAsync(CancellationToken cancellationToken = default)

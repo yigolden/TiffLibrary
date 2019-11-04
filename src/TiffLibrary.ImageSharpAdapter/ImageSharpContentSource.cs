@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageSharpAdapter
@@ -28,12 +27,6 @@ namespace TiffLibrary.ImageSharpAdapter
             return new ValueTask<TiffFileContentReader>(_reader);
         }
 
-        public ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer)
-        {
-            _stream.Seek(offset, SeekOrigin.Begin);
-            return new ValueTask<int>(_stream.Read(buffer.Array, buffer.Offset, buffer.Count));
-        }
-
         protected override void Dispose(bool disposing)
         {
             // Noop
@@ -56,17 +49,6 @@ namespace TiffLibrary.ImageSharpAdapter
             protected override void Dispose(bool disposing)
             {
                 // Noop
-            }
-
-            public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
-            {
-                Stream stream = _stream;
-                if (stream is null)
-                {
-                    throw new ObjectDisposedException(nameof(ContentReader));
-                }
-                stream.Seek(offset, SeekOrigin.Begin);
-                return new ValueTask<int>(stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
             }
 
             public override int Read(long offset, Memory<byte> buffer)

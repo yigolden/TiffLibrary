@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.DocumentName"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadDocumentName(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.DocumentName);
+            return result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.PageName"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadPageName(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.PageName);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -83,6 +105,17 @@ namespace TiffLibrary
                 return result.Count == 0 ? default(TiffPageNumber) : (result.Count == 1 ? new TiffPageNumber(result.FirstOrDefault, 0) : new TiffPageNumber(result.FirstOrDefault, result[1]));
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.PageNumber"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffPageNumber ReadPageNumber(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PageNumber);
+            return result.Count == 0 ? default(TiffPageNumber) : (result.Count == 1 ? new TiffPageNumber(result.FirstOrDefault, 0) : new TiffPageNumber(result.FirstOrDefault, result[1]));
+        }
 
         #endregion
     
@@ -110,6 +143,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.XPosition"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational? ReadXPosition(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.XPosition);
+            return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -136,6 +180,17 @@ namespace TiffLibrary
                 TiffValueCollection<TiffRational> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.YPosition"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational? ReadYPosition(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YPosition);
+            return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
         }
 
         #endregion

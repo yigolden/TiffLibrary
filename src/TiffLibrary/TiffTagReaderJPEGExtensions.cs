@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGTables"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static byte[] ReadJPEGTables(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<byte> result = tagReader.ReadByteField(TiffTag.JPEGTables);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? (ushort)1 : result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGProc"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort ReadJPEGProc(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.JPEGProc);
+            return result.IsEmpty ? (ushort)1 : result.FirstOrDefault;
         }
 
         #endregion
@@ -83,6 +105,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? 0 : result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGInterchangeFormat"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint ReadJPEGInterchangeFormat(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGInterchangeFormat);
+            return result.IsEmpty ? 0 : result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -109,6 +142,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? 0 : result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGInterchangeFormatLength"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint ReadJPEGInterchangeFormatLength(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGInterchangeFormatLength);
+            return result.IsEmpty ? 0 : result.FirstOrDefault;
         }
 
         #endregion
@@ -137,6 +181,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? (ushort)0 : result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGRestartInterval"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort ReadJPEGRestartInterval(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.JPEGRestartInterval);
+            return result.IsEmpty ? (ushort)0 : result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -163,6 +218,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.GetOrCreateArray();
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGQTables"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint[] ReadJPEGQTables(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGQTables);
+            return result.GetOrCreateArray();
         }
 
         #endregion
@@ -191,6 +257,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGDCTables"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint[] ReadJPEGDCTables(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGDCTables);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -217,6 +294,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.GetOrCreateArray();
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.JPEGACTables"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint[] ReadJPEGACTables(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGACTables);
+            return result.GetOrCreateArray();
         }
 
         #endregion

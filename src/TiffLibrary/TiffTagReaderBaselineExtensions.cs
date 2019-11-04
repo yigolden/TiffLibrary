@@ -30,6 +30,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Artist"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadArtist(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Artist);
+            return result.FirstOrDefault;
+        }
+
         #endregion
     
         #region BitsPerSample
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.BitsPerSample"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ushort> ReadBitsPerSample(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.BitsPerSample);
+            return result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result;
         }
 
         #endregion
@@ -84,6 +106,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.CellLength"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort? ReadCellLength(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CellLength);
+            return result.IsEmpty ? default(ushort?) : result.FirstOrDefault;
+        }
+
         #endregion
     
         #region CellWidth
@@ -109,6 +142,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? default(ushort?) : result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.CellWidth"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort? ReadCellWidth(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CellWidth);
+            return result.IsEmpty ? default(ushort?) : result.FirstOrDefault;
         }
 
         #endregion
@@ -138,6 +182,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ColorMap"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort[] ReadColorMap(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ColorMap);
+            return result.GetOrCreateArray();
+        }
+
         #endregion
     
         #region Compression
@@ -163,6 +218,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Compression"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffCompression ReadCompression(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Compression);
+            return result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.FirstOrDefault;
         }
 
         #endregion
@@ -192,6 +258,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Copyright"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadCopyright(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Copyright);
+            return result.FirstOrDefault;
+        }
+
         #endregion
     
         #region DateTime
@@ -217,6 +294,17 @@ namespace TiffLibrary
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.DateTime"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadDateTime(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.DateTime);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -246,6 +334,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ExtraSamples"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<TiffExtraSample> ReadExtraSamples(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ExtraSamples);
+            return result.ConvertAll(i => (TiffExtraSample)i);
+        }
+
         #endregion
     
         #region FillOrder
@@ -271,6 +370,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.FillOrder"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffFillOrder ReadFillOrder(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.FillOrder);
+            return result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.FirstOrDefault;
         }
 
         #endregion
@@ -300,6 +410,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.FreeByteCounts"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint? ReadFreeByteCounts(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.FreeByteCounts);
+            return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
+        }
+
         #endregion
     
         #region FreeOffsets
@@ -325,6 +446,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.FreeOffsets"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint? ReadFreeOffsets(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.FreeOffsets);
+            return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
         }
 
         #endregion
@@ -354,6 +486,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.GrayResponseCurve"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ushort> ReadGrayResponseCurve(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.GrayResponseCurve);
+            return result;
+        }
+
         #endregion
     
         #region GrayResponseUnit
@@ -379,6 +522,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.GrayResponseUnit"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffGrayResponseUnit ReadGrayResponseUnit(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.GrayResponseUnit);
+            return result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.FirstOrDefault;
         }
 
         #endregion
@@ -408,6 +562,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.HostComputer"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadHostComputer(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.HostComputer);
+            return result.FirstOrDefault;
+        }
+
         #endregion
     
         #region ImageDescription
@@ -433,6 +598,17 @@ namespace TiffLibrary
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ImageDescription"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadImageDescription(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.ImageDescription);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -462,6 +638,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ImageLength"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ulong ReadImageLength(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.ImageLength);
+            return result.FirstOrDefault;
+        }
+
         #endregion
     
         #region ImageWidth
@@ -487,6 +674,17 @@ namespace TiffLibrary
                 TiffValueCollection<ulong> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ImageWidth"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ulong ReadImageWidth(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.ImageWidth);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -516,6 +714,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Make"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadMake(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Make);
+            return result.FirstOrDefault;
+        }
+
         #endregion
     
         #region MaxSampleValue
@@ -541,6 +750,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.MaxSampleValue"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ushort> ReadMaxSampleValue(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.MaxSampleValue);
+            return result;
         }
 
         #endregion
@@ -570,6 +790,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.MinSampleValue"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ushort> ReadMinSampleValue(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.MinSampleValue);
+            return result;
+        }
+
         #endregion
     
         #region Model
@@ -595,6 +826,17 @@ namespace TiffLibrary
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Model"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadModel(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Model);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -624,6 +866,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.NewSubfileType"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffNewSubfileType ReadNewSubfileType(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.NewSubfileType);
+            return (TiffNewSubfileType)result.FirstOrDefault;
+        }
+
         #endregion
     
         #region Orientation
@@ -649,6 +902,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Orientation"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffOrientation ReadOrientation(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Orientation);
+            return result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.FirstOrDefault;
         }
 
         #endregion
@@ -678,6 +942,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.PhotometricInterpretation"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffPhotometricInterpretation? ReadPhotometricInterpretation(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PhotometricInterpretation);
+            return result.IsEmpty ? default(TiffPhotometricInterpretation?) : (TiffPhotometricInterpretation)result.FirstOrDefault;
+        }
+
         #endregion
     
         #region PlanarConfiguration
@@ -703,6 +978,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.PlanarConfiguration"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffPlanarConfiguration ReadPlanarConfiguration(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PlanarConfiguration);
+            return result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.FirstOrDefault;
         }
 
         #endregion
@@ -732,6 +1018,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ResolutionUnit"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffResolutionUnit ReadResolutionUnit(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ResolutionUnit);
+            return result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.FirstOrDefault;
+        }
+
         #endregion
     
         #region RowsPerStrip
@@ -757,6 +1054,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.RowsPerStrip"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint ReadRowsPerStrip(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.RowsPerStrip);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -786,6 +1094,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.SamplesPerPixel"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort ReadSamplesPerPixel(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.SamplesPerPixel);
+            return result.IsEmpty ? (ushort)1 : result.FirstOrDefault;
+        }
+
         #endregion
     
         #region Software
@@ -811,6 +1130,17 @@ namespace TiffLibrary
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Software"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string ReadSoftware(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Software);
+            return result.FirstOrDefault;
         }
 
         #endregion
@@ -840,6 +1170,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.StripByteCounts"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ulong> ReadStripByteCounts(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.StripByteCounts);
+            return result;
+        }
+
         #endregion
     
         #region StripOffsets
@@ -865,6 +1206,17 @@ namespace TiffLibrary
                 TiffValueCollection<ulong> result = await valueTask.ConfigureAwait(false);
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.StripOffsets"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ulong> ReadStripOffsets(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.StripOffsets);
+            return result;
         }
 
         #endregion
@@ -894,6 +1246,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.SubFileType"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffSubfileType? ReadSubFileType(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.SubFileType);
+            return result.IsEmpty ? default(TiffSubfileType?) : (TiffSubfileType)result.FirstOrDefault;
+        }
+
         #endregion
     
         #region Threshholding
@@ -919,6 +1282,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Threshholding"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffThreshholding ReadThreshholding(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Threshholding);
+            return result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.FirstOrDefault;
         }
 
         #endregion
@@ -948,6 +1322,17 @@ namespace TiffLibrary
             }
         }
 
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.XResolution"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational? ReadXResolution(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.XResolution);
+            return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
+        }
+
         #endregion
     
         #region YResolution
@@ -973,6 +1358,17 @@ namespace TiffLibrary
                 TiffValueCollection<TiffRational> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
             }
+        }
+
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.YResolution"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational? ReadYResolution(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YResolution);
+            return result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault;
         }
 
         #endregion

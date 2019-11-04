@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.InkSet"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffInkSet ReadInkSet(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.InkSet);
+            return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? (ushort)4 : result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.NumberOfInks"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort ReadNumberOfInks(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.NumberOfInks);
+            return result.IsEmpty ? (ushort)4 : result.FirstOrDefault;
         }
 
         #endregion
@@ -83,6 +105,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.InkNames"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static string[] ReadInkNames(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.InkNames);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -110,6 +143,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.DotRange"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort[] ReadDotRange(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.DotRange);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -136,6 +180,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TargetPrinter"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ushort> ReadTargetPrinter(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TargetPrinter);
+            return result;
         }
 
         #endregion

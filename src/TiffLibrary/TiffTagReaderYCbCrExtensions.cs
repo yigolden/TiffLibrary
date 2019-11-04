@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.YCbCrCoefficients"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational[] ReadYCbCrCoefficients(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YCbCrCoefficients);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -56,6 +67,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.YCbCrSubSampling"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort[] ReadYCbCrSubSampling(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrSubSampling);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -82,6 +104,17 @@ namespace TiffLibrary
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.YCbCrPositioning"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffYCbCrPositioning ReadYCbCrPositioning(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrPositioning);
+            return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.FirstOrDefault;
         }
 
         #endregion

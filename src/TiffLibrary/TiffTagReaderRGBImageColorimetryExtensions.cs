@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.WhitePoint"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational[] ReadWhitePoint(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.WhitePoint);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<TiffRational> result = await valueTask.ConfigureAwait(false);
                 return result.GetOrCreateArray();
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.PrimaryChromaticities"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational[] ReadPrimaryChromaticities(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.PrimaryChromaticities);
+            return result.GetOrCreateArray();
         }
 
         #endregion
@@ -83,6 +105,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TransferFunction"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort[] ReadTransferFunction(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TransferFunction);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -110,6 +143,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TransferRange"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort[] ReadTransferRange(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TransferRange);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     
@@ -136,6 +180,17 @@ namespace TiffLibrary
                 TiffValueCollection<TiffRational> result = await valueTask.ConfigureAwait(false);
                 return result.GetOrCreateArray();
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.ReferenceBlackWhite"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffRational[] ReadReferenceBlackWhite(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.ReferenceBlackWhite);
+            return result.GetOrCreateArray();
         }
 
         #endregion

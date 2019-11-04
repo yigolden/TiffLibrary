@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TileWidth"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint? ReadTileWidth(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.TileWidth);
+            return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TileLength"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static uint? ReadTileLength(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.TileLength);
+            return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
         }
 
         #endregion
@@ -83,6 +105,17 @@ namespace TiffLibrary
                 return result;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TileOffsets"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ulong> ReadTileOffsets(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.TileOffsets);
+            return result;
+        }
 
         #endregion
     
@@ -109,6 +142,17 @@ namespace TiffLibrary
                 TiffValueCollection<ulong> result = await valueTask.ConfigureAwait(false);
                 return result;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.TileByteCounts"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffValueCollection<ulong> ReadTileByteCounts(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.TileByteCounts);
+            return result;
         }
 
         #endregion

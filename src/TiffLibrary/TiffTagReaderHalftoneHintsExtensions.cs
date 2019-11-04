@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.HalftoneHints"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static ushort[] ReadHalftoneHints(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.HalftoneHints);
+            return result.GetOrCreateArray();
+        }
 
         #endregion
     

@@ -58,6 +58,32 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<byte> ReadByteField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<byte>();
+            }
+
+            return Reader.ReadByteField(entry);
+        }
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
@@ -81,6 +107,32 @@ namespace TiffLibrary
             }
 
             return Reader.ReadSByteFieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<sbyte> ReadSByteField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<sbyte>();
+            }
+
+            return Reader.ReadSByteField(entry);
         }
 
         /// <summary>
@@ -110,6 +162,32 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.ASCII"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<string> ReadASCIIField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<string>();
+            }
+
+            return Reader.ReadASCIIField(entry);
+        }
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.Short"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
@@ -133,6 +211,32 @@ namespace TiffLibrary
             }
 
             return Reader.ReadShortFieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Short"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<ushort> ReadShortField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<ushort>();
+            }
+
+            return Reader.ReadShortField(entry);
         }
 
         /// <summary>
@@ -162,6 +266,32 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<short> ReadSShortField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<short>();
+            }
+
+            return Reader.ReadSShortField(entry);
+        }
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
@@ -185,6 +315,32 @@ namespace TiffLibrary
             }
 
             return Reader.ReadLongFieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<uint> ReadLongField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<uint>();
+            }
+
+            return Reader.ReadLongField(entry);
         }
 
         /// <summary>
@@ -214,6 +370,32 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<int> ReadSLongField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<int>();
+            }
+
+            return Reader.ReadSLongField(entry);
+        }
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
@@ -237,6 +419,32 @@ namespace TiffLibrary
             }
 
             return Reader.ReadLong8FieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<ulong> ReadLong8Field(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<ulong>();
+            }
+
+            return Reader.ReadLong8Field(entry);
         }
 
         /// <summary>
@@ -266,6 +474,32 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<long> ReadSLong8Field(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<long>();
+            }
+
+            return Reader.ReadSLong8Field(entry);
+        }
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
@@ -292,6 +526,32 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffRational> ReadRationalField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<TiffRational>();
+            }
+
+            return Reader.ReadRationalField(entry);
+        }
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
@@ -315,6 +575,32 @@ namespace TiffLibrary
             }
 
             return Reader.ReadSRationalFieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffSRational> ReadSRationalField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<TiffSRational>();
+            }
+
+            return Reader.ReadSRationalField(entry);
         }
     }
 

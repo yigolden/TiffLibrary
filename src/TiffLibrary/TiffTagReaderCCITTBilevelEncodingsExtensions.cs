@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.T4Options"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffT4Options ReadT4Options(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T4Options);
+            return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault;
+        }
 
         #endregion
     
@@ -55,6 +66,17 @@ namespace TiffLibrary
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
                 return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault;
             }
+        }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.T6Options"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffT6Options ReadT6Options(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T6Options);
+            return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault;
         }
 
         #endregion

@@ -80,6 +80,17 @@ namespace TiffLibrary
                 return <#= field.ResultHandling #>;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.<#= field.Name #>"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static <#= field.ReturnType #> Read<#= field.Name #>(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field(TiffTag.<#= field.Name #>);
+            return <#= field.ResultHandling #>;
+        }
 
         #endregion
     <#

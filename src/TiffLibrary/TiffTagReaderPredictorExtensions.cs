@@ -29,6 +29,17 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.FirstOrDefault;
             }
         }
+        
+        /// <summary>
+        /// Read the values of <see cref="TiffTag.Predictor"/>.
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static TiffPredictor ReadPredictor(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Predictor);
+            return result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.FirstOrDefault;
+        }
 
         #endregion
     

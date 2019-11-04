@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using TiffLibrary.ImageSharpAdapter;
 
-namespace TiffLibrary.ImageSharpAdapter
+namespace SixLabors.ImageSharp
 {
     public static class ImageExtensionsForTiffFormat
     {

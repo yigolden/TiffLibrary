@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using TiffLibrary.PixelBuffer;
 
 namespace TiffLibrary
 {
-    /// <summary>
-    /// Provides extension methods for <see cref="TiffImageDecoder"/>.
-    /// </summary>
     public static partial class TiffImageDecoderExtensions
     {
         /// <summary>
@@ -16,9 +11,7 @@ namespace TiffLibrary
         /// <typeparam name="TPixel">The pixel type.</typeparam>
         /// <param name="decoder">The image decoder.</param>
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -27,11 +20,11 @@ namespace TiffLibrary
 
             if (buffer.IsEmpty)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             ITiffPixelBuffer<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(buffer, out TiffPoint offset, out TiffSize size);
-            return decoder.DecodeAsync(default, size, offset, innerBuffer, cancellationToken);
+            decoder.Decode(default, size, offset, innerBuffer);
         }
 
         /// <summary>
@@ -41,9 +34,7 @@ namespace TiffLibrary
         /// <param name="decoder">The image decoder.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -52,11 +43,11 @@ namespace TiffLibrary
 
             if (buffer.IsEmpty)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             ITiffPixelBuffer<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(buffer, out TiffPoint destinationOffset, out TiffSize size);
-            return decoder.DecodeAsync(offset, size, destinationOffset, innerBuffer, cancellationToken);
+            decoder.Decode(offset, size, destinationOffset, innerBuffer);
         }
 
 
@@ -66,9 +57,7 @@ namespace TiffLibrary
         /// <typeparam name="TPixel">The pixel type.</typeparam>
         /// <param name="decoder">The image decoder.</param>
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static async Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -81,7 +70,7 @@ namespace TiffLibrary
             }
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
-            await decoder.DecodeAsync(default, new TiffSize(buffer.Width, buffer.Height), default, adapter, cancellationToken).ConfigureAwait(false);
+            decoder.Decode(default, new TiffSize(buffer.Width, buffer.Height), default, adapter);
         }
 
         /// <summary>
@@ -91,9 +80,7 @@ namespace TiffLibrary
         /// <param name="decoder">The image decoder.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static async Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -106,7 +93,7 @@ namespace TiffLibrary
             }
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
-            await decoder.DecodeAsync(offset, new TiffSize(buffer.Width, buffer.Height), default, adapter, cancellationToken).ConfigureAwait(false);
+            decoder.Decode(offset, new TiffSize(buffer.Width, buffer.Height), default, adapter);
         }
 
         /// <summary>
@@ -117,9 +104,7 @@ namespace TiffLibrary
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
         /// <param name="readSize">Number of columns and rows to read from the source image.</param>
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static async Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -132,7 +117,7 @@ namespace TiffLibrary
             }
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
-            await decoder.DecodeAsync(offset, readSize, default, adapter, cancellationToken).ConfigureAwait(false);
+            decoder.Decode(offset, readSize, default, adapter);
         }
 
         /// <summary>
@@ -144,9 +129,7 @@ namespace TiffLibrary
         /// <param name="readSize">Number of columns and rows to read from the source image.</param>
         /// <param name="destinationOffset">Number of columns and rows to skip in the destination writer.</param>
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -158,7 +141,7 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(buffer));
             }
 
-            return decoder.DecodeAsync(offset, readSize, destinationOffset, new TiffPixelBufferWriterAdapter<TPixel>(buffer), cancellationToken);
+            decoder.Decode(offset, readSize, destinationOffset, new TiffPixelBufferWriterAdapter<TPixel>(buffer));
         }
 
         /// <summary>
@@ -167,9 +150,7 @@ namespace TiffLibrary
         /// <typeparam name="TPixel">The pixel type.</typeparam>
         /// <param name="decoder">The image decoder.</param>
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -178,11 +159,11 @@ namespace TiffLibrary
 
             if (writer.IsEmpty)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             ITiffPixelBufferWriter<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint offset, out TiffSize size);
-            return decoder.DecodeAsync(default, size, offset, innerBuffer, cancellationToken);
+            decoder.Decode(default, size, offset, innerBuffer);
         }
 
         /// <summary>
@@ -193,9 +174,7 @@ namespace TiffLibrary
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
         /// <param name="readSize">Number of columns and rows to read from the source image.</param>
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -204,11 +183,11 @@ namespace TiffLibrary
 
             if (writer.IsEmpty)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             ITiffPixelBufferWriter<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint destinationOffset, out _);
-            return decoder.DecodeAsync(offset, readSize, destinationOffset, innerBuffer, cancellationToken);
+            decoder.Decode(offset, readSize, destinationOffset, innerBuffer);
         }
 
         /// <summary>
@@ -218,9 +197,7 @@ namespace TiffLibrary
         /// <param name="decoder">The image decoder.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -229,11 +206,11 @@ namespace TiffLibrary
 
             if (writer.IsEmpty)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             ITiffPixelBufferWriter<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint destinationOffset, out TiffSize size);
-            return decoder.DecodeAsync(offset, size, destinationOffset, innerBuffer, cancellationToken);
+            decoder.Decode(offset, size, destinationOffset, innerBuffer);
         }
 
         /// <summary>
@@ -242,9 +219,7 @@ namespace TiffLibrary
         /// <typeparam name="TPixel">The pixel type.</typeparam>
         /// <param name="decoder">The image decoder.</param>
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
-        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, ITiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
             if (decoder is null)
             {
@@ -256,7 +231,7 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            return decoder.DecodeAsync(default, new TiffSize(writer.Width, writer.Height), default, writer, cancellationToken);
+            decoder.Decode(default, new TiffSize(writer.Width, writer.Height), default, writer);
         }
     }
 }

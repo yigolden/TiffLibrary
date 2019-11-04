@@ -66,6 +66,44 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="readSize">Number of columns and rows to read from the source image.</param>
         /// <param name="destinationOffset">Number of columns and rows to skip in the destination writer.</param>
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
+        public override void Decode<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            readSize = new TiffSize(Math.Max(0, Math.Min(writer.Width - destinationOffset.X, readSize.Width)), Math.Max(0, Math.Min(writer.Height - destinationOffset.Y, readSize.Height)));
+            readSize = new TiffSize(Math.Max(0, Math.Min(Width - offset.X, readSize.Width)), Math.Max(0, Math.Min(Height - offset.Y, readSize.Height)));
+            if (readSize.IsAreaEmpty)
+            {
+                return;
+            }
+
+            using TiffFileContentReader reader = TiffSyncFileContentSource.WrapReader(_parameters.ContentSource.OpenReader());
+            var context = new TiffDefaultImageDecoderContext<TPixel>()
+            {
+                MemoryPool = _parameters.MemoryPool ?? MemoryPool<byte>.Shared,
+                CancellationToken = CancellationToken.None,
+                OperationContext = _parameters.OperationContext,
+                ContentReader = reader,
+                SourceImageSize = _parameters.ImageSize,
+                SourceReadOffset = offset,
+                ReadSize = readSize,
+                PixelConverterFactory = _parameters.PixelConverterFactory ?? TiffDefaultPixelConverterFactory.Instance,
+                DestinationWriter = new TiffPixelBufferWriter<TPixel>(TiffNoopDisposablePixelBufferWriter.Wrap(writer)).Crop(destinationOffset, readSize)
+            };
+
+            _pipeline.RunAsync(context).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Decode the image into the specified pixel buffer.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel type.</typeparam>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
+        /// <param name="destinationOffset">Number of columns and rows to skip in the destination writer.</param>
+        /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public override async Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default)

@@ -31,6 +31,19 @@ namespace TiffLibrary
             _contentSource = null;
         }
 
+        public static TiffFileContentSource WrapSource(ITiffFileContentSource source)
+        {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+            if (source is TiffSyncFileContentSource syncSource)
+            {
+                return syncSource;
+            }
+            return new TiffSyncFileContentSource(source);
+        }
+
         public static TiffFileContentReader WrapReader(TiffFileContentReader reader)
         {
             if (reader is null)

@@ -21,6 +21,7 @@ namespace TiffLibrary
         private bool _completed;
         private byte[] _smallBuffer;
         private TiffOperationContext _operationContext;
+        private long _imageFileDirectoryOffset;
 
         private const int SmallBufferSize = 32;
 
@@ -33,7 +34,7 @@ namespace TiffLibrary
             _requireBigTiff = false;
             _completed = false;
             _smallBuffer = smallBuffer;
-            _operationContext = useBigTiff ? TiffOperationContext.NewBigTiff() : TiffOperationContext.NewStandard();
+            _operationContext = useBigTiff ? TiffOperationContext.BigTIFF : TiffOperationContext.StandardTIFF;
         }
 
         internal TiffOperationContext OperationContext => _operationContext;
@@ -177,7 +178,7 @@ namespace TiffLibrary
         /// <param name="ifdOffset">The offset of the first IFD.</param>
         public void SetFirstImageFileDirectoryOffset(TiffStreamOffset ifdOffset)
         {
-            _operationContext.ImageFileDirectoryOffset = ifdOffset;
+            _imageFileDirectoryOffset = ifdOffset;
         }
 
         /// <summary>
@@ -591,7 +592,7 @@ namespace TiffLibrary
             }
 
             Array.Clear(_smallBuffer, 0, 16);
-            TiffFileHeader.Write(_smallBuffer, _operationContext.ImageFileDirectoryOffset, BitConverter.IsLittleEndian, _useBigTiff);
+            TiffFileHeader.Write(_smallBuffer, _imageFileDirectoryOffset, BitConverter.IsLittleEndian, _useBigTiff);
             _stream.Seek(0, SeekOrigin.Begin);
             await _stream.WriteAsync(_smallBuffer, 0, _useBigTiff ? 16 : 8).ConfigureAwait(false);
             await _stream.FlushAsync().ConfigureAwait(false);

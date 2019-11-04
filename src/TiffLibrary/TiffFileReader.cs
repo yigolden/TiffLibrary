@@ -16,12 +16,13 @@ namespace TiffLibrary
     {
         private ITiffFileContentSource _contentSource;
         private TiffOperationContext _operationContext;
+        private readonly long _imageFileDirectoryOffset;
         private readonly bool _leaveOpen;
 
         /// <summary>
         /// Gets the offset of the first IFD.
         /// </summary>
-        public TiffStreamOffset FirstImageFileDirectoryOffset => new TiffStreamOffset(_operationContext.ImageFileDirectoryOffset);
+        public TiffStreamOffset FirstImageFileDirectoryOffset => new TiffStreamOffset(_imageFileDirectoryOffset);
 
         #region Constuction
 
@@ -29,7 +30,8 @@ namespace TiffLibrary
         {
             Debug.Assert(contentSource != null);
             _contentSource = contentSource;
-            _operationContext = header.CreateOperationContext();
+            _operationContext = header.CreateOperationContext(out long ifdOffset);
+            _imageFileDirectoryOffset = ifdOffset;
             _leaveOpen = leaveOpen;
         }
 

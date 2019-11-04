@@ -254,14 +254,14 @@ namespace TiffLibrary
 
         }
 
-        internal TiffOperationContext CreateOperationContext()
+        internal TiffOperationContext CreateOperationContext(out long imageFileDirectoryOffset)
         {
+            imageFileDirectoryOffset = ImageFileDirectoryOffset;
             return new TiffOperationContext
             {
                 IsLittleEndian = ByteOrderFlag == LittleEndianByteOrderFlag,
                 ByteCountOfImageFileDirectoryCountField = (Version == BigTiffVersion ? (short)8 : (short)2),
-                ByteCountOfValueOffsetField = ByteSizeOfOffsets,
-                ImageFileDirectoryOffset = ImageFileDirectoryOffset
+                ByteCountOfValueOffsetField = ByteSizeOfOffsets
             };
         }
     }

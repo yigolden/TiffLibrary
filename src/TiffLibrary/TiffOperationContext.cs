@@ -22,29 +22,19 @@ namespace TiffLibrary
         /// </summary>
         public short ByteCountOfValueOffsetField { get; set; }
 
-        /// <summary>
-        /// Gets or sets the offset of the first IFD.
-        /// </summary>
-        public long ImageFileDirectoryOffset { get; set; }
-
-        internal static TiffOperationContext NewStandard()
+        internal static TiffOperationContext StandardTIFF { get; } = new TiffOperationContext
         {
-            return new TiffOperationContext
-            {
-                IsLittleEndian = BitConverter.IsLittleEndian,
-                ByteCountOfImageFileDirectoryCountField = 2,
-                ByteCountOfValueOffsetField = 4
-            };
-        }
+            IsLittleEndian = BitConverter.IsLittleEndian,
+            ByteCountOfImageFileDirectoryCountField = 2,
+            ByteCountOfValueOffsetField = 4
+        };
 
-        internal static TiffOperationContext NewBigTiff()
+        internal static TiffOperationContext BigTIFF { get; } = new TiffOperationContext
         {
-            return new TiffOperationContext
-            {
-                IsLittleEndian = BitConverter.IsLittleEndian,
-                ByteCountOfImageFileDirectoryCountField = 8,
-                ByteCountOfValueOffsetField = 8
-            };
-        }
+            IsLittleEndian = BitConverter.IsLittleEndian,
+            ByteCountOfImageFileDirectoryCountField = 8,
+            ByteCountOfValueOffsetField = 8
+        };
+
     }
 }

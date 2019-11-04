@@ -1,6 +1,6 @@
 # TiffLibrary
 
-A library for reading and writing TIFF format files implemented in pure C# code, **providing only asynchronous APIs**.
+A C# library for decoding and encoding images from and to TIFF files.
 
 [![Build Status](https://dev.azure.com/jinyi0679/yigolden/_apis/build/status/yigolden.TiffLibrary?branchName=master)](https://dev.azure.com/jinyi0679/yigolden/_build/latest?definitionId=1&branchName=master)
 
@@ -210,12 +210,6 @@ using (var ifdWriter = writer.CreateImageFileDirectory())
 writer.SetFirstImageFileDirectoryOffset(ifdOffset);
 await writer.FlushAsync();
 ```
-
-## Why completely async?
-
-One of the design goals of TiffLibrary is to achieve high-thoughput decoding performance in concurrent access scenarios (eg. server-side applications). Therefore, we take the async-first route when writing this library. Besides, using asynchronous IO is now becoming a common practice in the .NET world. The value of providing synchronous APIs is low in contrast to the amount of work we have to put in to duplicate all the decoding logic for it.
-
-Still, if you only want TiffLibrary to call synchronous APIs when reading from your data source to avoid the sync-over-async problem in your synchronous code, there are workarounds. You can write classes that derive from `TiffFileContentSource` and `TiffFileContentReader` and call synchronous APIs on your data source. This is what we are doing in TiffLibrary.ImageSharpAdapter project, because ImageSharp doesn't provide asynchronous APIs.
 
 ## Adapter for SixLabors.ImageSharp
 

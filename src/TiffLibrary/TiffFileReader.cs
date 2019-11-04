@@ -52,7 +52,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
         public static async Task<TiffFileReader> OpenAsync(string filename)
         {
-            var contentSource = TiffFileContentSource.Create(filename);
+            var contentSource = TiffFileContentSource.Create(filename, true);
             TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {

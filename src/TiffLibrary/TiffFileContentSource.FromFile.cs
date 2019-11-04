@@ -9,42 +9,68 @@ namespace TiffLibrary
 {
     internal sealed class TiffFileStreamContentSource : TiffFileContentSource
     {
-        private string _filename;
+        private string _fileName;
+        private readonly bool _preferAsync;
+
+        private object _lock;
         private FileStream _fileStream;
 
-        public TiffFileStreamContentSource(string filename)
+        public TiffFileStreamContentSource(string fileName, bool preferAsync)
         {
-            _filename = filename ?? throw new ArgumentNullException(nameof(filename));
-            _fileStream = CreateStream();
+            _fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+            _preferAsync = preferAsync;
+            _lock = new object();
+            _fileStream = GetOrCreateStream(preferAsync);
         }
 
-        private FileStream CreateStream()
+        private FileStream GetOrCreateStream(bool useAsync)
         {
-            string filename = _filename;
-            if (filename is null)
+            lock (_lock)
             {
-                throw new ObjectDisposedException(nameof(TiffFileStreamContentSource));
+                string filename = _fileName;
+                if (filename is null)
+                {
+                    throw new ObjectDisposedException(nameof(TiffFileStreamContentSource));
+                }
+                FileStream fs = _fileStream;
+                if (!(fs is null) && fs.IsAsync == useAsync)
+                {
+                    _fileStream = null;
+                    return fs;
+                }
+                return new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync);
             }
-            return new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
+        }
+
+        public override TiffFileContentReader OpenReader()
+        {
+            return new ContentReader(this, GetOrCreateStream(useAsync: false));
         }
 
         public override ValueTask<TiffFileContentReader> OpenReaderAsync()
         {
-            FileStream fs = Interlocked.Exchange(ref _fileStream, null) ?? CreateStream();
-            return new ValueTask<TiffFileContentReader>(new ContentReader(this, fs));
+            return new ValueTask<TiffFileContentReader>(new ContentReader(this, GetOrCreateStream(useAsync: false)));
         }
 
         private void ReturnStream(FileStream fs)
         {
-            if (!(Interlocked.CompareExchange(ref _fileStream, fs, null) is null))
+            lock (_lock)
             {
-                fs.Dispose();
-                return;
-            }
-            if (_filename is null)
-            {
-                fs = Interlocked.Exchange(ref _fileStream, null);
-                if (!(fs is null))
+                if (_fileName is null)
+                {
+                    fs.Dispose();
+                    return;
+                }
+                if (!(_fileStream is null))
+                {
+                    fs.Dispose();
+                    return;
+                }
+                if (fs.IsAsync == _preferAsync)
+                {
+                    _fileStream = fs;
+                }
+                else
                 {
                     fs.Dispose();
                 }
@@ -53,36 +79,55 @@ namespace TiffLibrary
 
         private ValueTask ReturnStreamAsync(FileStream fs)
         {
-            if (!(Interlocked.CompareExchange(ref _fileStream, fs, null) is null))
+            ValueTask disposeTask = default;
+            lock (_lock)
             {
-                return fs.DisposeAsync();
-            }
-            if (_filename is null)
-            {
-                fs = Interlocked.Exchange(ref _fileStream, null);
-                if (!(fs is null))
+                if (_fileName is null)
                 {
-                    return fs.DisposeAsync();
+                    disposeTask = fs.DisposeAsync();
+                }
+                else if (!(_fileStream is null))
+                {
+                    disposeTask = fs.DisposeAsync();
+                }
+                else if (fs.IsAsync == _preferAsync)
+                {
+                    _fileStream = fs;
+                }
+                else
+                {
+                    disposeTask = fs.DisposeAsync();
                 }
             }
-            return default;
+            return disposeTask;
         }
 
         protected override void Dispose(bool disposing)
         {
-            _filename = null;
-
-            if (disposing)
+            Stream fs = null;
+            lock (_lock)
             {
-                Stream fs = Interlocked.Exchange(ref _fileStream, null);
-                fs?.Dispose();
+                if (disposing)
+                {
+                    fs = _fileStream;
+                }
+                _fileName = null;
+                _fileStream = null;
             }
+
+            fs?.Dispose();
         }
 
         public override ValueTask DisposeAsync()
         {
-            _filename = null;
-            Stream fs = Interlocked.Exchange(ref _fileStream, null);
+            Stream fs = null;
+            lock (_lock)
+            {
+                fs = _fileStream;
+                _fileName = null;
+                _fileStream = null;
+            }
+
             if (!(fs is null))
             {
                 return fs.DisposeAsync();
@@ -124,6 +169,80 @@ namespace TiffLibrary
 
                         _parent.ReturnStream(fs);
                     }
+                }
+            }
+
+            public override int Read(long offset, ArraySegment<byte> buffer)
+            {
+                Stream stream = _stream;
+                if (stream is null)
+                {
+                    throw new ObjectDisposedException(nameof(ContentReader));
+                }
+                if (offset > stream.Length)
+                {
+                    return default;
+                }
+                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
+                {
+                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
+                }
+                try
+                {
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    return stream.Read(buffer.Array, buffer.Offset, buffer.Count);
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _streamInUse, 0);
+                }
+            }
+
+            public override int Read(long offset, Memory<byte> buffer)
+            {
+                Stream stream = _stream;
+                if (stream is null)
+                {
+                    throw new ObjectDisposedException(nameof(ContentReader));
+                }
+                if (offset > stream.Length)
+                {
+                    return 0;
+                }
+
+                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
+                {
+                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
+                }
+                try
+                {
+                    stream.Seek(offset, SeekOrigin.Begin);
+
+                    if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
+                    {
+                        return stream.Read(arraySegment.Array, arraySegment.Offset, arraySegment.Count);
+                    }
+
+#if !NO_FAST_SPAN
+                    return stream.Read(buffer.Span);
+#else
+                    // Slow path
+                    byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                    try
+                    {
+                        int count = stream.Read(temp, 0, buffer.Length);
+                        temp.AsMemory(0, count).CopyTo(buffer);
+                        return count;
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(temp);
+                    }
+#endif
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _streamInUse, 0);
                 }
             }
 

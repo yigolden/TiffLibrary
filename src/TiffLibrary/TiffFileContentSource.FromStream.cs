@@ -24,6 +24,16 @@ namespace TiffLibrary
             _leaveOpen = leaveOpen;
         }
 
+        public override TiffFileContentReader OpenReader()
+        {
+            ContentReader reader = _reader;
+            if (reader is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffStreamContentSource));
+            }
+            return reader;
+        }
+
         public override ValueTask<TiffFileContentReader> OpenReaderAsync()
         {
             ContentReader reader = _reader;
@@ -97,6 +107,80 @@ namespace TiffLibrary
                 {
                     _stream.Dispose();
                     _stream = null;
+                }
+            }
+
+            public override int Read(long offset, ArraySegment<byte> buffer)
+            {
+                Stream stream = _stream;
+                if (stream is null)
+                {
+                    throw new ObjectDisposedException(nameof(ContentReader));
+                }
+                if (offset > stream.Length)
+                {
+                    return default;
+                }
+                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
+                {
+                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
+                }
+                try
+                {
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    return stream.Read(buffer.Array, buffer.Offset, buffer.Count);
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _streamInUse, 0);
+                }
+            }
+
+            public override int Read(long offset, Memory<byte> buffer)
+            {
+                Stream stream = _stream;
+                if (stream is null)
+                {
+                    throw new ObjectDisposedException(nameof(ContentReader));
+                }
+                if (offset > stream.Length)
+                {
+                    return 0;
+                }
+
+                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
+                {
+                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
+                }
+                try
+                {
+                    stream.Seek(offset, SeekOrigin.Begin);
+
+                    if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
+                    {
+                        return stream.Read(arraySegment.Array, arraySegment.Offset, arraySegment.Count);
+                    }
+
+#if !NO_FAST_SPAN
+                    return stream.Read(buffer.Span);
+#else
+                    // Slow path
+                    byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                    try
+                    {
+                        int count = stream.Read(temp, 0, buffer.Length);
+                        temp.AsMemory(0, count).CopyTo(buffer);
+                        return count;
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(temp);
+                    }
+#endif
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _streamInUse, 0);
                 }
             }
 

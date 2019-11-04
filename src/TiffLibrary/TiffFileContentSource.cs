@@ -31,21 +31,29 @@ namespace TiffLibrary
         /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
         /// </summary>
         /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
-        public abstract ValueTask<TiffFileContentReader> OpenReaderAsync();
+        public abstract TiffFileContentReader OpenReader();
+
+        /// <summary>
+        /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
+        /// </summary>
+        /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
+        public virtual ValueTask<TiffFileContentReader> OpenReaderAsync()
+            => new ValueTask<TiffFileContentReader>(OpenReader());
 
         /// <summary>
         /// Create a <see cref="TiffFileContentSource"/> instance from the specified TIFF file name.
         /// </summary>
         /// <param name="filename">The file name of the TIFF file.</param>
+        /// <param name="preferAsync">Whether asynchronous APIs should be preferred.</param>
         /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the <see cref="FileStream"/> of this file.</returns>
-        public static TiffFileContentSource Create(string filename)
+        public static TiffFileContentSource Create(string filename, bool preferAsync = true)
         {
             if (filename is null)
             {
                 throw new ArgumentNullException(nameof(filename));
             }
 
-            return new TiffFileStreamContentSource(filename);
+            return new TiffFileStreamContentSource(filename, preferAsync);
         }
 
         /// <summary>

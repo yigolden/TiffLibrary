@@ -22,7 +22,7 @@ namespace TiffLibrary.Tests
             yield return new object[]
             {
                 referenceContent,
-                TiffFileContentSource.Create(file)
+                TiffFileContentSource.Create(file, true)
             };
 
             // Stream source

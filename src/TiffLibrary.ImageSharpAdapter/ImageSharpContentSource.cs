@@ -8,12 +8,10 @@ namespace TiffLibrary.ImageSharpAdapter
 {
     internal class ImageSharpContentSource : TiffFileContentSource
     {
-        private Stream _stream;
         private ContentReader _reader;
 
         public ImageSharpContentSource(Stream stream)
         {
-            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _reader = new ContentReader(stream);
         }
 

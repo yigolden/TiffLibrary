@@ -18,7 +18,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<uint?>(result.IsEmpty ? default(uint?) : result.FirstOrDefault);
+                return new ValueTask<uint?>(result.IsEmpty ? default(uint?) : result.GetFirstOrDefault());
             }
 
             return new ValueTask<uint?>(TransformValueTaskAsync(valueTask));
@@ -26,7 +26,7 @@ namespace TiffLibrary
             static async Task<uint?> TransformValueTaskAsync(ValueTask<TiffValueCollection<uint>> valueTask)
             {
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
+                return result.IsEmpty ? default(uint?) : result.GetFirstOrDefault();
             }
         }
         
@@ -38,7 +38,7 @@ namespace TiffLibrary
         public static uint? ReadTileWidth(this TiffTagReader tagReader)
         {
             TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.TileWidth);
-            return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
+            return result.IsEmpty ? default(uint?) : result.GetFirstOrDefault();
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<uint?>(result.IsEmpty ? default(uint?) : result.FirstOrDefault);
+                return new ValueTask<uint?>(result.IsEmpty ? default(uint?) : result.GetFirstOrDefault());
             }
 
             return new ValueTask<uint?>(TransformValueTaskAsync(valueTask));
@@ -64,7 +64,7 @@ namespace TiffLibrary
             static async Task<uint?> TransformValueTaskAsync(ValueTask<TiffValueCollection<uint>> valueTask)
             {
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
+                return result.IsEmpty ? default(uint?) : result.GetFirstOrDefault();
             }
         }
         
@@ -76,7 +76,7 @@ namespace TiffLibrary
         public static uint? ReadTileLength(this TiffTagReader tagReader)
         {
             TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.TileLength);
-            return result.IsEmpty ? default(uint?) : result.FirstOrDefault;
+            return result.IsEmpty ? default(uint?) : result.GetFirstOrDefault();
         }
 
         #endregion

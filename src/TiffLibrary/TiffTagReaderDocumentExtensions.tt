@@ -8,7 +8,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -16,7 +16,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -24,7 +24,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffPageNumber",
-            ResultHandling = "result.Count == 0 ? default(TiffPageNumber) : (result.Count == 1 ? new TiffPageNumber(result.FirstOrDefault, 0) : new TiffPageNumber(result.FirstOrDefault, result[1]))"
+            ResultHandling = "result.Count == 0 ? default(TiffPageNumber) : (result.Count == 1 ? new TiffPageNumber(result.GetFirstOrDefault(), 0) : new TiffPageNumber(result.GetFirstOrDefault(), result[1]))"
         },
         new
         {
@@ -32,7 +32,7 @@
             Type = "TiffRational",
             TypeName = "Rational",
             ReturnType = "TiffRational?",
-            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -40,7 +40,7 @@
             Type = "TiffRational",
             TypeName = "Rational",
             ReturnType = "TiffRational?",
-            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
         }
     };
 

@@ -24,7 +24,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffYCbCrPositioning",
-            ResultHandling = "result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.GetFirstOrDefault()"
         }
     };
 

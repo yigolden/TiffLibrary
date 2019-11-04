@@ -94,7 +94,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffYCbCrPositioning>(result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.FirstOrDefault);
+                return new ValueTask<TiffYCbCrPositioning>(result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.GetFirstOrDefault());
             }
 
             return new ValueTask<TiffYCbCrPositioning>(TransformValueTaskAsync(valueTask));
@@ -102,7 +102,7 @@ namespace TiffLibrary
             static async Task<TiffYCbCrPositioning> TransformValueTaskAsync(ValueTask<TiffValueCollection<ushort>> valueTask)
             {
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.FirstOrDefault;
+                return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.GetFirstOrDefault();
             }
         }
         
@@ -114,7 +114,7 @@ namespace TiffLibrary
         public static TiffYCbCrPositioning ReadYCbCrPositioning(this TiffTagReader tagReader)
         {
             TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrPositioning);
-            return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.FirstOrDefault;
+            return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.GetFirstOrDefault();
         }
 
         #endregion

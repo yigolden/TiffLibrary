@@ -8,7 +8,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "TiffT4Options",
-            ResultHandling = "result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault()"
         },
         new
         {
@@ -16,7 +16,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "TiffT6Options",
-            ResultHandling = "result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault()"
         }
     };
 

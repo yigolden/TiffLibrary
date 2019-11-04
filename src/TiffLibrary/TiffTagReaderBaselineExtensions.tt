@@ -8,7 +8,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -24,7 +24,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "ushort?",
-            ResultHandling = "result.IsEmpty ? default(ushort?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -32,7 +32,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "ushort?",
-            ResultHandling = "result.IsEmpty ? default(ushort?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -48,7 +48,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffCompression",
-            ResultHandling = "result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.GetFirstOrDefault()"
         },
         new
         {
@@ -56,7 +56,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -64,7 +64,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -80,7 +80,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffFillOrder",
-            ResultHandling = "result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.GetFirstOrDefault()"
         },
         new
         {
@@ -88,7 +88,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint?",
-            ResultHandling = "result.IsEmpty ? default(uint?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -96,7 +96,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint?",
-            ResultHandling = "result.IsEmpty ? default(uint?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -112,7 +112,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffGrayResponseUnit",
-            ResultHandling = "result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.GetFirstOrDefault()"
         },
         new
         {
@@ -120,7 +120,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -128,7 +128,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -136,7 +136,7 @@
             Type = "ulong",
             TypeName = "Long8",
             ReturnType = "ulong",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -144,7 +144,7 @@
             Type = "ulong",
             TypeName = "Long8",
             ReturnType = "ulong",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -152,7 +152,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -176,7 +176,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -184,7 +184,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "TiffNewSubfileType",
-            ResultHandling = "(TiffNewSubfileType)result.FirstOrDefault"
+            ResultHandling = "(TiffNewSubfileType)result.GetFirstOrDefault()"
         },
         new
         {
@@ -192,7 +192,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffOrientation",
-            ResultHandling = "result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.GetFirstOrDefault()"
         },
         new
         {
@@ -200,7 +200,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffPhotometricInterpretation?",
-            ResultHandling = "result.IsEmpty ? default(TiffPhotometricInterpretation?) : (TiffPhotometricInterpretation)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(TiffPhotometricInterpretation?) : (TiffPhotometricInterpretation)result.GetFirstOrDefault()"
         },
         new
         {
@@ -208,7 +208,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffPlanarConfiguration",
-            ResultHandling = "result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.GetFirstOrDefault()"
         },
         new
         {
@@ -216,7 +216,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffResolutionUnit",
-            ResultHandling = "result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.GetFirstOrDefault()"
         },
         new
         {
@@ -224,7 +224,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -232,7 +232,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "ushort",
-            ResultHandling = "result.IsEmpty ? (ushort)1 : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? (ushort)1 : result.GetFirstOrDefault()"
         },
         new
         {
@@ -240,7 +240,7 @@
             Type = "string",
             TypeName = "ASCII",
             ReturnType = "string",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -264,7 +264,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffSubfileType?",
-            ResultHandling = "result.IsEmpty ? default(TiffSubfileType?) : (TiffSubfileType)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(TiffSubfileType?) : (TiffSubfileType)result.GetFirstOrDefault()"
         },
         new
         {
@@ -272,7 +272,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffThreshholding",
-            ResultHandling = "result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.GetFirstOrDefault()"
         },
         new
         {
@@ -280,7 +280,7 @@
             Type = "TiffRational",
             TypeName = "Rational",
             ReturnType = "TiffRational?",
-            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -288,7 +288,7 @@
             Type = "TiffRational",
             TypeName = "Rational",
             ReturnType = "TiffRational?",
-            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
         }
         
         

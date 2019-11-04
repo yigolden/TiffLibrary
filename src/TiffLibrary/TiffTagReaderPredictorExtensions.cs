@@ -18,7 +18,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffPredictor>(result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.FirstOrDefault);
+                return new ValueTask<TiffPredictor>(result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.GetFirstOrDefault());
             }
 
             return new ValueTask<TiffPredictor>(TransformValueTaskAsync(valueTask));
@@ -26,7 +26,7 @@ namespace TiffLibrary
             static async Task<TiffPredictor> TransformValueTaskAsync(ValueTask<TiffValueCollection<ushort>> valueTask)
             {
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.FirstOrDefault;
+                return result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.GetFirstOrDefault();
             }
         }
         
@@ -38,7 +38,7 @@ namespace TiffLibrary
         public static TiffPredictor ReadPredictor(this TiffTagReader tagReader)
         {
             TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Predictor);
-            return result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.FirstOrDefault;
+            return result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.GetFirstOrDefault();
         }
 
         #endregion

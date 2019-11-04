@@ -18,7 +18,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffT4Options>(result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault);
+                return new ValueTask<TiffT4Options>(result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault());
             }
 
             return new ValueTask<TiffT4Options>(TransformValueTaskAsync(valueTask));
@@ -26,7 +26,7 @@ namespace TiffLibrary
             static async Task<TiffT4Options> TransformValueTaskAsync(ValueTask<TiffValueCollection<uint>> valueTask)
             {
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault;
+                return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault();
             }
         }
         
@@ -38,7 +38,7 @@ namespace TiffLibrary
         public static TiffT4Options ReadT4Options(this TiffTagReader tagReader)
         {
             TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T4Options);
-            return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.FirstOrDefault;
+            return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault();
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffT6Options>(result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault);
+                return new ValueTask<TiffT6Options>(result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault());
             }
 
             return new ValueTask<TiffT6Options>(TransformValueTaskAsync(valueTask));
@@ -64,7 +64,7 @@ namespace TiffLibrary
             static async Task<TiffT6Options> TransformValueTaskAsync(ValueTask<TiffValueCollection<uint>> valueTask)
             {
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault;
+                return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault();
             }
         }
         
@@ -76,7 +76,7 @@ namespace TiffLibrary
         public static TiffT6Options ReadT6Options(this TiffTagReader tagReader)
         {
             TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T6Options);
-            return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.FirstOrDefault;
+            return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault();
         }
 
         #endregion

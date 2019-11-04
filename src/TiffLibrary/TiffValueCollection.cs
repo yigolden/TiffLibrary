@@ -104,9 +104,10 @@ namespace TiffLibrary
         public int Count => _values is null ? 0 : Math.Max(_values.Length, 1);
 
         /// <summary>
-        /// Gets the value of the first element. If the list is empty, returns null or the default value of <typeparamref name="T"/>.
+        /// Gets the value of the first element. If the list is empty, returns the default value of <typeparamref name="T"/>.
         /// </summary>
-        public T FirstOrDefault => _firstValue;
+        /// <returns></returns>
+        public T GetFirstOrDefault() => _firstValue;
 
         private static T ThrowIndexOutOfRangeException()
         {

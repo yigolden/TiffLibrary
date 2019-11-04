@@ -8,7 +8,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffPredictor",
-            ResultHandling = "result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffPredictor.None : (TiffPredictor)result.GetFirstOrDefault()"
         }
     };
 

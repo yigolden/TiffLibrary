@@ -8,7 +8,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint?",
-            ResultHandling = "result.IsEmpty ? default(uint?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
         },
         new
         {
@@ -16,7 +16,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint?",
-            ResultHandling = "result.IsEmpty ? default(uint?) : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
         },
         new
         {

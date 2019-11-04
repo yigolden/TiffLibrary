@@ -8,7 +8,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffInkSet",
-            ResultHandling = "result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.GetFirstOrDefault()"
         },
         new
         {
@@ -16,7 +16,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "ushort",
-            ResultHandling = "result.IsEmpty ? (ushort)4 : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? (ushort)4 : result.GetFirstOrDefault()"
         },
         new
         {

@@ -18,7 +18,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<uint>(result.FirstOrDefault);
+                return new ValueTask<uint>(result.GetFirstOrDefault());
             }
 
             return new ValueTask<uint>(TransformValueTaskAsync(valueTask));
@@ -26,7 +26,7 @@ namespace TiffLibrary
             static async Task<uint> TransformValueTaskAsync(ValueTask<TiffValueCollection<uint>> valueTask)
             {
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
-                return result.FirstOrDefault;
+                return result.GetFirstOrDefault();
             }
         }
         
@@ -38,7 +38,7 @@ namespace TiffLibrary
         public static uint ReadBadFaxLines(this TiffTagReader tagReader)
         {
             TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.BadFaxLines);
-            return result.FirstOrDefault;
+            return result.GetFirstOrDefault();
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffCleanFaxData>((TiffCleanFaxData)result.FirstOrDefault);
+                return new ValueTask<TiffCleanFaxData>((TiffCleanFaxData)result.GetFirstOrDefault());
             }
 
             return new ValueTask<TiffCleanFaxData>(TransformValueTaskAsync(valueTask));
@@ -64,7 +64,7 @@ namespace TiffLibrary
             static async Task<TiffCleanFaxData> TransformValueTaskAsync(ValueTask<TiffValueCollection<ushort>> valueTask)
             {
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
-                return (TiffCleanFaxData)result.FirstOrDefault;
+                return (TiffCleanFaxData)result.GetFirstOrDefault();
             }
         }
         
@@ -76,7 +76,7 @@ namespace TiffLibrary
         public static TiffCleanFaxData ReadCleanFaxData(this TiffTagReader tagReader)
         {
             TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CleanFaxData);
-            return (TiffCleanFaxData)result.FirstOrDefault;
+            return (TiffCleanFaxData)result.GetFirstOrDefault();
         }
 
         #endregion
@@ -94,7 +94,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<uint>(result.FirstOrDefault);
+                return new ValueTask<uint>(result.GetFirstOrDefault());
             }
 
             return new ValueTask<uint>(TransformValueTaskAsync(valueTask));
@@ -102,7 +102,7 @@ namespace TiffLibrary
             static async Task<uint> TransformValueTaskAsync(ValueTask<TiffValueCollection<uint>> valueTask)
             {
                 TiffValueCollection<uint> result = await valueTask.ConfigureAwait(false);
-                return result.FirstOrDefault;
+                return result.GetFirstOrDefault();
             }
         }
         
@@ -114,7 +114,7 @@ namespace TiffLibrary
         public static uint ReadConsecutiveBadFaxLines(this TiffTagReader tagReader)
         {
             TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.ConsecutiveBadFaxLines);
-            return result.FirstOrDefault;
+            return result.GetFirstOrDefault();
         }
 
         #endregion

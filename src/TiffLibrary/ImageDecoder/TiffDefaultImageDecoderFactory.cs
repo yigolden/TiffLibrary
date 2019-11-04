@@ -326,9 +326,9 @@ namespace TiffLibrary.ImageDecoder
             {
                 case TiffPhotometricInterpretation.WhiteIsZero:
                 case TiffPhotometricInterpretation.BlackIsZero:
-                    if (bitsPerSample.FirstOrDefault <= 32)
+                    if (bitsPerSample.GetFirstOrDefault() <= 32)
                     {
-                        return TiffValueCollection.Single((bitsPerSample.FirstOrDefault * width + 7) / 8);
+                        return TiffValueCollection.Single((bitsPerSample.GetFirstOrDefault() * width + 7) / 8);
                     }
                     break;
                 case TiffPhotometricInterpretation.RGB:
@@ -348,9 +348,9 @@ namespace TiffLibrary.ImageDecoder
                     }
                     break;
                 case TiffPhotometricInterpretation.PaletteColor:
-                    if (bitsPerSample.FirstOrDefault <= 8)
+                    if (bitsPerSample.GetFirstOrDefault() <= 8)
                     {
-                        return TiffValueCollection.Single((bitsPerSample.FirstOrDefault * width + 7) / 8);
+                        return TiffValueCollection.Single((bitsPerSample.GetFirstOrDefault() * width + 7) / 8);
                     }
                     break;
                 case TiffPhotometricInterpretation.TransparencyMask:
@@ -500,13 +500,13 @@ namespace TiffLibrary.ImageDecoder
                 switch (photometricInterpretation)
                 {
                     case TiffPhotometricInterpretation.WhiteIsZero:
-                        if (bitsPerSample.Count == 1 && bitsPerSample.FirstOrDefault == 1)
+                        if (bitsPerSample.Count == 1 && bitsPerSample.GetFirstOrDefault() == 1)
                         {
                             return new ValueTask<ITiffImageDecoderMiddleware>(TiffWhiteIsZero8Interpreter.Instance);
                         }
                         break;
                     case TiffPhotometricInterpretation.BlackIsZero:
-                        if (bitsPerSample.Count == 1 && bitsPerSample.FirstOrDefault == 1)
+                        if (bitsPerSample.Count == 1 && bitsPerSample.GetFirstOrDefault() == 1)
                         {
                             return new ValueTask<ITiffImageDecoderMiddleware>(TiffBlackIsZero8Interpreter.Instance);
                         }
@@ -520,13 +520,13 @@ namespace TiffLibrary.ImageDecoder
                 case TiffPhotometricInterpretation.WhiteIsZero:
                     if (bitsPerSample.Count == 1)
                     {
-                        return ResolveWhiteIsZeroAsync(bitsPerSample.FirstOrDefault, tagReader);
+                        return ResolveWhiteIsZeroAsync(bitsPerSample.GetFirstOrDefault(), tagReader);
                     }
                     break;
                 case TiffPhotometricInterpretation.BlackIsZero:
                     if (bitsPerSample.Count == 1)
                     {
-                        return ResolveBlackIsZeroAsync(bitsPerSample.FirstOrDefault, tagReader);
+                        return ResolveBlackIsZeroAsync(bitsPerSample.GetFirstOrDefault(), tagReader);
                     }
                     break;
                 case TiffPhotometricInterpretation.RGB:
@@ -542,11 +542,11 @@ namespace TiffLibrary.ImageDecoder
                 case TiffPhotometricInterpretation.PaletteColor:
                     if (bitsPerSample.Count == 1)
                     {
-                        return ResolvePaletteColorAsync(bitsPerSample.FirstOrDefault, tagReader);
+                        return ResolvePaletteColorAsync(bitsPerSample.GetFirstOrDefault(), tagReader);
                     }
                     break;
                 case TiffPhotometricInterpretation.TransparencyMask:
-                    if (bitsPerSample.Count == 1 && bitsPerSample.FirstOrDefault == 1)
+                    if (bitsPerSample.Count == 1 && bitsPerSample.GetFirstOrDefault() == 1)
                     {
                         return ResolveTransparencyMaskAsync(tagReader);
                     }

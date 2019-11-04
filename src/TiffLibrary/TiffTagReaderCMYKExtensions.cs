@@ -18,7 +18,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<TiffInkSet>(result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.FirstOrDefault);
+                return new ValueTask<TiffInkSet>(result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.GetFirstOrDefault());
             }
 
             return new ValueTask<TiffInkSet>(TransformValueTaskAsync(valueTask));
@@ -26,7 +26,7 @@ namespace TiffLibrary
             static async Task<TiffInkSet> TransformValueTaskAsync(ValueTask<TiffValueCollection<ushort>> valueTask)
             {
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.FirstOrDefault;
+                return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.GetFirstOrDefault();
             }
         }
         
@@ -38,7 +38,7 @@ namespace TiffLibrary
         public static TiffInkSet ReadInkSet(this TiffTagReader tagReader)
         {
             TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.InkSet);
-            return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.FirstOrDefault;
+            return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.GetFirstOrDefault();
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace TiffLibrary
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<ushort>(result.IsEmpty ? (ushort)4 : result.FirstOrDefault);
+                return new ValueTask<ushort>(result.IsEmpty ? (ushort)4 : result.GetFirstOrDefault());
             }
 
             return new ValueTask<ushort>(TransformValueTaskAsync(valueTask));
@@ -64,7 +64,7 @@ namespace TiffLibrary
             static async Task<ushort> TransformValueTaskAsync(ValueTask<TiffValueCollection<ushort>> valueTask)
             {
                 TiffValueCollection<ushort> result = await valueTask.ConfigureAwait(false);
-                return result.IsEmpty ? (ushort)4 : result.FirstOrDefault;
+                return result.IsEmpty ? (ushort)4 : result.GetFirstOrDefault();
             }
         }
         
@@ -76,7 +76,7 @@ namespace TiffLibrary
         public static ushort ReadNumberOfInks(this TiffTagReader tagReader)
         {
             TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.NumberOfInks);
-            return result.IsEmpty ? (ushort)4 : result.FirstOrDefault;
+            return result.IsEmpty ? (ushort)4 : result.GetFirstOrDefault();
         }
 
         #endregion

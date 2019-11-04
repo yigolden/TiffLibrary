@@ -16,7 +16,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "ushort",
-            ResultHandling = "result.IsEmpty ? (ushort)1 : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? (ushort)1 : result.GetFirstOrDefault()"
         },
         new
         {
@@ -24,7 +24,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint",
-            ResultHandling = "result.IsEmpty ? 0 : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? 0 : result.GetFirstOrDefault()"
         },
         new
         {
@@ -32,7 +32,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint",
-            ResultHandling = "result.IsEmpty ? 0 : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? 0 : result.GetFirstOrDefault()"
         },
         new
         {
@@ -40,7 +40,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "ushort",
-            ResultHandling = "result.IsEmpty ? (ushort)0 : result.FirstOrDefault"
+            ResultHandling = "result.IsEmpty ? (ushort)0 : result.GetFirstOrDefault()"
         },
         new
         {

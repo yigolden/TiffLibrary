@@ -8,7 +8,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         },
         new
         {
@@ -16,7 +16,7 @@
             Type = "ushort",
             TypeName = "Short",
             ReturnType = "TiffCleanFaxData",
-            ResultHandling = "(TiffCleanFaxData)result.FirstOrDefault"
+            ResultHandling = "(TiffCleanFaxData)result.GetFirstOrDefault()"
         },
         new
         {
@@ -24,7 +24,7 @@
             Type = "uint",
             TypeName = "Long",
             ReturnType = "uint",
-            ResultHandling = "result.FirstOrDefault"
+            ResultHandling = "result.GetFirstOrDefault()"
         }
     };
 

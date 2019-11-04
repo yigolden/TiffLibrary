@@ -13,6 +13,12 @@ namespace TiffLibrary
         /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
         /// </summary>
         /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
+        TiffFileContentReader OpenReader();
+
+        /// <summary>
+        /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
+        /// </summary>
+        /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
         ValueTask<TiffFileContentReader> OpenReaderAsync();
 
         /// <summary>

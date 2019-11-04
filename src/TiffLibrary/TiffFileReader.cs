@@ -50,65 +50,22 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="filename">The TIFF file.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static async Task<TiffFileReader> OpenAsync(string filename)
+        public static Task<TiffFileReader> OpenAsync(string filename)
         {
-            var contentSource = TiffFileContentSource.Create(filename, true);
-            TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
-            try
-            {
-                byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
-                try
-                {
-                    // Read tiff header
-                    int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buffer, 0, 16)).ConfigureAwait(false);
-                    if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buffer, 0, readCount), out TiffFileHeader header))
-                    {
-                        throw new InvalidDataException();
-                    }
-
-                    return new TiffFileReader(contentSource, header, false);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                }
-            }
-            finally
-            {
-                await reader.DisposeAsync().ConfigureAwait(false);
-            }
+            var contentSource = TiffFileContentSource.Create(filename, preferAsync: true);
+            return OpenAsync(contentSource, leaveOpen: false);
         }
 
         /// <summary>
         /// Wraps the specified stream and creates <see cref="TiffFileReader"/>.
         /// </summary>
         /// <param name="stream">The stream to wrap.</param>
-        /// <param name="leaveOpen">Whether the stream should be left open when the <see cref="TiffFileReader"/> is disposed.</param>
+        /// <param name="leaveOpen">Whether the stream should be left open when the <see cref="TiffFileReader"/> is disposed or we failed to create <see cref="TiffFileReader"/>.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static async Task<TiffFileReader> OpenAsync(Stream stream, bool leaveOpen = false)
+        public static Task<TiffFileReader> OpenAsync(Stream stream, bool leaveOpen = false)
         {
-            if (stream is null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
-
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
-            try
-            {
-                // Read tiff header
-                stream.Seek(0, SeekOrigin.Begin);
-                int readCount = await stream.ReadAsync(buffer, 0, 16).ConfigureAwait(false);
-                if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buffer, 0, readCount), out TiffFileHeader header))
-                {
-                    throw new InvalidDataException();
-                }
-
-                return new TiffFileReader(TiffFileContentSource.Create(stream, leaveOpen), header, false);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
+            var contentSource = TiffFileContentSource.Create(stream, leaveOpen);
+            return OpenAsync(contentSource, leaveOpen: false);
         }
 
         /// <summary>
@@ -116,33 +73,10 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="memory">The in-memory TIFF file.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static async Task<TiffFileReader> OpenAsync(ReadOnlyMemory<byte> memory)
+        public static Task<TiffFileReader> OpenAsync(ReadOnlyMemory<byte> memory)
         {
             var contentSource = TiffFileContentSource.Create(memory);
-            TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
-            try
-            {
-                byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
-                try
-                {
-                    // Read tiff header
-                    int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buffer, 0, 16)).ConfigureAwait(false);
-                    if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buffer, 0, readCount), out TiffFileHeader header))
-                    {
-                        throw new InvalidDataException();
-                    }
-
-                    return new TiffFileReader(contentSource, header, false);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                }
-            }
-            finally
-            {
-                await reader.DisposeAsync().ConfigureAwait(false);
-            }
+            return OpenAsync(contentSource, leaveOpen: false);
         }
 
         /// <summary>
@@ -152,40 +86,75 @@ namespace TiffLibrary
         /// <param name="offset">The offset in the buffer.</param>
         /// <param name="count">The byte count of the TIFF file.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static async Task<TiffFileReader> OpenAsync(byte[] buffer, int offset, int count)
+        public static Task<TiffFileReader> OpenAsync(byte[] buffer, int offset, int count)
         {
             var contentSource = TiffFileContentSource.Create(buffer, offset, count);
-            TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
-            try
-            {
-                byte[] buf = ArrayPool<byte>.Shared.Rent(16);
-                try
-                {
-                    // Read tiff header
-                    int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buf, 0, 16)).ConfigureAwait(false);
-                    if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buf, 0, readCount), out TiffFileHeader header))
-                    {
-                        throw new InvalidDataException();
-                    }
+            return OpenAsync(contentSource, leaveOpen: false);
+        }
 
-                    return new TiffFileReader(contentSource, header, false);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(buf);
-                }
-            }
-            finally
-            {
-                await reader.DisposeAsync().ConfigureAwait(false);
-            }
+        /// <summary>
+        /// Opens a TIFF file and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="filename">The TIFF file.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader Open(string filename)
+        {
+            var contentSource = TiffFileContentSource.Create(filename, preferAsync: true);
+            return Open(contentSource, leaveOpen: false);
+        }
+
+        /// <summary>
+        /// Wraps the specified stream and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="stream">The stream to wrap.</param>
+        /// <param name="leaveOpen">Whether the stream should be left open when the <see cref="TiffFileReader"/> is disposed or we failed to create <see cref="TiffFileReader"/>.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader Open(Stream stream, bool leaveOpen = false)
+        {
+            var contentSource = TiffFileContentSource.Create(stream, leaveOpen);
+            return Open(contentSource, leaveOpen: false);
+        }
+
+        /// <summary>
+        /// Opens a TIFF file in memory and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="memory">The in-memory TIFF file.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader Open(ReadOnlyMemory<byte> memory)
+        {
+            var contentSource = TiffFileContentSource.Create(memory);
+            return Open(contentSource, leaveOpen: false);
+        }
+
+        /// <summary>
+        /// Opens a TIFF file in memory and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="buffer">The buffer for in-memory TIFF file.</param>
+        /// <param name="offset">The offset in the buffer.</param>
+        /// <param name="count">The byte count of the TIFF file.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader Open(byte[] buffer, int offset, int count)
+        {
+            var contentSource = TiffFileContentSource.Create(buffer, offset, count);
+            return Open(contentSource, leaveOpen: false);
         }
 
         /// <summary>
         /// Uses the specified stream source and creates <see cref="TiffFileReader"/>.
         /// </summary>
         /// <param name="contentSource">The content source to use.</param>
-        /// <param name="leaveOpen">Whether the stream source should be left open when the <see cref="TiffFileReader"/> is disposed.</param>
+        /// <param name="leaveOpen">Whether the stream source should be left open when the <see cref="TiffFileReader"/> is disposed or when we failed to create <see cref="TiffFileReader"/>.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader Open(ITiffFileContentSource contentSource, bool leaveOpen = true)
+        {
+            return OpenAsync(new TiffSyncFileContentSource(contentSource), leaveOpen).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Uses the specified stream source and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="contentSource">The content source to use.</param>
+        /// <param name="leaveOpen">Whether the stream source should be left open when the <see cref="TiffFileReader"/> is disposed or when we failed to create <see cref="TiffFileReader"/>.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
         public static async Task<TiffFileReader> OpenAsync(ITiffFileContentSource contentSource, bool leaveOpen = true)
         {
@@ -194,30 +163,41 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(contentSource));
             }
 
-            TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
+                TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
                 try
                 {
-                    // Read tiff header
-                    int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buffer, 0, 16)).ConfigureAwait(false);
-                    if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buffer, 0, readCount), out TiffFileHeader header))
+                    byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
+                    try
                     {
-                        throw new InvalidDataException();
-                    }
+                        // Read tiff header
+                        int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buffer, 0, 16)).ConfigureAwait(false);
+                        if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buffer, 0, readCount), out TiffFileHeader header))
+                        {
+                            throw new InvalidDataException();
+                        }
 
-                    return new TiffFileReader(contentSource, header, leaveOpen);
+                        return new TiffFileReader(Interlocked.Exchange(ref contentSource, null), header, leaveOpen);
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
                 }
                 finally
                 {
-                    ArrayPool<byte>.Shared.Return(buffer);
+                    await reader.DisposeAsync().ConfigureAwait(false);
                 }
             }
             finally
             {
-                await reader.DisposeAsync().ConfigureAwait(false);
+                if (!leaveOpen && !(contentSource is null))
+                {
+                    await contentSource.DisposeAsync().ConfigureAwait(false);
+                }
             }
+
         }
 
         #endregion

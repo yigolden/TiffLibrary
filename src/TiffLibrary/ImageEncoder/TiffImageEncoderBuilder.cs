@@ -117,7 +117,6 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, LzwCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.Deflate:
-                case TiffCompression.OldDeflate:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, DeflateCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.Jpeg:
@@ -132,6 +131,10 @@ namespace TiffLibrary
                 case TiffCompression.PackBits:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, PackBitsCompressionAlgorithm.Instance));
                     break;
+                case TiffCompression.OldDeflate:
+                    throw new NotSupportedException("Legacy Deflate compression is not supported. Use TiffCompression.Deflate instead.");
+                case TiffCompression.OldJpeg:
+                    throw new NotSupportedException("Legacy JPEG compression is not supported. Use TiffCompression.Jpeg instead.");
                 default:
                     throw new NotSupportedException("The selected compression algorithm is not supported.");
             }

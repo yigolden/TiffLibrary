@@ -14,7 +14,7 @@ namespace TiffLibrary
 
         public override TiffFileContentReader OpenReader()
         {
-            var contentSource = _contentSource;
+            ITiffFileContentSource contentSource = _contentSource;
             if (contentSource is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFileContentSource));

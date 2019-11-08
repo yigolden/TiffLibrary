@@ -12,7 +12,7 @@ namespace TiffLibrary.PhotometricInterpreters
     /// </summary>
     public sealed class TiffChunkyYCbCr888Interpreter : ITiffImageDecoderMiddleware
     {
-        private readonly TiffYCbCrToRgbConvertionTable _convertionTable;
+        private readonly TiffYCbCrToRgbConverter _converter;
 
         /// <summary>
         /// Initialize the middleware with the default YCbCrCoefficients and ReferenceBlackWhite tags.
@@ -34,7 +34,7 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentException("referenceWhiteBlack should have 6 elements.");
             }
-            _convertionTable = TiffYCbCrToRgbConvertionTable.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
+            _converter = TiffYCbCrToRgbConverter.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 throw new ArgumentNullException(nameof(next));
             }
 
-            TiffYCbCrToRgbConvertionTable convertionTable = _convertionTable;
+            TiffYCbCrToRgbConverter converter = _converter;
 
             int bytesPerScanline = 3 * context.SourceImageSize.Width;
             Memory<byte> source = context.UncompressedData.Slice(context.SourceReadOffset.Y * bytesPerScanline);
@@ -72,7 +72,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 ReadOnlySpan<byte> rowSourceSpan = sourceSpan.Slice(3 * context.SourceReadOffset.X, 3 * context.ReadSize.Width);
                 Span<TiffRgba32> rowDestinationSpan = pixelSpanHandle.GetSpan();
 
-                convertionTable.Convert(rowSourceSpan, rowDestinationSpan, cols);
+                converter.Convert(rowSourceSpan, rowDestinationSpan, cols);
                 sourceSpan = sourceSpan.Slice(bytesPerScanline);
             }
 

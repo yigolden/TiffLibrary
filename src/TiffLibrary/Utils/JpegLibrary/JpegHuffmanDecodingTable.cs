@@ -1,6 +1,9 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace JpegLibrary
@@ -19,19 +22,19 @@ namespace JpegLibrary
         /// <summary>
         /// Derived from the DHT marker. Contains the symbols, in order of incremental code length.
         /// </summary>
-        private byte[] _values;
+        private byte[]? _values;
 
         /// <summary>
         /// Contains the largest code of length k (0 if none). MaxCode[17] is a sentinel to ensure the decoder terminates.
         /// </summary>
-        private ushort[] _maxCode;
+        private ushort[]? _maxCode;
 
         /// <summary>
         /// Contains the largest code of length k (0 if none). MaxCode[17] is a sentinel to ensure the decoder terminates.Values[] offset for codes of length k  ValOffset[k] = Values[] index of 1st symbol of code length k, less the smallest code of length k; so given a code of length k, the corresponding symbol is Values[code + ValOffset[k]].
         /// </summary>
-        private byte[] _valOffset;
+        private byte[]? _valOffset;
 
-        private Entry[] _lookaheadTable;
+        private Entry[]? _lookaheadTable;
 
         public struct Entry
         {
@@ -42,8 +45,10 @@ namespace JpegLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Entry Lookup(int code16bit)
         {
+            Debug.Assert(!(_lookaheadTable is null));
+
             int high8 = code16bit >> 8;
-            Entry entry = _lookaheadTable[high8];
+            Entry entry = _lookaheadTable![high8];
             if (entry.CodeSize != 0)
             {
                 return entry;
@@ -55,8 +60,12 @@ namespace JpegLibrary
         [MethodImpl(MethodImplOptions.NoInlining)]
         private Entry LookupSlow(int code16bit)
         {
+            Debug.Assert(!(_maxCode is null));
+            Debug.Assert(!(_values is null));
+            Debug.Assert(!(_valOffset is null));
+
             int size = 9;
-            while (code16bit > _maxCode[size])
+            while (code16bit > _maxCode![size])
             {
                 size++;
             }
@@ -70,11 +79,11 @@ namespace JpegLibrary
             return new Entry
             {
                 CodeSize = (byte)size,
-                CodeValue = _values[(_valOffset[size] + code16bit) & 0xFF]
+                CodeValue = _values![(_valOffset![size] + code16bit) & 0xFF]
             };
         }
 
-        public static bool TryParse(ReadOnlySequence<byte> buffer, out JpegHuffmanDecodingTable huffmanTable, out int bytesConsumed)
+        public static bool TryParse(ReadOnlySequence<byte> buffer, [NotNullWhen(true)] out JpegHuffmanDecodingTable? huffmanTable, out int bytesConsumed)
         {
             if (buffer.IsSingleSegment)
             {
@@ -88,7 +97,7 @@ namespace JpegLibrary
             bytesConsumed = 0;
             if (buffer.IsEmpty)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 #if NO_READONLYSEQUENCE_FISTSPAN
@@ -101,12 +110,12 @@ namespace JpegLibrary
             return TryParse((byte)(tableClassAndIdentifier >> 4), (byte)(tableClassAndIdentifier & 0xf), buffer.Slice(1), out huffmanTable, ref bytesConsumed);
         }
 
-        public static bool TryParse(ReadOnlySpan<byte> buffer, out JpegHuffmanDecodingTable huffmanTable, out int bytesConsumed)
+        public static bool TryParse(ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out JpegHuffmanDecodingTable? huffmanTable, out int bytesConsumed)
         {
             bytesConsumed = 0;
             if (buffer.IsEmpty)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 
@@ -116,7 +125,7 @@ namespace JpegLibrary
             return TryParse((byte)(tableClassAndIdentifier >> 4), (byte)(tableClassAndIdentifier & 0xf), buffer.Slice(1), out huffmanTable, ref bytesConsumed);
         }
 
-        public static bool TryParse(byte tableClass, byte identifier, ReadOnlySequence<byte> buffer, out JpegHuffmanDecodingTable huffmanTable, ref int bytesConsumed)
+        public static bool TryParse(byte tableClass, byte identifier, ReadOnlySequence<byte> buffer, [NotNullWhen(true)] out JpegHuffmanDecodingTable? huffmanTable, ref int bytesConsumed)
         {
             if (buffer.IsSingleSegment)
             {
@@ -129,7 +138,7 @@ namespace JpegLibrary
 
             if (buffer.Length < 16)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 
@@ -143,7 +152,7 @@ namespace JpegLibrary
             }
             if (codeCount > 256)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 
@@ -174,11 +183,11 @@ namespace JpegLibrary
             return true;
         }
 
-        public static bool TryParse(byte tableClass, byte identifier, ReadOnlySpan<byte> buffer, out JpegHuffmanDecodingTable huffmanTable, ref int bytesConsumed)
+        public static bool TryParse(byte tableClass, byte identifier, ReadOnlySpan<byte> buffer, [NotNullWhen(true)] out JpegHuffmanDecodingTable? huffmanTable, ref int bytesConsumed)
         {
             if (buffer.Length < 16)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 
@@ -189,7 +198,7 @@ namespace JpegLibrary
             }
             if (codeCount > 256)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 
@@ -202,7 +211,7 @@ namespace JpegLibrary
 
             if (buffer.Length < codeCount)
             {
-                huffmanTable = default;
+                huffmanTable = null;
                 return false;
             }
 
@@ -305,9 +314,10 @@ namespace JpegLibrary
 
         private void FillByteLookupTable(int code, byte codeSize, byte value)
         {
+            Debug.Assert(!(_lookaheadTable is null));
             Debug.Assert(codeSize <= 8);
 
-            Entry[] table = _lookaheadTable;
+            Entry[] table = _lookaheadTable!;
             int freeBitCount = 8 - codeSize;
             code = (byte)(code << freeBitCount);
             for (int i = 0; i < (1 << freeBitCount); i++)

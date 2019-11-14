@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,12 +13,12 @@ namespace JpegLibrary
     {
         private int _minimumBufferSegmentSize;
 
-        private JpegBlockInputReader _input;
-        private IBufferWriter<byte> _output;
+        private JpegBlockInputReader? _input;
+        private IBufferWriter<byte>? _output;
 
-        private List<JpegQuantizationTable> _quantizationTables;
+        private List<JpegQuantizationTable>? _quantizationTables;
         private JpegHuffmanEncodingTableCollection _huffmanTables;
-        private List<JpegEncodeComponent> _encodeComponents;
+        private List<JpegEncodeComponent>? _encodeComponents;
 
         public JpegEncoder() : this(4096) { }
 
@@ -59,7 +61,7 @@ namespace JpegLibrary
                 throw new InvalidOperationException("Only baseline JPEG is supported.");
             }
 
-            List<JpegQuantizationTable> tables = _quantizationTables;
+            List<JpegQuantizationTable>? tables = _quantizationTables;
             if (tables is null)
             {
                 _quantizationTables = tables = new List<JpegQuantizationTable>(2);
@@ -114,7 +116,7 @@ namespace JpegLibrary
                 throw new ArgumentOutOfRangeException(nameof(verticalSubsampling), "Subsampling factor can only be 1, 2 or 4.");
             }
 
-            List<JpegEncodeComponent> components = _encodeComponents;
+            List<JpegEncodeComponent>? components = _encodeComponents;
             if (components is null)
             {
                 _encodeComponents = components = new List<JpegEncodeComponent>(4);
@@ -125,12 +127,12 @@ namespace JpegLibrary
             {
                 throw new ArgumentException("Quantization table is not defined.", nameof(quantizationTableIdentifier));
             }
-            JpegHuffmanEncodingTable dcTable = _huffmanTables.GetTable(true, huffmanDcTableIdentifier);
+            JpegHuffmanEncodingTable? dcTable = _huffmanTables.GetTable(true, huffmanDcTableIdentifier);
             if (dcTable is null)
             {
                 throw new ArgumentException("Huffman table is not defined.", nameof(huffmanDcTableIdentifier));
             }
-            JpegHuffmanEncodingTable acTable = _huffmanTables.GetTable(false, huffmanAcTableIdentifier);
+            JpegHuffmanEncodingTable? acTable = _huffmanTables.GetTable(false, huffmanAcTableIdentifier);
             if (acTable is null)
             {
                 throw new ArgumentException("Huffman table is not defined.", nameof(huffmanAcTableIdentifier));
@@ -178,7 +180,7 @@ namespace JpegLibrary
 
         protected void WriteQuantizationTables(ref JpegWriter writer)
         {
-            List<JpegQuantizationTable> quantizationTables = _quantizationTables;
+            List<JpegQuantizationTable>? quantizationTables = _quantizationTables;
             if (quantizationTables is null)
             {
                 throw new InvalidOperationException();
@@ -218,12 +220,12 @@ namespace JpegLibrary
 
         protected void WriteStartOfFrame(ref JpegWriter writer)
         {
-            JpegBlockInputReader input = _input;
+            JpegBlockInputReader? input = _input;
             if (input is null)
             {
                 throw new InvalidOperationException("Input is not specified.");
             }
-            List<JpegEncodeComponent> encodeComponents = _encodeComponents;
+            List<JpegEncodeComponent>? encodeComponents = _encodeComponents;
             if (encodeComponents is null || encodeComponents.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -246,7 +248,7 @@ namespace JpegLibrary
 
         protected void WriteStartOfScan(ref JpegWriter writer)
         {
-            List<JpegEncodeComponent> encodeComponents = _encodeComponents;
+            List<JpegEncodeComponent>? encodeComponents = _encodeComponents;
             if (encodeComponents is null || encodeComponents.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -270,20 +272,25 @@ namespace JpegLibrary
         protected void WriteScanData(ref JpegWriter writer)
         {
             JpegBlockInputReader inputReader = _input ?? throw new InvalidOperationException("Input is not specified.");
-            List<JpegEncodeComponent> components = _encodeComponents;
+            List<JpegEncodeComponent>? components = _encodeComponents;
             if (components is null || components.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
             }
 
             // Compute maximum sampling factor and reset DC predictor
-            byte maxHorizontalSampling = 1;
-            byte maxVerticalSampling = 1;
+            int maxHorizontalSampling = 1;
+            int maxVerticalSampling = 1;
             foreach (JpegEncodeComponent currentComponent in components)
             {
                 currentComponent.DcPredictor = 0;
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentComponent.HorizontalSamplingFactor);
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentComponent.VerticalSamplingFactor);
+            }
+            foreach (JpegEncodeComponent currentComponent in components)
+            {
+                currentComponent.HorizontalSubsamplingFactor = maxHorizontalSampling / currentComponent.HorizontalSamplingFactor;
+                currentComponent.VerticalSubsamplingFactor = maxVerticalSampling / currentComponent.VerticalSamplingFactor;
             }
 
             // Prepare
@@ -291,6 +298,8 @@ namespace JpegLibrary
             int mcusPerColumn = (inputReader.Height + 8 * maxVerticalSampling - 1) / (8 * maxVerticalSampling);
 
             writer.EnterBitMode();
+
+            int levelShift = 1 << (8 - 1);
 
             JpegBlock8x8F inputFBuffer = default;
             JpegBlock8x8F outputFBuffer = default;
@@ -310,16 +319,19 @@ namespace JpegLibrary
                     {
                         int h = component.HorizontalSamplingFactor;
                         int v = component.VerticalSamplingFactor;
+                        int hs = component.HorizontalSubsamplingFactor;
+                        int vs = component.VerticalSubsamplingFactor;
 
                         for (int y = 0; y < v; y++)
                         {
+                            int blockOffsetY = (offsetY + y) * 8;
                             for (int x = 0; x < h; x++)
                             {
                                 // Read Block
-                                ReadBlock(inputReader, ref inputBuffer, component.ComponentIndex, (offsetX + x) * 8, (offsetY + y) * 8, maxHorizontalSampling / h, maxVerticalSampling / v);
+                                ReadBlock(inputReader, ref inputBuffer, component.ComponentIndex, (offsetX + x) * 8, blockOffsetY, hs, vs);
 
                                 // Level shift
-                                ShiftDataLevel(ref inputBuffer, ref inputFBuffer, precision: 8);
+                                ShiftDataLevel(ref inputBuffer, ref inputFBuffer, levelShift);
 
                                 // FDCT
                                 FastFloatingPointDCT.TransformFDCT(ref inputFBuffer, ref outputFBuffer, ref tempFBuffer);
@@ -398,18 +410,14 @@ namespace JpegLibrary
             }
         }
 
-        private static void ShiftDataLevel(ref JpegBlock8x8 source, ref JpegBlock8x8F destination, int precision)
+        private static void ShiftDataLevel(ref JpegBlock8x8 source, ref JpegBlock8x8F destination, int levelShift)
         {
-            Debug.Assert(precision == 8 || precision == 12);
-
-            int delta = (1 << (precision - 1));
-
             ref short sourceRef = ref Unsafe.As<JpegBlock8x8, short>(ref source);
             ref float destinationRef = ref Unsafe.As<JpegBlock8x8F, float>(ref destination);
 
             for (int i = 0; i < 64; i++)
             {
-                Unsafe.Add(ref destinationRef, i) = Unsafe.Add(ref sourceRef, i) - delta;
+                Unsafe.Add(ref destinationRef, i) = Unsafe.Add(ref sourceRef, i) - levelShift;
             }
         }
 
@@ -433,14 +441,17 @@ namespace JpegLibrary
         {
             ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref block);
 
+            Debug.Assert(!(component.DcTable is null));
+            Debug.Assert(!(component.AcTable is null));
+
             // DC
             int blockValue = blockRef;
             int t = blockValue - component.DcPredictor;
             component.DcPredictor = blockValue;
-            EncodeRunLength(ref writer, component.DcTable, 0, t);
+            EncodeRunLength(ref writer, component.DcTable!, 0, t);
 
             // AC
-            JpegHuffmanEncodingTable acTable = component.AcTable;
+            JpegHuffmanEncodingTable acTable = component.AcTable!;
             int runLength = 0;
             for (int i = 1; i < 64; i++)
             {

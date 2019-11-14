@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -20,10 +22,10 @@ namespace JpegLibrary
         private bool _progressive;
 #pragma warning restore CS0414
 
-        private JpegBlockOutputWriter _outputWriter;
+        private JpegBlockOutputWriter? _outputWriter;
 
-        private List<JpegQuantizationTable> _quantizationTables;
-        private List<JpegHuffmanDecodingTable> _huffmanTables;
+        private List<JpegQuantizationTable>? _quantizationTables;
+        private List<JpegHuffmanDecodingTable>? _huffmanTables;
 
         public void SetInput(ReadOnlyMemory<byte> inputBuffer)
             => SetInput(new ReadOnlySequence<byte>(inputBuffer));
@@ -344,6 +346,10 @@ namespace JpegLibrary
         public byte GetMaximumHorizontalSampling()
         {
             JpegFrameHeader frameHeader = GetFrameHeader();
+            if (frameHeader.Components is null)
+            {
+                throw new InvalidOperationException();
+            }
             byte maxHorizontalSampling = 1;
             foreach (JpegFrameComponentSpecificationParameters currentFrameComponent in frameHeader.Components)
             {
@@ -355,6 +361,10 @@ namespace JpegLibrary
         public byte GetMaximumVerticalSampling()
         {
             JpegFrameHeader frameHeader = GetFrameHeader();
+            if (frameHeader.Components is null)
+            {
+                throw new InvalidOperationException();
+            }
             byte maxVerticalSampling = 1;
             foreach (JpegFrameComponentSpecificationParameters currentFrameComponent in frameHeader.Components)
             {
@@ -516,7 +526,7 @@ namespace JpegLibrary
         {
             while (!segment.IsEmpty)
             {
-                if (!JpegHuffmanDecodingTable.TryParse(segment, out JpegHuffmanDecodingTable huffmanTable, out int bytesConsumed))
+                if (!JpegHuffmanDecodingTable.TryParse(segment, out JpegHuffmanDecodingTable? huffmanTable, out int bytesConsumed))
                 {
                     ThrowInvalidDataException(currentOffset, "Failed to parse Huffman table.");
                     return;
@@ -559,7 +569,7 @@ namespace JpegLibrary
 
         public void ClearHuffmanTable()
         {
-            List<JpegHuffmanDecodingTable> list = _huffmanTables;
+            List<JpegHuffmanDecodingTable>? list = _huffmanTables;
             if (list is null)
             {
                 list = _huffmanTables = new List<JpegHuffmanDecodingTable>(4);
@@ -569,7 +579,7 @@ namespace JpegLibrary
 
         public void ClearQuantizationTable()
         {
-            List<JpegQuantizationTable> list = _quantizationTables;
+            List<JpegQuantizationTable>? list = _quantizationTables;
             if (list is null)
             {
                 list = _quantizationTables = new List<JpegQuantizationTable>(2);
@@ -579,7 +589,7 @@ namespace JpegLibrary
 
         internal void SetHuffmanTable(JpegHuffmanDecodingTable table)
         {
-            List<JpegHuffmanDecodingTable> list = _huffmanTables;
+            List<JpegHuffmanDecodingTable>? list = _huffmanTables;
             if (list is null)
             {
                 list = _huffmanTables = new List<JpegHuffmanDecodingTable>(4);
@@ -598,7 +608,7 @@ namespace JpegLibrary
 
         internal void SetQuantizationTable(JpegQuantizationTable table)
         {
-            List<JpegQuantizationTable> list = _quantizationTables;
+            List<JpegQuantizationTable>? list = _quantizationTables;
             if (list is null)
             {
                 list = _quantizationTables = new List<JpegQuantizationTable>(2);
@@ -615,22 +625,32 @@ namespace JpegLibrary
             list.Add(table);
         }
 
-        private JpegHuffmanDecodingTable GetHuffmanTable(bool isDcTable, byte identifier)
+        private JpegHuffmanDecodingTable? GetHuffmanTable(bool isDcTable, byte identifier)
         {
+            List<JpegHuffmanDecodingTable>? huffmanTables = _huffmanTables;
+            if (huffmanTables is null)
+            {
+                return null;
+            }
             int tableClass = isDcTable ? 0 : 1;
-            foreach (JpegHuffmanDecodingTable item in _huffmanTables)
+            foreach (JpegHuffmanDecodingTable item in huffmanTables)
             {
                 if (item.TableClass == tableClass && item.Identifier == identifier)
                 {
                     return item;
                 }
             }
-            return default;
+            return null;
         }
 
         private JpegQuantizationTable GetQuantizationTable(byte identifier)
         {
-            foreach (JpegQuantizationTable item in _quantizationTables)
+            List<JpegQuantizationTable>? quantizationTables = _quantizationTables;
+            if (quantizationTables is null)
+            {
+                return default;
+            }
+            foreach (JpegQuantizationTable item in quantizationTables)
             {
                 if (item.Identifier == identifier)
                 {
@@ -640,9 +660,14 @@ namespace JpegLibrary
             return default;
         }
 
-        private void DecodeScanBaseline(ref JpegReader reader, JpegScanHeader scanHeader)
+        internal void DecodeScanBaseline(ref JpegReader reader, JpegScanHeader scanHeader)
         {
             JpegFrameHeader frameHeader = _frameHeader.GetValueOrDefault();
+
+            if (frameHeader.Components is null)
+            {
+                throw new InvalidOperationException();
+            }
 
             // Compute maximum sampling factor
             byte maxHorizontalSampling = 1;
@@ -651,6 +676,15 @@ namespace JpegLibrary
             {
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentFrameComponent.HorizontalSamplingFactor);
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentFrameComponent.VerticalSamplingFactor);
+            }
+
+            if (scanHeader.Components is null)
+            {
+                throw new InvalidOperationException();
+            }
+            if (_outputWriter is null)
+            {
+                throw new InvalidOperationException();
             }
 
             // Resolve each component
@@ -674,15 +708,18 @@ namespace JpegLibrary
                 {
                     throw new InvalidDataException();
                 }
-                components[i] = new JpegDecodeComponent
+                ref JpegDecodeComponent componentRef = ref components[i];
+                componentRef = new JpegDecodeComponent
                 {
                     ComponentIndex = componentIndex,
                     HorizontalSamplingFactor = frameComponent.GetValueOrDefault().HorizontalSamplingFactor,
                     VerticalSamplingFactor = frameComponent.GetValueOrDefault().VerticalSamplingFactor,
                     DcTable = GetHuffmanTable(true, scanComponenet.DcEntropyCodingTableSelector),
                     AcTable = GetHuffmanTable(false, scanComponenet.AcEntropyCodingTableSelector),
-                    QuantizationTable = GetQuantizationTable(frameComponent.GetValueOrDefault().QuantizationTableSelector)
+                    QuantizationTable = GetQuantizationTable(frameComponent.GetValueOrDefault().QuantizationTableSelector),
                 };
+                componentRef.HorizontalSubsamplingFactor = maxHorizontalSampling / componentRef.HorizontalSamplingFactor;
+                componentRef.VerticalSubsamplingFactor = maxVerticalSampling / componentRef.VerticalSamplingFactor;
             }
 
             // Prepare
@@ -691,7 +728,7 @@ namespace JpegLibrary
             JpegBitReader bitReader = new JpegBitReader(reader.RemainingBytes);
             int mcusBeforeRestart = _restartInterval;
 
-            int levelShift = (short)(1 << (frameHeader.SamplePrecision - 1));
+            int levelShift = 1 << (frameHeader.SamplePrecision - 1);
 
             // DCT Block
             JpegBlock8x8F blockFBuffer = default;
@@ -713,9 +750,12 @@ namespace JpegLibrary
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
                         int v = component.VerticalSamplingFactor;
+                        int hs = component.HorizontalSubsamplingFactor;
+                        int vs = component.VerticalSubsamplingFactor;
 
                         for (int y = 0; y < v; y++)
                         {
+                            int blockOffsetY = (offsetY + y) * 8;
                             for (int x = 0; x < h; x++)
                             {
                                 // Read MCU
@@ -732,7 +772,7 @@ namespace JpegLibrary
                                 ShiftDataLevel(ref outputFBuffer, ref outputBuffer, levelShift);
 
                                 // CopyToOutput
-                                WriteBlock(outputBuffer, index, (offsetX + x) * 8, (offsetY + y) * 8, maxHorizontalSampling / h, maxVerticalSampling / v);
+                                WriteBlock(in outputBuffer, index, (offsetX + x) * 8, blockOffsetY, hs, vs);
                             }
                         }
                     }
@@ -778,19 +818,19 @@ namespace JpegLibrary
 
         private void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSamplingFactor, int verticalSamplingFactor)
         {
-            JpegBlockOutputWriter outputWriter = _outputWriter;
+            JpegBlockOutputWriter? outputWriter = _outputWriter;
+            Debug.Assert(!(outputWriter is null));
 
             if (horizontalSamplingFactor == 1 && verticalSamplingFactor == 1)
             {
-                outputWriter.WriteBlock(block, componentIndex, x, y);
+                outputWriter!.WriteBlock(block, componentIndex, x, y);
             }
             else
             {
                 JpegBlock8x8 tempBlock = default;
 
-                int hShift = 0, vShift = 0, hf = horizontalSamplingFactor, vf = verticalSamplingFactor;
-                while ((hf = hf / 2) != 0) hShift++;
-                while ((vf = vf / 2) != 0) vShift++;
+                int hShift = CalculateShiftFactor(horizontalSamplingFactor);
+                int vShift = CalculateShiftFactor(verticalSamplingFactor);
 
                 ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
                 ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(tempBlock));
@@ -812,18 +852,28 @@ namespace JpegLibrary
                         }
 
                         // Write tempBlock to output
-                        outputWriter.WriteBlock(tempBlock, componentIndex, x + 8 * h, yOffset);
+                        outputWriter!.WriteBlock(tempBlock, componentIndex, x + 8 * h, yOffset);
                     }
                 }
             }
+        }
+
+        private static int CalculateShiftFactor(int value)
+        {
+            int shift = 0;
+            while ((value = value / 2) != 0) shift++;
+            return shift;
         }
 
         private static void ReadBlockBaseline(ref JpegBitReader reader, JpegDecodeComponent component, ref JpegBlock8x8 destinationBlock)
         {
             ref short destinationRef = ref Unsafe.As<JpegBlock8x8, short>(ref destinationBlock);
 
+            Debug.Assert(!(component.DcTable is null));
+            Debug.Assert(!(component.AcTable is null));
+
             // DC
-            int t = DecodeHuffmanCode(ref reader, component.DcTable);
+            int t = DecodeHuffmanCode(ref reader, component.DcTable!);
             if (t != 0)
             {
                 t = Receive(ref reader, t);
@@ -834,9 +884,10 @@ namespace JpegLibrary
             destinationRef = (short)t;
 
             // AC
+            JpegHuffmanDecodingTable acTable = component.AcTable!;
             for (int i = 1; i < 64;)
             {
-                int s = DecodeHuffmanCode(ref reader, component.AcTable);
+                int s = DecodeHuffmanCode(ref reader, acTable);
 
                 int r = s >> 4;
                 s &= 15;

@@ -1,4 +1,6 @@
-﻿namespace JpegLibrary
+﻿#nullable enable
+
+namespace JpegLibrary
 {
     internal class JpegEncodeComponent
     {
@@ -8,8 +10,11 @@
         internal int DcPredictor { get; set; }
         internal byte DcTableIdentifier { get; set; }
         internal byte AcTableIdentifier { get; set; }
-        internal JpegHuffmanEncodingTable DcTable { get; set; }
-        internal JpegHuffmanEncodingTable AcTable { get; set; }
+        internal JpegHuffmanEncodingTable? DcTable { get; set; }
+        internal JpegHuffmanEncodingTable? AcTable { get; set; }
         internal JpegQuantizationTable QuantizationTable { get; set; }
+
+        internal int HorizontalSubsamplingFactor { get; set; }
+        internal int VerticalSubsamplingFactor { get; set; }
     }
 }

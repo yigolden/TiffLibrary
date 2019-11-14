@@ -1,15 +1,17 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 
 namespace JpegLibrary
 {
     internal struct JpegHuffmanEncodingTableCollection
     {
-        private List<EncodingTableWithIdentifier> _tables;
+        private List<EncodingTableWithIdentifier>? _tables;
 
         public bool IsEmpty => _tables is null;
 
-        public JpegHuffmanEncodingTable GetTable(bool isDcTable, byte identifier)
+        public JpegHuffmanEncodingTable? GetTable(bool isDcTable, byte identifier)
         {
             if (_tables is null)
             {
@@ -60,6 +62,11 @@ namespace JpegLibrary
 
         public bool TryWrite(Span<byte> buffer, out int bytesWritten)
         {
+            if (_tables is null)
+            {
+                throw new InvalidOperationException();
+            }
+
             bytesWritten = 0;
             foreach (EncodingTableWithIdentifier item in _tables)
             {
@@ -85,6 +92,11 @@ namespace JpegLibrary
 
         public void Write(ref JpegWriter writer)
         {
+            if (_tables is null)
+            {
+                throw new InvalidOperationException();
+            }
+
             foreach (EncodingTableWithIdentifier item in _tables)
             {
                 int bytesRequired = 1 + item.EncodingTable.BytesRequired;

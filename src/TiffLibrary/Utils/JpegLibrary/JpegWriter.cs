@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
@@ -79,11 +81,11 @@ namespace JpegLibrary
 
         private void FlushBuffer()
         {
-            Debug.Assert(_writer != null);
+            Debug.Assert(!(_writer is null));
 
             if (_bufferConsunmed != 0)
             {
-                _writer.Advance(_bufferConsunmed);
+                _writer!.Advance(_bufferConsunmed);
             }
             _bufferConsunmed = 0;
         }

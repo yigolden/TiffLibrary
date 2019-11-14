@@ -1,11 +1,13 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 
 namespace JpegLibrary
 {
     internal readonly struct JpegScanHeader
     {
-        public JpegScanHeader(byte numberOfComponents, JpegScanComponentSpecificationParameters[] components, byte startOfSpectralSelection, byte endOfSpectralSelection, byte successiveApproximationBitPositionHigh, byte successiveApproximationBitPositionLow)
+        public JpegScanHeader(byte numberOfComponents, JpegScanComponentSpecificationParameters[]? components, byte startOfSpectralSelection, byte endOfSpectralSelection, byte successiveApproximationBitPositionHigh, byte successiveApproximationBitPositionLow)
         {
             NumberOfComponents = numberOfComponents;
             Components = components;
@@ -16,7 +18,7 @@ namespace JpegLibrary
         }
 
         public byte NumberOfComponents { get; }
-        public JpegScanComponentSpecificationParameters[] Components { get; }
+        public JpegScanComponentSpecificationParameters[]? Components { get; }
         public byte StartOfSpectralSelection { get; }
         public byte EndOfSpectralSelection { get; }
         public byte SuccessiveApproximationBitPositionHigh { get; }
@@ -63,7 +65,7 @@ namespace JpegLibrary
                 return false;
             }
 
-            JpegScanComponentSpecificationParameters[] components;
+            JpegScanComponentSpecificationParameters[]? components;
             if (metadataOnly)
             {
                 components = null;
@@ -116,7 +118,7 @@ namespace JpegLibrary
                 return false;
             }
 
-            JpegScanComponentSpecificationParameters[] components;
+            JpegScanComponentSpecificationParameters[]? components;
             if (metadataOnly)
             {
                 components = null;
@@ -157,7 +159,7 @@ namespace JpegLibrary
             buffer = buffer.Slice(1);
             bytesWritten = 1;
 
-            JpegScanComponentSpecificationParameters[] components = Components;
+            JpegScanComponentSpecificationParameters[]? components = Components;
             if (components is null || components.Length < NumberOfComponents)
             {
                 throw new InvalidOperationException("Components are not specified.");

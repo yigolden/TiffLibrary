@@ -1,11 +1,13 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 
 namespace JpegLibrary
 {
     internal readonly struct JpegFrameHeader
     {
-        public JpegFrameHeader(byte samplePrecision, ushort numberOfLines, ushort samplesPerLine, byte numberOfComponents, JpegFrameComponentSpecificationParameters[] components)
+        public JpegFrameHeader(byte samplePrecision, ushort numberOfLines, ushort samplesPerLine, byte numberOfComponents, JpegFrameComponentSpecificationParameters[]? components)
         {
             SamplePrecision = samplePrecision;
             NumberOfLines = numberOfLines;
@@ -18,7 +20,7 @@ namespace JpegLibrary
         public ushort NumberOfLines { get; }
         public ushort SamplesPerLine { get; }
         public byte NumberOfComponents { get; }
-        public JpegFrameComponentSpecificationParameters[] Components { get; }
+        public JpegFrameComponentSpecificationParameters[]? Components { get; }
 
         public byte BytesRequired => (byte)(6 + 3 * NumberOfComponents);
 
@@ -145,7 +147,7 @@ namespace JpegLibrary
             buffer = buffer.Slice(6);
             bytesWritten = 6;
 
-            JpegFrameComponentSpecificationParameters[] components = Components;
+            JpegFrameComponentSpecificationParameters[]? components = Components;
             if (components is null || components.Length < NumberOfComponents)
             {
                 throw new InvalidOperationException("Components are not specified.");

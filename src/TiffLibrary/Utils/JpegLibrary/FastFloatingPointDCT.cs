@@ -1,4 +1,6 @@
-﻿// This code is copied from https://github.com/SixLabors/ImageSharp
+﻿#nullable enable
+
+// This code is copied from https://github.com/SixLabors/ImageSharp
 
 using System.Numerics;
 using System.Runtime.CompilerServices;

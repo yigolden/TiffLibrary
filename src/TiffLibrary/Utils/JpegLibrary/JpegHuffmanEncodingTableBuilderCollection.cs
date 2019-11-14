@@ -1,16 +1,18 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 
 namespace JpegLibrary
 {
     internal struct JpegHuffmanEncodingTableBuilderCollection : IDisposable
     {
-        private List<TableBuilderWithIdentifier> _builders;
+        private List<TableBuilderWithIdentifier>? _builders;
 
         public JpegHuffmanEncodingTableBuilder GetOrCreateTableBuilder(bool isDcTable, byte identifier)
         {
             byte tableClass = isDcTable ? (byte)0 : (byte)1;
-            List<TableBuilderWithIdentifier> builders = _builders;
+            List<TableBuilderWithIdentifier>? builders = _builders;
             if (builders is null)
             {
                 builders = _builders = new List<TableBuilderWithIdentifier>(4);

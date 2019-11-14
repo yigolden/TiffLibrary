@@ -1,6 +1,9 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace JpegLibrary
 {
@@ -109,9 +112,13 @@ namespace JpegLibrary
                 TraverseNode(level0[i], _symbols);
             }
 
-            static void TraverseNode(Node node, Symbol[] symbols)
+            static void TraverseNode(Node? node, Symbol[] symbols)
             {
-                if (node.Left is null)
+                if (node is null)
+                {
+                    return;
+                }
+                else if (node.Left is null)
                 {
                     symbols[node.Symbol].CodeLength++;
                 }
@@ -157,6 +164,7 @@ namespace JpegLibrary
             return codes;
         }
 
+        [DoesNotReturn]
         private static void ThrowInvalidOperationException()
         {
             throw new InvalidOperationException();
@@ -178,8 +186,8 @@ namespace JpegLibrary
         {
             public byte Symbol { get; set; }
             public uint Count { get; set; }
-            public Node Left { get; set; }
-            public Node Right { get; set; }
+            public Node? Left { get; set; }
+            public Node? Right { get; set; }
 
             public void Reset()
             {

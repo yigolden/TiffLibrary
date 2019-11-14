@@ -1,4 +1,6 @@
-﻿namespace JpegLibrary
+﻿#nullable enable
+
+namespace JpegLibrary
 {
     internal enum JpegElementPrecision : byte
     {

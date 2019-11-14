@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -124,14 +126,14 @@ namespace JpegLibrary
         }
 
 
-        private static JpegHuffmanEncodingTable s_luminanceDCTable;
-        private static JpegHuffmanEncodingTable s_luminanceACTable;
-        private static JpegHuffmanEncodingTable s_chrominanceDCTable;
-        private static JpegHuffmanEncodingTable s_chrominanceACTable;
+        private static JpegHuffmanEncodingTable? s_luminanceDCTable;
+        private static JpegHuffmanEncodingTable? s_luminanceACTable;
+        private static JpegHuffmanEncodingTable? s_chrominanceDCTable;
+        private static JpegHuffmanEncodingTable? s_chrominanceACTable;
 
         public static JpegHuffmanEncodingTable GetLuminanceDCTable()
         {
-            JpegHuffmanEncodingTable table = s_luminanceDCTable;
+            JpegHuffmanEncodingTable? table = s_luminanceDCTable;
             if (table is null)
             {
                 s_luminanceDCTable = table = new JpegHuffmanEncodingTable(BuildCanonicalCode(LuminanceDCCodeLengths, LuminanceDCCodeValues));
@@ -141,7 +143,7 @@ namespace JpegLibrary
 
         public static JpegHuffmanEncodingTable GetLuminanceACTable()
         {
-            JpegHuffmanEncodingTable table = s_luminanceACTable;
+            JpegHuffmanEncodingTable? table = s_luminanceACTable;
             if (table is null)
             {
                 s_luminanceACTable = table = new JpegHuffmanEncodingTable(BuildCanonicalCode(LuminanceACCodeLengths, LuminanceACCodeValues));
@@ -151,7 +153,7 @@ namespace JpegLibrary
 
         public static JpegHuffmanEncodingTable GetChrominanceDCTable()
         {
-            JpegHuffmanEncodingTable table = s_chrominanceDCTable;
+            JpegHuffmanEncodingTable? table = s_chrominanceDCTable;
             if (table is null)
             {
                 s_chrominanceDCTable = table = new JpegHuffmanEncodingTable(BuildCanonicalCode(ChrominanceDCCodeLengths, ChrominanceDCCodeValues));
@@ -161,7 +163,7 @@ namespace JpegLibrary
 
         public static JpegHuffmanEncodingTable GetChrominanceACTable()
         {
-            JpegHuffmanEncodingTable table = s_chrominanceACTable;
+            JpegHuffmanEncodingTable? table = s_chrominanceACTable;
             if (table is null)
             {
                 s_chrominanceACTable = table = new JpegHuffmanEncodingTable(BuildCanonicalCode(ChrominanceACCodeLengths, ChrominanceACCodeValues));

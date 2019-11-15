@@ -79,6 +79,7 @@ namespace TiffLibrary.Compression
             switch (_photometricInterpretation)
             {
                 case TiffPhotometricInterpretation.BlackIsZero:
+                case TiffPhotometricInterpretation.WhiteIsZero:
                     _componentCount = 1;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
                     encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
@@ -121,7 +122,7 @@ namespace TiffLibrary.Compression
                     encoder.AddComponent(1, 1, 1, 1, 1); // Cr component
                     break;
                 default:
-                    throw new NotSupportedException("JPEG compression only supports BlackIsZero, RGB, YCbCr and CMYK photometric interpretation.");
+                    throw new NotSupportedException("JPEG compression only supports BlackIsZero, WhiteIsZero, RGB, YCbCr and CMYK photometric interpretation.");
             }
             _encoder = encoder;
         }

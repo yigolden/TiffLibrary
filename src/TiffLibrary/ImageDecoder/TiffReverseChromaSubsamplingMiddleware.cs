@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 namespace TiffLibrary.ImageDecoder
 {
     /// <summary>
-    /// A middleware that reverse YCbCr subsampling
+    /// A middleware that reverse chroma subsampling
     /// </summary>
-    public sealed class TiffReverseYCbCr32SubsamplingMiddleware : ITiffImageDecoderMiddleware
+    public sealed class TiffReverseChromaSubsamplingMiddleware : ITiffImageDecoderMiddleware
     {
         private readonly ushort _horizontalSubsampling;
         private readonly ushort _verticalSubsampling;
@@ -19,7 +19,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="horizontalSubsampling">The horizontal subsampling factor.</param>
         /// <param name="verticalSubsampling">The vertical subsampling factor.</param>
         /// <param name="isPlanar">Whether thid IFD is planar configuration.</param>
-        public TiffReverseYCbCr32SubsamplingMiddleware(ushort horizontalSubsampling, ushort verticalSubsampling, bool isPlanar)
+        public TiffReverseChromaSubsamplingMiddleware(ushort horizontalSubsampling, ushort verticalSubsampling, bool isPlanar)
         {
             if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)
             {
@@ -106,9 +106,9 @@ namespace TiffLibrary.ImageDecoder
                 for (int blockCol = blockWidth - 1; blockCol >= 0; blockCol--)
                 {
                     int blockOffset = blockRow * blockWidth + blockCol;
-                    ReadOnlySpan<byte> blcokData = source.Slice(blockOffset * blockByteCount, blockByteCount);
-                    byte cr = blcokData[cbCrOffsetInBlock + 1];
-                    byte cb = blcokData[cbCrOffsetInBlock];
+                    ReadOnlySpan<byte> blockData = source.Slice(blockOffset * blockByteCount, blockByteCount);
+                    byte cr = blockData[cbCrOffsetInBlock + 1];
+                    byte cb = blockData[cbCrOffsetInBlock];
 
                     for (int row = verticalSubsampling - 1; row >= 0; row--)
                     {
@@ -117,7 +117,7 @@ namespace TiffLibrary.ImageDecoder
                             int offset = 3 * ((blockRow * verticalSubsampling + row) * width + blockCol * horizontalSubsampling + col);
                             destination[offset + 2] = cr;
                             destination[offset + 1] = cb;
-                            destination[offset] = blcokData[row * horizontalSubsampling + col];
+                            destination[offset] = blockData[row * horizontalSubsampling + col];
                         }
                     }
                 }

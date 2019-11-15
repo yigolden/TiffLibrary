@@ -312,7 +312,7 @@ namespace TiffLibrary.ImageDecoder
             {
                 throw new InvalidDataException("YCbCrSubSampling should contains 2 elements.");
             }
-            builder.Add(new TiffReverseYCbCr32SubsamplingMiddleware(subsampling[0], subsampling[1], planarConfiguration == TiffPlanarConfiguration.Planar));
+            builder.Add(new TiffReverseChromaSubsamplingMiddleware(subsampling[0], subsampling[1], planarConfiguration == TiffPlanarConfiguration.Planar));
         }
 
         private static TiffValueCollection<int> CalculateChunkyBytesPerScanline(TiffPhotometricInterpretation photometricInterpretation, TiffCompression compression, TiffValueCollection<ushort> bitsPerSample, int width)

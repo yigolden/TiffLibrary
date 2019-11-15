@@ -62,6 +62,16 @@ namespace TiffLibrary
         public int JpegQuality { get; set; } = 75;
 
         /// <summary>
+        /// Gets or sets the horizontal subsampling factor for YCbCr image.
+        /// </summary>
+        public int YCbCrHorizontalSubSampling { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets the vertical subsampling factor for YCbCr image.
+        /// </summary>
+        public int YCbCrVerticalSubSampling { get; set; } = 1;
+
+        /// <summary>
         /// Build the <see cref="TiffImageEncoder{TPixel}"/> instance with the specified pixel format of input image.
         /// </summary>
         /// <typeparam name="TPixel">The pixel type of the input image.</typeparam>
@@ -107,6 +117,30 @@ namespace TiffLibrary
                 pipelineBuilder.Add(new TiffApplyPredictorMiddleware<TPixel>(TiffPredictor.HorizontalDifferencing));
             }
 
+            int horizontalSubsampling = YCbCrHorizontalSubSampling;
+            int verticalSubsampling = YCbCrVerticalSubSampling;
+            if (PhotometricInterpretation == TiffPhotometricInterpretation.YCbCr)
+            {
+                horizontalSubsampling = horizontalSubsampling == 0 ? 1 : horizontalSubsampling;
+                verticalSubsampling = verticalSubsampling == 0 ? 1 : verticalSubsampling;
+
+                if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)
+                {
+                    throw new InvalidOperationException("YCbCrHorizontalSubSampling can only be 1, 2, or 4.");
+                }
+                if (verticalSubsampling != 1 && verticalSubsampling != 2 && verticalSubsampling != 4)
+                {
+                    throw new InvalidOperationException("YCbCrVerticalSubSampling can only be 1, 2, or 4.");
+                }
+
+                var chromaSubsamplingMiddleware = new TiffApplyChromaSubsamplingMiddleware<TPixel>(horizontalSubsampling, verticalSubsampling);
+                if (Compression != TiffCompression.Jpeg)
+                {
+                    pipelineBuilder.Add(chromaSubsamplingMiddleware);
+                }
+                pipelineBuilder.Add(chromaSubsamplingMiddleware.GetFieldWriter());
+            }
+
             switch (Compression)
             {
                 case 0:
@@ -120,11 +154,11 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, DeflateCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.Jpeg:
-                    if (JpegQuality < 0 || JpegQuality > 100)
+                    if ((uint)JpegQuality > 100)
                     {
                         throw new InvalidOperationException("JpegQuality should be set between 0 and 100.");
                     }
-                    var jpegCompressionAlgorithm = new JpegCompressionAlgorithm(PhotometricInterpretation, JpegQuality, useSharedJpegTables: true);
+                    var jpegCompressionAlgorithm = new JpegCompressionAlgorithm(PhotometricInterpretation, horizontalSubsampling, verticalSubsampling, JpegQuality, useSharedJpegTables: true);
                     pipelineBuilder.Add(jpegCompressionAlgorithm.GetTableWriter<TPixel>());
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, jpegCompressionAlgorithm));
                     break;

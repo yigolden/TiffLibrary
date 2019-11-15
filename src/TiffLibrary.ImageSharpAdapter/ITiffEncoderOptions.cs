@@ -20,5 +20,9 @@ namespace TiffLibrary.ImageSharpAdapter
         TiffOrientation Orientation { get; }
 
         int JpegQuality { get; }
+
+        public int YCbCrHorizontalSubSampling { get; }
+
+        public int YCbCrVerticalSubSampling { get; }
     }
 }

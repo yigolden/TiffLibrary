@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using TiffLibrary.Compression;
 
 namespace TiffLibrary.ImageEncoder
@@ -33,12 +34,12 @@ namespace TiffLibrary.ImageEncoder
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
 
             if (next is null)
             {
-                throw new System.ArgumentNullException(nameof(next));
+                throw new ArgumentNullException(nameof(next));
             }
 
             TiffValueCollection<ushort> bitsPerSample = context.BitsPerSample;

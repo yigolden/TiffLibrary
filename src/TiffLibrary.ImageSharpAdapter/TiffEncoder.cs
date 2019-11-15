@@ -27,6 +27,11 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public int JpegQuality { get; set; } = 75;
 
+        public int YCbCrHorizontalSubSampling { get; set; } = 1;
+
+        public int YCbCrVerticalSubSampling { get; set; } = 1;
+
+
         public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : struct, IPixel<TPixel>
         {
             var encoder = new TiffEncoderCore(image.GetConfiguration(), this);

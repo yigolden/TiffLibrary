@@ -10,7 +10,6 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
     internal class YCbCr24Encoder<TPixel> : ITiffImageEncoderMiddleware<TPixel> where TPixel : unmanaged
     {
         private static readonly ushort[] s_bitsPerSample = new ushort[] { 8, 8, 8 };
-        private static readonly ushort[] s_yCbCrSubSampling = new ushort[] { 1, 1 };
 
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
@@ -36,16 +35,14 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 context.UncompressedData = default;
             }
 
-
             TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
                 await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(3));
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(s_yCbCrSubSampling));
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrCoefficients, TiffYCbCrConverter.DefaultLuma);
-                await ifdWriter.WriteTagAsync(TiffTag.ReferenceBlackWhite, TiffYCbCrConverter.DefaultReferenceBlackWhite);
+                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(3)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.YCbCrCoefficients, TiffYCbCrConverter.DefaultLuma).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ReferenceBlackWhite, TiffYCbCrConverter.DefaultReferenceBlackWhite).ConfigureAwait(false);
             }
         }
     }

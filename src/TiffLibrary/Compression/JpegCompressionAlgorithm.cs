@@ -15,6 +15,8 @@ namespace TiffLibrary.Compression
         private const int MinimumBufferSegmentSize = 16384;
 
         private readonly TiffPhotometricInterpretation _photometricInterpretation;
+        private readonly int _horizontalSubsampling;
+        private readonly int _verticalSubsampling;
         private int _componentCount;
         private readonly int _quality;
         private readonly bool _useSharedJpegTables;
@@ -30,6 +32,8 @@ namespace TiffLibrary.Compression
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality)
         {
             _photometricInterpretation = photometricInterpretation;
+            _horizontalSubsampling = 1;
+            _verticalSubsampling = 1;
             _quality = quality;
             _useSharedJpegTables = false;
             Initialize();
@@ -44,6 +48,26 @@ namespace TiffLibrary.Compression
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality, bool useSharedJpegTables)
         {
             _photometricInterpretation = photometricInterpretation;
+            _horizontalSubsampling = 1;
+            _verticalSubsampling = 1;
+            _quality = quality;
+            _useSharedJpegTables = useSharedJpegTables;
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initialize the object.
+        /// </summary>
+        /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
+        /// <param name="horizontalSubsampling">The horizontal subsampling factor for YCbCr image.</param>
+        /// <param name="verticalSubsampling">The vertical subsampling factor for YCbCr image.</param>
+        /// <param name="quality">The quality factor to use when generating quantization table.</param>
+        /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
+        public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int horizontalSubsampling, int verticalSubsampling, int quality, bool useSharedJpegTables)
+        {
+            _photometricInterpretation = photometricInterpretation;
+            _horizontalSubsampling = horizontalSubsampling;
+            _verticalSubsampling = verticalSubsampling;
             _quality = quality;
             _useSharedJpegTables = useSharedJpegTables;
             Initialize();
@@ -92,7 +116,7 @@ namespace TiffLibrary.Compression
                     encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
                     encoder.SetHuffmanTable(true, 1, JpegStandardHuffmanEncodingTable.GetChrominanceDCTable());
                     encoder.SetHuffmanTable(false, 1, JpegStandardHuffmanEncodingTable.GetChrominanceACTable());
-                    encoder.AddComponent(0, 0, 0, 1, 1); // Y component
+                    encoder.AddComponent(0, 0, 0, (byte)_horizontalSubsampling, (byte)_verticalSubsampling); // Y component
                     encoder.AddComponent(1, 1, 1, 1, 1); // Cb component
                     encoder.AddComponent(1, 1, 1, 1, 1); // Cr component
                     break;

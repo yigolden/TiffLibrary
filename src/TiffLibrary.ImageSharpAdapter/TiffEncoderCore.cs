@@ -60,6 +60,8 @@ namespace TiffLibrary.ImageSharpAdapter
             builder.EnableTransparencyForRgb = options.EnableTransparencyForRgb;
             builder.Orientation = options.Orientation;
             builder.JpegQuality = options.JpegQuality;
+            builder.YCbCrHorizontalSubSampling = options.YCbCrHorizontalSubSampling;
+            builder.YCbCrVerticalSubSampling = options.YCbCrVerticalSubSampling;
 
             // Fast path for TiffLibrary-supported pixel formats
             if (typeof(TPixel) == typeof(Gray8))

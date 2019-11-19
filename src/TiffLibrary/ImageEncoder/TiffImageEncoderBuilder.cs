@@ -62,14 +62,14 @@ namespace TiffLibrary
         public int JpegQuality { get; set; } = 75;
 
         /// <summary>
-        /// Gets or sets the horizontal subsampling factor for YCbCr image.
+        /// Gets or sets the horizontal chroma subsampling factor for YCbCr image.
         /// </summary>
-        public int YCbCrHorizontalSubSampling { get; set; } = 1;
+        public int HorizontalChromaSubSampling { get; set; } = 1;
 
         /// <summary>
-        /// Gets or sets the vertical subsampling factor for YCbCr image.
+        /// Gets or sets the vertical chroma subsampling factor for YCbCr image.
         /// </summary>
-        public int YCbCrVerticalSubSampling { get; set; } = 1;
+        public int VerticalChromaSubSampling { get; set; } = 1;
 
         /// <summary>
         /// Build the <see cref="TiffImageEncoder{TPixel}"/> instance with the specified pixel format of input image.
@@ -117,8 +117,8 @@ namespace TiffLibrary
                 pipelineBuilder.Add(new TiffApplyPredictorMiddleware<TPixel>(TiffPredictor.HorizontalDifferencing));
             }
 
-            int horizontalSubsampling = YCbCrHorizontalSubSampling;
-            int verticalSubsampling = YCbCrVerticalSubSampling;
+            int horizontalSubsampling = HorizontalChromaSubSampling;
+            int verticalSubsampling = VerticalChromaSubSampling;
             if (PhotometricInterpretation == TiffPhotometricInterpretation.YCbCr)
             {
                 horizontalSubsampling = horizontalSubsampling == 0 ? 1 : horizontalSubsampling;

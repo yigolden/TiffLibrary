@@ -22,9 +22,9 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public int JpegQuality { get; set; } = 75;
 
-        public int YCbCrHorizontalSubSampling { get; set; } = 1;
+        public int HorizontalChromaSubSampling { get; set; } = 1;
 
-        public int YCbCrVerticalSubSampling { get; set; } = 1;
+        public int VerticalChromaSubSampling { get; set; } = 1;
 
     }
 }

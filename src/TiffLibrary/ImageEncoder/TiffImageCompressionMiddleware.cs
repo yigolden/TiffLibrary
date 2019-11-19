@@ -66,6 +66,7 @@ namespace TiffLibrary.ImageEncoder
                 int length = bufferWriter.Length;
                 TiffStreamOffset offset = await context.FileWriter.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
 
+                context.BitsPerSample = compressionContext.BitsPerSample;
                 context.Compression = _compression;
                 context.OutputRegion = new TiffStreamRegion(offset, length);
             }

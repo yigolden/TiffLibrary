@@ -100,7 +100,7 @@ namespace TiffLibrary
                     }
                     break;
                 case TiffPhotometricInterpretation.TransparencyMask:
-                    pipelineBuilder.Add(new TransparencyMaskEncoder<TPixel>(127));
+                    pipelineBuilder.Add(new TransparencyMaskEncoder<TPixel>(threshold: 127));
                     break;
                 case TiffPhotometricInterpretation.Seperated:
                     pipelineBuilder.Add(new Cmyk32Encoder<TPixel>());
@@ -146,6 +146,9 @@ namespace TiffLibrary
                 case 0:
                 case TiffCompression.NoCompression:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, NoneCompressionAlgorithm.Instance));
+                    break;
+                case TiffCompression.ModifiedHuffmanCompression:
+                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, ModifiedHuffmanCompressionAlgorithm.GetSharedInstance(TiffFillOrder.HigherOrderBitsFirst)));
                     break;
                 case TiffCompression.Lzw:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, LzwCompressionAlgorithm.Instance));

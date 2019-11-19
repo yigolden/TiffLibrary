@@ -80,6 +80,7 @@ TiffLibrary supports decoding of the image in any of the following orientation.
 ## Compression for Encoding
 
 * NoCompression (CompressionTag=1)
+* ModifiedHuffmanCompression (CompressionTag=2)
 * LZW (CompressionTag=5)
 * JPEG (CompressionTag=7)
 * Deflate (CompressionTag=8)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 
 namespace TiffLibrary.Compression
@@ -6,7 +7,7 @@ namespace TiffLibrary.Compression
     /// <summary>
     /// Decompression support for CCITT Group 3 1-Dimensional Modified Huffman run length encoding.
     /// </summary>
-    public class ModifiedHuffmanCompressionAlgorithm : ITiffDecompressionAlgorithm
+    public class ModifiedHuffmanCompressionAlgorithm : ITiffCompressionAlgorithm, ITiffDecompressionAlgorithm
     {
         private bool _higherOrderBitsFirst;
 
@@ -38,6 +39,71 @@ namespace TiffLibrary.Compression
         }
 
         /// <summary>
+        /// Compress image data.
+        /// </summary>
+        /// <param name="context">Information about the TIFF file.</param>
+        /// <param name="input">The input data.</param>
+        /// <param name="outputWriter">The output writer.</param>
+        public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
+        {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
+            {
+                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation.");
+            }
+
+            if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 8)
+            {
+                throw new NotSupportedException("Unsupported bits per sample.");
+            }
+
+            context.BitsPerSample = TiffValueCollection.Single<ushort>(1);
+
+            ReadOnlySpan<byte> inputSpan = input.Span;
+
+            bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
+            int width = context.ImageSize.Width;
+            int height = context.ImageSize.Height;
+            var bitWriter = new BitWriter2(outputWriter, 4096);
+
+            // Process every scanline
+            for (int row = 0; row < height; row++)
+            {
+                ReadOnlySpan<byte> rowSpan = inputSpan.Slice(0, width);
+                inputSpan = inputSpan.Slice(width);
+
+                CcittEncodingTable currentTable = CcittEncodingTable.WhiteInstance;
+                CcittEncodingTable otherTable = CcittEncodingTable.BlackInstance;
+
+                byte flagValue = 255;
+
+                while (!rowSpan.IsEmpty)
+                {
+                    // Get the length of the current run
+                    int runLength = rowSpan.IndexOf(flagValue);
+                    if (runLength < 0)
+                    {
+                        runLength = rowSpan.Length;
+                    }
+                    currentTable.EncodeRun(ref bitWriter, runLength);
+                    rowSpan = rowSpan.Slice(runLength);
+
+                    // Switch to the other color
+                    CcittHelper.SwapTable(ref currentTable, ref otherTable);
+                    flagValue = (byte)~flagValue;
+                }
+
+                bitWriter.AdvanceAlignByte();
+            }
+
+            bitWriter.Flush();
+        }
+
+        /// <summary>
         /// Decompress the image data.
         /// </summary>
         /// <param name="context">Information about the TIFF file.</param>
@@ -52,7 +118,7 @@ namespace TiffLibrary.Compression
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation format.");
+                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 1)
@@ -65,10 +131,11 @@ namespace TiffLibrary.Compression
 
             bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
+            int height = context.SkippedScanlines + context.RequestedScanlines;
             var bitReader = new BitReader(inputSpan, higherOrderBitsFirst: _higherOrderBitsFirst);
 
             // Process every scanline
-            for (int i = 0; i < (context.SkippedScanlines + context.RequestedScanlines); i++)
+            for (int i = 0; i < height; i++)
             {
                 if (scanlinesBufferSpan.Length < width)
                 {

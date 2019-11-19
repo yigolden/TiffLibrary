@@ -79,16 +79,15 @@ namespace TiffLibrary.Compression
 
                 // Process every code word in this scanline
                 byte fillValue = whiteIsZero ? (byte)0 : (byte)255;
-                ReadOnlySpan<CcittCodeLookupTable.Entry> currentTable = CcittCodeLookupTable.WhiteEntries;
-                ReadOnlySpan<CcittCodeLookupTable.Entry> otherTable = CcittCodeLookupTable.BlackEntries;
+                CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
+                CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
                 int unpacked = 0;
-                CcittCodeLookupTable.Entry tableEntry;
+                CcittCodeValue tableEntry;
                 while (true)
                 {
-                    int value = (int)bitReader.Peek(13);
-                    tableEntry = currentTable[value];
+                    tableEntry = currentTable.Lookup(bitReader.Peek(16));
 
-                    if (tableEntry.IsEol)
+                    if (tableEntry.IsEndOfLine)
                     {
                         // EOL code is not used in modified huffman algorithm
                         throw new InvalidDataException();

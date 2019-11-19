@@ -127,8 +127,8 @@ namespace TiffLibrary.Compression
 
             // Process every code word in this scanline
             byte fillValue = whiteIsZero ? (byte)0 : (byte)255;
-            ReadOnlySpan<CcittCodeLookupTable.Entry> currentTable = CcittCodeLookupTable.WhiteEntries;
-            ReadOnlySpan<CcittCodeLookupTable.Entry> otherTable = CcittCodeLookupTable.BlackEntries;
+            CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
+            CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
             int unpacked = 0;
             while (true)
             {
@@ -155,8 +155,8 @@ namespace TiffLibrary.Compression
         private static void Decode2DScanline(ref BitReader bitReader, bool whiteIsZero, ReferenceScanline referenceScanline, Span<byte> scanline)
         {
             int width = scanline.Length;
-            ReadOnlySpan<CcittCodeLookupTable.Entry> currentTable = CcittCodeLookupTable.WhiteEntries;
-            ReadOnlySpan<CcittCodeLookupTable.Entry> otherTable = CcittCodeLookupTable.BlackEntries;
+            CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
+            CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
             CcittCodeLookupTableTwoDimensional.Entry tableEntry;
             const int PeekCount = CcittCodeLookupTableTwoDimensional.PeekCount;
 

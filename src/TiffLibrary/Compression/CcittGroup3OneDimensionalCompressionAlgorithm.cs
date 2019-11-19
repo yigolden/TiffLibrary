@@ -65,7 +65,7 @@ namespace TiffLibrary.Compression
 
             bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
-            ReadOnlySpan<CcittCodeLookupTable.Entry> whiteEntries = CcittCodeLookupTable.WhiteEntries;
+            CcittDecodingTable whiteEntries = CcittDecodingTable.WhiteInstance;
             var bitReader = new BitReader(inputSpan, higherOrderBitsFirst: _higherOrderBitsFirst);
 
             // Process every scanline
@@ -90,16 +90,16 @@ namespace TiffLibrary.Compression
 
                 // Process every code word in this scanline
                 byte fillValue = whiteIsZero ? (byte)0 : (byte)255;
-                ReadOnlySpan<CcittCodeLookupTable.Entry> currentTable = CcittCodeLookupTable.WhiteEntries;
-                ReadOnlySpan<CcittCodeLookupTable.Entry> otherTable = CcittCodeLookupTable.BlackEntries;
+                CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
+                CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
                 int unpacked = 0;
-                CcittCodeLookupTable.Entry tableEntry;
+                CcittCodeValue tableEntry;
                 while (true)
                 {
-                    int value = (int)bitReader.Peek(13);
-                    tableEntry = currentTable[value];
+                    uint value = bitReader.Peek(16);
+                    tableEntry = currentTable.Lookup(value);
 
-                    if (tableEntry.IsEol)
+                    if (tableEntry.IsEndOfLine)
                     {
                         // fill the rest of scanline
                         scanline.Fill(fillValue);
@@ -108,7 +108,7 @@ namespace TiffLibrary.Compression
                     }
 
                     // Check to see whether we are encountering a "filled" EOL ?
-                    if ((value & 0b1111111111110) == 0)
+                    if ((value & 0b1111111111110000) == 0)
                     {
                         // Align to 8 bits
                         int filledBits = 8 - (bitReader.ConsumedBits + 12) % 8;
@@ -118,7 +118,7 @@ namespace TiffLibrary.Compression
                         }
 
                         // Confirm it is indeed an EOL code.
-                        value = (int)bitReader.Read(filledBits + 12);
+                        value = bitReader.Read(filledBits + 12);
                         if (value == 0b000000000001)
                         {
                             // fill the rest of scanline
@@ -146,9 +146,9 @@ namespace TiffLibrary.Compression
                         if (unpacked == width)
                         {
                             // Is the next code word EOL ?
-                            value = (int)bitReader.Peek(13);
-                            tableEntry = whiteEntries[value];
-                            if (tableEntry.IsEol)
+                            value = bitReader.Peek(16);
+                            tableEntry = whiteEntries.Lookup(value);
+                            if (tableEntry.IsEndOfLine)
                             {
                                 // Skip the EOL code
                                 bitReader.Advance(tableEntry.BitsRequired);
@@ -163,7 +163,7 @@ namespace TiffLibrary.Compression
                             }
 
                             // Confirm it is indeed an EOL code.
-                            value = (int)bitReader.Peek(filledBits + 12);
+                            value = bitReader.Peek(filledBits + 12);
                             if (value == 0b000000000001)
                             {
                                 // fill the rest of scanline
@@ -184,7 +184,7 @@ namespace TiffLibrary.Compression
                     }
                 }
 
-                if (!tableEntry.IsEol)
+                if (!tableEntry.IsEndOfLine)
                 {
                     bitReader.AdvanceAlignByte();
                 }

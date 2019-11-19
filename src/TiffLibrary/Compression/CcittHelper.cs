@@ -5,21 +5,20 @@ namespace TiffLibrary.Compression
 {
     internal static class CcittHelper
     {
-        internal static void SwapTable(ref ReadOnlySpan<CcittCodeLookupTable.Entry> table1, ref ReadOnlySpan<CcittCodeLookupTable.Entry> table2)
+        internal static void SwapTable<T>(ref T table1, ref T table2)
         {
-            ReadOnlySpan<CcittCodeLookupTable.Entry> temp = table1;
+            T temp = table1;
             table1 = table2;
             table2 = temp;
         }
 
-        internal static int DecodeRun(ref BitReader bitReader, ReadOnlySpan<CcittCodeLookupTable.Entry> table, byte fillColor, Span<byte> destination)
+        internal static int DecodeRun(ref BitReader bitReader, CcittDecodingTable table, byte fillColor, Span<byte> destination)
         {
             int unpacked = 0;
             while (true)
             {
                 // Read next code word
-                int value = (int)bitReader.Peek(13);
-                CcittCodeLookupTable.Entry tableEntry = table[value];
+                CcittCodeValue tableEntry = table.Lookup(bitReader.Peek(16));
 
                 // Fill this run
                 int runLength = tableEntry.RunLength;

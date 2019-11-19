@@ -65,7 +65,6 @@ namespace TiffLibrary.Compression
 
             ReadOnlySpan<byte> inputSpan = input.Span;
 
-            bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
             int height = context.ImageSize.Height;
             var bitWriter = new BitWriter2(outputWriter, 4096);
@@ -79,12 +78,14 @@ namespace TiffLibrary.Compression
                 CcittEncodingTable currentTable = CcittEncodingTable.WhiteInstance;
                 CcittEncodingTable otherTable = CcittEncodingTable.BlackInstance;
 
-                byte flagValue = 255;
+                // ModifiedHuffman compression assumes WhiteIsZero photometric interpretation is used.
+                // Since the first run is white run, we look for black pixel in the first iteration.
+                byte nextRunPixel = 255;
 
                 while (!rowSpan.IsEmpty)
                 {
                     // Get the length of the current run
-                    int runLength = rowSpan.IndexOf(flagValue);
+                    int runLength = rowSpan.IndexOf(nextRunPixel);
                     if (runLength < 0)
                     {
                         runLength = rowSpan.Length;
@@ -94,7 +95,7 @@ namespace TiffLibrary.Compression
 
                     // Switch to the other color
                     CcittHelper.SwapTable(ref currentTable, ref otherTable);
-                    flagValue = (byte)~flagValue;
+                    nextRunPixel = (byte)~nextRunPixel;
                 }
 
                 bitWriter.AdvanceAlignByte();

@@ -65,11 +65,12 @@ namespace TiffLibrary.Compression
 
             bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
+            int height = context.SkippedScanlines + context.RequestedScanlines;
             CcittDecodingTable whiteEntries = CcittDecodingTable.WhiteInstance;
             var bitReader = new BitReader(inputSpan, higherOrderBitsFirst: _higherOrderBitsFirst);
 
             // Process every scanline
-            for (int i = 0; i < (context.SkippedScanlines + context.RequestedScanlines); i++)
+            for (int i = 0; i < height; i++)
             {
                 if (scanlinesBufferSpan.Length < width)
                 {
@@ -97,7 +98,10 @@ namespace TiffLibrary.Compression
                 while (true)
                 {
                     uint value = bitReader.Peek(16);
-                    tableEntry = currentTable.Lookup(value);
+                    if (!currentTable.TryLookup(value, out tableEntry))
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     if (tableEntry.IsEndOfLine)
                     {
@@ -147,7 +151,19 @@ namespace TiffLibrary.Compression
                         {
                             // Is the next code word EOL ?
                             value = bitReader.Peek(16);
-                            tableEntry = whiteEntries.Lookup(value);
+                            if (!whiteEntries.TryLookup(value, out tableEntry))
+                            {
+                                // We have encountered an invalid code word.
+                                // If this is the last line of the image, then it's fine
+                                if (i == height - 1)
+                                {
+                                    break;
+                                }
+
+                                // Otherwise, throw the exception
+                                throw new InvalidDataException();
+                            }
+
                             if (tableEntry.IsEndOfLine)
                             {
                                 // Skip the EOL code
@@ -173,14 +189,6 @@ namespace TiffLibrary.Compression
 
                             break;
                         }
-                    }
-                    else if (runLength == 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                    else if (unpacked > width)
-                    {
-                        throw new InvalidDataException();
                     }
                 }
 

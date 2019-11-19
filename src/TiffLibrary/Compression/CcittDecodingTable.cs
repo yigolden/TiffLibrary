@@ -348,14 +348,14 @@ namespace TiffLibrary.Compression
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public CcittCodeValue Lookup(uint code16)
+        public bool TryLookup(uint code16, out CcittCodeValue codeValue)
         {
-            CcittCodeValue codeValue = _fastTable[code16 >> (16 - LookupTableTotalBitCount)];
-            return codeValue.BitsRequired == 0 ? LookupSlow(code16) : codeValue;
+            codeValue = _fastTable[code16 >> (16 - LookupTableTotalBitCount)];
+            return codeValue.BitsRequired == 0 ? TryLookupSlow(code16, out codeValue) : true;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private CcittCodeValue LookupSlow(uint code16)
+        private bool TryLookupSlow(uint code16, out CcittCodeValue codeValue)
         {
             CcittCode[] codes = _codes;
             for (int i = 0; i < codes.Length; i++)
@@ -363,11 +363,13 @@ namespace TiffLibrary.Compression
                 CcittCode code = codes[i];
                 if ((code16 >> (16 - code.BitsRequired)) == code.Bits)
                 {
-                    return _codeValues[code.Offset];
+                    codeValue = _codeValues[code.Offset];
+                    return true;
                 }
             }
 
-            return default;
+            codeValue = default;
+            return false;
         }
     }
 }

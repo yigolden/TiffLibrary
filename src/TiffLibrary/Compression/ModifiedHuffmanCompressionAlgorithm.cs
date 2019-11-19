@@ -152,7 +152,10 @@ namespace TiffLibrary.Compression
                 CcittCodeValue tableEntry;
                 while (true)
                 {
-                    tableEntry = currentTable.Lookup(bitReader.Peek(16));
+                    if (!currentTable.TryLookup(bitReader.Peek(16), out tableEntry))
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     if (tableEntry.IsEndOfLine)
                     {
@@ -178,14 +181,6 @@ namespace TiffLibrary.Compression
                         {
                             break;
                         }
-                    }
-                    else if (runLength == 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                    else if (unpacked > width)
-                    {
-                        throw new InvalidDataException();
                     }
                 }
 

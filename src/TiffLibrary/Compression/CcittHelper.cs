@@ -18,7 +18,15 @@ namespace TiffLibrary.Compression
             while (true)
             {
                 // Read next code word
-                CcittCodeValue tableEntry = table.Lookup(bitReader.Peek(16));
+                if (!table.TryLookup(bitReader.Peek(16), out CcittCodeValue tableEntry))
+                {
+                    throw new InvalidDataException();
+                }
+
+                if (tableEntry.IsEndOfLine)
+                {
+                    throw new InvalidDataException();
+                }
 
                 // Fill this run
                 int runLength = tableEntry.RunLength;
@@ -31,10 +39,6 @@ namespace TiffLibrary.Compression
                 if (tableEntry.IsTerminatingCode)
                 {
                     return unpacked;
-                }
-                else if (runLength == 0)
-                {
-                    throw new InvalidDataException();
                 }
             }
         }

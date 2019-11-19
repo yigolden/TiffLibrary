@@ -512,7 +512,7 @@ namespace TiffLibrary.ImageDecoder
                         }
                         break;
                 }
-                throw new NotSupportedException(compression.ToString() + " compression does not support this photometric interpretation format.");
+                throw new NotSupportedException(compression.ToString() + " compression does not support this photometric interpretation.");
             }
 
             switch (photometricInterpretation)

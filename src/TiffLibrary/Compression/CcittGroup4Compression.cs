@@ -53,7 +53,7 @@ namespace TiffLibrary.Compression
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation format.");
+                throw new NotSupportedException("T6 compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 1)

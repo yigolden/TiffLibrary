@@ -162,8 +162,9 @@ namespace TiffLibrary.Compression
             int width = scanline.Length;
             CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
             CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
-            CcittCodeLookupTableTwoDimensional.Entry tableEntry;
-            const int PeekCount = CcittCodeLookupTableTwoDimensional.PeekCount;
+            CcittTwoDimensionalDecodingTable decodingTable = CcittTwoDimensionalDecodingTable.Instance;
+            CcittTwoDimensionalDecodingTable.Entry tableEntry;
+            const int PeekCount = CcittTwoDimensionalDecodingTable.PeekCount;
 
             // 2D Encoding variables.
             int a0 = -1, a1, b1;
@@ -185,8 +186,7 @@ namespace TiffLibrary.Compression
                 }
 
                 // Look up in the table and advance past this code.
-                tableEntry = CcittCodeLookupTableTwoDimensional.Lookup(value);
-                if (tableEntry.Type == CcittCodeLookupTableTwoDimensional.CodeType.None)
+                if (!decodingTable.TryLookup(value, out tableEntry))
                 {
                     throw new InvalidDataException();
                 }
@@ -198,13 +198,13 @@ namespace TiffLibrary.Compression
                 // Switch on the code word.
                 switch (tableEntry.Type)
                 {
-                    case CcittCodeLookupTableTwoDimensional.CodeType.Pass:
+                    case CcittTwoDimensionalDecodingTable.CodeType.Pass:
                         int b2 = referenceScanline.FindB2(b1);
                         scanline.Slice(unpacked, b2 - unpacked).Fill(fillByte);
                         unpacked = b2;
                         a0 = b2;
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.Horizontal:
+                    case CcittTwoDimensionalDecodingTable.CodeType.Horizontal:
                         // Decode M(a0a1)
                         int runLength = currentTable.DecodeRun(ref bitReader);
                         if ((uint)runLength > (uint)(scanline.Length - unpacked))
@@ -228,7 +228,7 @@ namespace TiffLibrary.Compression
                         // Prepare next a0
                         a0 = unpacked;
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.Vertical0:
+                    case CcittTwoDimensionalDecodingTable.CodeType.Vertical0:
                         a1 = b1;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -236,7 +236,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.VerticalR1:
+                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalR1:
                         a1 = b1 + 1;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -244,7 +244,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.VerticalR2:
+                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalR2:
                         a1 = b1 + 2;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -252,7 +252,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.VerticalR3:
+                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalR3:
                         a1 = b1 + 3;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -260,7 +260,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.VerticalL1:
+                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalL1:
                         a1 = b1 - 1;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -268,7 +268,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.VerticalL2:
+                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalL2:
                         a1 = b1 - 2;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -276,7 +276,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittCodeLookupTableTwoDimensional.CodeType.VerticalL3:
+                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalL3:
                         a1 = b1 - 3;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;

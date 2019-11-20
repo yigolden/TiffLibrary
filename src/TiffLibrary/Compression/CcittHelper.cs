@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace TiffLibrary.Compression
+﻿namespace TiffLibrary.Compression
 {
     internal static class CcittHelper
     {
@@ -12,35 +9,5 @@ namespace TiffLibrary.Compression
             table2 = temp;
         }
 
-        internal static int DecodeRun(ref BitReader bitReader, CcittDecodingTable table, byte fillColor, Span<byte> destination)
-        {
-            int unpacked = 0;
-            while (true)
-            {
-                // Read next code word
-                if (!table.TryLookup(bitReader.Peek(16), out CcittCodeValue tableEntry))
-                {
-                    throw new InvalidDataException();
-                }
-
-                if (tableEntry.IsEndOfLine)
-                {
-                    throw new InvalidDataException();
-                }
-
-                // Fill this run
-                int runLength = tableEntry.RunLength;
-                destination.Slice(0, runLength).Fill(fillColor);
-                destination = destination.Slice(runLength);
-                unpacked += runLength;
-                bitReader.Advance(tableEntry.BitsRequired);
-
-                // Terminating code is met.
-                if (tableEntry.IsTerminatingCode)
-                {
-                    return unpacked;
-                }
-            }
-        }
     }
 }

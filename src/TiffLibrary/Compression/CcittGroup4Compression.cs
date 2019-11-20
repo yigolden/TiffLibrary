@@ -137,11 +137,25 @@ namespace TiffLibrary.Compression
                         break;
                     case CcittCodeLookupTableTwoDimensional.CodeType.Horizontal:
                         // Decode M(a0a1)
-                        unpacked += CcittHelper.DecodeRun(ref bitReader, currentTable, fillByte, scanline.Slice(unpacked));
+                        int runLength = currentTable.DecodeRun(ref bitReader);
+                        if ((uint)runLength > (uint)scanline.Length)
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        scanline.Slice(0, runLength).Fill(fillByte);
+                        scanline = scanline.Slice(runLength);
+                        unpacked += runLength;
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         // Decode M(a1a2)
-                        unpacked += CcittHelper.DecodeRun(ref bitReader, currentTable, fillByte, scanline.Slice(unpacked));
+                        runLength = currentTable.DecodeRun(ref bitReader);
+                        if ((uint)runLength > (uint)scanline.Length)
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        scanline.Slice(0, runLength).Fill(fillByte);
+                        scanline = scanline.Slice(runLength);
+                        unpacked += runLength;
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         // Prepare next a0

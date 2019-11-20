@@ -132,9 +132,14 @@ namespace TiffLibrary.Compression
             int unpacked = 0;
             while (true)
             {
-                int currentRunUnpacked = CcittHelper.DecodeRun(ref bitReader, currentTable, fillValue, scanline);
-                unpacked += currentRunUnpacked;
-                scanline = scanline.Slice(currentRunUnpacked);
+                int runLength = currentTable.DecodeRun(ref bitReader);
+                if ((uint)runLength > (uint)scanline.Length)
+                {
+                    throw new InvalidOperationException();
+                }
+                scanline.Slice(0, runLength).Fill(fillValue);
+                scanline = scanline.Slice(runLength);
+                unpacked += runLength;
 
                 // Switch to the other color.
                 fillValue = (byte)~fillValue;
@@ -201,11 +206,23 @@ namespace TiffLibrary.Compression
                         break;
                     case CcittCodeLookupTableTwoDimensional.CodeType.Horizontal:
                         // Decode M(a0a1)
-                        unpacked += CcittHelper.DecodeRun(ref bitReader, currentTable, fillByte, scanline.Slice(unpacked));
+                        int runLength = currentTable.DecodeRun(ref bitReader);
+                        if ((uint)runLength > (uint)(scanline.Length - unpacked))
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        scanline.Slice(unpacked, runLength).Fill(fillByte);
+                        unpacked += runLength;
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         // Decode M(a1a2)
-                        unpacked += CcittHelper.DecodeRun(ref bitReader, currentTable, fillByte, scanline.Slice(unpacked));
+                        runLength = currentTable.DecodeRun(ref bitReader);
+                        if ((uint)runLength > (uint)(scanline.Length - unpacked))
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        scanline.Slice(unpacked, runLength).Fill(fillByte);
+                        unpacked += runLength;
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         // Prepare next a0

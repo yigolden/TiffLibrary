@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace TiffLibrary.Compression
@@ -370,6 +371,34 @@ namespace TiffLibrary.Compression
 
             codeValue = default;
             return false;
+        }
+
+        public int DecodeRun(ref BitReader reader)
+        {
+            int unpacked = 0;
+            while (true)
+            {
+                // Read next code word
+                if (!TryLookup(reader.Peek(16), out CcittCodeValue tableEntry))
+                {
+                    throw new InvalidDataException();
+                }
+
+                if (tableEntry.IsEndOfLine)
+                {
+                    throw new InvalidDataException();
+                }
+
+                // Record run length
+                unpacked += tableEntry.RunLength;
+                reader.Advance(tableEntry.BitsRequired);
+
+                // Terminating code is met.
+                if (tableEntry.IsTerminatingCode)
+                {
+                    return unpacked;
+                }
+            }
         }
     }
 }

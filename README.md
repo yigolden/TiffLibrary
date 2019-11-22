@@ -14,15 +14,15 @@ A C# library for decoding and encoding images from and to TIFF files.
 
 ## Minimum Supported Runtimes
 
-* .NET Framework 4.6+
-* .NET Core 1.0+
-* .NET Standard 1.3+
+* .NET Framework 4.6
+* .NET Core 1.0
+* Runtimes compatible with .NET Standard 1.3
 
 ## Recommanded Runtimes
 
-* .NET Framework 4.7.2+
-* .NET Core 2.1+
-* .NET Standard 2.0+
+* .NET Framework 4.7.2 and higher
+* .NET Core 2.1 and higher
+* Runtimes compatible with at least .NET Standard 2.0
 
 ## Getting Started
 

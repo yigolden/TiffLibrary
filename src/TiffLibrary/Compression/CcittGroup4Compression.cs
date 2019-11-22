@@ -69,12 +69,11 @@ namespace TiffLibrary.Compression
 
             ReadOnlySpan<byte> inputSpan = input.Span;
 
-            bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
             int height = context.ImageSize.Height;
             var bitWriter = new BitWriter2(outputWriter, 4096);
 
-            ReferenceScanline referenceScanline = new ReferenceScanline(whiteIsZero, width);
+            ReferenceScanline referenceScanline = new ReferenceScanline(whiteIsZero: true, width);
 
             // Process every scanline
             for (int row = 0; row < height; row++)
@@ -82,22 +81,22 @@ namespace TiffLibrary.Compression
                 ReadOnlySpan<byte> scanline = inputSpan.Slice(0, width);
                 inputSpan = inputSpan.Slice(width);
 
-                Encode2DScanline(ref bitWriter, whiteIsZero, referenceScanline, scanline);
+                Encode2DScanline(ref bitWriter, referenceScanline, scanline);
 
-                referenceScanline = new ReferenceScanline(whiteIsZero, scanline);
+                referenceScanline = new ReferenceScanline(whiteIsZero: true, scanline);
             }
 
             bitWriter.Flush();
         }
 
-        private static void Encode2DScanline(ref BitWriter2 bitWriter, bool whiteIsZero, ReferenceScanline referenceScanline, ReadOnlySpan<byte> scanline)
+        private static void Encode2DScanline(ref BitWriter2 bitWriter, ReferenceScanline referenceScanline, ReadOnlySpan<byte> scanline)
         {
             int width = scanline.Length;
             CcittEncodingTable currentTable = CcittEncodingTable.WhiteInstance;
             CcittEncodingTable otherTable = CcittEncodingTable.BlackInstance;
-            CodingScanline codingScanline = new CodingScanline(whiteIsZero, scanline);
+            CodingScanline codingScanline = new CodingScanline(whiteIsZero: true, scanline);
 
-            byte a0Byte = whiteIsZero ? (byte)0 : (byte)255;
+            byte a0Byte = 0;
             int a0 = -1;
 
             while (true)

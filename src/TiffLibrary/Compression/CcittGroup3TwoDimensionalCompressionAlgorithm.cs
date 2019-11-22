@@ -66,12 +66,13 @@ namespace TiffLibrary.Compression
 
             bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
+            int height = context.SkippedScanlines + context.RequestedScanlines;
             var bitReader = new BitReader(inputSpan, _higherOrderBitsFirst);
 
             ReferenceScanline referenceScanline = default;
 
             // Process every scanline
-            for (int i = 0; i < (context.SkippedScanlines + context.RequestedScanlines); i++)
+            for (int i = 0; i < height; i++)
             {
                 if (scanlinesBufferSpan.Length < width)
                 {
@@ -149,10 +150,6 @@ namespace TiffLibrary.Compression
                 {
                     // This line is fully unpacked. Should exit and process next line.
                     break;
-                }
-                else if (unpacked > width)
-                {
-                    throw new InvalidDataException();
                 }
             }
         }

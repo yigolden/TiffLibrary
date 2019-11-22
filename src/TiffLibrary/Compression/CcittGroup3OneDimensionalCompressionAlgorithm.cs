@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 
 namespace TiffLibrary.Compression
@@ -6,7 +7,7 @@ namespace TiffLibrary.Compression
     /// <summary>
     /// Decompression support for CCITT T.4 bi-level encoding (1-dimensional).
     /// </summary>
-    public class CcittGroup3OneDimensionalCompressionAlgorithm : ITiffDecompressionAlgorithm
+    public class CcittGroup3OneDimensionalCompressionAlgorithm : ITiffCompressionAlgorithm, ITiffDecompressionAlgorithm
     {
         private bool _higherOrderBitsFirst;
 
@@ -35,6 +36,82 @@ namespace TiffLibrary.Compression
                 return HigherOrderBitsFirstInstance;
             }
             return LowerOrderBitsFirstInstance;
+        }
+
+        /// <summary>
+        /// Compress image data.
+        /// </summary>
+        /// <param name="context">Information about the TIFF file.</param>
+        /// <param name="input">The input data.</param>
+        /// <param name="outputWriter">The output writer.</param>
+        public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
+        {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
+            {
+                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation.");
+            }
+
+            if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 8)
+            {
+                throw new NotSupportedException("Unsupported bits per sample.");
+            }
+
+            context.BitsPerSample = TiffValueCollection.Single<ushort>(1);
+
+            ReadOnlySpan<byte> inputSpan = input.Span;
+
+            int width = context.ImageSize.Width;
+            int height = context.ImageSize.Height;
+            var bitWriter = new BitWriter2(outputWriter, 4096);
+
+            // Process every scanline
+            for (int row = 0; row < height; row++)
+            {
+                ReadOnlySpan<byte> rowSpan = inputSpan.Slice(0, width);
+                inputSpan = inputSpan.Slice(width);
+
+                CcittEncodingTable currentTable = CcittEncodingTable.WhiteInstance;
+                CcittEncodingTable otherTable = CcittEncodingTable.BlackInstance;
+
+                // EOL code
+                bitWriter.Write(0b000000000001, 12);
+
+                // ModifiedHuffman compression assumes WhiteIsZero photometric interpretation is used.
+                // Since the first run is white run, we look for black pixel in the first iteration.
+                byte nextRunPixel = 255;
+
+                while (!rowSpan.IsEmpty)
+                {
+                    // Get the length of the current run
+                    int runLength = rowSpan.IndexOf(nextRunPixel);
+                    if (runLength < 0)
+                    {
+                        runLength = rowSpan.Length;
+                    }
+                    currentTable.EncodeRun(ref bitWriter, runLength);
+                    rowSpan = rowSpan.Slice(runLength);
+
+                    // Switch to the other color
+                    CcittHelper.SwapTable(ref currentTable, ref otherTable);
+                    nextRunPixel = (byte)~nextRunPixel;
+                }
+            }
+
+            // RTC
+            bitWriter.Write(0b000000000001, 12);
+            bitWriter.Write(0b000000000001, 12);
+            bitWriter.Write(0b000000000001, 12);
+            bitWriter.Write(0b000000000001, 12);
+            bitWriter.Write(0b000000000001, 12);
+            bitWriter.Write(0b000000000001, 12);
+
+            bitWriter.AdvanceAlignByte();
+            bitWriter.Flush();
         }
 
         /// <summary>

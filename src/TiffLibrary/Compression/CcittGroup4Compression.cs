@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
-using ReferenceScanline = TiffLibrary.Compression.CcittGroup3TwoDimensionalReferenceScanline;
+using System.Runtime.CompilerServices;
+using ReferenceScanline = TiffLibrary.Compression.CcittTwoDimensionalReferenceScanline;
+using CodingScanline = TiffLibrary.Compression.CcittTwoDimensionalCodingScanline;
 
 namespace TiffLibrary.Compression
 {
     /// <summary>
     /// Decompression support for CCITT T.6 bi-level encoding.
     /// </summary>
-    public class CcittGroup4Compression : ITiffDecompressionAlgorithm
+    public class CcittGroup4Compression : ITiffCompressionAlgorithm, ITiffDecompressionAlgorithm
     {
         private bool _higherOrderBitsFirst;
 
@@ -38,6 +41,132 @@ namespace TiffLibrary.Compression
             return LowerOrderBitsFirstInstance;
         }
 
+
+        /// <summary>
+        /// Compress image data.
+        /// </summary>
+        /// <param name="context">Information about the TIFF file.</param>
+        /// <param name="input">The input data.</param>
+        /// <param name="outputWriter">The output writer.</param>
+        public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
+        {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
+            {
+                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation.");
+            }
+
+            if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 8)
+            {
+                throw new NotSupportedException("Unsupported bits per sample.");
+            }
+
+            context.BitsPerSample = TiffValueCollection.Single<ushort>(1);
+
+            ReadOnlySpan<byte> inputSpan = input.Span;
+
+            bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
+            int width = context.ImageSize.Width;
+            int height = context.ImageSize.Height;
+            var bitWriter = new BitWriter2(outputWriter, 4096);
+
+            ReferenceScanline referenceScanline = new ReferenceScanline(whiteIsZero, width);
+
+            // Process every scanline
+            for (int row = 0; row < height; row++)
+            {
+                ReadOnlySpan<byte> scanline = inputSpan.Slice(0, width);
+                inputSpan = inputSpan.Slice(width);
+
+                Encode2DScanline(ref bitWriter, whiteIsZero, referenceScanline, scanline);
+
+                referenceScanline = new ReferenceScanline(whiteIsZero, scanline);
+            }
+
+            bitWriter.Flush();
+        }
+
+        private static void Encode2DScanline(ref BitWriter2 bitWriter, bool whiteIsZero, ReferenceScanline referenceScanline, ReadOnlySpan<byte> scanline)
+        {
+            int width = scanline.Length;
+            CcittEncodingTable currentTable = CcittEncodingTable.WhiteInstance;
+            CcittEncodingTable otherTable = CcittEncodingTable.BlackInstance;
+            CodingScanline codingScanline = new CodingScanline(whiteIsZero, scanline);
+
+            byte a0Byte = whiteIsZero ? (byte)0 : (byte)255;
+            int a0 = -1;
+
+            while (true)
+            {
+                int a1 = codingScanline.FindA1(a0, a0Byte);
+                int b1 = referenceScanline.FindB1(a0, a0Byte);
+                int b2 = referenceScanline.FindB2(b1);
+
+                if (b2 < a1)
+                {
+                    EncodePassCode(ref bitWriter);
+                    a0 = b2;
+                }
+                else
+                {
+                    int a1b1 = b1 - a1;
+                    if (a1b1 >= -3 && a1b1 <= 3)
+                    {
+                        // Vertical mode coding
+                        switch (a1b1)
+                        {
+                            case 3:
+                                EncodeVerticalL3Code(ref bitWriter);
+                                break;
+                            case 2:
+                                EncodeVerticalL2Code(ref bitWriter);
+                                break;
+                            case 1:
+                                EncodeVerticalL1Code(ref bitWriter);
+                                break;
+                            case 0:
+                                EncodeVertical0Code(ref bitWriter);
+                                break;
+                            case -1:
+                                EncodeVerticalR1Code(ref bitWriter);
+                                break;
+                            case -2:
+                                EncodeVerticalR2Code(ref bitWriter);
+                                break;
+                            case -3:
+                                EncodeVerticalR3Code(ref bitWriter);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        CcittHelper.SwapTable(ref currentTable, ref otherTable);
+                        a0 = a1;
+                    }
+                    else
+                    {
+                        int a2 = codingScanline.FindA2(a1);
+                        EncodeHorizontalCode(ref bitWriter);
+
+                        currentTable.EncodeRun(ref bitWriter, a1 - a0);
+                        otherTable.EncodeRun(ref bitWriter, a2 - a1);
+
+                        a0 = a2;
+                    }
+                }
+
+                if (a0 >= width)
+                {
+                    break;
+                }
+                a0Byte = scanline[a0];
+            }
+        }
+
         /// <summary>
         /// Decompress the image data.
         /// </summary>
@@ -66,17 +195,14 @@ namespace TiffLibrary.Compression
 
             bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
+            int height = context.SkippedScanlines + context.RequestedScanlines;
             var bitReader = new BitReader(inputSpan, higherOrderBitsFirst: _higherOrderBitsFirst);
 
             ReferenceScanline referenceScanline = new ReferenceScanline(whiteIsZero, width);
 
             // Process every scanline
-            for (int i = 0; i < (context.SkippedScanlines + context.RequestedScanlines); i++)
+            for (int i = 0; i < height; i++)
             {
-                if (scanlinesBufferSpan.Length < width)
-                {
-                    throw new InvalidDataException();
-                }
                 Span<byte> scanline = scanlinesBufferSpan.Slice(0, width);
                 scanlinesBufferSpan = scanlinesBufferSpan.Slice(width);
 
@@ -92,7 +218,7 @@ namespace TiffLibrary.Compression
             CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
             CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
             CcittTwoDimensionalDecodingTable decodingTable = CcittTwoDimensionalDecodingTable.Instance;
-            CcittTwoDimensionalDecodingTable.Entry tableEntry;
+            CcittTwoDimensionalCodeValue tableEntry;
             const int PeekCount = CcittTwoDimensionalDecodingTable.PeekCount;
 
             // 2D Encoding variables.
@@ -129,13 +255,13 @@ namespace TiffLibrary.Compression
                 // Switch on the code word.
                 switch (tableEntry.Type)
                 {
-                    case CcittTwoDimensionalDecodingTable.CodeType.Pass:
+                    case CcittTwoDimensionalCodeType.Pass:
                         int b2 = referenceScanline.FindB2(b1);
                         scanline.Slice(unpacked, b2 - unpacked).Fill(fillByte);
                         unpacked = b2;
                         a0 = b2;
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.Horizontal:
+                    case CcittTwoDimensionalCodeType.Horizontal:
                         // Decode M(a0a1)
                         int runLength = currentTable.DecodeRun(ref bitReader);
                         if ((uint)runLength > (uint)(scanline.Length - unpacked))
@@ -159,7 +285,7 @@ namespace TiffLibrary.Compression
                         // Prepare next a0
                         a0 = unpacked;
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.Vertical0:
+                    case CcittTwoDimensionalCodeType.Vertical0:
                         a1 = b1;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -167,7 +293,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalR1:
+                    case CcittTwoDimensionalCodeType.VerticalR1:
                         a1 = b1 + 1;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -175,7 +301,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalR2:
+                    case CcittTwoDimensionalCodeType.VerticalR2:
                         a1 = b1 + 2;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -183,7 +309,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalR3:
+                    case CcittTwoDimensionalCodeType.VerticalR3:
                         a1 = b1 + 3;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -191,7 +317,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalL1:
+                    case CcittTwoDimensionalCodeType.VerticalL1:
                         a1 = b1 - 1;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -199,7 +325,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalL2:
+                    case CcittTwoDimensionalCodeType.VerticalL2:
                         a1 = b1 - 2;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -207,7 +333,7 @@ namespace TiffLibrary.Compression
                         fillByte = (byte)~fillByte;
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
-                    case CcittTwoDimensionalDecodingTable.CodeType.VerticalL3:
+                    case CcittTwoDimensionalCodeType.VerticalL3:
                         a1 = b1 - 3;
                         scanline.Slice(unpacked, a1 - unpacked).Fill(fillByte);
                         unpacked = a1;
@@ -230,6 +356,62 @@ namespace TiffLibrary.Compression
                 }
             }
 
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodePassCode(ref BitWriter2 writer)
+        {
+            writer.Write(0b0001, 4);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeHorizontalCode(ref BitWriter2 writer)
+        {
+            writer.Write(0b001, 3);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVertical0Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b1, 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVerticalR1Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b011, 3);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVerticalR2Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b000011, 6);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVerticalR3Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b0000011, 7);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVerticalL1Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b010, 3);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVerticalL2Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b000010, 6);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EncodeVerticalL3Code(ref BitWriter2 writer)
+        {
+            writer.Write(0b0000010, 7);
         }
     }
 }

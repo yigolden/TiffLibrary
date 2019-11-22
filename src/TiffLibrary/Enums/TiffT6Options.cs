@@ -3,7 +3,7 @@
 namespace TiffLibrary
 {
     /// <summary>
-    /// Options for T4 encoding.
+    /// Options for T6 encoding.
     /// </summary>
     [Flags]
     public enum TiffT6Options

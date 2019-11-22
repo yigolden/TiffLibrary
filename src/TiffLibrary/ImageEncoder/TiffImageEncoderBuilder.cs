@@ -150,6 +150,9 @@ namespace TiffLibrary
                 case TiffCompression.ModifiedHuffmanCompression:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, ModifiedHuffmanCompressionAlgorithm.GetSharedInstance(TiffFillOrder.HigherOrderBitsFirst)));
                     break;
+                case TiffCompression.T6Encoding:
+                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, CcittGroup4Compression.GetSharedInstance(TiffFillOrder.HigherOrderBitsFirst)));
+                    break;
                 case TiffCompression.Lzw:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, LzwCompressionAlgorithm.Instance));
                     break;

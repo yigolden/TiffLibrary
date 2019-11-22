@@ -41,15 +41,16 @@ namespace TiffLibrary.ImageEncoder
             var wrappedContext = new TiffCroppedImageEncoderContext<TPixel>(context);
 
             int width = context.ImageSize.Width, height = context.ImageSize.Height;
-            int stripCount = (height + _rowsPerStrip - 1) / _rowsPerStrip;
-
+            int rowsPerStrip = _rowsPerStrip <= 0 ? height : _rowsPerStrip;
+            int stripCount = (height + rowsPerStrip - 1) / rowsPerStrip;
+            
             ulong[] stripOffsets = new ulong[stripCount];
             ulong[] stripByteCounts = new ulong[stripCount];
 
             for (int i = 0; i < stripCount; i++)
             {
-                int offsetY = i * _rowsPerStrip;
-                int stripHeight = Math.Min(height - offsetY, _rowsPerStrip);
+                int offsetY = i * rowsPerStrip;
+                int stripHeight = Math.Min(height - offsetY, rowsPerStrip);
 
                 wrappedContext.ExposeIfdWriter = i == 0;
                 wrappedContext.OutputRegion = default;
@@ -65,7 +66,7 @@ namespace TiffLibrary.ImageEncoder
             {
                 await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)_rowsPerStrip)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)rowsPerStrip)).ConfigureAwait(false);
 
                 if (context.FileWriter.UseBigTiff)
                 {

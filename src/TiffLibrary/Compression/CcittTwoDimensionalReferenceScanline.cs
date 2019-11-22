@@ -3,7 +3,7 @@
 namespace TiffLibrary.Compression
 {
 
-    internal readonly ref struct CcittGroup3TwoDimensionalReferenceScanline
+    internal readonly ref struct CcittTwoDimensionalReferenceScanline
     {
         private readonly ReadOnlySpan<byte> _scanline;
         private readonly int _width;
@@ -11,14 +11,14 @@ namespace TiffLibrary.Compression
 
         public bool IsEmpty => _scanline.IsEmpty;
 
-        public CcittGroup3TwoDimensionalReferenceScanline(bool whiteIsZero, ReadOnlySpan<byte> scanline)
+        public CcittTwoDimensionalReferenceScanline(bool whiteIsZero, ReadOnlySpan<byte> scanline)
         {
             _scanline = scanline;
-            _width = _scanline.Length;
+            _width = scanline.Length;
             _whiteByte = whiteIsZero ? (byte)0 : (byte)255;
         }
 
-        public CcittGroup3TwoDimensionalReferenceScanline(bool whiteIsZero, int width)
+        public CcittTwoDimensionalReferenceScanline(bool whiteIsZero, int width)
         {
             _scanline = default;
             _width = width;
@@ -95,7 +95,7 @@ namespace TiffLibrary.Compression
             {
                 return FindB2ForImaginaryWhiteLine();
             }
-            return FindB1ForNormalLine(b1);
+            return FindB2ForNormalLine(b1);
         }
 
         private int FindB2ForImaginaryWhiteLine()
@@ -103,7 +103,7 @@ namespace TiffLibrary.Compression
             return _width;
         }
 
-        private int FindB1ForNormalLine(int b1)
+        private int FindB2ForNormalLine(int b1)
         {
             if (b1 >= _scanline.Length)
             {

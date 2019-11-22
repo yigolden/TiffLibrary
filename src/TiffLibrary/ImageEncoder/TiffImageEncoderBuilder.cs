@@ -126,11 +126,11 @@ namespace TiffLibrary
 
                 if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)
                 {
-                    throw new InvalidOperationException("YCbCrHorizontalSubSampling can only be 1, 2, or 4.");
+                    throw new InvalidOperationException("HorizontalChromaSubSampling can only be 1, 2, or 4.");
                 }
                 if (verticalSubsampling != 1 && verticalSubsampling != 2 && verticalSubsampling != 4)
                 {
-                    throw new InvalidOperationException("YCbCrVerticalSubSampling can only be 1, 2, or 4.");
+                    throw new InvalidOperationException("VerticalChromaSubSampling can only be 1, 2, or 4.");
                 }
 
                 var chromaSubsamplingMiddleware = new TiffApplyChromaSubsamplingMiddleware<TPixel>(horizontalSubsampling, verticalSubsampling);

@@ -15,7 +15,7 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public bool IsTiled { get; set; }
 
-        public int RowsPerStrip { get; set; } = 128;
+        public int RowsPerStrip { get; set; } = 0;
 
         public Size TileSize { get; set; } = new Size(512, 512);
 

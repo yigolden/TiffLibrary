@@ -202,6 +202,9 @@ using (var ifdWriter = writer.CreateImageFileDirectory())
     await encoder.EncodeAsync(ifdWriter, pixelBuffer);
 
     // Write other properties here (eg, XResolution, YResolution)
+    await ifdWriter.WriteTagAsync(TiffTag.XResolution, TiffValueCollection.Single(new TiffRational(96, 1)));
+    await ifdWriter.WriteTagAsync(TiffTag.YResolution, TiffValueCollection.Single(new TiffRational(96, 1)));
+    await ifdWriter.WriteTagAsync(TiffTag.ResolutionUnit, TiffValueCollection.Single((ushort)TiffResolutionUnit.Inch));
 
     ifdOffset = await ifdWriter.FlushAsync();
 }

@@ -87,7 +87,7 @@ TiffLibrary supports decoding of the image in any of the following orientation.
 * Deflate (CompressionTag=8)
 * PackBits (CompressionTag=32773)
 
-Notes about JPEG: JPEG compression only supports 8-bit BlackIsZero, RGB, CMYK and YCbCr photometric interpretations. Currently, the image encoder does not support chroma subsampling for YCbCr images.
+Notes about JPEG: JPEG compression only supports 8-bit BlackIsZero, WhiteIaZero, RGB, CMYK and YCbCr photometric interpretations.
 
 ## Predictor for Encoding
 

@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\FastFloatingPointDCT.cs" Link="JpegLibrary\FastFloatingPointDCT.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBitReader.cs" Link="JpegLibrary\JpegBitReader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlock8x8.cs" Link="JpegLibrary\JpegBlock8x8.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlock8x8F.cs" Link="JpegLibrary\JpegBlock8x8F.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlockInputReader.cs" Link="JpegLibrary\JpegBlockInputReader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlockOutputWriter.cs" Link="JpegLibrary\JpegBlockOutputWriter.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegCanonicalCode.cs" Link="JpegLibrary\JpegCanonicalCode.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegDecodeComponent.cs" Link="JpegLibrary\JpegDecodeComponent.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegDecoder.cs" Link="JpegLibrary\JpegDecoder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegElementPrecision.cs" Link="JpegLibrary\JpegElementPrecision.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegEncodeComponent.cs" Link="JpegLibrary\JpegEncodeComponent.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegEncoder.cs" Link="JpegLibrary\JpegEncoder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegFrameHeader.cs" Link="JpegLibrary\JpegFrameHeader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanDecodingTable.cs" Link="JpegLibrary\JpegHuffmanDecodingTable.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTable.cs" Link="JpegLibrary\JpegHuffmanEncodingTable.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableBuilder.cs" Link="JpegLibrary\JpegHuffmanEncodingTableBuilder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableBuilderCollection.cs" Link="JpegLibrary\JpegHuffmanEncodingTableBuilderCollection.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableCollection.cs" Link="JpegLibrary\JpegHuffmanEncodingTableCollection.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarker.cs" Link="JpegLibrary\JpegMarker.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarkerHelper.cs" Link="JpegLibrary\JpegMarkerHelper.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMathHelper.cs" Link="JpegLibrary\JpegMathHelper.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegQuantizationTable.cs" Link="JpegLibrary\JpegQuantizationTable.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegReader.cs" Link="JpegLibrary\JpegReader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegScanHeader.cs" Link="JpegLibrary\JpegScanHeader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardHuffmanEncodingTable.cs" Link="JpegLibrary\JpegStandardHuffmanEncodingTable.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardQuantizationTable.cs" Link="JpegLibrary\JpegStandardQuantizationTable.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegWriter.cs" Link="JpegLibrary\JpegWriter.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegZigZag.cs" Link="JpegLibrary\JpegZigZag.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TiffLibrary\TiffLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="JpegLibrary\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19573.2" />
+  </ItemGroup>
+
+</Project>

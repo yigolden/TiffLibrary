@@ -17,15 +17,16 @@ namespace JpegLibrary
 
         private JpegFrameHeader? _frameHeader;
         private ushort _restartInterval;
-#pragma warning disable CS0414
         private bool _extended;
         private bool _progressive;
-#pragma warning restore CS0414
 
         private JpegBlockOutputWriter? _outputWriter;
 
         private List<JpegQuantizationTable>? _quantizationTables;
         private List<JpegHuffmanDecodingTable>? _huffmanTables;
+
+        public bool IsExtendedJpeg => _extended;
+        public bool IsProgressiveJpeg => _progressive;
 
         public void SetInput(ReadOnlyMemory<byte> inputBuffer)
             => SetInput(new ReadOnlySequence<byte>(inputBuffer));
@@ -81,7 +82,7 @@ namespace JpegLibrary
                         _extended = false;
                         _progressive = true;
                         ProcessFrameHeader(ref reader, false, false);
-                        throw new InvalidDataException("Progressive JPEG is not supported currently.");
+                        break;
                     case JpegMarker.StartOfFrame3:
                     case JpegMarker.StartOfFrame5:
                     case JpegMarker.StartOfFrame6:
@@ -371,6 +372,36 @@ namespace JpegLibrary
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentFrameComponent.VerticalSamplingFactor);
             }
             return maxVerticalSampling;
+        }
+
+        public byte GetHorizontalSampling(int componentIndex)
+        {
+            JpegFrameHeader frameHeader = GetFrameHeader();
+            JpegFrameComponentSpecificationParameters[]? components = frameHeader.Components;
+            if (components is null)
+            {
+                throw new InvalidOperationException();
+            }
+            if ((uint)componentIndex >= (uint)components.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(componentIndex));
+            }
+            return components[componentIndex].HorizontalSamplingFactor;
+        }
+
+        public byte GetVerticalSampling(int componentIndex)
+        {
+            JpegFrameHeader frameHeader = GetFrameHeader();
+            JpegFrameComponentSpecificationParameters[]? components = frameHeader.Components;
+            if (components is null)
+            {
+                throw new InvalidOperationException();
+            }
+            if ((uint)componentIndex >= (uint)components.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(componentIndex));
+            }
+            return components[componentIndex].VerticalSamplingFactor;
         }
 
         public void SetOutputWriter(JpegBlockOutputWriter outputWriter)

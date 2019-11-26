@@ -54,7 +54,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the orientation in the output TIFF file.
         /// </summary>
-        public TiffOrientation Orientation { get; set; } = TiffOrientation.TopLeft;
+        public TiffOrientation Orientation { get; set; }
 
         /// <summary>
         /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
@@ -134,7 +134,7 @@ namespace TiffLibrary
                 }
 
                 var chromaSubsamplingMiddleware = new TiffApplyChromaSubsamplingMiddleware<TPixel>(horizontalSubsampling, verticalSubsampling);
-                if (Compression != TiffCompression.Jpeg)
+                if (Compression != TiffCompression.Jpeg && (horizontalSubsampling > 1 || verticalSubsampling > 1))
                 {
                     pipelineBuilder.Add(chromaSubsamplingMiddleware);
                 }

@@ -33,7 +33,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">The encoder context.</param>
         /// <param name="next">The next middleware.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been encoded.</returns>
-        public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             if (context is null)
             {
@@ -59,6 +59,16 @@ namespace TiffLibrary.ImageEncoder
                 }
             }
 
+            if (_horizontalSubsampling > 0 && _verticalSubsampling > 0)
+            {
+                return ProcessAndContinueAsync(context, next);
+            }
+
+            return next.RunAsync(context);
+        }
+
+        private async ValueTask ProcessAndContinueAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
+        {
             Memory<byte> pixelData = context.UncompressedData;
 
             int width = context.ImageSize.Width;
@@ -84,7 +94,6 @@ namespace TiffLibrary.ImageEncoder
 
             int blockCols = (width + horizontalSubsampling - 1) / horizontalSubsampling;
             int blockRows = (height + verticalSubsampling - 1) / verticalSubsampling;
-            int cbCrOffset = horizontalSubsampling * verticalSubsampling;
             int blockByteCount = horizontalSubsampling * verticalSubsampling + 2;
 
             Debug.Assert(source.Length >= width * height * 3);
@@ -93,9 +102,9 @@ namespace TiffLibrary.ImageEncoder
             ref byte sourceRef = ref MemoryMarshal.GetReference(source);
             ref byte destinationRef = ref MemoryMarshal.GetReference(destination);
 
-            for (int blockRow = blockRows - 1; blockRow >= 0; blockRow--)
+            for (int blockRow = 0; blockRow < blockRows; blockRow++)
             {
-                for (int blockCol = blockCols - 1; blockCol >= 0; blockCol--)
+                for (int blockCol = 0; blockCol < blockCols; blockCol++)
                 {
                     int cb = 0;
                     int cr = 0;
@@ -105,27 +114,27 @@ namespace TiffLibrary.ImageEncoder
                     ref byte destBlockRef = ref Unsafe.Add(ref destinationRef, blockByteCount * (blockRow * blockCols + blockCol));
 
                     // Loop through all the pixels in this block
-                    for (int row = verticalSubsampling - 1; row >= 0; row--)
+                    for (int row = 0; row < verticalSubsampling; row++)
                     {
                         int actualRow = blockRow * verticalSubsampling + row;
-                        for (int col = horizontalSubsampling - 1; col >= 0; col--)
+                        for (int col = 0; col < horizontalSubsampling; col++)
                         {
                             int actualCol = blockCol * horizontalSubsampling + col;
 
-                            ref byte pixelRef = ref Unsafe.Add(ref sourceRef, 3 * (actualRow * height + actualCol));
+                            ref byte pixelRef = ref Unsafe.Add(ref sourceRef, 3 * (actualRow * width + actualCol));
 
                             // Make sure we are in the bound of the image
                             if (actualRow < height && actualCol < width)
                             {
                                 // Copy luminance component
-                                Unsafe.Add(ref destBlockRef, cbCrOffset - 1 - index++) = pixelRef;
+                                Unsafe.Add(ref destBlockRef, index++) = pixelRef;
                                 cb += Unsafe.Add(ref pixelRef, 1);
                                 cr += Unsafe.Add(ref pixelRef, 2);
                                 pixelCount++;
                             }
                             else
                             {
-                                Unsafe.Add(ref destBlockRef, cbCrOffset - 1 - index++) = 0;
+                                Unsafe.Add(ref destBlockRef, index++) = 0;
                             }
                         }
                     }

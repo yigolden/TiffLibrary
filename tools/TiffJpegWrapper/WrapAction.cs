@@ -55,8 +55,8 @@ namespace TiffJpegWrapper
                     await ifdWriter.WriteTagAsync(TiffTag.PlanarConfiguration, TiffValueCollection.Single((ushort)TiffPlanarConfiguration.Chunky));
 
                     await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)decoder.Height));
-                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.Single((int)imageOffset.Offset));
-                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.Single(jpegFile.Length));
+                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.Single((uint)imageOffset.Offset));
+                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.Single((uint)jpegFile.Length));
 
                     if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr)
                     {

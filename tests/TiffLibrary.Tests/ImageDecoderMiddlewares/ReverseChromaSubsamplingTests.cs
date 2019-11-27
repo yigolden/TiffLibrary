@@ -275,7 +275,7 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
         [MemberData(nameof(GetChunkyTestData))]
         public async Task TestChunkyData(int width, int height, ushort horizontalSubsampling, ushort verticalSubsampling, byte[] input, byte[] output)
         {
-            var middleware = new TiffReverseChromaSubsamplingMiddleware(horizontalSubsampling, verticalSubsampling, false);
+            var middleware = new TiffReverseChromaSubsampling8Middleware(horizontalSubsampling, verticalSubsampling, false);
             byte[] buffer = new byte[output.Length];
             input.AsSpan().CopyTo(buffer);
             var context = new TestDecoderContext
@@ -294,7 +294,7 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
         [MemberData(nameof(GetPlanarTestData))]
         public async Task TestPlanarData(int width, int height, ushort horizontalSubsampling, ushort verticalSubsampling, byte[] input, byte[] output)
         {
-            var middleware = new TiffReverseChromaSubsamplingMiddleware(horizontalSubsampling, verticalSubsampling, true);
+            var middleware = new TiffReverseChromaSubsampling8Middleware(horizontalSubsampling, verticalSubsampling, true);
             byte[] buffer = new byte[output.Length];
             input.AsSpan().CopyTo(buffer);
             var context = new TestDecoderContext

@@ -11,7 +11,7 @@ namespace TiffLibrary.PhotometricInterpreters
     /// </summary>
     public sealed class TiffPlanarYCbCr888Interpreter : ITiffImageDecoderMiddleware
     {
-        private readonly TiffYCbCrConverter _converter;
+        private readonly TiffYCbCrConverter8 _converter;
 
         /// <summary>
         /// Initialize the middleware with the default YCbCrCoefficients and ReferenceBlackWhite tags.
@@ -33,7 +33,7 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentException("referenceWhiteBlack should have 6 elements.");
             }
-            _converter = TiffYCbCrConverter.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
+            _converter = TiffYCbCrConverter8.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 throw new ArgumentNullException(nameof(next));
             }
 
-            TiffYCbCrConverter converter = _converter;
+            TiffYCbCrConverter8 converter = _converter;
 
             int skippedRowOffset = context.SourceImageSize.Width * context.SourceReadOffset.Y;
             int planarByteCount = context.SourceImageSize.Width * context.SourceImageSize.Height;

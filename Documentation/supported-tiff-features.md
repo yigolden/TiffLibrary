@@ -31,7 +31,7 @@ The following photometric interpretations in the TIFF files are supported by the
 * Chunky/Planar RGB/RGBA (1 to 32 bits)
 * PaletteColor (1 to 8 bits)
 * Chunky/Planar CMYK (8/16 bits)
-* Chunky/Planar YCbCr (8 bits)
+* Chunky/Planar YCbCr (8/16 bits)
 
 Note that although files with bits per sample greater than 16 bits can be read by the decoder, the pixel formats of TiffLibrary only supports up to 16 bits. Therefore, the lower bits will be truncated when reading such files.
 
@@ -45,8 +45,6 @@ Note that although files with bits per sample greater than 16 bits can be read b
 * JPEG (CompressionTag=7)
 * Deflate (CompressionTag=8/32946)
 * PackBits (CompressionTag=32773)
-
-Notes about JPEG: Only baseline JPEG is supported. The JPEG compression schema (CompressionTag=6) defined in the TIFF 6.0 specification is also not supported.
 
 ## Predictor for Decoding
 

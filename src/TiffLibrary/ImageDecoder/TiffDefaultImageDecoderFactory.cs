@@ -54,6 +54,33 @@ namespace TiffLibrary.ImageDecoder
 
                     size = new TiffSize(width, height);
 
+                    // Special case for 12-bit JPEG
+                    bool is12BitJpeg = false;
+                    if (compression == TiffCompression.Jpeg)
+                    {
+                        // The JpegDecompressionAlgorithm class will output 16-bit pixels for such images
+                        // Therefore, we treat it as if it is a 16-bit image in the following steps.
+
+                        // BlackIsZero or WhiteIsZero
+                        if ((photometricInterpretation == TiffPhotometricInterpretation.BlackIsZero || photometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero) && bitsPerSample.Count == 1 && bitsPerSample[0] == 12)
+                        {
+                            bitsPerSample = TiffValueCollection.Single((ushort)16);
+                            is12BitJpeg = true;
+                        }
+                        // YCbCr or RGB
+                        else if ((photometricInterpretation == TiffPhotometricInterpretation.RGB || photometricInterpretation == TiffPhotometricInterpretation.YCbCr) && bitsPerSample.Count == 3 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12)
+                        {
+                            bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16 });
+                            is12BitJpeg = true;
+                        }
+                        // CMYK
+                        else if (photometricInterpretation == TiffPhotometricInterpretation.Seperated && bitsPerSample.Count == 4 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12 && bitsPerSample[3] == 12)
+                        {
+                            bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16, 16 });
+                            is12BitJpeg = true;
+                        }
+                    }
+
                     // Calculate BytesPerScanline
                     bytesPerScanline = planarConfiguration == TiffPlanarConfiguration.Planar ? CalculatePlanarBytesPerScanline(photometricInterpretation, bitsPerSample, width) : CalculateChunkyBytesPerScanline(photometricInterpretation, compression, bitsPerSample, width);
 
@@ -73,7 +100,13 @@ namespace TiffLibrary.ImageDecoder
                     // Middleware: ReverseYCbCrSubsampling
                     if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
                     {
-                        await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, tagReader).ConfigureAwait(false);
+                        await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader).ConfigureAwait(false);
+                    }
+
+                    // Special case for 12-bit JPEG
+                    if (is12BitJpeg)
+                    {
+                        builder.Add(new Jpeg16BitEndianessCorrectionMiddleware());
                     }
 
                     // Middleware: ReversePredictor
@@ -141,6 +174,33 @@ namespace TiffLibrary.ImageDecoder
 
                     size = new TiffSize(width, height);
 
+                    // Special case for 12-bit JPEG
+                    bool is12BitJpeg = false;
+                    if (compression == TiffCompression.Jpeg)
+                    {
+                        // The JpegDecompressionAlgorithm class will output 16-bit pixels for such images
+                        // Therefore, we treat it as if it is a 16-bit image in the following steps.
+
+                        // BlackIsZero or WhiteIsZero
+                        if ((photometricInterpretation == TiffPhotometricInterpretation.BlackIsZero || photometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero) && bitsPerSample.Count == 1 && bitsPerSample[0] == 12)
+                        {
+                            bitsPerSample = TiffValueCollection.Single((ushort)16);
+                            is12BitJpeg = true;
+                        }
+                        // YCbCr or RGB
+                        else if ((photometricInterpretation == TiffPhotometricInterpretation.RGB || photometricInterpretation == TiffPhotometricInterpretation.YCbCr) && bitsPerSample.Count == 3 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12)
+                        {
+                            bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16 });
+                            is12BitJpeg = true;
+                        }
+                        // CMYK
+                        else if (photometricInterpretation == TiffPhotometricInterpretation.Seperated && bitsPerSample.Count == 4 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12 && bitsPerSample[3] == 12)
+                        {
+                            bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16, 16 });
+                            is12BitJpeg = true;
+                        }
+                    }
+
                     // Calculate BytesPerScanline
                     bytesPerScanline = planarConfiguration == TiffPlanarConfiguration.Planar ? CalculatePlanarBytesPerScanline(photometricInterpretation, bitsPerSample, (int)tileWidth.GetValueOrDefault()) : CalculateChunkyBytesPerScanline(photometricInterpretation, compression, bitsPerSample, (int)tileWidth.GetValueOrDefault());
 
@@ -160,7 +220,13 @@ namespace TiffLibrary.ImageDecoder
                     // Middleware: ReverseYCbCrSubsampling
                     if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
                     {
-                        await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, tagReader).ConfigureAwait(false);
+                        await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader).ConfigureAwait(false);
+                    }
+
+                    // Special case for 12-bit JPEG
+                    if (is12BitJpeg)
+                    {
+                        builder.Add(new Jpeg16BitEndianessCorrectionMiddleware());
                     }
 
                     // Middleware: ReversePredictor
@@ -301,7 +367,7 @@ namespace TiffLibrary.ImageDecoder
             }
         }
 
-        private static async Task BuildReverseYCbCrSubsamlpingMiddleware(TiffImageDecoderPipelineBuilder builder, TiffPlanarConfiguration planarConfiguration, TiffTagReader tagReader)
+        private static async Task BuildReverseYCbCrSubsamlpingMiddleware(TiffImageDecoderPipelineBuilder builder, TiffPlanarConfiguration planarConfiguration, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
         {
             ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync().ConfigureAwait(false);
             if (subsampling.Length == 0)
@@ -312,7 +378,18 @@ namespace TiffLibrary.ImageDecoder
             {
                 throw new InvalidDataException("YCbCrSubSampling should contains 2 elements.");
             }
-            builder.Add(new TiffReverseChromaSubsamplingMiddleware(subsampling[0], subsampling[1], planarConfiguration == TiffPlanarConfiguration.Planar));
+            if (bitsPerSample.GetFirstOrDefault() == 8)
+            {
+                builder.Add(new TiffReverseChromaSubsampling8Middleware(subsampling[0], subsampling[1], planarConfiguration == TiffPlanarConfiguration.Planar));
+            }
+            else if (bitsPerSample.GetFirstOrDefault() == 16)
+            {
+                builder.Add(new TiffReverseChromaSubsampling16Middleware(subsampling[0], subsampling[1], planarConfiguration == TiffPlanarConfiguration.Planar));
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported bits per sample.");
+            }
         }
 
         private static TiffValueCollection<int> CalculateChunkyBytesPerScanline(TiffPhotometricInterpretation photometricInterpretation, TiffCompression compression, TiffValueCollection<ushort> bitsPerSample, int width)
@@ -373,6 +450,8 @@ namespace TiffLibrary.ImageDecoder
                     {
                         if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8)
                             return TiffValueCollection.Single(3 * width);
+                        if (bitsPerSample[0] == 16 && bitsPerSample[1] == 16 && bitsPerSample[2] == 16)
+                            return TiffValueCollection.Single(6 * width);
                     }
                     break;
             }
@@ -413,6 +492,8 @@ namespace TiffLibrary.ImageDecoder
                     {
                         if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8)
                             return TiffValueCollection.UnsafeWrap(new int[] { width, width, width });
+                        if (bitsPerSample[0] == 16 && bitsPerSample[1] == 16 && bitsPerSample[2] == 16)
+                            return TiffValueCollection.UnsafeWrap(new int[] { 2 * width, 2 * width, 2 * width });
                     }
                     break;
             }
@@ -757,6 +838,12 @@ namespace TiffLibrary.ImageDecoder
                     TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
                     TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
                     return new TiffChunkyYCbCr888Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
+                }
+                if (bitsPerSample[0] == 16 && bitsPerSample[1] == 16 && bitsPerSample[2] == 16)
+                {
+                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
+                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
+                    return new TiffChunkyYCbCr161616Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }

@@ -7,7 +7,7 @@ using TiffLibrary.Utils;
 
 namespace TiffLibrary.PhotometricInterpreters
 {
-    internal sealed class TiffYCbCrConverter
+    internal sealed class TiffYCbCrConverter8
     {
         private readonly CodingRangeExpander _expanderY;
         private readonly CodingRangeExpander _expanderCb;
@@ -33,13 +33,13 @@ namespace TiffLibrary.PhotometricInterpreters
             new TiffRational(128, 1), new TiffRational(255, 1)
         };
 
-        private static TiffYCbCrConverter Default { get; } = new TiffYCbCrConverter(s_defaultLuma, s_defaultReferenceBlackWhite);
+        private static TiffYCbCrConverter8 Default { get; } = new TiffYCbCrConverter8(s_defaultLuma, s_defaultReferenceBlackWhite);
 
         public static TiffValueCollection<TiffRational> DefaultLuma => TiffValueCollection.UnsafeWrap(s_defaultLuma);
 
         public static TiffValueCollection<TiffRational> DefaultReferenceBlackWhite => TiffValueCollection.UnsafeWrap(s_defaultReferenceBlackWhite);
 
-        private TiffYCbCrConverter(TiffRational[] luma, TiffRational[] referenceBlackWhite)
+        private TiffYCbCrConverter8(TiffRational[] luma, TiffRational[] referenceBlackWhite)
         {
             _expanderY = new CodingRangeExpander(referenceBlackWhite[0], referenceBlackWhite[1], 255);
             _expanderCb = new CodingRangeExpander(referenceBlackWhite[2], referenceBlackWhite[3], 127);
@@ -52,9 +52,9 @@ namespace TiffLibrary.PhotometricInterpreters
             _converterTo = new RgbToYCbCrConverter(luma[0], luma[1], luma[2]);
         }
 
-        public static TiffYCbCrConverter CreateDefault() => Default;
+        public static TiffYCbCrConverter8 CreateDefault() => Default;
 
-        public static TiffYCbCrConverter Create(TiffRational[] luma, TiffRational[] referenceBlackWhite)
+        public static TiffYCbCrConverter8 Create(TiffRational[] luma, TiffRational[] referenceBlackWhite)
         {
             Debug.Assert(luma.Length == 0 || luma.Length == 3);
             Debug.Assert(referenceBlackWhite.Length == 0 || referenceBlackWhite.Length == 6);
@@ -85,7 +85,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 return Default;
             }
 
-            return new TiffYCbCrConverter(luma, referenceBlackWhite);
+            return new TiffYCbCrConverter8(luma, referenceBlackWhite);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -261,7 +261,6 @@ namespace TiffLibrary.PhotometricInterpreters
                 cr = TiffMathHelper.RoundToInt64(fCr);
             }
         }
-
 
     }
 }

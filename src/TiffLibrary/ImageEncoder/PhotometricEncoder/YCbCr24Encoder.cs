@@ -24,7 +24,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                     await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
                 }
 
-                TiffYCbCrConverter.CreateDefault().ConvertFromRgb24(MemoryMarshal.Cast<byte, TiffRgb24>(pixelDataMemory.Span), pixelDataMemory.Span, imageSize.Width * imageSize.Height);
+                TiffYCbCrConverter8.CreateDefault().ConvertFromRgb24(MemoryMarshal.Cast<byte, TiffRgb24>(pixelDataMemory.Span), pixelDataMemory.Span, imageSize.Width * imageSize.Height);
 
                 context.PhotometricInterpretation = TiffPhotometricInterpretation.YCbCr;
                 context.BitsPerSample = TiffValueCollection.UnsafeWrap(s_bitsPerSample);
@@ -41,8 +41,8 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(3)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrCoefficients, TiffYCbCrConverter.DefaultLuma).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.ReferenceBlackWhite, TiffYCbCrConverter.DefaultReferenceBlackWhite).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.YCbCrCoefficients, TiffYCbCrConverter8.DefaultLuma).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ReferenceBlackWhite, TiffYCbCrConverter8.DefaultReferenceBlackWhite).ConfigureAwait(false);
             }
         }
     }

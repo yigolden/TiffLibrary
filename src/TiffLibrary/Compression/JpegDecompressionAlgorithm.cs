@@ -13,7 +13,6 @@ namespace TiffLibrary.Compression
         private readonly int _numberOfComponents;
         private readonly byte[] _jpegTables;
         private JpegDecoder _decoder;
-        private JpegBufferOutputWriter _outputWriter;
 
         /// <summary>
         /// Initialize the object.
@@ -62,20 +61,33 @@ namespace TiffLibrary.Compression
                 throw new InvalidDataException("Image dimension is too small.");
             }
 
-            if (decoder.Precision != 8)
-            {
-                throw new InvalidDataException("Precision of 8 bit is expected.");
-            }
-
             // Check number of components
             if (decoder.NumberOfComponents != _numberOfComponents)
             {
                 throw new InvalidDataException($"Expect {_numberOfComponents} components, but got {decoder.NumberOfComponents} components in the JPEG stream.");
             }
 
-            // Output writer 
-            JpegBufferOutputWriter outputWriter = Interlocked.Exchange(ref _outputWriter, null) ?? new JpegBufferOutputWriter();
-            outputWriter.Update(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
+            JpegBlockOutputWriter outputWriter;
+            if (decoder.Precision == 8)
+            {
+                if (context.BitsPerSample.GetFirstOrDefault() != 8)
+                {
+                    throw new InvalidDataException("Precision of 8 bit is not expected.");
+                }
+                outputWriter = new JpegBuffer8BitOutputWriter(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
+            }
+            else if (decoder.Precision == 12)
+            {
+                if (context.BitsPerSample.GetFirstOrDefault() != 16)
+                {
+                    throw new InvalidDataException("Precision of 12 bit is not expected.");
+                }
+                outputWriter = new JpegBuffer12BitOutputWriter(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
+            }
+            else
+            {
+                throw new InvalidDataException($"Precision of {decoder.Precision} bit is not expected.");
+            }
 
             // Decode
             decoder.SetOutputWriter(outputWriter);
@@ -87,9 +99,7 @@ namespace TiffLibrary.Compression
             decoder.ResetOutputWriter();
 
             // Cache the instances
-            outputWriter.Reset();
             Interlocked.CompareExchange(ref _decoder, decoder, null);
-            Interlocked.CompareExchange(ref _outputWriter, outputWriter, null);
         }
     }
 }

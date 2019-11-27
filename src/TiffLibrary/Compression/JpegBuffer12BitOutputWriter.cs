@@ -6,7 +6,7 @@ using TiffLibrary.Utils;
 
 namespace TiffLibrary.Compression
 {
-    internal sealed class JpegBufferOutputWriter : JpegBlockOutputWriter
+    internal sealed class JpegBuffer12BitOutputWriter : JpegBlockOutputWriter
     {
         private int _width;
         private int _skippedScanlines;
@@ -14,7 +14,7 @@ namespace TiffLibrary.Compression
         private int _componentCount;
         private Memory<byte> _output;
 
-        public void Update(int width, int skippedScanlines, int height, int componentsCount, Memory<byte> output)
+        public JpegBuffer12BitOutputWriter(int width, int skippedScanlines, int height, int componentsCount, Memory<byte> output)
         {
             if (output.Length < (width * height * componentsCount))
             {
@@ -56,17 +56,26 @@ namespace TiffLibrary.Compression
             int writeHeight = Math.Min(height - y, 8);
 
             ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
-            ref byte destinationRef = ref MemoryMarshal.GetReference(_output.Span);
+            ref ushort destinationRef = ref Unsafe.As<byte, ushort>(ref MemoryMarshal.GetReference(_output.Span));
 
             for (int destY = 0; destY < writeHeight; destY++)
             {
                 ref short blockRowRef = ref Unsafe.Add(ref blockRef, destY * 8);
-                ref byte destinationRowRef = ref Unsafe.Add(ref destinationRef, ((y + destY) * width + x) * componentCount + componentIndex);
+                ref ushort destinationRowRef = ref Unsafe.Add(ref destinationRef, ((y + destY) * width + x) * componentCount + componentIndex);
                 for (int destX = 0; destX < writeWidth; destX++)
                 {
-                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = TiffMathHelper.ClampTo8Bit(Unsafe.Add(ref blockRowRef, destX));
+                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = (ushort)FastExpandBits(TiffMathHelper.ClampTo12Bit(Unsafe.Add(ref blockRowRef, destX)));
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint FastExpandBits(uint bits)
+        {
+            const int bitCount = 12;
+            const int targetBitCount = 16;
+            const int remainingBits = targetBitCount - bitCount;
+            return (bits << remainingBits) | (bits & ((uint)(1 << remainingBits) - 1));
         }
     }
 }

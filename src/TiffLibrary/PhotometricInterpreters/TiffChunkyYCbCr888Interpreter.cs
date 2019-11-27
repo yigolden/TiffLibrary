@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TiffLibrary.ImageDecoder;
 using TiffLibrary.PixelBuffer;
@@ -12,7 +11,7 @@ namespace TiffLibrary.PhotometricInterpreters
     /// </summary>
     public sealed class TiffChunkyYCbCr888Interpreter : ITiffImageDecoderMiddleware
     {
-        private readonly TiffYCbCrConverter _converter;
+        private readonly TiffYCbCrConverter8 _converter;
 
         /// <summary>
         /// Initialize the middleware with the default YCbCrCoefficients and ReferenceBlackWhite tags.
@@ -34,7 +33,7 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentException("referenceWhiteBlack should have 6 elements.");
             }
-            _converter = TiffYCbCrConverter.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
+            _converter = TiffYCbCrConverter8.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 throw new ArgumentNullException(nameof(next));
             }
 
-            TiffYCbCrConverter converter = _converter;
+            TiffYCbCrConverter8 converter = _converter;
 
             int bytesPerScanline = 3 * context.SourceImageSize.Width;
             Memory<byte> source = context.UncompressedData.Slice(context.SourceReadOffset.Y * bytesPerScanline);
@@ -77,12 +76,6 @@ namespace TiffLibrary.PhotometricInterpreters
             }
 
             return next.RunAsync(context);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int Convert(int code, TiffRational referenceBlack, TiffRational referenceWhite, int codingRange)
-        {
-            return (int)((code - referenceBlack.ToSingle()) * codingRange / (referenceWhite.ToSingle() - referenceBlack.ToSingle()));
         }
     }
 }

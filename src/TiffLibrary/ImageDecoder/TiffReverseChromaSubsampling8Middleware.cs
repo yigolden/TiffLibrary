@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 namespace TiffLibrary.ImageDecoder
 {
     /// <summary>
-    /// A middleware that reverse chroma subsampling
+    /// A middleware that reverse chroma subsampling for 8-bit YCbCr image.
     /// </summary>
-    public sealed class TiffReverseChromaSubsamplingMiddleware : ITiffImageDecoderMiddleware
+    public sealed class TiffReverseChromaSubsampling8Middleware : ITiffImageDecoderMiddleware
     {
         private readonly ushort _horizontalSubsampling;
         private readonly ushort _verticalSubsampling;
@@ -19,7 +19,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="horizontalSubsampling">The horizontal subsampling factor.</param>
         /// <param name="verticalSubsampling">The vertical subsampling factor.</param>
         /// <param name="isPlanar">Whether thid IFD is planar configuration.</param>
-        public TiffReverseChromaSubsamplingMiddleware(ushort horizontalSubsampling, ushort verticalSubsampling, bool isPlanar)
+        public TiffReverseChromaSubsampling8Middleware(ushort horizontalSubsampling, ushort verticalSubsampling, bool isPlanar)
         {
             if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)
             {

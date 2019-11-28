@@ -28,7 +28,7 @@ namespace TiffLibrary
 
         private void AddOrUpdateEntry(TiffTag tag, TiffFieldType type, int count, TiffStreamOffset offset)
         {
-            if (TryFindEntry(tag, out int i, out TiffImageFileDirectoryEntry entry))
+            if (TryFindEntry(tag, out int i, out _))
             {
                 _entries[i] = new TiffImageFileDirectoryEntry(tag, type, count, offset);
             }
@@ -40,7 +40,7 @@ namespace TiffLibrary
 
         private void AddOrUpdateEntry(TiffTag tag, TiffFieldType type, int count, Span<byte> buffer)
         {
-            if (TryFindEntry(tag, out int i, out TiffImageFileDirectoryEntry entry))
+            if (TryFindEntry(tag, out int i, out _))
             {
                 _entries[i] = new TiffImageFileDirectoryEntry(_writer.OperationContext, tag, type, count, buffer);
             }
@@ -67,7 +67,7 @@ namespace TiffLibrary
 
         internal void AddPointerTag(TiffTag tag, TiffFieldType type, int count, TiffStreamOffset offset)
         {
-            if (TryFindEntry(tag, out int i, out TiffImageFileDirectoryEntry entry))
+            if (TryFindEntry(tag, out int i, out _))
             {
                 _entries[i] = new TiffImageFileDirectoryEntry(tag, type, count, offset);
             }
@@ -501,6 +501,88 @@ namespace TiffLibrary
         {
             TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SLong8, values.Count, region.Offset);
+        }
+
+        #endregion
+
+        #region Float
+
+        /// <summary>
+        /// Write values of <see cref="TiffFieldType.Float"/> to the specified tag in this IFD.
+        /// </summary>
+        /// <param name="tag">The specified tag.</param>
+        /// <param name="values">The values to write.</param>
+        /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<float> values)
+        {
+            const int ElementSize = sizeof(float);
+            int byteCount = ElementSize * values.Count;
+
+            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            {
+                Span<byte> stackBuffer = stackalloc byte[8];
+                int i;
+                for (i = 0; i < values.Count; i++)
+                {
+                    float item = values[i];
+                    MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
+                }
+
+                AddOrUpdateEntry(tag, TiffFieldType.Float, values.Count, stackBuffer);
+
+                return default;
+            }
+            else
+            {
+                return new ValueTask(WriteTagSlowAsync(tag, values));
+            }
+        }
+
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<float> values)
+        {
+            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            AddOrUpdateEntry(tag, TiffFieldType.Float, values.Count, region.Offset);
+        }
+
+        #endregion
+
+        #region Double
+
+        /// <summary>
+        /// Write values of <see cref="TiffFieldType.Double"/> to the specified tag in this IFD.
+        /// </summary>
+        /// <param name="tag">The specified tag.</param>
+        /// <param name="values">The values to write.</param>
+        /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<double> values)
+        {
+            const int ElementSize = sizeof(double);
+            int byteCount = ElementSize * values.Count;
+
+            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            {
+                Span<byte> stackBuffer = stackalloc byte[8];
+                int i;
+                for (i = 0; i < values.Count; i++)
+                {
+                    double item = values[i];
+                    MemoryMarshal.Write(stackBuffer.Slice(ElementSize * i), ref item);
+                }
+
+                AddOrUpdateEntry(tag, TiffFieldType.Double, values.Count, stackBuffer);
+
+                return default;
+            }
+            else
+            {
+                return new ValueTask(WriteTagSlowAsync(tag, values));
+            }
+        }
+
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<double> values)
+        {
+            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            AddOrUpdateEntry(tag, TiffFieldType.Double, values.Count, region.Offset);
         }
 
         #endregion

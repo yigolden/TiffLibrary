@@ -525,6 +525,54 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<float> values)
+        {
+            EnsureNotDisposed();
+            EnsureNotCompleted();
+
+            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+
+            const int ElementSize = sizeof(float);
+            int byteCount = ElementSize * values.Count;
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+            try
+            {
+                MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
+                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                AdvancePosition(byteCount);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+
+            return new TiffStreamRegion(position, byteCount);
+        }
+
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<double> values)
+        {
+            EnsureNotDisposed();
+            EnsureNotCompleted();
+
+            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+
+            const int ElementSize = sizeof(float);
+            int byteCount = ElementSize * values.Count;
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+            try
+            {
+                MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
+                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                AdvancePosition(byteCount);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+
+            return new TiffStreamRegion(position, byteCount);
+        }
+
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffRational> values)
         {
             EnsureNotDisposed();

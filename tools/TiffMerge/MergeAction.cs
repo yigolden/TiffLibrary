@@ -30,16 +30,16 @@ namespace TiffMerge
             {
                 await using TiffFileReader reader = await TiffFileReader.OpenAsync(sourceFile.FullName);
                 await using TiffFileContentReader contentReader = await reader.CreateContentReaderAsync();
-                await using TiffFieldReader fieldReader = await reader.CreateFieldReaderAsync();
+                await using TiffFieldReader fieldReader = await reader.CreateFieldReaderAsync(cancellationToken);
 
                 TiffStreamOffset inputIfdOffset = reader.FirstImageFileDirectoryOffset;
                 while (!inputIfdOffset.IsZero)
                 {
-                    TiffImageFileDirectory ifd = await reader.ReadImageFileDirectoryAsync(inputIfdOffset);
+                    TiffImageFileDirectory ifd = await reader.ReadImageFileDirectoryAsync(inputIfdOffset, cancellationToken);
 
                     using (TiffImageFileDirectoryWriter ifdWriter = writer.CreateImageFileDirectory())
                     {
-                        await CopyIfdAsync(contentReader, fieldReader, ifd, ifdWriter);
+                        await CopyIfdAsync(contentReader, fieldReader, ifd, ifdWriter, cancellationToken);
 
                         previousIfdOffset = await ifdWriter.FlushAsync(previousIfdOffset);
 
@@ -60,7 +60,7 @@ namespace TiffMerge
             return 0;
         }
 
-        private static async Task CopyIfdAsync(TiffFileContentReader contentReader, TiffFieldReader fieldReader, TiffImageFileDirectory ifd, TiffImageFileDirectoryWriter dest)
+        private static async Task CopyIfdAsync(TiffFileContentReader contentReader, TiffFieldReader fieldReader, TiffImageFileDirectory ifd, TiffImageFileDirectoryWriter dest, CancellationToken cancellationToken)
         {
             var tagReader = new TiffTagReader(fieldReader, ifd);
             foreach (TiffImageFileDirectoryEntry entry in ifd)
@@ -68,7 +68,7 @@ namespace TiffMerge
                 // Stripped image data
                 if (entry.Tag == TiffTag.StripOffsets)
                 {
-                    await CopyStrippedImageAsync(contentReader, tagReader, dest);
+                    await CopyStrippedImageAsync(contentReader, tagReader, dest, cancellationToken);
                 }
                 else if (entry.Tag == TiffTag.StripByteCounts)
                 {
@@ -78,7 +78,7 @@ namespace TiffMerge
                 // Tiled image data
                 else if (entry.Tag == TiffTag.TileOffsets)
                 {
-                    await CopyTiledImageAsync(contentReader, tagReader, dest);
+                    await CopyTiledImageAsync(contentReader, tagReader, dest, cancellationToken);
                 }
                 else if (entry.Tag == TiffTag.TileByteCounts)
                 {
@@ -88,13 +88,15 @@ namespace TiffMerge
                 // Other fields
                 else
                 {
-                    await CopyFieldValueAsync(fieldReader, entry, dest);
+                    await CopyFieldValueAsync(fieldReader, entry, dest, cancellationToken);
                 }
             }
         }
 
-        private static async Task CopyStrippedImageAsync(TiffFileContentReader contentReader, TiffTagReader tagReader, TiffImageFileDirectoryWriter dest)
+        private static async Task CopyStrippedImageAsync(TiffFileContentReader contentReader, TiffTagReader tagReader, TiffImageFileDirectoryWriter dest, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             TiffValueCollection<ulong> offsets = await tagReader.ReadStripOffsetsAsync();
             TiffValueCollection<ulong> byteCounts = await tagReader.ReadStripByteCountsAsync();
 
@@ -124,7 +126,7 @@ namespace TiffMerge
                         buffer = ArrayPool<byte>.Shared.Rent(byteCount);
                     }
 
-                    if (await contentReader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, byteCount)) != byteCount)
+                    if (await contentReader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken) != byteCount)
                     {
                         throw new InvalidDataException("Invalid ByteCount field.");
                     }
@@ -145,8 +147,10 @@ namespace TiffMerge
             await dest.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(byteCounts32));
         }
 
-        private static async Task CopyTiledImageAsync(TiffFileContentReader contentReader, TiffTagReader tagReader, TiffImageFileDirectoryWriter dest)
+        private static async Task CopyTiledImageAsync(TiffFileContentReader contentReader, TiffTagReader tagReader, TiffImageFileDirectoryWriter dest, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             TiffValueCollection<ulong> offsets = await tagReader.ReadTileOffsetsAsync();
             TiffValueCollection<ulong> byteCounts = await tagReader.ReadTileByteCountsAsync();
 
@@ -176,7 +180,7 @@ namespace TiffMerge
                         buffer = ArrayPool<byte>.Shared.Rent(byteCount);
                     }
 
-                    if (await contentReader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, byteCount)) != byteCount)
+                    if (await contentReader.ReadAsync(offset, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken) != byteCount)
                     {
                         throw new InvalidDataException("Invalid ByteCount field.");
                     }
@@ -197,8 +201,9 @@ namespace TiffMerge
             await dest.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(byteCounts32));
         }
 
-        private static async Task CopyFieldValueAsync(TiffFieldReader reader, TiffImageFileDirectoryEntry entry, TiffImageFileDirectoryWriter ifdWriter)
+        private static async Task CopyFieldValueAsync(TiffFieldReader reader, TiffImageFileDirectoryEntry entry, TiffImageFileDirectoryWriter ifdWriter, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             switch (entry.Type)
             {
                 case TiffFieldType.Byte:

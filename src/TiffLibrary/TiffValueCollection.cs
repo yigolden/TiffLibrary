@@ -267,6 +267,108 @@ namespace TiffLibrary
         {
             return TiffValueCollection<T>.s_empty;
         }
+
+        /// <summary>
+        /// Create T[] and copy all the elements from <paramref name="values"/> into the array.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="values">The element collection to copy from.</param>
+        /// <returns>The created array.</returns>
+        public static T[] ToArray<T>(this TiffValueCollection<T> values)
+        {
+            if (values.IsEmpty)
+            {
+                return Array.Empty<T>();
+            }
+            Span<T> source = values._values;
+            if (source.Length == 0)
+            {
+                return new T[] { values._firstValue };
+            }
+            T[] arr = new T[values.Count];
+            source.CopyTo(arr);
+            return arr;
+        }
+
+        /// <summary>
+        /// Copy all the elements from <paramref name="values"/> into the destination span.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="values">The element collection to copy from.</param>
+        /// <param name="destination">The destination span.</param>
+        /// <returns>True if the destination span is big enough to copy to; otherwise, false.</returns>
+        public static bool TryCopyTo<T>(this TiffValueCollection<T> values, Span<T> destination)
+        {
+            if (values.IsEmpty)
+            {
+                return true;
+            }
+            Span<T> source = values._values;
+            if (source.Length == 0)
+            {
+                if (destination.IsEmpty)
+                {
+                    return false;
+                }
+                else
+                {
+                    destination[0] = values._firstValue;
+                }
+            }
+            return source.TryCopyTo(destination);
+        }
+
+        /// <summary>
+        /// Copy all the elements from <paramref name="values"/> into the destination span.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="values">The element collection to copy from.</param>
+        /// <param name="destination">The destination span.</param>
+        /// <exception cref="ArgumentException">The destination span is too small.</exception>
+        public static void CopyTo<T>(this TiffValueCollection<T> values, Span<T> destination)
+        {
+            if (values.IsEmpty)
+            {
+                return;
+            }
+            Span<T> source = values._values;
+            if (source.Length == 0)
+            {
+                if (destination.IsEmpty)
+                {
+                    throw new ArgumentException("Destination span is too small.", nameof(destination));
+                }
+                else
+                {
+                    destination[0] = values._firstValue;
+                    return;
+                }
+            }
+            if (source.Length > destination.Length)
+            {
+                throw new ArgumentException("Destination span is too small.", nameof(destination));
+            }
+            source.CopyTo(destination);
+        }
+
+        /// <summary>
+        /// Gets the underlying array from the element collection.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="values">The element collection.</param>
+        /// <param name="array">The underlying array if there is one.</param>
+        /// <returns>True if the array is returned; false if there is no array backing the collection.</returns>
+        public static bool UnsafeTryGetArray<T>(TiffValueCollection<T> values, out T[] array)
+        {
+            T[] underlying = values._values;
+            if (underlying is null || underlying.Length == 0)
+            {
+                array = null;
+                return false;
+            }
+            array = underlying;
+            return true;
+        }
     }
 
     internal static class TiffValueCollectionExtensionsInternal
@@ -337,23 +439,6 @@ namespace TiffLibrary
             }
         }
 
-
-        public static void CopyTo<T>(this TiffValueCollection<T> collection, Span<T> destination)
-        {
-            T[] values = collection._values;
-            if (values is null)
-            {
-                return;
-            }
-            else if (values.Length == 0)
-            {
-                destination[0] = collection._firstValue;
-            }
-            else
-            {
-                values.AsSpan().CopyTo(destination);
-            }
-        }
     }
 
 }

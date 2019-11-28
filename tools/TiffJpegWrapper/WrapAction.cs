@@ -14,12 +14,12 @@ namespace TiffJpegWrapper
         {
             if (source is null || !source.Exists)
             {
-                Console.WriteLine(source is null ? "Input JPEG image not specified." : "File not found: " + source.FullName);
+                Console.WriteLine(source is null ? "Input JPEG image is not specified." : "File not found: " + source.FullName);
                 return 1;
             }
             if (output is null)
             {
-                Console.WriteLine("Output TIFF file not specified.");
+                Console.WriteLine("Output TIFF file is not specified.");
                 return 1;
             }
 

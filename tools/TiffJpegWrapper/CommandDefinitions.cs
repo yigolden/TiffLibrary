@@ -23,7 +23,7 @@ namespace TiffJpegWrapper
             command.Handler = CommandHandler.Create<FileInfo, FileInfo, CancellationToken>(WrapAction.Wrap);
 
             static Option Output() =>
-                new Option(new[] { "--output", "--out", "-o" }, "Output TIFF file location.")
+                new Option(new[] { "--output", "--out", "-o" }, "Output TIFF file.")
                 {
                     Argument = new Argument<FileInfo>() { Arity = ArgumentArity.ExactlyOne }
                 };

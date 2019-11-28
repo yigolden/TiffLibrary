@@ -370,6 +370,28 @@ namespace TiffLibrary
 
         #endregion
 
+        #region Content Reader
+
+        /// <summary>
+        /// Createa a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
+        /// </summary>
+        /// <returns>The <see cref="TiffFileContentReader"/> instance.</returns>
+        public TiffFileContentReader CreateContentReader()
+        {
+            return _contentSource.OpenReader();
+        }
+
+        /// <summary>
+        /// Createa a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
+        /// </summary>
+        /// <returns>The <see cref="TiffFileContentReader"/> instance.</returns>
+        public async Task<TiffFileContentReader> CreateContentReaderAsync()
+        {
+            return await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+        }
+
+        #endregion
+
         #region Field Reader
 
         /// <summary>

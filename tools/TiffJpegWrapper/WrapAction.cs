@@ -39,12 +39,12 @@ namespace TiffJpegWrapper
                 bitsPerSample.Length == 3 ? TiffPhotometricInterpretation.YCbCr :
                 throw new InvalidDataException("Photometric interpretation not supported.");
 
-            using (var writer = await TiffFileWriter.OpenAsync(output.FullName, useBigTiff: false))
+            using (TiffFileWriter writer = await TiffFileWriter.OpenAsync(output.FullName, useBigTiff: false))
             {
                 TiffStreamOffset imageOffset = await writer.WriteAlignedBytesAsync(jpegFile);
 
                 TiffStreamOffset ifdOffset;
-                using (var ifdWriter = writer.CreateImageFileDirectory())
+                using (TiffImageFileDirectoryWriter ifdWriter = writer.CreateImageFileDirectory())
                 {
                     await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((ushort)decoder.Width));
                     await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((ushort)decoder.Height));

@@ -50,8 +50,8 @@ namespace TiffLibrary.Compression
 
         private CcittDecodingTable(bool isWhite)
         {
-            CcittCode[] codes = _codes = new CcittCode[TotalCodeCount];
-            CcittCodeValue[] codeValues = _codeValues = new CcittCodeValue[TotalCodeCount];
+            _codes = new CcittCode[TotalCodeCount];
+            _codeValues = new CcittCodeValue[TotalCodeCount];
             _fastTable = new CcittCodeValue[1 << LookupTableTotalBitCount];
 
             if (isWhite)

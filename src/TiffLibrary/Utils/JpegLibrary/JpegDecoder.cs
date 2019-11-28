@@ -868,22 +868,23 @@ namespace JpegLibrary
 
                 for (int v = 0; v < verticalSamplingFactor; v++)
                 {
-                    int yOffset = y + 8 * v;
                     for (int h = 0; h < horizontalSamplingFactor; h++)
                     {
+                        int vBlock = 8 * v;
+                        int hBlock = 8 * h;
                         // Fill tempBlock
                         for (int i = 0; i < 8; i++)
                         {
                             ref short tempRowRef = ref Unsafe.Add(ref tempRef, 8 * i);
-                            ref short blockRowRef = ref Unsafe.Add(ref blockRef, 8 * i >> vShift);
+                            ref short blockRowRef = ref Unsafe.Add(ref blockRef, ((vBlock + i) >> vShift) * 8);
                             for (int j = 0; j < 8; j++)
                             {
-                                Unsafe.Add(ref tempRowRef, j) = Unsafe.Add(ref blockRowRef, j >> hShift);
+                                Unsafe.Add(ref tempRowRef, j) = Unsafe.Add(ref blockRowRef, (hBlock + j) >> hShift);
                             }
                         }
 
                         // Write tempBlock to output
-                        outputWriter!.WriteBlock(tempBlock, componentIndex, x + 8 * h, yOffset);
+                        outputWriter!.WriteBlock(tempBlock, componentIndex, x + 8 * h, y + 8 * v);
                     }
                 }
             }
@@ -995,7 +996,7 @@ namespace JpegLibrary
             for (int i = 0; i < 64; i++)
             {
                 ushort element = Unsafe.Add(ref elementRef, i);
-                Unsafe.Add(ref destinationRef, JpegZigZag.BufferIndexToBlock(i)) = (element * Unsafe.Add(ref sourceRef, i));
+                Unsafe.Add(ref destinationRef, JpegZigZag.BufferIndexToBlock(i)) = element * Unsafe.Add(ref sourceRef, i);
             }
         }
 

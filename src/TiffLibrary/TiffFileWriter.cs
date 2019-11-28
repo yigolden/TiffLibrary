@@ -84,7 +84,7 @@ namespace TiffLibrary
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
         public static async Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false)
         {
-            var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
             try
             {
                 byte[] smallBuffer = new byte[SmallBufferSize];

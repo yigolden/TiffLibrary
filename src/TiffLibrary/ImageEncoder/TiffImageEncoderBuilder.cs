@@ -145,7 +145,7 @@ namespace TiffLibrary
             {
                 case 0:
                 case TiffCompression.NoCompression:
-                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, NoneCompressionAlgorithm.Instance));
+                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(TiffCompression.NoCompression, NoneCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.ModifiedHuffmanCompression:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, ModifiedHuffmanCompressionAlgorithm.GetSharedInstance(TiffFillOrder.HigherOrderBitsFirst)));

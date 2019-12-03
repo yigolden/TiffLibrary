@@ -96,9 +96,9 @@ namespace TiffLibrary.PhotometricInterpreters
             CodingRangeExpander expanderCr = _expanderCr;
             YCbCrToRgbConverter converter = _converterFrom;
 
-            long y64 = expanderY.Expand(y);
-            long cb64 = expanderCb.Expand(cb);
-            long cr64 = expanderCr.Expand(cr);
+            float y64 = expanderY.Expand(y);
+            float cb64 = expanderCb.Expand(cb);
+            float cr64 = expanderCr.Expand(cr);
 
             TiffRgba32 pixel = default; // TODO: SkipInit
 
@@ -121,9 +121,9 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 ref TiffRgba32 pixelRef = ref Unsafe.Add(ref destinationRef, i);
 
-                long y = sourceRef;
-                long cb = Unsafe.Add(ref sourceRef, 1);
-                long cr = Unsafe.Add(ref sourceRef, 2);
+                float y = sourceRef;
+                float cb = Unsafe.Add(ref sourceRef, 1);
+                float cr = Unsafe.Add(ref sourceRef, 2);
 
                 y = expanderY.Expand(y);
                 cb = expanderCb.Expand(cb);
@@ -165,20 +165,17 @@ namespace TiffLibrary.PhotometricInterpreters
         {
             public CodingRangeExpander(TiffRational referenceBlack, TiffRational referenceWhite, int codingRange)
             {
-                long f = (1 << Shift) * (long)referenceWhite.Denominator * referenceBlack.Denominator * codingRange / referenceBlack.Denominator / (referenceWhite.Numerator * (long)referenceBlack.Denominator - referenceWhite.Denominator * (long)referenceBlack.Numerator);
-                _f1 = referenceBlack.Denominator * f;
-                _f2 = referenceBlack.Numerator * f;
+                _f1 = codingRange / (referenceWhite.ToSingle() - referenceBlack.ToSingle());
+                _f2 = _f1 * referenceBlack.ToSingle();
             }
 
-            private const int Shift = 16;
-
-            private readonly long _f1;
-            private readonly long _f2;
+            private readonly float _f1;
+            private readonly float _f2;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public long Expand(long code)
+            public float Expand(float code)
             {
-                return (code * _f1 - _f2) >> Shift;
+                return code * _f1 - _f2;
             }
         }
 
@@ -220,7 +217,7 @@ namespace TiffLibrary.PhotometricInterpreters
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Convert(long y, long cb, long cr, ref TiffRgba32 pixel)
+            public void Convert(float y, float cb, float cr, ref TiffRgba32 pixel)
             {
                 pixel.R = TiffMathHelper.RoundAndClampTo8Bit(cr * _cr2r + y);
                 pixel.G = TiffMathHelper.RoundAndClampTo8Bit(_y2g * y + _cr2g * cr + _cb2g * cb);

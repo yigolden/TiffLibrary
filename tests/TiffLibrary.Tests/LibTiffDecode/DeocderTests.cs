@@ -56,15 +56,13 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 // Test image
                 "Assets/LibTiffDecode/pc260001.tif"
             };
-            /*
             yield return new object[]
             {
                 // Reference image
-                "Assets/LibTiffDecode/quad.png",
+                "Assets/LibTiffDecode/quad-jpeg.png",
                 // Test image
                 "Assets/LibTiffDecode/quad-jpeg.tif"
             };
-            */
             yield return new object[]
             {
                 // Reference image

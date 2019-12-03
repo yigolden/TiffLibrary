@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace TiffLibrary
@@ -10,6 +11,8 @@ namespace TiffLibrary
     /// Represents a list of values of specified type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The element type in the collection.</typeparam>
+    [DebuggerTypeProxy(typeof(TiffValueCollectionDebugView<>))]
+    [DebuggerDisplay("{ToString(),raw}")]
     public readonly struct TiffValueCollection<T> : IReadOnlyList<T>
 #pragma warning restore CA1815 // CA1815: Override equals and operator equals on value types
     {
@@ -222,9 +225,29 @@ namespace TiffLibrary
         /// <returns>A human-readable representation of the list.</returns>
         public override string ToString()
         {
-            return $"TiffLibrary.TiffValueCollection<{typeof(T).FullName}>[{Count}]";
+            return $"TiffLibrary.TiffValueCollection<{typeof(T).Name}>[{Count}]";
         }
     }
+
+#pragma warning disable CA1801, CA1812, CA1823
+    internal sealed class TiffValueCollectionDebugView<T>
+    {
+        private readonly T[] _array;
+
+        public TiffValueCollectionDebugView(TiffValueCollection<T> collection)
+        {
+            _array = collection.GetOrCreateArray();
+        }
+
+        public TiffValueCollectionDebugView(TiffMutableValueCollection<T> collection)
+        {
+            _array = Unsafe.As<TiffMutableValueCollection<T>, TiffValueCollection<T>>(ref collection).GetOrCreateArray();
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public T[] Items => _array;
+    }
+#pragma warning restore
 
     /// <summary>
     /// Helper methods for <see cref="TiffValueCollection{T}"/>.

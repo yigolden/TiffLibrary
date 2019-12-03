@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace TiffLibrary
 {
+    [DebuggerTypeProxy(typeof(TiffValueCollectionDebugView<>))]
+    [DebuggerDisplay("{ToString(),raw}")]
     internal struct TiffMutableValueCollection<T>
     {
         internal readonly T[] _values;
@@ -61,6 +64,11 @@ namespace TiffLibrary
 
         public readonly bool IsEmpty => _values is null;
         public readonly int Count => _values is null ? 0 : Math.Max(_values.Length, 1);
+
+        public override string ToString()
+        {
+            return $"TiffLibrary.TiffMutableValueCollection<{typeof(T).Name}>[{Count}]";
+        }
 
     }
 

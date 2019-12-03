@@ -143,8 +143,17 @@ namespace TiffLibrary.Compression
             bool whiteIsZero = context.PhotometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero;
             int width = context.ImageSize.Width;
             int height = context.SkippedScanlines + context.RequestedScanlines;
-            CcittDecodingTable whiteEntries = CcittDecodingTable.WhiteInstance;
             var bitReader = new BitReader(inputSpan, higherOrderBitsFirst: _higherOrderBitsFirst);
+
+            // Skip the first EOL code
+            if (bitReader.Peek(12) == 0b000000000001) // EOL code is 000000000001 (12bits).
+            {
+                bitReader.Advance(12);
+            }
+            else if (bitReader.Peek(16) == 1) // Or EOL code is zero filled.
+            {
+                bitReader.Advance(16);
+            }
 
             // Process every scanline
             for (int i = 0; i < height; i++)
@@ -155,16 +164,6 @@ namespace TiffLibrary.Compression
                 }
                 Span<byte> scanline = scanlinesBufferSpan.Slice(0, width);
                 scanlinesBufferSpan = scanlinesBufferSpan.Slice(width);
-
-                // Skip the first EOL
-                if (bitReader.Peek(12) == 0b000000000001) // EOL code is 000000000001 (12bits).
-                {
-                    bitReader.Advance(12);
-                }
-                else if (bitReader.Peek(16) == 1) // Or EOL code is zero filled.
-                {
-                    bitReader.Advance(16);
-                }
 
                 // Process every code word in this scanline
                 byte fillValue = whiteIsZero ? (byte)0 : (byte)255;
@@ -226,25 +225,18 @@ namespace TiffLibrary.Compression
                         // This line is fully unpacked. Should exit and process next line.
                         if (unpacked == width)
                         {
-                            // Is the next code word EOL ?
-                            value = bitReader.Peek(16);
-                            if (!whiteEntries.TryLookup(value, out tableEntry))
+                            // If this is the last line of the image, we don't process any code after this.
+                            if (i == height - 1)
                             {
-                                // We have encountered an invalid code word.
-                                // If this is the last line of the image, then it's fine
-                                if (i == height - 1)
-                                {
-                                    break;
-                                }
-
-                                // Otherwise, throw the exception
-                                throw new InvalidDataException();
+                                break;
                             }
 
-                            if (tableEntry.IsEndOfLine)
+                            // Is the next code word EOL ?
+                            value = bitReader.Peek(16);
+                            if ((value >> 4) == 0b000000000001)
                             {
                                 // Skip the EOL code
-                                bitReader.Advance(tableEntry.BitsRequired);
+                                bitReader.Advance(12);
                                 break;
                             }
 
@@ -252,6 +244,7 @@ namespace TiffLibrary.Compression
                             int filledBits = 8 - (bitReader.ConsumedBits + 12) % 8;
                             if (bitReader.Peek(filledBits) != 0)
                             {
+                                bitReader.AdvanceAlignByte();
                                 break;
                             }
 
@@ -264,16 +257,11 @@ namespace TiffLibrary.Compression
                                 bitReader.Advance(filledBits + 12);
                             }
 
+                            bitReader.AdvanceAlignByte();
                             break;
                         }
                     }
                 }
-
-                if (!tableEntry.IsEndOfLine)
-                {
-                    bitReader.AdvanceAlignByte();
-                }
-
             }
         }
 

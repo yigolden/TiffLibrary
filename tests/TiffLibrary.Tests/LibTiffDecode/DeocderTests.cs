@@ -28,7 +28,6 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 // Test image
                 "Assets/LibTiffDecode/cramps-tile.tif"
             };
-            /*
             yield return new object[]
             {
                 // Reference image
@@ -36,7 +35,6 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 // Test image
                 "Assets/LibTiffDecode/fax2d.tif"
             };
-            */
             yield return new object[]
             {
                 // Reference image

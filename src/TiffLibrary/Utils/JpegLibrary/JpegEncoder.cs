@@ -305,7 +305,7 @@ namespace JpegLibrary
             JpegBlock8x8F outputFBuffer = default;
             JpegBlock8x8F tempFBuffer = default;
 
-            JpegBlock8x8 inputBuffer = default;
+            JpegBlock8x8 inputBuffer;
 
             for (int rowMcu = 0; rowMcu < mcusPerColumn; rowMcu++)
             {
@@ -328,7 +328,7 @@ namespace JpegLibrary
                             for (int x = 0; x < h; x++)
                             {
                                 // Read Block
-                                ReadBlock(inputReader, ref inputBuffer, component.ComponentIndex, (offsetX + x) * 8, blockOffsetY, hs, vs);
+                                ReadBlock(inputReader, out inputBuffer, component.ComponentIndex, (offsetX + x) * 8, blockOffsetY, hs, vs);
 
                                 // Level shift
                                 ShiftDataLevel(ref inputBuffer, ref inputFBuffer, levelShift);
@@ -351,11 +351,12 @@ namespace JpegLibrary
             writer.ExitBitMode();
         }
 
-        private static void ReadBlock(JpegBlockInputReader inputReader, ref JpegBlock8x8 block, int componentIndex, int x, int y, int h, int v)
+        private static void ReadBlock(JpegBlockInputReader inputReader, out JpegBlock8x8 block, int componentIndex, int x, int y, int h, int v)
         {
+            block = default;
+
             if (h == 1 && v == 1)
             {
-                block = default;
                 inputReader.ReadBlock(ref block, componentIndex, x, y);
                 return;
             }
@@ -390,10 +391,13 @@ namespace JpegLibrary
             }
 
             int totalShift = hShift + vShift;
-            int delta = 1 << (totalShift - 1);
-            for (int i = 0; i < 64; i++)
+            if (totalShift > 0)
             {
-                Unsafe.Add(ref blockRef, i) = (short)((Unsafe.Add(ref blockRef, i) + delta) >> totalShift);
+                int delta = 1 << (totalShift - 1);
+                for (int i = 0; i < 64; i++)
+                {
+                    Unsafe.Add(ref blockRef, i) = (short)((Unsafe.Add(ref blockRef, i) + delta) >> totalShift);
+                }
             }
         }
 

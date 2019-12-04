@@ -5,6 +5,7 @@ namespace TiffLibrary.ImageSharpAdapter
     internal interface ITiffEncoderOptions
     {
         TiffPhotometricInterpretation PhotometricInterpretation { get; }
+
         TiffCompression Compression { get; }
 
         bool IsTiled { get; }
@@ -13,7 +14,7 @@ namespace TiffLibrary.ImageSharpAdapter
 
         Size TileSize { get; }
 
-        TiffPredictor ApplyPredictor { get; }
+        TiffPredictor Predictor { get; }
 
         bool EnableTransparencyForRgb { get; }
 

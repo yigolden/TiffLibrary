@@ -44,7 +44,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the predictor to use on the image.
         /// </summary>
-        public TiffPredictor ApplyPredictor { get; set; }
+        public TiffPredictor Predictor { get; set; }
 
         /// <summary>
         /// Gets or sets whether to write alpha channel when write RGB image. Only used when <see cref="PhotometricInterpretation"/> is set to <see cref="TiffPhotometricInterpretation.RGB"/>.
@@ -80,7 +80,7 @@ namespace TiffLibrary
         {
             var pipelineBuilder = new TiffImageEncoderPipelineBuilder<TPixel>();
 
-            bool useHorizontalDifferencingPredictor = ApplyPredictor == TiffPredictor.HorizontalDifferencing;
+            bool useHorizontalDifferencingPredictor = Predictor == TiffPredictor.HorizontalDifferencing;
             switch (PhotometricInterpretation)
             {
                 case TiffPhotometricInterpretation.WhiteIsZero:

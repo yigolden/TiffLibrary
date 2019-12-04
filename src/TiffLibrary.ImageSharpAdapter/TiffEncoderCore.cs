@@ -56,7 +56,7 @@ namespace TiffLibrary.ImageSharpAdapter
             builder.IsTiled = options.IsTiled;
             builder.RowsPerStrip = options.RowsPerStrip;
             builder.TileSize = new TiffSize(options.TileSize.Width, options.TileSize.Height);
-            builder.ApplyPredictor = options.ApplyPredictor;
+            builder.Predictor = options.Predictor;
             builder.EnableTransparencyForRgb = options.EnableTransparencyForRgb;
             builder.Orientation = options.Orientation;
             builder.JpegQuality = options.JpegQuality;

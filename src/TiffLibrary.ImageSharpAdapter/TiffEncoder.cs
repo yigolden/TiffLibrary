@@ -19,7 +19,7 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public Size TileSize { get; set; } = new Size(512, 512);
 
-        public TiffPredictor ApplyPredictor { get; set; }
+        public TiffPredictor Predictor { get; set; }
 
         public bool EnableTransparencyForRgb { get; set; } = true;
 

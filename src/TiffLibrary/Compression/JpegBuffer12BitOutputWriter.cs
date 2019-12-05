@@ -28,14 +28,6 @@ namespace TiffLibrary.Compression
             _output = output;
         }
 
-        public void Reset()
-        {
-            _width = default;
-            _height = default;
-            _componentCount = default;
-            _output = default;
-        }
-
         public override void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y)
         {
             int componentCount = _componentCount;

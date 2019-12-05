@@ -30,28 +30,6 @@ namespace TiffLibrary.Compression
             _output = output;
         }
 
-        public void Update(int width, int skippedScanlines, int height, int componentsCount, Memory<byte> output)
-        {
-            if (output.Length < (width * height * componentsCount))
-            {
-                throw new ArgumentException("Destination buffer is too small.");
-            }
-
-            _width = width;
-            _skippedScanlines = skippedScanlines / 8 * 8; // Align to block
-            _height = height;
-            _componentCount = componentsCount;
-            _output = output;
-        }
-
-        public void Reset()
-        {
-            _width = default;
-            _height = default;
-            _componentCount = default;
-            _output = default;
-        }
-
         public override void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y)
         {
             int componentCount = _componentCount;

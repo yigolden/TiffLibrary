@@ -58,7 +58,7 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="obj">The specified objects</param>
         /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is TiffStreamRegion other)
             {

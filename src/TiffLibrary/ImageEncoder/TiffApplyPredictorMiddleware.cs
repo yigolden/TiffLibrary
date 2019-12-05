@@ -34,7 +34,6 @@ namespace TiffLibrary.ImageEncoder
             {
                 throw new ArgumentNullException(nameof(context));
             }
-
             if (next is null)
             {
                 throw new ArgumentNullException(nameof(next));
@@ -73,7 +72,7 @@ namespace TiffLibrary.ImageEncoder
 
             await next.RunAsync(context).ConfigureAwait(false);
 
-            TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+            TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
                 await ifdWriter.WriteTagAsync(TiffTag.Predictor, TiffValueCollection.Single((ushort)_predictor)).ConfigureAwait(false);

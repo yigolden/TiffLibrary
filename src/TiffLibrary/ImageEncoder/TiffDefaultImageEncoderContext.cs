@@ -15,7 +15,7 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
-        public override MemoryPool<byte> MemoryPool { get; set; }
+        public override MemoryPool<byte>? MemoryPool { get; set; }
 
         /// <summary>
         /// The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.
@@ -25,12 +25,12 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// The <see cref="TiffFileWriter"/> to write image data as well as fields data to.
         /// </summary>
-        public override TiffFileWriter FileWriter { get; set; }
+        public override TiffFileWriter? FileWriter { get; set; }
 
         /// <summary>
         /// The <see cref="TiffImageFileDirectoryWriter"/> to write image file directory fields to.
         /// </summary>
-        public override TiffImageFileDirectoryWriter IfdWriter { get; set; }
+        public override TiffImageFileDirectoryWriter? IfdWriter { get; set; }
 
         /// <summary>
         /// The photometric interpretation of the current image.
@@ -70,7 +70,7 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// A <see cref="ITiffPixelConverterFactory"/> implementation to create converters for <see cref="ITiffPixelBufferWriter{TPixel}"/>.
         /// </summary>
-        public ITiffPixelConverterFactory PixelConverterFactory { get; set; }
+        public ITiffPixelConverterFactory? PixelConverterFactory { get; set; }
 
         /// <summary>
         /// Gets the reader to read pixels from.
@@ -89,8 +89,14 @@ namespace TiffLibrary.ImageEncoder
         /// <returns>The converted writer.</returns>
         public override TiffPixelBufferWriter<TPixel> ConvertWriter<TBuffer>(TiffPixelBufferWriter<TBuffer> writer)
         {
+            ITiffPixelConverterFactory? pixelConverterFactory = PixelConverterFactory;
+            if (pixelConverterFactory is null)
+            {
+                throw new InvalidOperationException("Failed to acquire PixelConverterFactory");
+            }
+
             ITiffPixelBufferWriter<TBuffer> innerWriter = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint offset, out TiffSize size);
-            ITiffPixelBufferWriter<TPixel> converted = PixelConverterFactory.CreateConverter<TPixel, TBuffer>(innerWriter);
+            ITiffPixelBufferWriter<TPixel> converted = pixelConverterFactory.CreateConverter<TPixel, TBuffer>(innerWriter);
             return converted.Crop(offset, size);
         }
     }

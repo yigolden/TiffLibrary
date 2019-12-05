@@ -80,11 +80,16 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // allocate the raw data buffer and the uncompressed data buffer
-            using IMemoryOwner<byte> bufferMemory = context.MemoryPool.Rent(uncompressedDataLength);
+            MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
+            using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength);
             int planarUncompressedByteCount = 0;
-            TiffFileContentReader reader = context.ContentReader;
+            TiffFileContentReader? reader = context.ContentReader;
+            if (reader is null)
+            {
+                throw new InvalidOperationException("Failed to acquire ContentReader.");
+            }
 
-            using (IMemoryOwner<byte> rawBuffer = context.MemoryPool.Rent(readCount))
+            using (IMemoryOwner<byte> rawBuffer = memoryPool.Rent(readCount))
             {
                 // decompress each plane
                 for (int i = 0; i < planeCount; i++)

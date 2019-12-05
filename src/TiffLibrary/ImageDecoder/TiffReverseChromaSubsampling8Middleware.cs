@@ -82,7 +82,7 @@ namespace TiffLibrary.ImageDecoder
             }
             else
             {
-                using IMemoryOwner<byte> bufferMemory = context.MemoryPool.Rent(decompressedData.Length);
+                using IMemoryOwner<byte> bufferMemory = (context.MemoryPool ?? MemoryPool<byte>.Shared).Rent(decompressedData.Length);
 
                 decompressedData.CopyTo(bufferMemory.Memory);
                 ProcessChunkyData(context.SourceImageSize, bufferMemory.Memory.Span.Slice(0, decompressedData.Length), decompressedData.Span);

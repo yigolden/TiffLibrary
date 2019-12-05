@@ -9,11 +9,11 @@ namespace TiffLibrary
 {
     internal sealed class TiffFileStreamContentSource : TiffFileContentSource
     {
-        private string _fileName;
+        private string? _fileName;
         private readonly bool _preferAsync;
 
         private object _lock;
-        private FileStream _fileStream;
+        private FileStream? _fileStream;
 
         public TiffFileStreamContentSource(string fileName, bool preferAsync)
         {
@@ -27,12 +27,12 @@ namespace TiffLibrary
         {
             lock (_lock)
             {
-                string fileName = _fileName;
+                string? fileName = _fileName;
                 if (fileName is null)
                 {
                     throw new ObjectDisposedException(nameof(TiffFileStreamContentSource));
                 }
-                FileStream fs = _fileStream;
+                FileStream? fs = _fileStream;
                 if (!(fs is null) && fs.IsAsync == useAsync)
                 {
                     _fileStream = null;
@@ -104,7 +104,7 @@ namespace TiffLibrary
 
         protected override void Dispose(bool disposing)
         {
-            Stream fs = null;
+            Stream? fs = null;
             lock (_lock)
             {
                 if (disposing)
@@ -120,7 +120,7 @@ namespace TiffLibrary
 
         public override ValueTask DisposeAsync()
         {
-            Stream fs = null;
+            Stream? fs = null;
             lock (_lock)
             {
                 fs = _fileStream;
@@ -139,7 +139,7 @@ namespace TiffLibrary
         internal sealed class ContentReader : TiffFileContentReader
         {
             private readonly TiffFileStreamContentSource _parent;
-            private FileStream _stream;
+            private FileStream? _stream;
             private int _streamInUse;
 
             public ContentReader(TiffFileStreamContentSource parent, FileStream stream)
@@ -151,7 +151,7 @@ namespace TiffLibrary
 
             public override ValueTask DisposeAsync()
             {
-                FileStream fs = Interlocked.Exchange(ref _stream, null);
+                FileStream? fs = Interlocked.Exchange(ref _stream, null);
                 if (!(fs is null))
                 {
                     return _parent.ReturnStreamAsync(fs);
@@ -163,7 +163,7 @@ namespace TiffLibrary
             {
                 if (disposing)
                 {
-                    FileStream fs = Interlocked.Exchange(ref _stream, null);
+                    FileStream? fs = Interlocked.Exchange(ref _stream, null);
                     if (!(fs is null))
                     {
 
@@ -174,7 +174,7 @@ namespace TiffLibrary
 
             public override int Read(long offset, ArraySegment<byte> buffer)
             {
-                Stream stream = _stream;
+                Stream? stream = _stream;
                 if (stream is null)
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
@@ -182,6 +182,10 @@ namespace TiffLibrary
                 if (offset > stream.Length)
                 {
                     return default;
+                }
+                if (buffer.Array is null)
+                {
+                    return 0;
                 }
                 if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
                 {
@@ -200,7 +204,7 @@ namespace TiffLibrary
 
             public override int Read(long offset, Memory<byte> buffer)
             {
-                Stream stream = _stream;
+                Stream? stream = _stream;
                 if (stream is null)
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
@@ -220,6 +224,11 @@ namespace TiffLibrary
 
                     if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
                     {
+                        if (arraySegment.Array is null)
+                        {
+                            return 0;
+                        }
+
                         return stream.Read(arraySegment.Array, arraySegment.Offset, arraySegment.Count);
                     }
 
@@ -248,7 +257,7 @@ namespace TiffLibrary
 
             public override async ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
             {
-                Stream stream = _stream;
+                Stream? stream = _stream;
                 if (stream is null)
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
@@ -257,6 +266,11 @@ namespace TiffLibrary
                 {
                     return default;
                 }
+                if (buffer.Array is null)
+                {
+                    return 0;
+                }
+
                 if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
                 {
                     throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
@@ -274,7 +288,7 @@ namespace TiffLibrary
 
             public override async ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken)
             {
-                Stream stream = _stream;
+                Stream? stream = _stream;
                 if (stream is null)
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
@@ -298,6 +312,11 @@ namespace TiffLibrary
                     stream.Seek(offset, SeekOrigin.Begin);
                     if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
                     {
+                        if (arraySegment.Array is null)
+                        {
+                            return 0;
+                        }
+
                         return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count, cancellationToken).ConfigureAwait(false);
                     }
 

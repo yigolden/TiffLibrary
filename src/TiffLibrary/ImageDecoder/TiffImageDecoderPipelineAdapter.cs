@@ -79,6 +79,11 @@ namespace TiffLibrary.ImageDecoder
                 return;
             }
 
+            if (_parameters.ContentSource is null)
+            {
+                throw new InvalidOperationException("Failed to acquire ContentSource.");
+            }
+
             using TiffFileContentReader reader = TiffSyncFileContentSource.WrapReader(_parameters.ContentSource.OpenReader());
             var context = new TiffDefaultImageDecoderContext<TPixel>()
             {
@@ -117,6 +122,11 @@ namespace TiffLibrary.ImageDecoder
             if (readSize.IsAreaEmpty)
             {
                 return;
+            }
+
+            if (_parameters.ContentSource is null)
+            {
+                throw new InvalidOperationException("Failed to acquire ContentSource.");
             }
 
             TiffFileContentReader reader = await _parameters.ContentSource.OpenReaderAsync().ConfigureAwait(false);

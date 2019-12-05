@@ -14,7 +14,7 @@ namespace TiffLibrary
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
-        public MemoryPool<byte> MemoryPool { get; set; }
+        public MemoryPool<byte>? MemoryPool { get; set; }
 
         /// <summary>
         /// Gets or sets the photometric interpretation to use for the input image.

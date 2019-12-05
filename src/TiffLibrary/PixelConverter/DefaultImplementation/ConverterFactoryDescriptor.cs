@@ -4,8 +4,15 @@ namespace TiffLibrary.PixelConverter
 {
     internal class ConverterFactoryDescriptor
     {
-        public Type SourceType { get; set; }
-        public Type DestinationType { get; set; }
-        public ITiffPixelConverterFactory ConverterFactory { get; set; }
+        public ConverterFactoryDescriptor(Type sourceType, Type destinationType, ITiffPixelConverterFactory converterFactory)
+        {
+            SourceType = sourceType;
+            DestinationType = destinationType;
+            ConverterFactory = converterFactory;
+        }
+
+        public Type SourceType { get; }
+        public Type DestinationType { get; }
+        public ITiffPixelConverterFactory ConverterFactory { get; }
     }
 }

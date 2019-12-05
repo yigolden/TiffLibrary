@@ -69,8 +69,6 @@ namespace TiffLibrary.ImageEncoder
 
         private async ValueTask ProcessAndContinueAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
-            Memory<byte> pixelData = context.UncompressedData;
-
             int width = context.ImageSize.Width;
             int height = context.ImageSize.Height;
 
@@ -78,7 +76,7 @@ namespace TiffLibrary.ImageEncoder
             int blockRows = (height + _verticalSubsampling - 1) / _verticalSubsampling;
             int subsampledDataLength = width * height + blockCols * blockRows * 2;
 
-            using IMemoryOwner<byte> subsampledDataHandle = context.MemoryPool.Rent(subsampledDataLength);
+            using IMemoryOwner<byte> subsampledDataHandle = (context.MemoryPool ?? MemoryPool<byte>.Shared).Rent(subsampledDataLength);
             Memory<byte> subsampledData = subsampledDataHandle.Memory.Slice(0, subsampledDataLength);
             ProcessChunkyData(context.ImageSize, context.UncompressedData.Span, subsampledData.Span);
             context.UncompressedData = subsampledData;
@@ -168,7 +166,7 @@ namespace TiffLibrary.ImageEncoder
 
             public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
-                TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+                TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
                 if (ifdWriter is null)
                 {
                     return next.RunAsync(context);
@@ -183,9 +181,10 @@ namespace TiffLibrary.ImageEncoder
             {
                 await next.RunAsync(context).ConfigureAwait(false);
 
-                TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(_subsampling)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.YCbCrPositioning, TiffValueCollection.Single((ushort)TiffYCbCrPositioning.Centered));
+                TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
+                Debug.Assert(ifdWriter != null);
+                await ifdWriter!.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(_subsampling)).ConfigureAwait(false);
+                await ifdWriter!.WriteTagAsync(TiffTag.YCbCrPositioning, TiffValueCollection.Single((ushort)TiffYCbCrPositioning.Centered));
             }
         }
     }

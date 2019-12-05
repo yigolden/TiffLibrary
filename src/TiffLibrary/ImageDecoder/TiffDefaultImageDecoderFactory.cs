@@ -12,7 +12,7 @@ namespace TiffLibrary.ImageDecoder
     internal static class TiffDefaultImageDecoderFactory
     {
 
-        public static Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken)
+        public static Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions? options, CancellationToken cancellationToken)
         {
             if (!ifd.Contains(TiffTag.PhotometricInterpretation))
             {

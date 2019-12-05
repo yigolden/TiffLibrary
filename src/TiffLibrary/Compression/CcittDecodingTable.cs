@@ -36,8 +36,8 @@ namespace TiffLibrary.Compression
 
     internal class CcittDecodingTable
     {
-        private static CcittDecodingTable s_whiteInstance;
-        private static CcittDecodingTable s_blackInstance;
+        private static CcittDecodingTable? s_whiteInstance;
+        private static CcittDecodingTable? s_blackInstance;
 
         public static CcittDecodingTable WhiteInstance => (s_whiteInstance is null) ? s_whiteInstance = new CcittDecodingTable(isWhite: true) : s_whiteInstance;
         public static CcittDecodingTable BlackInstance => (s_blackInstance is null) ? s_blackInstance = new CcittDecodingTable(isWhite: false) : s_blackInstance;

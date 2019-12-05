@@ -149,7 +149,7 @@ namespace TiffLibrary.PixelConverter
             {
                 throw new InvalidOperationException();
             }
-            _factories.Add(new ConverterFactoryDescriptor { SourceType = typeof(TSource), DestinationType = typeof(TDestination), ConverterFactory = factory });
+            _factories.Add(new ConverterFactoryDescriptor(typeof(TSource), typeof(TDestination), factory));
         }
     }
 }

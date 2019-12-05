@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 using System.Diagnostics;
 
@@ -8,9 +10,9 @@ namespace TiffLibrary
     {
         private sealed class BufferSegment : ReadOnlySequenceSegment<byte>
         {
-            private IMemoryOwner<byte> _memoryOwner;
+            private IMemoryOwner<byte>? _memoryOwner;
             private Memory<byte> _memory;
-            private BufferSegment _next;
+            private BufferSegment? _next;
             private int _consumed;
 
             public int Length => _consumed;
@@ -21,7 +23,7 @@ namespace TiffLibrary
 
             public Span<byte> AvailableSpan => _memory.Span.Slice(_consumed);
 
-            public BufferSegment NextSegment => _next;
+            public BufferSegment? NextSegment => _next;
 
             public BufferSegment(long runningIndex, IMemoryOwner<byte> memoryOwner)
             {
@@ -53,11 +55,11 @@ namespace TiffLibrary
                 _memory.Span.Slice(0, _consumed).CopyTo(destination);
             }
 
-            public BufferSegment ReturnMemory()
+            public BufferSegment? ReturnMemory()
             {
-                BufferSegment next = _next;
+                BufferSegment? next = _next;
 
-                _memoryOwner.Dispose();
+                _memoryOwner?.Dispose();
                 _memoryOwner = null;
                 _memory = default;
                 _next = null;
@@ -70,20 +72,20 @@ namespace TiffLibrary
         }
 
         private MemoryPool<byte> _memoryPool;
-        private BufferSegment _head;
-        private BufferSegment _current;
+        private BufferSegment? _head;
+        private BufferSegment? _current;
         private int _length;
 
         public int Length => _length;
 
-        public MemoryPoolBufferWriter(MemoryPool<byte> memoryPool = null)
+        public MemoryPoolBufferWriter(MemoryPool<byte>? memoryPool = null)
         {
             _memoryPool = memoryPool ?? MemoryPool<byte>.Shared;
         }
 
         private BufferSegment GetBufferSegment(int sizeHint)
         {
-            BufferSegment current = _current;
+            BufferSegment? current = _current;
             if (current is null)
             {
                 _head = _current = current = new BufferSegment(0, _memoryPool.Rent(Math.Max(sizeHint, 16384)));
@@ -93,8 +95,9 @@ namespace TiffLibrary
                 return current;
             }
 
+            Debug.Assert(_current != null);
             current = new BufferSegment(_length, _memoryPool.Rent(Math.Max(sizeHint, 16384)));
-            _current.SetNext(current);
+            _current!.SetNext(current);
             _current = current;
 
             return current;
@@ -112,7 +115,7 @@ namespace TiffLibrary
 
         public void Advance(int count)
         {
-            BufferSegment current = _current;
+            BufferSegment? current = _current;
             if (current is null)
             {
                 throw new InvalidOperationException();
@@ -129,7 +132,7 @@ namespace TiffLibrary
         public byte[] ToArray()
         {
             int totalLength = 0;
-            BufferSegment segment = _head;
+            BufferSegment? segment = _head;
             while (segment != null)
             {
                 totalLength += segment.Length;
@@ -151,7 +154,7 @@ namespace TiffLibrary
 
         public void CopyTo(Span<byte> destination)
         {
-            BufferSegment segment = _head;
+            BufferSegment? segment = _head;
             while (segment != null)
             {
                 segment.CopyTo(destination);
@@ -162,7 +165,7 @@ namespace TiffLibrary
 
         public ReadOnlySequence<byte> GetReadOnlySequence()
         {
-            if (_current is null)
+            if (_head is null || _current is null)
             {
                 return ReadOnlySequence<byte>.Empty;
             }
@@ -172,7 +175,7 @@ namespace TiffLibrary
 
         public void Dispose()
         {
-            BufferSegment segment = _head;
+            BufferSegment? segment = _head;
             while (segment != null)
             {
                 segment = segment.ReturnMemory();

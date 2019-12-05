@@ -5,7 +5,7 @@ namespace TiffLibrary.ImageDecoder
     internal sealed class TiffImageDecoderPipelineNode : ITiffImageDecoderPipelineNode
     {
         public ITiffImageDecoderMiddleware Middleware { get; set; }
-        public ITiffImageDecoderPipelineNode Next { get; set; }
+        public ITiffImageDecoderPipelineNode? Next { get; set; }
 
         public TiffImageDecoderPipelineNode(ITiffImageDecoderMiddleware middleware)
         {
@@ -15,7 +15,7 @@ namespace TiffLibrary.ImageDecoder
         public ValueTask RunAsync(TiffImageDecoderContext context)
         {
             ITiffImageDecoderMiddleware middleware = Middleware;
-            ITiffImageDecoderPipelineNode next = Next;
+            ITiffImageDecoderPipelineNode? next = Next;
 
             context.CancellationToken.ThrowIfCancellationRequested();
 

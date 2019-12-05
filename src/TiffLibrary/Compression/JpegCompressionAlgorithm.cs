@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JpegLibrary;
@@ -21,8 +22,8 @@ namespace TiffLibrary.Compression
         private readonly int _quality;
         private readonly bool _useSharedJpegTables;
 
-        private TiffJpegEncoder _encoder;
-        private JpegBufferInputReader _inputReader;
+        private TiffJpegEncoder? _encoder;
+        private JpegBufferInputReader? _inputReader;
 
         /// <summary>
         /// Initialize the object.
@@ -161,6 +162,11 @@ namespace TiffLibrary.Compression
                 throw new ArgumentNullException(nameof(outputWriter));
             }
 
+            if (_encoder is null)
+            {
+                throw new InvalidOperationException("JPEG encoder is not initialized.");
+            }
+
             if (context.PhotometricInterpretation != _photometricInterpretation)
             {
                 throw new InvalidOperationException();
@@ -203,6 +209,11 @@ namespace TiffLibrary.Compression
         /// <returns>The middleware to write JPEGTables field</returns>
         public ITiffImageEncoderMiddleware<TPixel> GetTableWriter<TPixel>() where TPixel : unmanaged
         {
+            if (_encoder is null)
+            {
+                throw new InvalidOperationException("JPEG encoder is not initialized.");
+            }
+
             return new JpegTableWriter<TPixel>(_encoder, _useSharedJpegTables);
         }
 
@@ -210,7 +221,7 @@ namespace TiffLibrary.Compression
         {
             private readonly TiffJpegEncoder _encoder;
             private readonly bool _isEnabled;
-            private byte[] _jpegTables;
+            private byte[]? _jpegTables;
 
             public JpegTableWriter(TiffJpegEncoder encoder, bool isEnabled)
             {
@@ -220,7 +231,7 @@ namespace TiffLibrary.Compression
 
             public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
-                TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+                TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
                 if (_isEnabled && !(ifdWriter is null))
                 {
                     if (_jpegTables is null)
@@ -235,8 +246,12 @@ namespace TiffLibrary.Compression
 
             private async Task WriteTablesAndContinueAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
-                TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
-                await ifdWriter.WriteTagAsync(TiffTag.JPEGTables, TiffFieldType.Undefined, TiffValueCollection.UnsafeWrap(_jpegTables)).ConfigureAwait(false);
+                TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
+                byte[]? jpegTables = _jpegTables;
+
+                Debug.Assert(ifdWriter != null);
+                Debug.Assert(jpegTables != null);
+                await ifdWriter!.WriteTagAsync(TiffTag.JPEGTables, TiffFieldType.Undefined, TiffValueCollection.UnsafeWrap(jpegTables!)).ConfigureAwait(false);
 
                 await next.RunAsync(context).ConfigureAwait(false);
             }

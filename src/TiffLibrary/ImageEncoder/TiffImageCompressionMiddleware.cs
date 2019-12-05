@@ -36,10 +36,13 @@ namespace TiffLibrary.ImageEncoder
             {
                 throw new ArgumentNullException(nameof(context));
             }
-
             if (next is null)
             {
                 throw new ArgumentNullException(nameof(next));
+            }
+            if (context.FileWriter is null)
+            {
+                throw new InvalidOperationException("Failed to acquire FileWriter");
             }
 
             TiffValueCollection<ushort> bitsPerSample = context.BitsPerSample;
@@ -64,14 +67,14 @@ namespace TiffLibrary.ImageEncoder
             {
                 _compressionAlgorithm.Compress(compressionContext, context.UncompressedData, bufferWriter);
                 int length = bufferWriter.Length;
-                TiffStreamOffset offset = await context.FileWriter.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
+                TiffStreamOffset offset = await context.FileWriter!.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
 
                 context.BitsPerSample = compressionContext.BitsPerSample;
                 context.Compression = _compression;
                 context.OutputRegion = new TiffStreamRegion(offset, length);
             }
 
-            TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+            TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
                 await ifdWriter.WriteTagAsync(TiffTag.Compression, TiffValueCollection.Single((ushort)_compression)).ConfigureAwait(false);

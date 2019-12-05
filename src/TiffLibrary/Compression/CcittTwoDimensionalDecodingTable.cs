@@ -41,7 +41,7 @@ namespace TiffLibrary.Compression
 
     internal class CcittTwoDimensionalDecodingTable
     {
-        private static CcittTwoDimensionalDecodingTable s_instance;
+        private static CcittTwoDimensionalDecodingTable? s_instance;
         public static CcittTwoDimensionalDecodingTable Instance => (s_instance is null) ? s_instance = new CcittTwoDimensionalDecodingTable() : s_instance;
 
         public const int PeekCount = 12;

@@ -14,8 +14,8 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
         private readonly int _width;
         private readonly int _height;
 
-        private RowSpanHandle _cachedRowHandle;
-        private ColumnSpanHandle _cachedColHandle;
+        private RowSpanHandle? _cachedRowHandle;
+        private ColumnSpanHandle? _cachedColHandle;
 
         public TiffMemoryPixelBufferWriter(MemoryPool<byte> memoryPool, Memory<byte> memory, int width, int height)
         {
@@ -46,7 +46,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            RowSpanHandle handle = Interlocked.Exchange(ref _cachedRowHandle, null);
+            RowSpanHandle? handle = Interlocked.Exchange(ref _cachedRowHandle, null);
             if (handle is null)
             {
                 handle = new RowSpanHandle();
@@ -72,7 +72,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            ColumnSpanHandle handle = Interlocked.Exchange(ref _cachedColHandle, null);
+            ColumnSpanHandle? handle = Interlocked.Exchange(ref _cachedColHandle, null);
             if (handle is null)
             {
                 handle = new ColumnSpanHandle();
@@ -113,7 +113,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
         private class RowSpanHandle : TiffPixelSpanHandle<TPixel>
         {
-            private TiffMemoryPixelBufferWriter<TPixel> _parent;
+            private TiffMemoryPixelBufferWriter<TPixel>? _parent;
             private Memory<TPixel> _memory;
 
             internal void SetHandle(TiffMemoryPixelBufferWriter<TPixel> parent, Memory<TPixel> memory)
@@ -150,10 +150,10 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
         private class ColumnSpanHandle : TiffPixelSpanHandle<TPixel>
         {
-            private TiffMemoryPixelBufferWriter<TPixel> _parent;
+            private TiffMemoryPixelBufferWriter<TPixel>? _parent;
 
-            private MemoryPool<byte> _memoryPool;
-            private IMemoryOwner<byte> _bufferHandle;
+            private MemoryPool<byte>? _memoryPool;
+            private IMemoryOwner<byte>? _bufferHandle;
             private Memory<byte> _buffer;
             private int _colIndex;
             private int _start;
@@ -172,16 +172,17 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
             internal void EnsureBufferSize(int size)
             {
+                MemoryPool<byte> memoryPool = _memoryPool ?? MemoryPool<byte>.Shared;
                 if (_bufferHandle is null)
                 {
-                    _bufferHandle = _memoryPool.Rent(size);
+                    _bufferHandle = memoryPool.Rent(size);
                     _buffer = _bufferHandle.Memory;
                     return;
                 }
                 if (_buffer.Length < size)
                 {
                     _bufferHandle.Dispose();
-                    _bufferHandle = _memoryPool.Rent(size);
+                    _bufferHandle = memoryPool.Rent(size);
                     _buffer = _bufferHandle.Memory;
                 }
             }

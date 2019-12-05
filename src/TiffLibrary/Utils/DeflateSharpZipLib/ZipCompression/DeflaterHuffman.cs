@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace ICSharpCode.SharpZipLib.Zip.Compression
@@ -67,13 +68,13 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
             public short[] freqs;
 
-            public byte[] length;
+            public byte[]? length;
 
             public int minNumCodes;
 
             public int numCodes;
 
-            private short[] codes;
+            private short[]? codes;
             private readonly int[] bl_counts;
             private readonly int maxLength;
             private DeflaterHuffman dh;
@@ -108,11 +109,14 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
             public void WriteSymbol(int code)
             {
+                Debug.Assert(codes != null);
+                Debug.Assert(length != null);
+
                 //                if (DeflaterConstants.DEBUGGING) {
                 //                    freqs[code]--;
                 //                    //        Console.Write("writeSymbol("+freqs.length+","+code+"): ");
                 //                }
-                dh.pending.WriteBits(codes[code] & 0xffff, length[code]);
+                dh.pending.WriteBits(codes![code] & 0xffff, length![code]);
             }
 
             /// <summary>
@@ -178,9 +182,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     throw new InvalidDataException("Inconsistent bl_counts!");
                 }
 #endif
+                Debug.Assert(length != null);
                 for (int i = 0; i < numCodes; i++)
                 {
-                    int bits = length[i];
+                    int bits = length![i];
                     if (bits > 0)
                     {
                         //                        if (DeflaterConstants.DEBUGGING) {
@@ -335,10 +340,12 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             /// <returns>Encoded length, the sum of frequencies * lengths</returns>
             public int GetEncodedLength()
             {
+                Debug.Assert(length != null);
+
                 int len = 0;
                 for (int i = 0; i < freqs.Length; i++)
                 {
-                    len += freqs[i] * length[i];
+                    len += freqs[i] * length![i];
                 }
                 return len;
             }
@@ -354,11 +361,12 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                 int count;                   /* repeat count of the current code */
                 int curlen = -1;             /* length of current code */
 
+                Debug.Assert(length != null);
                 int i = 0;
                 while (i < numCodes)
                 {
                     count = 1;
-                    int nextlen = length[i];
+                    int nextlen = length![i];
                     if (nextlen == 0)
                     {
                         max_count = 138;
@@ -416,11 +424,12 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                 int count;                   // repeat count of the current code
                 int curlen = -1;             // length of current code
 
+                Debug.Assert(length != null);
                 int i = 0;
                 while (i < numCodes)
                 {
                     count = 1;
-                    int nextlen = length[i];
+                    int nextlen = length![i];
                     if (nextlen == 0)
                     {
                         max_count = 138;
@@ -684,9 +693,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             pending.WriteBits(literalTree.numCodes - 257, 5);
             pending.WriteBits(distTree.numCodes - 1, 5);
             pending.WriteBits(blTreeCodes - 4, 4);
+            Debug.Assert(blTree.length != null);
             for (int rank = 0; rank < blTreeCodes; rank++)
             {
-                pending.WriteBits(blTree.length[BL_ORDER[rank]], 3);
+                pending.WriteBits(blTree.length![BL_ORDER[rank]], 3);
             }
             literalTree.WriteTree(blTree);
             distTree.WriteTree(blTree);
@@ -803,10 +813,11 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             // Build bitlen tree
             blTree.BuildTree();
 
+            Debug.Assert(blTree.length != null);
             int blTreeCodes = 4;
             for (int i = 18; i > blTreeCodes; i--)
             {
-                if (blTree.length[BL_ORDER[i]] > 0)
+                if (blTree.length![BL_ORDER[i]] > 0)
                 {
                     blTreeCodes = i + 1;
                 }

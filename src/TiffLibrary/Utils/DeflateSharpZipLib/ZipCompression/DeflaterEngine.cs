@@ -972,7 +972,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// <summary>
         /// The adler checksum
         /// </summary>
-        private Adler32 adler;
+        private Adler32? adler;
 
         #endregion Instance Fields
     }

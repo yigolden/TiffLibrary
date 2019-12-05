@@ -15,6 +15,7 @@
     <!-- CA2119: Seal methods that satisfy private interfaces (This should be removed when we drop net46/net472/netstandard1.3 support) -->
     <!-- CA2213: Disposable fields should be disposed -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">

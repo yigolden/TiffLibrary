@@ -40,7 +40,6 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(context));
             }
-
             if (next is null)
             {
                 throw new ArgumentNullException(nameof(next));
@@ -71,7 +70,11 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffBgra64> writer = context.GetWriter<TiffBgra64>();
 
-            TiffOperationContext operationContext = context.OperationContext;
+            TiffOperationContext? operationContext = context.OperationContext;
+            if (operationContext is null)
+            {
+                throw new InvalidOperationException("Failed to acquire OperationContext.");
+            }
 
             int rows = context.ReadSize.Height;
             for (int row = 0; row < rows; row++)
@@ -134,7 +137,11 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffBgra64> writer = context.GetWriter<TiffBgra64>();
 
-            TiffOperationContext operationContext = context.OperationContext;
+            TiffOperationContext? operationContext = context.OperationContext;
+            if (operationContext is null)
+            {
+                throw new InvalidOperationException("Failed to acquire OperationContext.");
+            }
 
             int rows = context.ReadSize.Height;
             for (int row = 0; row < rows; row++)
@@ -156,7 +163,11 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffBgra64> writer = context.GetWriter<TiffBgra64>();
 
-            TiffOperationContext operationContext = context.OperationContext;
+            TiffOperationContext? operationContext = context.OperationContext;
+            if (operationContext is null)
+            {
+                throw new InvalidOperationException("Failed to acquire OperationContext.");
+            }
 
             int rows = context.ReadSize.Height;
             for (int row = 0; row < rows; row++)

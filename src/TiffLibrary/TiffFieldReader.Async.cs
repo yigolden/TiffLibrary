@@ -25,6 +25,10 @@ namespace TiffLibrary
         private ValueTask ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Memory<byte> destination, int sizePerElement = 0)
         {
             long length;
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
 
             if (sizePerElement <= 0)
             {
@@ -97,6 +101,10 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
             if (!skipTypeValidation && !entry.IsKnownSingleByte())
             {
                 throw new InvalidOperationException();
@@ -174,6 +182,10 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
             if (!skipTypeValidation && !entry.IsKnownSingleByte())
             {
                 throw new InvalidOperationException();
@@ -236,6 +248,10 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<string>> ReadASCIIFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
             if (!skipTypeValidation && entry.Type != TiffFieldType.ASCII)
             {
                 throw new InvalidOperationException();
@@ -290,6 +306,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
 
@@ -334,7 +355,7 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadShortFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<short, TDest> convertFunc = null) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadShortFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<short, TDest>? convertFunc = null) where TDest : struct
         {
             _cancellationToken.ThrowIfCancellationRequested();
 
@@ -373,6 +394,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
 
@@ -432,6 +458,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
@@ -495,7 +526,7 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadLongFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<int, TDest> convertFunc = null) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadLongFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<int, TDest>? convertFunc = null) where TDest : struct
         {
             _cancellationToken.ThrowIfCancellationRequested();
 
@@ -534,6 +565,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
@@ -649,6 +685,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.IFD8)
@@ -732,7 +773,7 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadLong8FieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<long, TDest> convertFunc = null) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadLong8FieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<long, TDest>? convertFunc = null) where TDest : struct
         {
             _cancellationToken.ThrowIfCancellationRequested();
 
@@ -771,6 +812,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.IFD8)
@@ -869,6 +915,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<float>> ReadFloatFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             if (!skipTypeValidation && entry.Type != TiffFieldType.Float)
             {
                 throw new InvalidOperationException();
@@ -897,7 +948,7 @@ namespace TiffLibrary
             return new ValueTask<TiffValueCollection<float>>(SlowReadFloatFieldAsync<float>(reader, entry));
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadFloatFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<float, TDest> convertFunc = null) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadFloatFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<float, TDest>? convertFunc = null) where TDest : struct
         {
             _cancellationToken.ThrowIfCancellationRequested();
 
@@ -936,6 +987,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<double>> ReadDoubleFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             if (!skipTypeValidation && entry.Type != TiffFieldType.Double)
             {
                 throw new InvalidOperationException();
@@ -964,7 +1020,7 @@ namespace TiffLibrary
             return new ValueTask<TiffValueCollection<double>>(SlowReadDoubleFieldAsync<double>(reader, entry));
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadDoubleFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<double, TDest> convertFunc = null) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadDoubleFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<double, TDest>? convertFunc = null) where TDest : struct
         {
             _cancellationToken.ThrowIfCancellationRequested();
 
@@ -1003,6 +1059,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             if (!skipTypeValidation && entry.Type != TiffFieldType.Rational)
             {
                 throw new InvalidOperationException();
@@ -1028,7 +1089,7 @@ namespace TiffLibrary
             return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadRationalFieldAsync<TiffRational>(reader, entry));
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<TiffRational, TDest> convertFunc = null) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<TiffRational, TDest>? convertFunc = null) where TDest : struct
         {
             _cancellationToken.ThrowIfCancellationRequested();
 
@@ -1067,6 +1128,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             if (!skipTypeValidation && entry.Type != TiffFieldType.SRational)
             {
                 throw new InvalidOperationException();
@@ -1107,6 +1173,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
@@ -1150,6 +1221,11 @@ namespace TiffLibrary
 
         private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
         {
+            if (_context is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFieldReader));
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.IFD8)

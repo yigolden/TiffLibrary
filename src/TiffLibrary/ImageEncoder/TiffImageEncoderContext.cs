@@ -13,7 +13,7 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
-        public abstract MemoryPool<byte> MemoryPool { get; set; }
+        public abstract MemoryPool<byte>? MemoryPool { get; set; }
 
         /// <summary>
         /// The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.
@@ -23,12 +23,12 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// The <see cref="TiffFileWriter"/> to write image data as well as fields data to.
         /// </summary>
-        public abstract TiffFileWriter FileWriter { get; set; }
+        public abstract TiffFileWriter? FileWriter { get; set; }
 
         /// <summary>
         /// The <see cref="TiffImageFileDirectoryWriter"/> to write image file directory fields to.
         /// </summary>
-        public abstract TiffImageFileDirectoryWriter IfdWriter { get; set; }
+        public abstract TiffImageFileDirectoryWriter? IfdWriter { get; set; }
 
         /// <summary>
         /// The photometric interpretation of the current image.

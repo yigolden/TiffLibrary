@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace ICSharpCode.SharpZipLib.Zip.Compression
@@ -16,7 +17,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
         #region Instance Fields
 
-        private short[] tree;
+        private short[]? tree;
 
         #endregion Instance Fields
 
@@ -160,10 +161,12 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </returns>
         public int GetSymbol(StreamManipulator input)
         {
+            Debug.Assert(tree != null);
+
             int lookahead, symbol;
             if ((lookahead = input.PeekBits(9)) >= 0)
             {
-                if ((symbol = tree[lookahead]) >= 0)
+                if ((symbol = tree![lookahead]) >= 0)
                 {
                     input.DropBits(symbol & 15);
                     return symbol >> 4;
@@ -196,7 +199,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             {
                 int bits = input.AvailableBits;
                 lookahead = input.PeekBits(bits);
-                symbol = tree[lookahead];
+                symbol = tree![lookahead];
                 if (symbol >= 0 && (symbol & 15) <= bits)
                 {
                     input.DropBits(symbol & 15);

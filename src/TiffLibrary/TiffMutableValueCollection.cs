@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace TiffLibrary
@@ -20,7 +21,7 @@ namespace TiffLibrary
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
             _values = count == 1 ? Array.Empty<T>() : new T[count];
-            _firstValue = default;
+            _firstValue = default!;
         }
 
         public T this[int index]
@@ -57,6 +58,7 @@ namespace TiffLibrary
             get => _values is null ? ThrowIndexOutOfRangeException() : (index == 0 ? _firstValue : _values[index]);
         }
 
+        [DoesNotReturn]
         private static T ThrowIndexOutOfRangeException()
         {
             throw new IndexOutOfRangeException();

@@ -15,7 +15,7 @@ namespace TiffLibrary
     public sealed class TiffFileReader : IDisposable, IAsyncDisposable
     {
         private ITiffFileContentSource _contentSource;
-        private TiffOperationContext _operationContext;
+        private TiffOperationContext? _operationContext;
         private readonly long _imageFileDirectoryOffset;
         private readonly bool _leaveOpen;
 
@@ -28,8 +28,8 @@ namespace TiffLibrary
 
         internal TiffFileReader(ITiffFileContentSource contentSource, in TiffFileHeader header, bool leaveOpen)
         {
-            Debug.Assert(contentSource != null);
-            _contentSource = contentSource;
+            Debug.Assert(!(contentSource is null));
+            _contentSource = contentSource!;
             _operationContext = header.CreateOperationContext(out long ifdOffset);
             _imageFileDirectoryOffset = ifdOffset;
             _leaveOpen = leaveOpen;
@@ -180,7 +180,7 @@ namespace TiffLibrary
                             throw new InvalidDataException();
                         }
 
-                        return new TiffFileReader(Interlocked.Exchange(ref contentSource, null), header, leaveOpen);
+                        return new TiffFileReader(Interlocked.Exchange(ref contentSource, null!), header, leaveOpen);
                     }
                     finally
                     {
@@ -228,6 +228,11 @@ namespace TiffLibrary
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
             TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
@@ -259,6 +264,11 @@ namespace TiffLibrary
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
             using TiffFileContentReader reader = TiffSyncFileContentSource.WrapReader(_contentSource.OpenReader());
             return ReadImageFileDirectoryAsync(reader, _operationContext, offset.ToInt64(), CancellationToken.None).GetAwaiter().GetResult();
         }
@@ -293,7 +303,7 @@ namespace TiffLibrary
 
             // Attemp to read 8 bytes even though the size of IFD may be less then 8 bytes.
             int count;
-            byte[] smallBuffer = null;
+            byte[]? smallBuffer = null;
             try
             {
                 smallBuffer = ArrayPool<byte>.Shared.Rent(8);
@@ -400,6 +410,11 @@ namespace TiffLibrary
         /// <returns>The field reader.</returns>
         public TiffFieldReader CreateFieldReader()
         {
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
             TiffFileContentReader reader = _contentSource.OpenReader();
             return new TiffFieldReader(reader, _operationContext, CancellationToken.None);
         }
@@ -411,6 +426,11 @@ namespace TiffLibrary
         /// <returns>The field reader.</returns>
         public async Task<TiffFieldReader> CreateFieldReaderAsync(CancellationToken cancellationToken = default)
         {
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
             TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
             return new TiffFieldReader(reader, _operationContext, cancellationToken);
         }
@@ -430,6 +450,10 @@ namespace TiffLibrary
             {
                 throw new ArgumentNullException(nameof(ifd));
             }
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
 
             return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, null, CancellationToken.None).GetAwaiter().GetResult();
         }
@@ -440,11 +464,15 @@ namespace TiffLibrary
         /// <param name="ifd">The ifd to decode.</param>
         /// <param name="options">The options to use when decoding image.</param>
         /// <returns>An image decoder.</returns>
-        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd, TiffImageDecoderOptions? options)
         {
             if (ifd is null)
             {
                 throw new ArgumentNullException(nameof(ifd));
+            }
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
             return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, options, CancellationToken.None).GetAwaiter().GetResult();
@@ -463,6 +491,10 @@ namespace TiffLibrary
             {
                 throw new ArgumentNullException(nameof(ifd));
             }
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
 
             return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, null, cancellationToken);
         }
@@ -474,11 +506,15 @@ namespace TiffLibrary
         /// <param name="options">The options to use when decoding image.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
         /// <returns>An image decoder.</returns>
-        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken = default)
+        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd, TiffImageDecoderOptions? options, CancellationToken cancellationToken = default)
         {
             if (ifd is null)
             {
                 throw new ArgumentNullException(nameof(ifd));
+            }
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
             return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, options, cancellationToken);
@@ -493,7 +529,7 @@ namespace TiffLibrary
         /// </summary>
         public void Dispose()
         {
-            ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null);
+            ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null!);
             if (!(contentSource is null) && !_leaveOpen)
             {
                 contentSource.Dispose();
@@ -507,7 +543,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
         public async ValueTask DisposeAsync()
         {
-            ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null);
+            ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null!);
             if (!(contentSource is null) && !_leaveOpen)
             {
                 await contentSource.DisposeAsync().ConfigureAwait(false);

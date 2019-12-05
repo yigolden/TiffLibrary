@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.Threading;
 
 namespace TiffLibrary.ImageDecoder
@@ -12,13 +13,14 @@ namespace TiffLibrary.ImageDecoder
 
         public TiffDelegatingImageDecoderContext(TiffImageDecoderContext innerContext)
         {
-            _innerContext = innerContext;
+            Debug.Assert(innerContext != null);
+            _innerContext = innerContext!;
         }
 
-        public override MemoryPool<byte> MemoryPool { get => _innerContext.MemoryPool; set => _innerContext.MemoryPool = value; }
+        public override MemoryPool<byte>? MemoryPool { get => _innerContext.MemoryPool; set => _innerContext.MemoryPool = value; }
         public override CancellationToken CancellationToken { get => _innerContext.CancellationToken; set => _innerContext.CancellationToken = value; }
-        public override TiffOperationContext OperationContext { get => _innerContext.OperationContext; set => _innerContext.OperationContext = value; }
-        public override TiffFileContentReader ContentReader { get => _innerContext.ContentReader; set => _innerContext.ContentReader = value; }
+        public override TiffOperationContext? OperationContext { get => _innerContext.OperationContext; set => _innerContext.OperationContext = value; }
+        public override TiffFileContentReader? ContentReader { get => _innerContext.ContentReader; set => _innerContext.ContentReader = value; }
         public override TiffValueCollection<TiffStreamRegion> PlanarRegions { get => _innerContext.PlanarRegions; set => _innerContext.PlanarRegions = value; }
         public override Memory<byte> UncompressedData { get => _innerContext.UncompressedData; set => _innerContext.UncompressedData = value; }
         public override TiffSize SourceImageSize { get => _innerContext.SourceImageSize; set => _innerContext.SourceImageSize = value; }

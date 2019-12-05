@@ -18,7 +18,7 @@ namespace TiffLibrary.PixelFormats
             return ReversedIntensity == other.ReversedIntensity;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is TiffGray8Reversed other && Equals(other);
         }

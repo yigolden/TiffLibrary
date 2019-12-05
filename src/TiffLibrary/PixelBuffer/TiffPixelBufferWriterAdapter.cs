@@ -15,8 +15,8 @@ namespace TiffLibrary.PixelBuffer
         private readonly ITiffPixelBuffer<TPixel> _buffer;
         private readonly TiffSize _size;
 
-        private RowSpanHandle _cachedRowHandle;
-        private ColumnSpanHandle _cachedColHandle;
+        private RowSpanHandle? _cachedRowHandle;
+        private ColumnSpanHandle? _cachedColHandle;
 
         /// <summary>
         /// Initialize the object to wrap <paramref name="buffer"/>.
@@ -62,7 +62,7 @@ namespace TiffLibrary.PixelBuffer
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            RowSpanHandle handle = Interlocked.Exchange(ref _cachedRowHandle, null);
+            RowSpanHandle? handle = Interlocked.Exchange(ref _cachedRowHandle, null);
             if (handle is null)
             {
                 handle = new RowSpanHandle();
@@ -95,7 +95,7 @@ namespace TiffLibrary.PixelBuffer
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            ColumnSpanHandle handle = Interlocked.Exchange(ref _cachedColHandle, null);
+            ColumnSpanHandle? handle = Interlocked.Exchange(ref _cachedColHandle, null);
             if (handle is null)
             {
                 handle = new ColumnSpanHandle();
@@ -119,8 +119,8 @@ namespace TiffLibrary.PixelBuffer
 
         private class RowSpanHandle : TiffPixelSpanHandle<TPixel>
         {
-            private TiffPixelBufferWriterAdapter<TPixel> _parent;
-            private ITiffPixelBuffer<TPixel> _pixelBuffer;
+            private TiffPixelBufferWriterAdapter<TPixel>? _parent;
+            private ITiffPixelBuffer<TPixel>? _pixelBuffer;
             private int _start;
             private int _length;
 
@@ -159,9 +159,9 @@ namespace TiffLibrary.PixelBuffer
 
         private class ColumnSpanHandle : TiffPixelSpanHandle<TPixel>
         {
-            private TiffPixelBufferWriterAdapter<TPixel> _parent;
-            private ITiffPixelBuffer<TPixel> _pixelBuffer;
-            private byte[] _buffer;
+            private TiffPixelBufferWriterAdapter<TPixel>? _parent;
+            private ITiffPixelBuffer<TPixel>? _pixelBuffer;
+            private byte[]? _buffer;
             private int _colIndex;
             private int _start;
             private int _length;

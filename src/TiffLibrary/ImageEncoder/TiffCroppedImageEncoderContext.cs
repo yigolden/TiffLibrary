@@ -13,7 +13,7 @@ namespace TiffLibrary.ImageEncoder
         public override TiffSize ImageSize { get; set; }
 
         public bool ExposeIfdWriter { get; set; }
-        public override TiffImageFileDirectoryWriter IfdWriter { get => ExposeIfdWriter ? InnerContext.IfdWriter : null; set => throw new NotSupportedException(); }
+        public override TiffImageFileDirectoryWriter? IfdWriter { get => ExposeIfdWriter ? InnerContext.IfdWriter : null; set => throw new NotSupportedException(); }
 
         public void Crop(TiffPoint offset, TiffSize size)
         {

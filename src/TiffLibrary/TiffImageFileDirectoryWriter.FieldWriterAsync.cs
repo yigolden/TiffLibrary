@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,13 +41,15 @@ namespace TiffLibrary
 
         private void AddOrUpdateEntry(TiffTag tag, TiffFieldType type, int count, Span<byte> buffer)
         {
+            Debug.Assert(_writer != null);
+
             if (TryFindEntry(tag, out int i, out _))
             {
-                _entries[i] = new TiffImageFileDirectoryEntry(_writer.OperationContext, tag, type, count, buffer);
+                _entries[i] = new TiffImageFileDirectoryEntry(_writer!.OperationContext, tag, type, count, buffer);
             }
             else
             {
-                _entries.Add(new TiffImageFileDirectoryEntry(_writer.OperationContext, tag, type, count, buffer));
+                _entries.Add(new TiffImageFileDirectoryEntry(_writer!.OperationContext, tag, type, count, buffer));
             }
         }
 
@@ -54,7 +57,9 @@ namespace TiffLibrary
 
         internal void AddInlineTag(TiffTag tag, TiffFieldType type, int count, ReadOnlySpan<byte> rawData)
         {
-            if (rawData.Length > _writer.OperationContext.ByteCountOfValueOffsetField)
+            Debug.Assert(_writer != null);
+
+            if (rawData.Length > _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 throw new ArgumentException("rawData too big.", nameof(rawData));
             }
@@ -87,7 +92,10 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values)
         {
-            if (values.Count <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
+            if (values.Count <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 values.CopyTo(stackBuffer);
@@ -104,7 +112,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values)
         {
-            TiffStreamOffset offset = await _writer.WriteAlignedBytesAsync(values.GetOrCreateArray()).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamOffset offset = await _writer!.WriteAlignedBytesAsync(values.GetOrCreateArray()).ConfigureAwait(false);
             AddOrUpdateEntry(tag, type, valueCount, offset);
         }
 
@@ -130,10 +139,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(byte);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -155,7 +167,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values)
         {
-            TiffStreamOffset offset = await _writer.WriteAlignedBytesAsync(values.GetOrCreateArray()).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamOffset offset = await _writer!.WriteAlignedBytesAsync(values.GetOrCreateArray()).ConfigureAwait(false);
             AddOrUpdateEntry(tag, type, values.Count, offset);
         }
 
@@ -171,13 +184,16 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<string> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             int estimatedLength = 0;
             foreach (string value in values)
             {
                 estimatedLength += Encoding.ASCII.GetByteCount(value) + 1;
             }
 
-            if (estimatedLength <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (estimatedLength <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
 
@@ -208,7 +224,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<string> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.ASCII, region.Length, region.Offset);
         }
 
@@ -245,10 +262,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ushort> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(ushort);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -270,7 +290,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<ushort> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Short, values.Count, region.Offset);
         }
 
@@ -294,10 +315,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<short> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(short);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -319,7 +343,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<short> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SShort, values.Count, region.Offset);
         }
 
@@ -343,10 +368,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<uint> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(uint);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -368,7 +396,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<uint> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Long, values.Count, region.Offset);
         }
 
@@ -392,10 +421,14 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<int> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
+
             const int ElementSize = sizeof(int);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -417,7 +450,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<int> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SLong, values.Count, region.Offset);
         }
 
@@ -433,10 +467,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ulong> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(ulong);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -458,7 +495,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<ulong> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Long8, values.Count, region.Offset);
         }
 
@@ -474,10 +512,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<long> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(long);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -499,7 +540,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<long> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SLong8, values.Count, region.Offset);
         }
 
@@ -515,10 +557,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<float> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(float);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -540,7 +585,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<float> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Float, values.Count, region.Offset);
         }
 
@@ -556,10 +602,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<double> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = sizeof(double);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -581,7 +630,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<double> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Double, values.Count, region.Offset);
         }
 
@@ -597,10 +647,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffRational> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = 2 * sizeof(uint);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -622,7 +675,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<TiffRational> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Rational, values.Count, region.Offset);
         }
 
@@ -638,10 +692,13 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffSRational> values)
         {
+            EnsureNotDisposed();
+            Debug.Assert(_writer != null);
+
             const int ElementSize = 2 * sizeof(int);
             int byteCount = ElementSize * values.Count;
 
-            if (byteCount <= _writer.OperationContext.ByteCountOfValueOffsetField)
+            if (byteCount <= _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
                 Span<byte> stackBuffer = stackalloc byte[8];
                 int i;
@@ -663,7 +720,8 @@ namespace TiffLibrary
 
         internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<TiffSRational> values)
         {
-            TiffStreamRegion region = await _writer.WriteAlignedValues(values).ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SRational, values.Count, region.Offset);
         }
 

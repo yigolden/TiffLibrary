@@ -1,5 +1,7 @@
 using System;
 using System.Buffers;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,19 +15,18 @@ namespace TiffLibrary
     /// </summary>
     public sealed class TiffFileWriter : IDisposable, IAsyncDisposable
     {
-        private Stream _stream;
+        private Stream? _stream;
         private bool _leaveOpen;
         private long _position;
         private readonly bool _useBigTiff;
         private bool _requireBigTiff;
         private bool _completed;
-        private byte[] _smallBuffer;
-        private TiffOperationContext _operationContext;
+        private TiffOperationContext? _operationContext;
         private long _imageFileDirectoryOffset;
 
         private const int SmallBufferSize = 32;
 
-        internal TiffFileWriter(Stream stream, bool leaveOpen, bool useBigTiff, byte[] smallBuffer)
+        internal TiffFileWriter(Stream stream, bool leaveOpen, bool useBigTiff)
         {
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _leaveOpen = leaveOpen;
@@ -33,13 +34,11 @@ namespace TiffLibrary
             _useBigTiff = useBigTiff;
             _requireBigTiff = false;
             _completed = false;
-            _smallBuffer = smallBuffer;
             _operationContext = useBigTiff ? TiffOperationContext.BigTIFF : TiffOperationContext.StandardTIFF;
         }
 
-        internal TiffOperationContext OperationContext => _operationContext;
-        internal byte[] InternalBuffer => _smallBuffer;
-        internal Stream InnerStream => _stream;
+        internal TiffOperationContext OperationContext => _operationContext ?? ThrowObjectDisposedException<TiffOperationContext>();
+        internal Stream InnerStream => _stream ?? ThrowObjectDisposedException<Stream>();
 
         /// <summary>
         /// Gets whether to use BigTIFF format.
@@ -71,9 +70,17 @@ namespace TiffLibrary
             }
 
             stream.Seek(0, SeekOrigin.Begin);
-            byte[] smallBuffer = new byte[SmallBufferSize];
-            await stream.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
-            return new TiffFileWriter(stream, leaveOpen, useBigTiff, smallBuffer);
+            byte[] smallBuffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
+            try
+            {
+
+                await stream.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
+                return new TiffFileWriter(stream, leaveOpen, useBigTiff);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(smallBuffer);
+            }
         }
 
         /// <summary>
@@ -87,9 +94,16 @@ namespace TiffLibrary
             var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
             try
             {
-                byte[] smallBuffer = new byte[SmallBufferSize];
-                await fs.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
-                return new TiffFileWriter(Interlocked.Exchange(ref fs, null), false, useBigTiff, smallBuffer);
+                byte[] smallBuffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
+                try
+                {
+                    await fs.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
+                    return new TiffFileWriter(Interlocked.Exchange(ref fs, null!), false, useBigTiff);
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(smallBuffer);
+                }
             }
             finally
             {
@@ -108,29 +122,36 @@ namespace TiffLibrary
         {
             EnsureNotDisposed();
 
+            Debug.Assert(_stream != null);
             long position = _position;
             if ((position & 0b1) != 0)
             {
                 return new ValueTask<TiffStreamOffset>(InternalAlignToWordBoundaryAsync());
             }
-            _stream.Seek(position, SeekOrigin.Begin);
+            _stream!.Seek(position, SeekOrigin.Begin);
             return new ValueTask<TiffStreamOffset>(new TiffStreamOffset(position));
         }
 
         private async Task<TiffStreamOffset> InternalAlignToWordBoundaryAsync()
         {
+            Debug.Assert(_stream != null);
+
             int length = (int)_position & 0b1;
-            _stream.Seek(_position, SeekOrigin.Begin);
-            await _stream.WriteAsync(_smallBuffer, 0, length).ConfigureAwait(false);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
+            try
+            {
+                buffer[0] = 0;
+                _stream!.Seek(_position, SeekOrigin.Begin);
+                await _stream!.WriteAsync(buffer, 0, length).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
             return new TiffStreamOffset(AdvancePosition(length));
         }
 
         #endregion
-
-        internal void SeekToPosition()
-        {
-            _stream.Seek(_position, SeekOrigin.Begin);
-        }
 
         internal long AdvancePosition(int length)
         {
@@ -165,9 +186,12 @@ namespace TiffLibrary
         /// <param name="position">The specified position in the stream.</param>
         public void Seek(TiffStreamOffset position)
         {
+            EnsureNotDisposed();
+
+            Debug.Assert(_stream != null);
             long pos = position.ToInt64();
             _position = pos;
-            _stream.Seek(pos, SeekOrigin.Begin);
+            _stream!.Seek(pos, SeekOrigin.Begin);
         }
 
         #region IFDs
@@ -192,34 +216,46 @@ namespace TiffLibrary
 
         internal async Task UpdateImageFileDirectoryNextOffsetFieldAsync(TiffStreamOffset target, TiffStreamOffset ifdOffset)
         {
-            _stream.Seek(target, SeekOrigin.Begin);
+            EnsureNotDisposed();
+
+            Debug.Assert(_stream != null);
+            Debug.Assert(_operationContext != null);
+            _stream!.Seek(target, SeekOrigin.Begin);
 
             // Attemps to read 8 bytes even though the size of IFD may be less then 8 bytes.
-            int rwCount = await _stream.ReadAsync(_smallBuffer, 0, 8).ConfigureAwait(false);
-            if (!(_useBigTiff && rwCount == 8) && !(!_useBigTiff && rwCount >= 4))
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
+            try
             {
-                throw new InvalidDataException();
-            }
-            int count = ParseImageFileDirectoryCount(_smallBuffer.AsSpan(0, 8));
+                int rwCount = await _stream.ReadAsync(buffer, 0, 8).ConfigureAwait(false);
+                if (!(_useBigTiff && rwCount == 8) && !(!_useBigTiff && rwCount >= 4))
+                {
+                    throw new InvalidDataException();
+                }
+                int count = ParseImageFileDirectoryCount(buffer.AsSpan(0, 8));
 
-            // Skip over IFD entries.
-            int entryFieldLength = _useBigTiff ? 20 : 12;
-            _stream.Seek(target + _operationContext.ByteCountOfImageFileDirectoryCountField + count * entryFieldLength, SeekOrigin.Begin);
+                // Skip over IFD entries.
+                int entryFieldLength = _useBigTiff ? 20 : 12;
+                _stream!.Seek(target + _operationContext!.ByteCountOfImageFileDirectoryCountField + count * entryFieldLength, SeekOrigin.Begin);
 
-            // Update next ifd.
-            if (_useBigTiff)
-            {
-                rwCount = 8;
-                long offset = ifdOffset;
-                MemoryMarshal.Write(_smallBuffer, ref offset);
+                // Update next ifd.
+                if (_useBigTiff)
+                {
+                    rwCount = 8;
+                    long offset = ifdOffset;
+                    MemoryMarshal.Write(buffer, ref offset);
+                }
+                else
+                {
+                    rwCount = 4;
+                    int offset32 = (int)ifdOffset;
+                    MemoryMarshal.Write(buffer, ref offset32);
+                }
+                await _stream!.WriteAsync(buffer, 0, rwCount).ConfigureAwait(false);
             }
-            else
+            finally
             {
-                rwCount = 4;
-                int offset32 = (int)ifdOffset;
-                MemoryMarshal.Write(_smallBuffer, ref offset32);
+                ArrayPool<byte>.Shared.Return(buffer);
             }
-            await _stream.WriteAsync(_smallBuffer, 0, rwCount).ConfigureAwait(false);
         }
 
         internal int ParseImageFileDirectoryCount(ReadOnlySpan<byte> buffer)
@@ -244,12 +280,26 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
         public async Task<TiffStreamOffset> WriteBytesAsync(byte[] buffer, int index, int count)
         {
+            if (buffer is null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+            if ((uint)index >= (uint)buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+            if ((uint)(index + count) > (uint)buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = _position;
-            _stream.Seek(position, SeekOrigin.Begin);
-            await _stream.WriteAsync(buffer, index, count).ConfigureAwait(false);
+            _stream!.Seek(position, SeekOrigin.Begin);
+            await _stream!.WriteAsync(buffer, index, count).ConfigureAwait(false);
             AdvancePosition(count);
 
             return new TiffStreamOffset(position);
@@ -265,9 +315,10 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = _position;
-            _stream.Seek(position, SeekOrigin.Begin);
-            await _stream.WriteAsync(buffer).ConfigureAwait(false);
+            _stream!.Seek(position, SeekOrigin.Begin);
+            await _stream!.WriteAsync(buffer).ConfigureAwait(false);
             AdvancePosition(buffer.Length);
 
             return new TiffStreamOffset(position);
@@ -301,12 +352,21 @@ namespace TiffLibrary
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
+            if ((uint)index >= (uint)buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+            if ((uint)(index + count) > (uint)buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
 
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
-            await _stream.WriteAsync(buffer, index, count).ConfigureAwait(false);
+            await _stream!.WriteAsync(buffer, index, count).ConfigureAwait(false);
             AdvancePosition(count);
 
             return new TiffStreamOffset(position);
@@ -322,9 +382,10 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
             long length = buffer.Length;
-            await _stream.WriteAsync(buffer).ConfigureAwait(false);
+            await _stream!.WriteAsync(buffer).ConfigureAwait(false);
             AdvancePosition(length);
 
             return new TiffStreamOffset(position);
@@ -335,11 +396,12 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
             long length = buffer.Length;
             foreach (ReadOnlyMemory<byte> segment in buffer)
             {
-                await _stream.WriteAsync(segment).ConfigureAwait(false);
+                await _stream!.WriteAsync(segment).ConfigureAwait(false);
             }
             AdvancePosition(length);
 
@@ -352,6 +414,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             int maxByteCount = 0;
@@ -368,7 +431,7 @@ namespace TiffLibrary
                 {
                     int length = Encoding.ASCII.GetBytes(item, 0, item.Length, buffer, 0);
                     buffer[length] = 0;
-                    await _stream.WriteAsync(buffer, 0, length + 1).ConfigureAwait(false);
+                    await _stream!.WriteAsync(buffer, 0, length + 1).ConfigureAwait(false);
                     AdvancePosition(length + 1);
                     bytesWritten += length + 1;
                 }
@@ -386,6 +449,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(ushort);
@@ -394,7 +458,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -410,6 +474,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(short);
@@ -418,7 +483,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -434,6 +499,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(uint);
@@ -442,7 +508,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -458,6 +524,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(int);
@@ -466,7 +533,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -482,6 +549,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(ulong);
@@ -490,7 +558,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -506,6 +574,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(long);
@@ -514,7 +583,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -530,6 +599,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(float);
@@ -538,7 +608,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -554,6 +624,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = sizeof(float);
@@ -562,7 +633,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -578,6 +649,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = 2 * sizeof(uint);
@@ -586,7 +658,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -602,6 +674,7 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
             const int ElementSize = 2 * sizeof(int);
@@ -610,7 +683,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _stream.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
+                await _stream!.WriteAsync(buffer, 0, byteCount).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -634,17 +707,27 @@ namespace TiffLibrary
             EnsureNotDisposed();
             EnsureNotCompleted();
 
+            Debug.Assert(_stream != null);
             if (_requireBigTiff && !_useBigTiff)
             {
                 throw new InvalidOperationException("Must use BigTIFF format. But it is disabled.");
             }
 
-            Array.Clear(_smallBuffer, 0, 16);
-            TiffFileHeader.Write(_smallBuffer, _imageFileDirectoryOffset, BitConverter.IsLittleEndian, _useBigTiff);
-            _stream.Seek(0, SeekOrigin.Begin);
-            await _stream.WriteAsync(_smallBuffer, 0, _useBigTiff ? 16 : 8).ConfigureAwait(false);
-            await _stream.FlushAsync().ConfigureAwait(false);
-            _stream.Seek(_position, SeekOrigin.Begin);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
+            try
+            {
+                Array.Clear(buffer, 0, 16);
+                TiffFileHeader.Write(buffer, _imageFileDirectoryOffset, BitConverter.IsLittleEndian, _useBigTiff);
+                _stream!.Seek(0, SeekOrigin.Begin);
+                await _stream!.WriteAsync(buffer, 0, _useBigTiff ? 16 : 8).ConfigureAwait(false);
+                await _stream!.FlushAsync().ConfigureAwait(false);
+                _stream!.Seek(_position, SeekOrigin.Begin);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+
         }
 
         private void EnsureNotCompleted()
@@ -672,7 +755,14 @@ namespace TiffLibrary
             }
         }
 
+        [DoesNotReturn]
         private static void ThrowObjectDisposedException()
+        {
+            throw new ObjectDisposedException(nameof(TiffFileWriter));
+        }
+
+        [DoesNotReturn]
+        private static T ThrowObjectDisposedException<T>()
         {
             throw new ObjectDisposedException(nameof(TiffFileWriter));
         }

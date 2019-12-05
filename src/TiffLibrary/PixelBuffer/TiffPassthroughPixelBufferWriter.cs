@@ -10,7 +10,7 @@ namespace TiffLibrary.PixelBuffer
     {
         private readonly ITiffPixelBufferWriter<TDestination> _writer;
 
-        private PassthoughRowSpanHandle _cachedHandle;
+        private PassthoughRowSpanHandle? _cachedHandle;
 
         public TiffPassthroughPixelBufferWriter(ITiffPixelBufferWriter<TDestination> writer)
         {
@@ -24,7 +24,7 @@ namespace TiffLibrary.PixelBuffer
 
         public TiffPixelSpanHandle<TSource> GetRowSpan(int rowIndex, int start, int length)
         {
-            PassthoughRowSpanHandle handle = Interlocked.Exchange(ref _cachedHandle, null);
+            PassthoughRowSpanHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
             if (handle is null)
             {
                 handle = new PassthoughRowSpanHandle();
@@ -35,7 +35,7 @@ namespace TiffLibrary.PixelBuffer
 
         public TiffPixelSpanHandle<TSource> GetColumnSpan(int colIndex, int start, int length)
         {
-            PassthoughRowSpanHandle handle = Interlocked.Exchange(ref _cachedHandle, null);
+            PassthoughRowSpanHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
             if (handle is null)
             {
                 handle = new PassthoughRowSpanHandle();
@@ -52,8 +52,8 @@ namespace TiffLibrary.PixelBuffer
 
         private class PassthoughRowSpanHandle : TiffPixelSpanHandle<TSource>
         {
-            private TiffPassthroughPixelBufferWriter<TSource, TDestination> _parent;
-            private TiffPixelSpanHandle<TDestination> _innerHandle;
+            private TiffPassthroughPixelBufferWriter<TSource, TDestination>? _parent;
+            private TiffPixelSpanHandle<TDestination>? _innerHandle;
             private int _length;
 
             internal void SetHandle(TiffPassthroughPixelBufferWriter<TSource, TDestination> parent, TiffPixelSpanHandle<TDestination> handle, int length)

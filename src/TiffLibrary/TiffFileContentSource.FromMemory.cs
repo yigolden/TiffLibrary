@@ -6,7 +6,7 @@ namespace TiffLibrary
 {
     internal sealed class TiffMemoryContentSource : TiffFileContentSource
     {
-        private ContentReader _reader;
+        private ContentReader? _reader;
 
         public TiffMemoryContentSource(ReadOnlyMemory<byte> memory)
         {

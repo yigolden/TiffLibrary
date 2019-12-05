@@ -41,7 +41,7 @@ namespace TiffLibrary
         {
             _reader = reader ?? TiffEmptyPixelBufferReader<TPixel>.Default;
             _offset = default;
-            _size = new TiffSize(reader.Width, reader.Height);
+            _size = new TiffSize(_reader.Width, _reader.Height);
         }
 
         /// <summary>

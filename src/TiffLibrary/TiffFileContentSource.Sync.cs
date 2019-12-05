@@ -5,7 +5,7 @@ namespace TiffLibrary
 {
     internal class TiffSyncFileContentSource : TiffFileContentSource
     {
-        private ITiffFileContentSource _contentSource;
+        private ITiffFileContentSource? _contentSource;
 
         public TiffSyncFileContentSource(ITiffFileContentSource contentSource)
         {
@@ -14,7 +14,7 @@ namespace TiffLibrary
 
         public override TiffFileContentReader OpenReader()
         {
-            ITiffFileContentSource contentSource = _contentSource;
+            ITiffFileContentSource? contentSource = _contentSource;
             if (contentSource is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFileContentSource));
@@ -59,7 +59,7 @@ namespace TiffLibrary
 
         private sealed class SyncContentReader : TiffFileContentReader
         {
-            private TiffFileContentReader _reader;
+            private TiffFileContentReader? _reader;
 
             public SyncContentReader(TiffFileContentReader reader)
             {
@@ -68,7 +68,7 @@ namespace TiffLibrary
 
             public override int Read(long offset, Memory<byte> buffer)
             {
-                TiffFileContentReader reader = _reader;
+                TiffFileContentReader? reader = _reader;
                 if (reader is null)
                 {
                     throw new ObjectDisposedException(nameof(SyncContentReader));
@@ -78,7 +78,7 @@ namespace TiffLibrary
 
             public override int Read(long offset, ArraySegment<byte> buffer)
             {
-                TiffFileContentReader reader = _reader;
+                TiffFileContentReader? reader = _reader;
                 if (reader is null)
                 {
                     throw new ObjectDisposedException(nameof(SyncContentReader));

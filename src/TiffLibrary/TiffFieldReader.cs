@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,20 +14,22 @@ namespace TiffLibrary
     /// </summary>
     public sealed partial class TiffFieldReader : IDisposable, IAsyncDisposable
     {
-        private TiffFileContentReader _reader;
-        private TiffOperationContext _context;
+        private TiffFileContentReader? _reader;
+        private TiffOperationContext? _context;
         private CancellationToken _cancellationToken;
+        private readonly bool _reverseEndianNeeded;
 
         internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context, CancellationToken cancellationToken = default)
         {
             _reader = reader;
             _context = context;
             _cancellationToken = cancellationToken;
+            _reverseEndianNeeded = BitConverter.IsLittleEndian != context.IsLittleEndian;
         }
 
         private TiffFileContentReader GetAsyncReader()
         {
-            TiffFileContentReader reader = _reader;
+            TiffFileContentReader? reader = _reader;
             if (reader is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFieldReader));
@@ -36,7 +39,7 @@ namespace TiffLibrary
 
         private TiffFileContentReader GetSyncReader()
         {
-            TiffFileContentReader reader = _reader;
+            TiffFileContentReader? reader = _reader;
             if (reader is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFieldReader));
@@ -72,10 +75,10 @@ namespace TiffLibrary
 
         #region Copy values
 
-        private void InternalCopyInt64Values<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<long, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyInt64Values<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<long, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, sizeof(long) * values.Length);
-            bool reverseEndianNeeded = BitConverter.IsLittleEndian != _context.IsLittleEndian;
+            bool reverseEndianNeeded = _reverseEndianNeeded;
 
             if ((typeof(TDest) == typeof(long) || typeof(TDest) == typeof(ulong)) && convertFunc is null)
             {
@@ -115,10 +118,10 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyInt32Values<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<int, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyInt32Values<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<int, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, sizeof(int) * values.Length);
-            bool reverseEndianNeeded = BitConverter.IsLittleEndian != _context.IsLittleEndian;
+            bool reverseEndianNeeded = _reverseEndianNeeded;
 
             if ((typeof(TDest) == typeof(int) || typeof(TDest) == typeof(uint)) && convertFunc is null)
             {
@@ -158,10 +161,10 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyInt16Values<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<short, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyInt16Values<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<short, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, sizeof(short) * values.Length);
-            bool reverseEndianNeeded = BitConverter.IsLittleEndian != _context.IsLittleEndian;
+            bool reverseEndianNeeded = _reverseEndianNeeded;
 
             if ((typeof(TDest) == typeof(short) || typeof(TDest) == typeof(ushort)) && convertFunc is null)
             {
@@ -201,7 +204,7 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyByteValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<byte, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyByteValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<byte, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, values.Length);
 
@@ -224,10 +227,10 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyDoubleValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<double, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyDoubleValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<double, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, sizeof(double) * values.Length);
-            bool reverseEndianNeeded = BitConverter.IsLittleEndian != _context.IsLittleEndian;
+            bool reverseEndianNeeded = _reverseEndianNeeded;
 
             if (typeof(TDest) == typeof(double) && convertFunc is null)
             {
@@ -267,10 +270,10 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyFloatValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<float, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyFloatValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<float, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, sizeof(float) * values.Length);
-            bool reverseEndianNeeded = BitConverter.IsLittleEndian != _context.IsLittleEndian;
+            bool reverseEndianNeeded = _reverseEndianNeeded;
 
             if (typeof(TDest) == typeof(float) && convertFunc is null)
             {
@@ -320,10 +323,10 @@ namespace TiffLibrary
             return Unsafe.As<long, double>(ref value);
         }
 
-        private void InternalCopyRationalValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<TiffRational, TDest> convertFunc = null) where TDest : struct
+        private void InternalCopyRationalValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<TiffRational, TDest>? convertFunc = null) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, 8 * values.Length);
-            bool reverseEndianNeeded = BitConverter.IsLittleEndian != _context.IsLittleEndian;
+            bool reverseEndianNeeded = _reverseEndianNeeded;
 
             if (typeof(TDest) == typeof(TiffRational) && convertFunc is null)
             {

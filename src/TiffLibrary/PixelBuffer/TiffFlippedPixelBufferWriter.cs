@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -10,7 +11,7 @@ namespace TiffLibrary.PixelBuffer
         private readonly bool _flipLeftRight;
         private readonly bool _flipTopBottom;
 
-        private FlippedHandle _cachedHandle;
+        private FlippedHandle? _cachedHandle;
 
         public TiffFlippedPixelBufferWriter(TiffPixelBufferWriter<TPixel> writer, bool flipLeftRight, bool flipTopBottom)
         {
@@ -57,7 +58,7 @@ namespace TiffLibrary.PixelBuffer
             }
 
             TiffPixelSpanHandle<TPixel> innerHandle = _writer.GetRowSpan(rowIndex, width - start - length, length);
-            FlippedHandle handle = Interlocked.Exchange(ref _cachedHandle, null);
+            FlippedHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
             if (handle is null)
             {
                 handle = new FlippedHandle();
@@ -94,7 +95,7 @@ namespace TiffLibrary.PixelBuffer
             }
 
             TiffPixelSpanHandle<TPixel> innerHandle = _writer.GetColumnSpan(colIndex, height - start - length, length);
-            FlippedHandle handle = Interlocked.Exchange(ref _cachedHandle, null);
+            FlippedHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
             if (handle is null)
             {
                 handle = new FlippedHandle();
@@ -105,8 +106,8 @@ namespace TiffLibrary.PixelBuffer
 
         private class FlippedHandle : TiffPixelSpanHandle<TPixel>
         {
-            private TiffFlippedPixelBufferWriter<TPixel> _parent;
-            private TiffPixelSpanHandle<TPixel> _innerHandle;
+            private TiffFlippedPixelBufferWriter<TPixel>? _parent;
+            private TiffPixelSpanHandle<TPixel>? _innerHandle;
             private int _length;
 
             internal void SetHandle(TiffFlippedPixelBufferWriter<TPixel> parent, TiffPixelSpanHandle<TPixel> handle)
@@ -135,9 +136,10 @@ namespace TiffLibrary.PixelBuffer
                     return;
                 }
 
+                Debug.Assert(_parent != null);
                 _innerHandle.GetSpan().Reverse();
                 _innerHandle.Dispose();
-                TiffFlippedPixelBufferWriter<TPixel> parent = _parent;
+                TiffFlippedPixelBufferWriter<TPixel> parent = _parent!;
                 _parent = null;
                 _innerHandle = null;
                 Interlocked.CompareExchange(ref parent._cachedHandle, this, null);

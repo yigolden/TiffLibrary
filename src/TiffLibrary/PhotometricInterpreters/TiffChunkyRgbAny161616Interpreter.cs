@@ -52,10 +52,13 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(context));
             }
-
             if (next is null)
             {
                 throw new ArgumentNullException(nameof(next));
+            }
+            if (context.OperationContext is null)
+            {
+                throw new InvalidOperationException("Failed to acquire OperationContext.");
             }
 
             Span<ushort> bitsPerSample = stackalloc ushort[3];

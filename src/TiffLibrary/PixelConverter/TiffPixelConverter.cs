@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -17,10 +18,10 @@ namespace TiffLibrary.PixelConverter
     public abstract class TiffPixelConverter<TSource, TDestination> : ITiffPixelBufferWriter<TSource>, ITiffPixelSpanConverter<TSource, TDestination>
         where TSource : unmanaged where TDestination : unmanaged
     {
-        private ITiffPixelBufferWriter<TDestination> _writer;
+        private ITiffPixelBufferWriter<TDestination>? _writer;
         private readonly bool _canInPlaceConvert;
 
-        private ConverterHandle _cachedHandle;
+        private ConverterHandle? _cachedHandle;
 
         /// <summary>
         /// Wraps <paramref name="writer"/> as the underlying storage.
@@ -42,12 +43,12 @@ namespace TiffLibrary.PixelConverter
         /// <summary>
         /// The number of columns in the region.
         /// </summary>
-        public int Width => _writer.Width;
+        public int Width => _writer?.Width ?? ThrowObjectDisposedException();
 
         /// <summary>
         /// The number of rows in the region.
         /// </summary>
-        public int Height => _writer.Height;
+        public int Height => _writer?.Height ?? ThrowObjectDisposedException();
 
         /// <summary>
         /// Gets a <see cref="TiffPixelSpanHandle{TPixel}"/> representing a write-only span of the <paramref name="rowIndex"/> row of the region, while skipping <paramref name="start"/> pixels and limiting the length of the span to <paramref name="length"/>. <see cref="TiffPixelSpanHandle{TPixel}"/> should be disposed after use to flush the pixels into the underlying storage.
@@ -58,6 +59,11 @@ namespace TiffLibrary.PixelConverter
         /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
         public TiffPixelSpanHandle<TSource> GetRowSpan(int rowIndex, int start, int length)
         {
+            if (_writer is null)
+            {
+                ThrowObjectDisposedException();
+            }
+
             int width = _writer.Width;
             int height = _writer.Height;
             if ((uint)rowIndex >= (uint)height)
@@ -73,7 +79,7 @@ namespace TiffLibrary.PixelConverter
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            ConverterHandle handle = Interlocked.Exchange(ref _cachedHandle, null);
+            ConverterHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
             if (handle is null)
             {
                 handle = new ConverterHandle();
@@ -91,6 +97,11 @@ namespace TiffLibrary.PixelConverter
         /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
         public TiffPixelSpanHandle<TSource> GetColumnSpan(int colIndex, int start, int length)
         {
+            if (_writer is null)
+            {
+                ThrowObjectDisposedException();
+            }
+
             int width = _writer.Width;
             int height = _writer.Height;
             if ((uint)colIndex >= (uint)width)
@@ -106,7 +117,7 @@ namespace TiffLibrary.PixelConverter
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            ConverterHandle handle = Interlocked.Exchange(ref _cachedHandle, null);
+            ConverterHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
             if (handle is null)
             {
                 handle = new ConverterHandle();
@@ -135,6 +146,12 @@ namespace TiffLibrary.PixelConverter
             _writer = null;
         }
 
+        [DoesNotReturn]
+        private int ThrowObjectDisposedException()
+        {
+            throw new ObjectDisposedException(GetType().FullName);
+        }
+
         /// <summary>
         /// Method to convert from one pixel format to another.
         /// </summary>
@@ -146,9 +163,9 @@ namespace TiffLibrary.PixelConverter
 
         private class ConverterHandle : TiffPixelSpanHandle<TSource>
         {
-            private TiffPixelConverter<TSource, TDestination> _parent;
-            private TiffPixelSpanHandle<TDestination> _innerHandle;
-            private byte[] _buffer;
+            private TiffPixelConverter<TSource, TDestination>? _parent;
+            private TiffPixelSpanHandle<TDestination>? _innerHandle;
+            private byte[]? _buffer;
             private int _length;
             private bool _useInplaceConvert;
 
@@ -210,16 +227,17 @@ namespace TiffLibrary.PixelConverter
                     return;
                 }
 
+                Debug.Assert(_parent != null);
                 Span<TDestination> destinationSpan = _innerHandle.GetSpan();
                 if (_useInplaceConvert)
                 {
                     Span<TSource> sourceSpan = MemoryMarshal.Cast<TDestination, TSource>(destinationSpan);
-                    _parent.Convert(sourceSpan, destinationSpan);
+                    _parent!.Convert(sourceSpan, destinationSpan);
                 }
                 else
                 {
                     Span<TSource> sourceSpan = MemoryMarshal.Cast<byte, TSource>(_buffer.AsSpan(0, _length * Unsafe.SizeOf<TSource>()));
-                    _parent.Convert(sourceSpan, destinationSpan);
+                    _parent!.Convert(sourceSpan, destinationSpan);
                 }
 
                 _innerHandle.Dispose();

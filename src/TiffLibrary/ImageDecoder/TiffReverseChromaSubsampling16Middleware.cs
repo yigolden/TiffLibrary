@@ -76,6 +76,8 @@ namespace TiffLibrary.ImageDecoder
 
         private void ProcessChunkyData(TiffImageDecoderContext context)
         {
+            MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
+
             Memory<byte> decompressedData = context.UncompressedData;
             if (_horizontalSubsampling >= _verticalSubsampling)
             {
@@ -83,7 +85,7 @@ namespace TiffLibrary.ImageDecoder
             }
             else
             {
-                using IMemoryOwner<byte> bufferMemory = context.MemoryPool.Rent(decompressedData.Length);
+                using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(decompressedData.Length);
 
                 decompressedData.CopyTo(bufferMemory.Memory);
                 ProcessChunkyData(context.SourceImageSize, MemoryMarshal.Cast<byte, ushort>(bufferMemory.Memory.Span.Slice(0, decompressedData.Length)), MemoryMarshal.Cast<byte, ushort>(decompressedData.Span));

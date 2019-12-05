@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace TiffLibrary
@@ -16,7 +17,7 @@ namespace TiffLibrary
     public readonly struct TiffValueCollection<T> : IReadOnlyList<T>
 #pragma warning restore CA1815 // CA1815: Override equals and operator equals on value types
     {
-        internal readonly T[] _values;
+        internal readonly T[]? _values;
         internal readonly T _firstValue;
 
         /// <summary>
@@ -43,14 +44,14 @@ namespace TiffLibrary
             if (values is null)
             {
                 _values = null;
-                _firstValue = default;
+                _firstValue = default!;
                 return;
             }
 
             if (values.Length == 0)
             {
                 _values = null;
-                _firstValue = default;
+                _firstValue = default!;
             }
             else if (values.Length == 1)
             {
@@ -73,7 +74,7 @@ namespace TiffLibrary
             if (values.Length == 0)
             {
                 _values = null;
-                _firstValue = default;
+                _firstValue = default!;
             }
             else if (values.Length == 1)
             {
@@ -112,6 +113,7 @@ namespace TiffLibrary
         /// <returns></returns>
         public T GetFirstOrDefault() => _firstValue;
 
+        [DoesNotReturn]
         private static T ThrowIndexOutOfRangeException()
         {
             throw new IndexOutOfRangeException();
@@ -122,7 +124,7 @@ namespace TiffLibrary
         /// </summary>
         public struct Enumerator : IEnumerator<T>
         {
-            private readonly T[] _values;
+            private readonly T[]? _values;
             private readonly T _firstValue;
             private int _index;
             private int _count;
@@ -137,7 +139,7 @@ namespace TiffLibrary
             /// <summary>
             /// Gets the current element.
             /// </summary>
-            object IEnumerator.Current => _current;
+            object? IEnumerator.Current => _current;
 
             /// <summary>
             /// Creates an enumerator for <see cref="TiffValueCollection{T}"/>.
@@ -149,7 +151,7 @@ namespace TiffLibrary
                 _firstValue = values._firstValue;
                 _index = 0;
                 _count = _values is null ? 0 : (_values.Length == 0 ? 1 : _values.Length);
-                _current = default;
+                _current = default!;
             }
 
             /// <summary>
@@ -179,7 +181,7 @@ namespace TiffLibrary
             public void Reset()
             {
                 _index = 0;
-                _current = default;
+                _current = default!;
             }
 
             /// <summary>
@@ -188,7 +190,7 @@ namespace TiffLibrary
             public void Dispose()
             {
                 _index = 0;
-                _current = default;
+                _current = default!;
             }
         }
 
@@ -381,12 +383,12 @@ namespace TiffLibrary
         /// <param name="values">The element collection.</param>
         /// <param name="array">The underlying array if there is one.</param>
         /// <returns>True if the array is returned; false if there is no array backing the collection.</returns>
-        public static bool UnsafeTryGetArray<T>(TiffValueCollection<T> values, out T[] array)
+        public static bool UnsafeTryGetArray<T>(TiffValueCollection<T> values, [NotNullWhen(true)] out T[] array)
         {
-            T[] underlying = values._values;
+            T[]? underlying = values._values;
             if (underlying is null || underlying.Length == 0)
             {
-                array = null;
+                array = null!;
                 return false;
             }
             array = underlying;
@@ -398,7 +400,7 @@ namespace TiffLibrary
     {
         public static T[] GetOrCreateArray<T>(this TiffValueCollection<T> collection)
         {
-            T[] values = collection._values;
+            T[]? values = collection._values;
             if (values is null)
             {
                 return Array.Empty<T>();
@@ -415,7 +417,7 @@ namespace TiffLibrary
 
         public static TResult[] GetOrCreateArray<T, TResult>(this TiffValueCollection<T> collection, Func<T, TResult> converter)
         {
-            T[] values = collection._values;
+            T[]? values = collection._values;
             if (values is null)
             {
                 return Array.Empty<TResult>();
@@ -442,7 +444,7 @@ namespace TiffLibrary
                 return Unsafe.As<TiffValueCollection<T>, TiffValueCollection<TDest>>(ref collection);
             }
 
-            T[] values = collection._values;
+            T[]? values = collection._values;
             if (values is null)
             {
                 return default;
@@ -461,7 +463,6 @@ namespace TiffLibrary
                 return new TiffValueCollection<TDest>(dest);
             }
         }
-
     }
 
 }

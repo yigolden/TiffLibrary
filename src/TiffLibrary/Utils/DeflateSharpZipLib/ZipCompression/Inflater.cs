@@ -1,6 +1,7 @@
 using ICSharpCode.SharpZipLib.Checksum;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace ICSharpCode.SharpZipLib.Zip.Compression
@@ -142,9 +143,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
         private readonly StreamManipulator input;
         private OutputWindow outputWindow;
-        private InflaterDynHeader dynHeader;
-        private InflaterHuffmanTree litlenTree, distTree;
-        private Adler32 adler;
+        private InflaterDynHeader? dynHeader;
+        private InflaterHuffmanTree? litlenTree, distTree;
+        private Adler32? adler;
 
         #endregion Instance Fields
 
@@ -283,6 +284,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </exception>
         private bool DecodeHuffman()
         {
+            Debug.Assert(litlenTree != null);
+            Debug.Assert(distTree != null);
+
             int free = outputWindow.GetFreeSpace();
             while (free >= 258)
             {
@@ -291,7 +295,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                 {
                     case DECODE_HUFFMAN:
                         // This is the inner loop so it is optimized a bit
-                        while (((symbol = litlenTree.GetSymbol(input)) & ~0xff) == 0)
+                        while (((symbol = litlenTree!.GetSymbol(input)) & ~0xff) == 0)
                         {
                             outputWindow.Write(symbol);
                             if (--free < 258)
@@ -343,7 +347,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                         goto case DECODE_HUFFMAN_DIST; // fall through
 
                     case DECODE_HUFFMAN_DIST:
-                        symbol = distTree.GetSymbol(input);
+                        symbol = distTree!.GetSymbol(input);
                         if (symbol < 0)
                         {
                             return false;
@@ -409,9 +413,12 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                 neededBits -= 8;
             }
 
-            if ((int)adler?.Value != readAdler)
+            if (adler != null)
             {
-                throw new InvalidDataException("Adler chksum doesn't match: " + (int)adler?.Value + " vs. " + readAdler);
+                if ((int)adler.Value != readAdler)
+                {
+                    throw new InvalidDataException("Adler chksum doesn't match: " + (int)adler.Value + " vs. " + readAdler);
+                }
             }
 
             mode = FINISHED;
@@ -429,6 +436,8 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </exception>
         private bool Decode()
         {
+            Debug.Assert(dynHeader != null);
+
             switch (mode)
             {
                 case DECODE_HEADER:
@@ -528,7 +537,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     }
 
                 case DECODE_DYN_HEADER:
-                    if (!dynHeader.AttemptRead())
+                    if (!dynHeader!.AttemptRead())
                     {
                         return false;
                     }

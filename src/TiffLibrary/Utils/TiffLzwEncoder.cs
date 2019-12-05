@@ -157,11 +157,11 @@ namespace TiffLibrary.Utils
         /// </summary>
         private int _accumulatorCount;
 
-        private byte[] _buffer;
+        private byte[]? _buffer;
 
         private ReadOnlySpan<byte> _input;
 
-        private IBufferWriter<byte> _outputWriter;
+        private IBufferWriter<byte>? _outputWriter;
 
 
         public void Initialize(ReadOnlySpan<byte> input, IBufferWriter<byte> outputWriter)
@@ -224,7 +224,7 @@ namespace TiffLibrary.Utils
 
             if (_accumulators.Length < 4096)
             {
-                _accumulators = _outputWriter.GetSpan(4096);
+                _accumulators = _outputWriter!.GetSpan(4096);
             }
 
             _accumulators[_accumulatorCount++] = c;
@@ -385,7 +385,8 @@ namespace TiffLibrary.Utils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FlushPacket()
         {
-            _outputWriter.Advance(_accumulatorCount);
+            Debug.Assert(_outputWriter != null);
+            _outputWriter!.Advance(_accumulatorCount);
             _accumulators = _accumulators.Slice(_accumulatorCount);
             _accumulatorCount = 0;
         }

@@ -80,7 +80,7 @@ namespace TiffLibrary.ImageEncoder
                 }
             }
 
-            TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+            TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
                 await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
@@ -88,7 +88,7 @@ namespace TiffLibrary.ImageEncoder
                 await ifdWriter.WriteTagAsync(TiffTag.TileWidth, TiffValueCollection.Single((ushort)tileWidth)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.TileLength, TiffValueCollection.Single((ushort)tileHeight)).ConfigureAwait(false);
 
-                if (context.FileWriter.UseBigTiff)
+                if (context.FileWriter?.UseBigTiff ?? false)
                 {
                     await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets)).ConfigureAwait(false);
                     await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts)).ConfigureAwait(false);

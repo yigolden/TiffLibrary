@@ -1,5 +1,8 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -11,13 +14,13 @@ namespace TiffLibrary
     /// </summary>
     public sealed partial class TiffImageFileDirectoryWriter : IDisposable
     {
-        private TiffFileWriter _writer;
+        private TiffFileWriter? _writer;
         private List<TiffImageFileDirectoryEntry> _entries;
 
         /// <summary>
         /// Gets the TIFF file writer.
         /// </summary>
-        public TiffFileWriter FileWriter => _writer;
+        public TiffFileWriter FileWriter => _writer ?? ThrowObjectDisposedException<TiffFileWriter>();
 
         internal TiffImageFileDirectoryWriter(TiffFileWriter writer)
         {
@@ -33,7 +36,8 @@ namespace TiffLibrary
         {
             EnsureNotDisposed();
 
-            await _writer.AlignToWordBoundaryAsync().ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            await _writer!.AlignToWordBoundaryAsync().ConfigureAwait(false);
             TiffStreamOffset position = _writer.Position;
 
             await WriteEntries().ConfigureAwait(false);
@@ -50,7 +54,8 @@ namespace TiffLibrary
         {
             EnsureNotDisposed();
 
-            await _writer.AlignToWordBoundaryAsync().ConfigureAwait(false);
+            Debug.Assert(_writer != null);
+            await _writer!.AlignToWordBoundaryAsync().ConfigureAwait(false);
             TiffStreamOffset position = _writer.Position;
 
             await WriteEntries().ConfigureAwait(false);
@@ -69,33 +74,41 @@ namespace TiffLibrary
 
         private async Task WriteEntries()
         {
+            Debug.Assert(_writer != null);
             _entries.Sort(TiffImageFileDirectoryEntryComparer.Instance);
 
-            byte[] buffer = _writer.InternalBuffer;
-            Stream stream = _writer.InnerStream;
-
-            if (_writer.UseBigTiff)
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(32);
+            try
             {
-                Unsafe.WriteUnaligned(ref buffer[0], (long)(uint)_entries.Count);
+                Stream stream = _writer!.InnerStream;
+
+                if (_writer.UseBigTiff)
+                {
+                    Unsafe.WriteUnaligned(ref buffer[0], (long)(uint)_entries.Count);
+                }
+                else
+                {
+                    Unsafe.WriteUnaligned(ref buffer[0], checked((ushort)_entries.Count));
+                }
+                await stream.WriteAsync(buffer, 0, _writer.OperationContext.ByteCountOfImageFileDirectoryCountField).ConfigureAwait(false);
+                _writer.AdvancePosition(_writer.OperationContext.ByteCountOfImageFileDirectoryCountField);
+
+                foreach (TiffImageFileDirectoryEntry entry in _entries)
+                {
+                    int bytesWritten = entry.Write(_writer.OperationContext, buffer);
+                    await stream.WriteAsync(buffer, 0, bytesWritten).ConfigureAwait(false);
+                    _writer.AdvancePosition(bytesWritten);
+                }
+
+                Unsafe.WriteUnaligned(ref buffer[0], (long)0);
+
+                await stream.WriteAsync(buffer, 0, _writer.OperationContext.ByteCountOfValueOffsetField).ConfigureAwait(false);
+                _writer.AdvancePosition(_writer.OperationContext.ByteCountOfValueOffsetField);
             }
-            else
+            finally
             {
-                Unsafe.WriteUnaligned(ref buffer[0], checked((ushort)_entries.Count));
+                ArrayPool<byte>.Shared.Return(buffer);
             }
-            await stream.WriteAsync(buffer, 0, _writer.OperationContext.ByteCountOfImageFileDirectoryCountField).ConfigureAwait(false);
-            _writer.AdvancePosition(_writer.OperationContext.ByteCountOfImageFileDirectoryCountField);
-
-            foreach (TiffImageFileDirectoryEntry entry in _entries)
-            {
-                int bytesWritten = entry.Write(_writer.OperationContext, buffer);
-                await stream.WriteAsync(buffer, 0, bytesWritten).ConfigureAwait(false);
-                _writer.AdvancePosition(bytesWritten);
-            }
-
-            Unsafe.WriteUnaligned(ref buffer[0], (long)0);
-
-            await stream.WriteAsync(buffer, 0, _writer.OperationContext.ByteCountOfValueOffsetField).ConfigureAwait(false);
-            _writer.AdvancePosition(_writer.OperationContext.ByteCountOfValueOffsetField);
         }
 
 
@@ -109,7 +122,14 @@ namespace TiffLibrary
             }
         }
 
+        [DoesNotReturn]
         private static void ThrowObjectDisposedException()
+        {
+            throw new ObjectDisposedException(nameof(TiffImageFileDirectoryWriter));
+        }
+
+        [DoesNotReturn]
+        private static T ThrowObjectDisposedException<T>()
         {
             throw new ObjectDisposedException(nameof(TiffImageFileDirectoryWriter));
         }

@@ -5,7 +5,7 @@ namespace TiffLibrary.ImageEncoder
     internal sealed class TiffImageEncoderPipelineNode<TPixel> : ITiffImageEncoderPipelineNode<TPixel> where TPixel : unmanaged
     {
         public ITiffImageEncoderMiddleware<TPixel> Middleware { get; set; }
-        public ITiffImageEncoderPipelineNode<TPixel> Next { get; set; }
+        public ITiffImageEncoderPipelineNode<TPixel>? Next { get; set; }
 
         public TiffImageEncoderPipelineNode(ITiffImageEncoderMiddleware<TPixel> middleware)
         {
@@ -15,7 +15,7 @@ namespace TiffLibrary.ImageEncoder
         public ValueTask RunAsync(TiffImageEncoderContext<TPixel> context)
         {
             ITiffImageEncoderMiddleware<TPixel> middleware = Middleware;
-            ITiffImageEncoderPipelineNode<TPixel> next = Next;
+            ITiffImageEncoderPipelineNode<TPixel>? next = Next;
 
             context.CancellationToken.ThrowIfCancellationRequested();
 

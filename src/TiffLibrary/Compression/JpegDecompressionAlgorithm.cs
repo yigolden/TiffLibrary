@@ -12,7 +12,7 @@ namespace TiffLibrary.Compression
     {
         private readonly int _numberOfComponents;
         private readonly byte[] _jpegTables;
-        private JpegDecoder _decoder;
+        private JpegDecoder? _decoder;
 
         /// <summary>
         /// Initialize the object.

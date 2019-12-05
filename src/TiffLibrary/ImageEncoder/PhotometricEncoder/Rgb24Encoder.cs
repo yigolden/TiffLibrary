@@ -10,11 +10,12 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
+            MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
             TiffSize imageSize = context.ImageSize;
             int arraySize = 3 * imageSize.Width * imageSize.Height;
-            using (IMemoryOwner<byte> pixelData = context.MemoryPool.Rent(arraySize))
+            using (IMemoryOwner<byte> pixelData = memoryPool.Rent(arraySize))
             {
-                using (var writer = new TiffMemoryPixelBufferWriter<TiffRgb24>(context.MemoryPool, pixelData.Memory, imageSize.Width, imageSize.Height))
+                using (var writer = new TiffMemoryPixelBufferWriter<TiffRgb24>(memoryPool, pixelData.Memory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
                     await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
@@ -29,7 +30,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 context.UncompressedData = default;
             }
 
-            TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+            TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
                 await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);

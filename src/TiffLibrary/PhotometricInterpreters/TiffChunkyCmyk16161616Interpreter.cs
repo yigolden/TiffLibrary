@@ -42,7 +42,11 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffCmyk64> writer = context.GetWriter<TiffCmyk64>();
 
-            TiffOperationContext operationContext = context.OperationContext;
+            TiffOperationContext? operationContext = context.OperationContext;
+            if (operationContext is null)
+            {
+                throw new InvalidOperationException("Failed to acquire OperationContext.");
+            }
 
             int rows = context.ReadSize.Height;
 

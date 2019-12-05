@@ -15,7 +15,7 @@ namespace TiffLibrary.ImageDecoder
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
-        public override MemoryPool<byte> MemoryPool { get; set; }
+        public override MemoryPool<byte>? MemoryPool { get; set; }
 
         /// <summary>
         /// The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.
@@ -25,12 +25,12 @@ namespace TiffLibrary.ImageDecoder
         /// <summary>
         /// Parameters of how the TIFF file should be parsed.
         /// </summary>
-        public override TiffOperationContext OperationContext { get; set; }
+        public override TiffOperationContext? OperationContext { get; set; }
 
         /// <summary>
         /// The content reader to read data from.
         /// </summary>
-        public override TiffFileContentReader ContentReader { get; set; }
+        public override TiffFileContentReader? ContentReader { get; set; }
 
         /// <summary>
         /// The regions in the stream to read each plane data from.
@@ -65,15 +65,21 @@ namespace TiffLibrary.ImageDecoder
         /// <summary>
         /// A factory instance for creating <see cref="TiffPixelConverter{TSource, TDestination}"/> object to convert from one pixel format to another.
         /// </summary>
-        public ITiffPixelConverterFactory PixelConverterFactory { get; set; }
+        public ITiffPixelConverterFactory? PixelConverterFactory { get; set; }
 
         /// <summary>
         /// A function to get destination buffer in the specified pixel format.
         /// </summary>
         public sealed override TiffPixelBufferWriter<TPixel> GetWriter<TPixel>()
         {
+            ITiffPixelConverterFactory? pixelConverterFactory = PixelConverterFactory;
+            if (pixelConverterFactory is null)
+            {
+                throw new InvalidOperationException("Failed to acquire PixelConverterFactory");
+            }
+
             ITiffPixelBufferWriter<TDestinationPixel> buffer = TiffPixelBufferUnsafeMarshal.GetBuffer(DestinationWriter, out TiffPoint offset, out TiffSize size);
-            return PixelConverterFactory.CreateConverter<TPixel, TDestinationPixel>(buffer).Crop(offset, size);
+            return pixelConverterFactory.CreateConverter<TPixel, TDestinationPixel>(buffer).Crop(offset, size);
         }
     }
 }

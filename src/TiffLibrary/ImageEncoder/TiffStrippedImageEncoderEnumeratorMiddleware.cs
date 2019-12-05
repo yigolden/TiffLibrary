@@ -61,14 +61,14 @@ namespace TiffLibrary.ImageEncoder
                 stripByteCounts[i] = (ulong)wrappedContext.OutputRegion.Length;
             }
 
-            TiffImageFileDirectoryWriter ifdWriter = context.IfdWriter;
+            TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
                 await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)rowsPerStrip)).ConfigureAwait(false);
 
-                if (context.FileWriter.UseBigTiff)
+                if (context.FileWriter?.UseBigTiff ?? false)
                 {
                     await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets)).ConfigureAwait(false);
                     await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts)).ConfigureAwait(false);

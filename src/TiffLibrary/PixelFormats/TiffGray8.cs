@@ -38,7 +38,7 @@ namespace TiffLibrary.PixelFormats
         /// </summary>
         /// <param name="obj">The specified objects</param>
         /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is TiffGray8 other && Equals(other);
         }

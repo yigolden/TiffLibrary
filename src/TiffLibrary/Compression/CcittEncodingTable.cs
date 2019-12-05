@@ -2,8 +2,8 @@
 {
     class CcittEncodingTable
     {
-        private static CcittEncodingTable s_whiteInstance;
-        private static CcittEncodingTable s_blackInstance;
+        private static CcittEncodingTable? s_whiteInstance;
+        private static CcittEncodingTable? s_blackInstance;
 
         public static CcittEncodingTable WhiteInstance => (s_whiteInstance is null) ? s_whiteInstance = new CcittEncodingTable(isWhite: true) : s_whiteInstance;
         public static CcittEncodingTable BlackInstance => (s_blackInstance is null) ? s_blackInstance = new CcittEncodingTable(isWhite: false) : s_blackInstance;

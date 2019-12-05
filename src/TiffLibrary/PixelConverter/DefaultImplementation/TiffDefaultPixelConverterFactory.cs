@@ -34,7 +34,7 @@ namespace TiffLibrary.PixelConverter
                 return Unsafe.As<ITiffPixelBufferWriter<TSource>>(writer);
             }
 
-            ITiffPixelConverterFactory factory = DefaultPixelConverterFactoryCache<TSource, TDestination>.Factory;
+            ITiffPixelConverterFactory? factory = DefaultPixelConverterFactoryCache<TSource, TDestination>.Factory;
             if (factory != null)
             {
                 return factory.CreateConverter<TSource, TDestination>(writer);
@@ -78,7 +78,7 @@ namespace TiffLibrary.PixelConverter
                 return true;
             }
 
-            ITiffPixelConverterFactory factory = DefaultPixelConverterFactoryCache<TSource, TDestination>.Factory;
+            ITiffPixelConverterFactory? factory = DefaultPixelConverterFactoryCache<TSource, TDestination>.Factory;
             if (factory != null)
             {
                 return true;

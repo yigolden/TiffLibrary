@@ -101,7 +101,7 @@ namespace TiffLibrary
         /// <returns>The reader instance.</returns>
         public static TiffFileReader Open(string fileName)
         {
-            var contentSource = TiffFileContentSource.Create(fileName, preferAsync: true);
+            var contentSource = TiffFileContentSource.Create(fileName, preferAsync: false);
             return Open(contentSource, leaveOpen: false);
         }
 

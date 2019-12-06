@@ -22,7 +22,7 @@
     </PackageReference>
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
   </ItemGroup>
- 
+
   <ItemGroup>
     <ProjectReference Include="..\TiffLibrary\TiffLibrary.csproj" />
   </ItemGroup>

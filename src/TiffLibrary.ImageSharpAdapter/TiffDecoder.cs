@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
@@ -13,7 +14,7 @@ namespace TiffLibrary.ImageSharpAdapter
         {
             if (configuration is null)
             {
-                throw new System.ArgumentNullException(nameof(configuration));
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             var decoder = new TiffDecoderCore(configuration, this);
@@ -27,7 +28,7 @@ namespace TiffLibrary.ImageSharpAdapter
         {
             if (configuration is null)
             {
-                throw new System.ArgumentNullException(nameof(configuration));
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             var decoder = new TiffDecoderCore(configuration, this);

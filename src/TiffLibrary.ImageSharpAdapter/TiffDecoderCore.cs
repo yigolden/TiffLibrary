@@ -85,11 +85,11 @@ namespace TiffLibrary.ImageSharpAdapter
 
         private async Task<Image<TImageSharpPixel>> DecodeImageAsync<TImageSharpPixel, TTiffPixel>(TiffImageDecoder decoder) where TImageSharpPixel : struct, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
         {
-            var image = new Image<TImageSharpPixel>(_configuration, decoder.Width, decoder.Height);
+            Image<TImageSharpPixel>? image = new Image<TImageSharpPixel>(_configuration, decoder.Width, decoder.Height);
             try
             {
                 await decoder.DecodeAsync(new ImageSharpPixelBuffer<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);
-                return Interlocked.Exchange(ref image, null);
+                return Interlocked.Exchange(ref image, null)!;
             }
             finally
             {

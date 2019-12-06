@@ -7,7 +7,7 @@ namespace TiffLibrary.ImageSharpAdapter
     {
         public int HeaderSize => 16;
 
-        public IImageFormat DetectFormat(ReadOnlySpan<byte> header)
+        public IImageFormat? DetectFormat(ReadOnlySpan<byte> header)
         {
             return TiffFileHeader.TryParse(header, out _) ? TiffFormat.Instance : null;
         }

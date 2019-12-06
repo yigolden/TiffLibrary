@@ -22,7 +22,7 @@ namespace SixLabors.ImageSharp
             source.SaveAsTiff(stream, null);
         }
 
-        public static void SaveAsTiff(this Image source, Stream stream, TiffEncoder encoder)
+        public static void SaveAsTiff(this Image source, Stream stream, TiffEncoder? encoder)
         {
             if (source is null)
             {

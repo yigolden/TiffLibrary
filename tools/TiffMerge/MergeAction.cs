@@ -19,6 +19,7 @@ namespace TiffMerge
             if (output is null)
             {
                 Console.WriteLine("Output TIFF file is not specified");
+                return 1;
             }
 
             await using TiffFileWriter writer = await TiffFileWriter.OpenAsync(output.FullName);
@@ -108,7 +109,7 @@ namespace TiffMerge
             uint[] offsets32 = new uint[offsets.Count];
             uint[] byteCounts32 = new uint[offsets.Count];
 
-            byte[] buffer = null;
+            byte[]? buffer = null;
             try
             {
                 for (int i = 0; i < offsets.Count; i++)
@@ -162,7 +163,7 @@ namespace TiffMerge
             uint[] offsets32 = new uint[offsets.Count];
             uint[] byteCounts32 = new uint[offsets.Count];
 
-            byte[] buffer = null;
+            byte[]? buffer = null;
             try
             {
                 for (int i = 0; i < offsets.Count; i++)

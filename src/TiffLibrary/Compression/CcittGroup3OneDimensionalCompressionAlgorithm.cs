@@ -252,8 +252,6 @@ namespace TiffLibrary.Compression
                             value = bitReader.Peek(filledBits + 12);
                             if (value == 0b000000000001)
                             {
-                                // fill the rest of scanline
-                                scanline.Fill(fillValue);
                                 bitReader.Advance(filledBits + 12);
                             }
 

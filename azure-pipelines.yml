@@ -9,9 +9,6 @@ trigger:
 pool:
   vmImage: 'vs2017-win2016'
 
-variables:
-  buildConfiguration: 'Release'
-
 steps:
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK'
@@ -23,21 +20,35 @@ steps:
   displayName: 'Restoring Dependencies'
   inputs:
     command: restore
-    projects: '**/*.csproj'
+    projects: 'TiffLibrary.sln'
 
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: Build (Debug)
   inputs:
     command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    projects: 'TiffLibrary.sln'
+    arguments: '--configuration Debug'
 
 - task: DotNetCoreCLI@2
-  displayName: Run Tests
+  displayName: Build (Release)
+  inputs:
+    command: build
+    projects: 'TiffLibrary.sln'
+    arguments: '--configuration Release'
+
+- task: DotNetCoreCLI@2
+  displayName: Run Tests (Debug)
   inputs:
     command: test
     projects: 'tests/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+    arguments: '--configuration Debug'
+
+- task: DotNetCoreCLI@2
+  displayName: Run Tests (Release)
+  inputs:
+    command: test
+    projects: 'tests/*Tests/*.csproj'
+    arguments: '--configuration Release --collect "Code coverage"'
 
 - task: CopyFiles@2
   displayName: Collect Artifacts
@@ -48,7 +59,7 @@ steps:
     flattenFolders: true
 
 - task: CopyFiles@2
-  displayName: Collect Artifacts 2
+  displayName: Collect Artifacts (Symbols)
   inputs:
     sourceFolder: 'src'
     contents: '**/*.snupkg'

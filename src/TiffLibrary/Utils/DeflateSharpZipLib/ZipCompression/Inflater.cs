@@ -436,8 +436,6 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </exception>
         private bool Decode()
         {
-            Debug.Assert(dynHeader != null);
-
             switch (mode)
             {
                 case DECODE_HEADER:
@@ -537,6 +535,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     }
 
                 case DECODE_DYN_HEADER:
+                    Debug.Assert(dynHeader != null);
                     if (!dynHeader!.AttemptRead())
                     {
                         return false;

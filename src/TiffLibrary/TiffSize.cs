@@ -42,21 +42,13 @@ namespace TiffLibrary
         /// </summary>
         public bool IsAreaEmpty => Width == 0 || Height == 0;
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="other">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public bool Equals(TiffSize other)
         {
             return Width == other.Width && Height == other.Height;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             return obj is TiffSize size && Equals(size);
@@ -78,19 +70,13 @@ namespace TiffLibrary
         /// <returns>True if the <paramref name="left"/> parameter is not equal to the <paramref name="right"/> parameter; otherwise, false.</returns>
         public static bool operator !=(TiffSize left, TiffSize right) => !left.Equals(right);
 
-        /// <summary>
-        /// Gets a hash code for the current object.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashHelpers.Combine(Width.GetHashCode(), Height.GetHashCode());
         }
 
-        /// <summary>
-        /// Gets a string representation of the instance.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"({Width},{Height})";

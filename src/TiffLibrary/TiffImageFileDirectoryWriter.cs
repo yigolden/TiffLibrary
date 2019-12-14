@@ -134,9 +134,7 @@ namespace TiffLibrary
             throw new ObjectDisposedException(nameof(TiffImageFileDirectoryWriter));
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             _writer = null;

@@ -22,9 +22,10 @@ namespace TiffLibrary
         ValueTask<TiffFileContentReader> OpenReaderAsync();
 
         /// <summary>
-        /// Dispose this instance.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting
+        /// unmanaged resources asynchronously.
         /// </summary>
-        /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
+        /// <returns>A task that represents the asynchronous dispose operation.</returns>
         ValueTask DisposeAsync();
     }
 
@@ -115,30 +116,23 @@ namespace TiffLibrary
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Dispose the <see cref="TiffFileContentSource"/> and the related resources.
-        /// </summary>
-        /// <param name="disposing">True if the method is called from dispose method; otherwise, false.</param>
+        /// <inheritdoc />
         protected abstract void Dispose(bool disposing);
 
-        /// <summary>
-        /// Dispose the <see cref="TiffFileContentSource"/> and the related resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
-        /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
+        /// <inheritdoc />
         public virtual ValueTask DisposeAsync()
         {
             Dispose();
             return default;
         }
+
         #endregion
     }
 }

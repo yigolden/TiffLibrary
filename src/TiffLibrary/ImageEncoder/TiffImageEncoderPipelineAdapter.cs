@@ -29,15 +29,7 @@ namespace TiffLibrary.ImageEncoder
             _ifdEncoder = ifdEncoder;
         }
 
-        /// <summary>
-        /// Encode a single image without writing any IFD fields.
-        /// </summary>
-        /// <param name="writer">The <see cref="TiffFileWriter"/> object to write encoded image data to.</param>
-        /// <param name="offset">The number of columns and rows to skip in <paramref name="reader"/>.</param>
-        /// <param name="size">The number of columns and rows to encode in <paramref name="reader"/>.</param>
-        /// <param name="reader">The pixel buffer reader object.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
-        /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
+        /// <inheritdoc />
         public override async Task<TiffStreamRegion> EncodeAsync(TiffFileWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken)
         {
             if (writer is null)
@@ -77,15 +69,7 @@ namespace TiffLibrary.ImageEncoder
             return context.OutputRegion;
         }
 
-        /// <summary>
-        /// Encode an image as well as associated IFD fields into TIFF stream.
-        /// </summary>
-        /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
-        /// <param name="offset">The number of columns and rows to skip in <paramref name="reader"/>.</param>
-        /// <param name="size">The number of columns and rows to encode in <paramref name="reader"/>.</param>
-        /// <param name="reader">The pixel buffer reader object.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
+        /// <inheritdoc />
         public override async Task EncodeAsync(TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken)
         {
             if (writer is null)

@@ -144,12 +144,7 @@ namespace TiffLibrary.Compression
             }
         }
 
-        /// <summary>
-        /// Compress image data.
-        /// </summary>
-        /// <param name="context">Information about the TIFF file.</param>
-        /// <param name="input">The input data.</param>
-        /// <param name="outputWriter">The output writer.</param>
+        /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
             if (context is null)

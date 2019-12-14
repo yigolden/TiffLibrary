@@ -38,12 +38,7 @@ namespace TiffLibrary.Compression
             return LowerOrderBitsFirstInstance;
         }
 
-        /// <summary>
-        /// Compress image data.
-        /// </summary>
-        /// <param name="context">Information about the TIFF file.</param>
-        /// <param name="input">The input data.</param>
-        /// <param name="outputWriter">The output writer.</param>
+        /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
             if (context is null)
@@ -104,12 +99,7 @@ namespace TiffLibrary.Compression
             bitWriter.Flush();
         }
 
-        /// <summary>
-        /// Decompress the image data.
-        /// </summary>
-        /// <param name="context">Information about the TIFF file.</param>
-        /// <param name="input">The input data.</param>
-        /// <param name="output">The output data.</param>
+        /// <inheritdoc />
         public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             if (context is null)
@@ -150,10 +140,9 @@ namespace TiffLibrary.Compression
                 CcittDecodingTable currentTable = CcittDecodingTable.WhiteInstance;
                 CcittDecodingTable otherTable = CcittDecodingTable.BlackInstance;
                 int unpacked = 0;
-                CcittCodeValue tableEntry;
                 while (true)
                 {
-                    if (!currentTable.TryLookup(bitReader.Peek(16), out tableEntry))
+                    if (!currentTable.TryLookup(bitReader.Peek(16), out CcittCodeValue tableEntry))
                     {
                         throw new InvalidDataException();
                     }

@@ -311,21 +311,13 @@ namespace TiffLibrary
             }
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="other">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public bool Equals(TiffImageFileDirectoryEntry other)
         {
             return Tag == other.Tag && Type == other.Type && ValueCount == other.ValueCount && ValueOffset == other.ValueOffset;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             return obj is TiffImageFileDirectoryEntry other && Equals(other);
@@ -347,10 +339,7 @@ namespace TiffLibrary
         /// <returns>True if the <paramref name="left"/> parameter is not equal to the <paramref name="right"/> parameter; otherwise, false.</returns>
         public static bool operator !=(in TiffImageFileDirectoryEntry left, in TiffImageFileDirectoryEntry right) => !left.Equals(right);
 
-        /// <summary>
-        /// Gets a hash code for the current object.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             int hashCode = (((ushort)Tag) << 16 | (ushort)Type).GetHashCode();

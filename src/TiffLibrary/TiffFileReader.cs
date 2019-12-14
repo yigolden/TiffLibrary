@@ -524,9 +524,7 @@ namespace TiffLibrary
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null!);
@@ -537,10 +535,7 @@ namespace TiffLibrary
             _operationContext = null;
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
-        /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
+        /// <inheritdoc />
         public async ValueTask DisposeAsync()
         {
             ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null!);

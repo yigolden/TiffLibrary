@@ -35,21 +35,13 @@ namespace TiffLibrary
         /// </summary>
         public bool IsZero => Offset == 0;
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="other">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public bool Equals(TiffStreamOffset other)
         {
             return other.Offset == Offset;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is TiffStreamOffset offset)
@@ -125,16 +117,10 @@ namespace TiffLibrary
         /// <returns>True if the <paramref name="left"/> parameter is not greater than the <paramref name="right"/> parameter; otherwise, false.</returns>
         public static bool operator <=(TiffStreamOffset left, TiffStreamOffset right) => left.Offset <= right.Offset;
 
-        /// <summary>
-        /// Gets a hash code for the current object.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
+        /// <inheritdoc />
         public override int GetHashCode() => Offset.GetHashCode();
 
-        /// <summary>
-        /// Gets a string representation of the offset.
-        /// </summary>
-        /// <returns>A string representing the offset.</returns>
+        /// <inheritdoc />
         public override string ToString() => $"{Offset}";
 
         /// <summary>

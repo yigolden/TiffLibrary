@@ -130,15 +130,10 @@ namespace TiffLibrary
             private int _count;
             private T _current;
 
-            /// <summary>
-            /// Gets the current element.
-            /// </summary>
+            /// <inheritdoc />
             public T Current => _current;
 
-
-            /// <summary>
-            /// Gets the current element.
-            /// </summary>
+            /// <inheritdoc />
             object? IEnumerator.Current => _current;
 
             /// <summary>
@@ -154,10 +149,7 @@ namespace TiffLibrary
                 _current = default!;
             }
 
-            /// <summary>
-            /// Move to the next element.
-            /// </summary>
-            /// <returns>True if the position is moved to the next element. False if there is no more element in the list.</returns>
+            /// <inheritdoc />
             public bool MoveNext()
             {
                 if (_values is null)
@@ -175,18 +167,14 @@ namespace TiffLibrary
                 return true;
             }
 
-            /// <summary>
-            /// Reset the enumerator.
-            /// </summary>
+            /// <inheritdoc />
             public void Reset()
             {
                 _index = 0;
                 _current = default!;
             }
 
-            /// <summary>
-            /// Dispose the enumerator.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose()
             {
                 _index = 0;
@@ -221,10 +209,7 @@ namespace TiffLibrary
             return GetEnumerator();
         }
 
-        /// <summary>
-        /// Gets a human-readable representation of the list.
-        /// </summary>
-        /// <returns>A human-readable representation of the list.</returns>
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"TiffLibrary.TiffValueCollection<{typeof(T).Name}>[{Count}]";

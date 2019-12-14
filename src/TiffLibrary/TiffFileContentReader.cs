@@ -47,9 +47,10 @@ namespace TiffLibrary
             => new ValueTask<int>(Read(offset, buffer));
 
         /// <summary>
-        /// Dispose this instance.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting
+        /// unmanaged resources asynchronously.
         /// </summary>
-        /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
+        /// <returns>A task that represents the asynchronous dispose operation.</returns>
         public virtual ValueTask DisposeAsync()
         {
             Dispose(true);
@@ -67,9 +68,7 @@ namespace TiffLibrary
         /// <param name="disposing">Whether to dispose managed resources.</param>
         protected abstract void Dispose(bool disposing);
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);

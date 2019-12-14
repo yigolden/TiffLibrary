@@ -47,9 +47,7 @@ namespace TiffLibrary
             return TiffSyncFileContentSource.WrapReader(reader);
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             _context = null;
@@ -58,10 +56,7 @@ namespace TiffLibrary
             _cancellationToken = default;
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
-        /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
+        /// <inheritdoc />
         public async ValueTask DisposeAsync()
         {
             _context = null;

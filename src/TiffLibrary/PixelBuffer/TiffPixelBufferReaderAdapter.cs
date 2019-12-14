@@ -23,23 +23,13 @@ namespace TiffLibrary.PixelBuffer
             _size = new TiffSize(buffer.Width, buffer.Height);
         }
 
-        /// <summary>
-        /// The number of columns in the region the reader object provides.
-        /// </summary>
+        /// <inheritdoc />
         public int Width => _size.Width;
 
-        /// <summary>
-        /// The number of rows in the region the reader object provides.
-        /// </summary>
+        /// <inheritdoc />
         public int Height => _size.Height;
 
-        /// <summary>
-        /// Copy the 2-dimensional pixel data into <paramref name="destination"/>, after skipping some rows and columns specified in <paramref name="offset"/>.
-        /// </summary>
-        /// <param name="offset">The number rows and columns to skip. X represents the number of columns to skip; Y represents the number of rows to skip.</param>
-        /// <param name="destination">The destination writer. It also limits the number of rows and columns to copy.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
-        /// <returns>A <see cref="ValueTask"/> that completes when all the requested pixels are copied.</returns>
+        /// <inheritdoc />
         public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TPixel> destination, CancellationToken cancellationToken)
         {
             if (offset.X >= (uint)_size.Width || offset.Y >= (uint)_size.Height)

@@ -43,21 +43,13 @@ namespace TiffLibrary
             _length = length;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="other">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public bool Equals(TiffStreamRegion other)
         {
             return other._offset == _offset && other._length == _length;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is TiffStreamRegion other)
@@ -83,10 +75,7 @@ namespace TiffLibrary
         /// <returns>True if the <paramref name="left"/> parameter is not equal to the <paramref name="right"/> parameter; otherwise, false.</returns>
         public static bool operator !=(TiffStreamRegion left, TiffStreamRegion right) => !left.Equals(right);
 
-        /// <summary>
-        /// Gets a hash code for the current object.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashHelpers.Combine(_offset.GetHashCode(), _length.GetHashCode());

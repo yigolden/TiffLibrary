@@ -767,9 +767,7 @@ namespace TiffLibrary
             throw new ObjectDisposedException(nameof(TiffFileWriter));
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             if (!_leaveOpen)
@@ -781,10 +779,7 @@ namespace TiffLibrary
             _leaveOpen = true;
         }
 
-        /// <summary>
-        /// Dispose this instance.
-        /// </summary>
-        /// <returns>A <see cref="ValueTask"/> that completes when the instance is disposed.</returns>
+        /// <inheritdoc />
         public async ValueTask DisposeAsync()
         {
             if (!_leaveOpen && !(_stream is null))

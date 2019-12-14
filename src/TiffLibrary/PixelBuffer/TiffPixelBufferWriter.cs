@@ -42,14 +42,10 @@ namespace TiffLibrary
             }
         }
 
-        /// <summary>
-        /// The number of columns in the region.
-        /// </summary>
+        /// <inheritdoc />
         public int Width => _size.Width;
 
-        /// <summary>
-        /// The number of columns in the region.
-        /// </summary>
+        /// <inheritdoc />
         public int Height => _size.Height;
 
         /// <summary>

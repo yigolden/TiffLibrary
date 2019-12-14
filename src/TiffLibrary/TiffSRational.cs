@@ -47,31 +47,19 @@ namespace TiffLibrary
             return Numerator / (double)Denominator;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="other">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public bool Equals(TiffSRational other)
         {
             return Numerator == other.Numerator && Denominator == other.Denominator;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="other">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public bool Equals(TiffRational other)
         {
             return Numerator == other.Numerator && Denominator == other.Denominator;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj">The specified objects</param>
-        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             return (obj is TiffSRational other && Equals(other)) || (obj is TiffRational other2 && Equals(other2));
@@ -109,10 +97,7 @@ namespace TiffLibrary
         /// <returns>True if the <paramref name="left"/> parameter is not equal to the <paramref name="right"/> parameter; otherwise, false.</returns>
         public static bool operator !=(TiffSRational left, TiffRational right) => !left.Equals(right);
 
-        /// <summary>
-        /// Gets a hash code for the current object.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashHelpers.Combine(Numerator.GetHashCode(), Denominator.GetHashCode());

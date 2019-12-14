@@ -17,12 +17,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// </summary>
         public static TiffBlackIsZero4Interpreter Instance { get; } = new TiffBlackIsZero4Interpreter();
 
-        /// <summary>
-        /// Run this middleware.
-        /// </summary>
-        /// <param name="context">Information of the current decoding process.</param>
-        /// <param name="next">The next middleware in the decoder pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when this middleware completes running.</returns>
+        /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
             if (context is null)

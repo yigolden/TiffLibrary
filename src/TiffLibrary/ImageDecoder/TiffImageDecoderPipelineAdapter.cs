@@ -58,14 +58,7 @@ namespace TiffLibrary.ImageDecoder
             }
         }
 
-        /// <summary>
-        /// Decode the image into the specified pixel buffer.
-        /// </summary>
-        /// <typeparam name="TPixel">The pixel type.</typeparam>
-        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
-        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
-        /// <param name="destinationOffset">Number of columns and rows to skip in the destination writer.</param>
-        /// <param name="writer">The pixel buffer writer to write pixels into.</param>
+        /// <inheritdoc />
         public override void Decode<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer)
         {
             if (writer is null)
@@ -101,16 +94,7 @@ namespace TiffLibrary.ImageDecoder
             _pipeline.RunAsync(context).GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Decode the image into the specified pixel buffer.
-        /// </summary>
-        /// <typeparam name="TPixel">The pixel type.</typeparam>
-        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
-        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
-        /// <param name="destinationOffset">Number of columns and rows to skip in the destination writer.</param>
-        /// <param name="writer">The pixel buffer writer to write pixels into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
-        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
+        /// <inheritdoc />
         public override async Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default)
         {
             if (writer is null)

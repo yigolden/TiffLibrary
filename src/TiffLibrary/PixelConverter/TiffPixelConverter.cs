@@ -40,23 +40,13 @@ namespace TiffLibrary.PixelConverter
             _canInPlaceConvert = allowInPlaceConvert && Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TDestination>();
         }
 
-        /// <summary>
-        /// The number of columns in the region.
-        /// </summary>
+        /// <inheritdoc />
         public int Width => _writer?.Width ?? ThrowObjectDisposedException();
 
-        /// <summary>
-        /// The number of rows in the region.
-        /// </summary>
+        /// <inheritdoc />
         public int Height => _writer?.Height ?? ThrowObjectDisposedException();
 
-        /// <summary>
-        /// Gets a <see cref="TiffPixelSpanHandle{TPixel}"/> representing a write-only span of the <paramref name="rowIndex"/> row of the region, while skipping <paramref name="start"/> pixels and limiting the length of the span to <paramref name="length"/>. <see cref="TiffPixelSpanHandle{TPixel}"/> should be disposed after use to flush the pixels into the underlying storage.
-        /// </summary>
-        /// <param name="rowIndex">The row index.</param>
-        /// <param name="start">Number of pixels to skip in this row.</param>
-        /// <param name="length">Number of pixels to write.</param>
-        /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
+        /// <inheritdoc />
         public TiffPixelSpanHandle<TSource> GetRowSpan(int rowIndex, int start, int length)
         {
             if (_writer is null)
@@ -88,13 +78,7 @@ namespace TiffLibrary.PixelConverter
             return handle;
         }
 
-        /// <summary>
-        /// Gets a <see cref="TiffPixelSpanHandle{TPixel}"/> representing a write-only span of the <paramref name="colIndex"/> column of the region, while skipping <paramref name="start"/> pixels and limiting the length of the span to <paramref name="length"/>. <see cref="TiffPixelSpanHandle{TPixel}"/> should be disposed after use to flush the pixels into the underlying storage.
-        /// </summary>
-        /// <param name="colIndex">The column index.</param>
-        /// <param name="start">Number of pixels to skip in this column.</param>
-        /// <param name="length">Number of pixels to write.</param>
-        /// <returns>A <see cref="TiffPixelSpanHandle{TPixel}"/> representing the temporary buffer consumer can write to. When disposed, it will flush the temporary pixels into the actual storage.</returns>
+        /// <inheritdoc />
         public TiffPixelSpanHandle<TSource> GetColumnSpan(int colIndex, int start, int length)
         {
             if (_writer is null)
@@ -127,9 +111,7 @@ namespace TiffLibrary.PixelConverter
         }
 
 #pragma warning disable CA1816 // CA1816: Call GC.SuppressFinalize correctly
-        /// <summary>
-        /// Release the allocated resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
 #pragma warning restore CA1816 // CA1816: Call GC.SuppressFinalize correctly
         {
@@ -152,11 +134,7 @@ namespace TiffLibrary.PixelConverter
             throw new ObjectDisposedException(GetType().FullName);
         }
 
-        /// <summary>
-        /// Method to convert from one pixel format to another.
-        /// </summary>
-        /// <param name="source">The source pixel span.</param>
-        /// <param name="destination">The destination pixel span.</param>
+        /// <inheritdoc />
         public abstract void Convert(ReadOnlySpan<TSource> source, Span<TDestination> destination);
 
         #region ConverterHandle

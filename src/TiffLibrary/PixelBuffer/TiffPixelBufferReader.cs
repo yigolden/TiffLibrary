@@ -44,14 +44,10 @@ namespace TiffLibrary
             _size = new TiffSize(_reader.Width, _reader.Height);
         }
 
-        /// <summary>
-        /// The number of columns in the region the reader object provides.
-        /// </summary>
+        /// <inheritdoc />
         public int Width => _size.Width;
 
-        /// <summary>
-        /// The number of rows in the region the reader object provides.
-        /// </summary>
+        /// <inheritdoc />
         public int Height => _size.Height;
 
         /// <summary>

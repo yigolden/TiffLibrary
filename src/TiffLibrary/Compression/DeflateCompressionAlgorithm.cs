@@ -53,12 +53,7 @@ namespace TiffLibrary.Compression
         }
 
 
-        /// <summary>
-        /// Compress image data.
-        /// </summary>
-        /// <param name="context">Information about the TIFF file.</param>
-        /// <param name="input">The input data.</param>
-        /// <param name="outputWriter">The output writer.</param>
+        /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
             if (context is null)
@@ -100,12 +95,7 @@ namespace TiffLibrary.Compression
         }
 
 
-        /// <summary>
-        /// Decompress the image data.
-        /// </summary>
-        /// <param name="context">Information about the TIFF file.</param>
-        /// <param name="input">The input data.</param>
-        /// <param name="output">The output data.</param>
+        /// <inheritdoc />
         public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             var inflater = new Inflater(noHeader: false);

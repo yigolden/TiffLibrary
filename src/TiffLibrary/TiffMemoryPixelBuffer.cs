@@ -37,20 +37,13 @@ namespace TiffLibrary
             _height = height;
         }
 
-        /// <summary>
-        /// The number of columns in the region.
-        /// </summary>
+        /// <inheritdoc />
         public int Width => _width;
 
-        /// <summary>
-        /// The number of rows in the region.
-        /// </summary>
+        /// <inheritdoc />
         public int Height => _height;
 
-        /// <summary>
-        /// Gets a <see cref="Span{TPixel}"/> representing memory of the entire region in row-major order.
-        /// </summary>
-        /// <returns>A <see cref="Span{TPixel}"/> representing memory of the entire region in row-major order.</returns>
+        /// <inheritdoc />
         public Span<TPixel> GetSpan()
         {
             return _buffer.Span.Slice(0, _width * _height);

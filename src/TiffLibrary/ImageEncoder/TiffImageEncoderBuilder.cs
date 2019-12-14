@@ -37,7 +37,7 @@ namespace TiffLibrary
         public int RowsPerStrip { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the tile size when the output TIFF file is a tiled TIFF file. Both with and height should be a multiple of 16.
+        /// Gets or sets the tile size when the output TIFF file is a tiled TIFF file. Both with and height should be multiples of 16.
         /// </summary>
         public TiffSize TileSize { get; set; } = new TiffSize(512, 512);
 

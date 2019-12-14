@@ -2,8 +2,12 @@
 
 namespace TiffLibrary.ImageSharpAdapter
 {
+    /// <summary>
+    /// Registers the iamge encoders, decoders and mime type detectors for the TIFF format.
+    /// </summary>
     public sealed class TiffConfigurationModule : IConfigurationModule
     {
+        /// <inheritdoc/>
         public void Configure(Configuration configuration)
         {
             if (configuration is null)

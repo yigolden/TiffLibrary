@@ -116,13 +116,13 @@ TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync();
 TiffImageFileDirectoryEntry entry = ifd.FindEntry(TiffTag.BitsPerSample);
 TiffValueCollection<ushort> bitsPerSample = await fieldReader.ReadShortFieldAsync(entry);
 int count = bitsPerSample.Count;
-ushort bitsPerSample0 = bitsPerSample.FirstOrDefault; // or bitsPerSample[0]
+ushort bitsPerSample0 = bitsPerSample.GetFirstOrDefault(); // or bitsPerSample[0]
 ushort bitsPerSample1 = bitsPerSample[1];
 ushort bitsPerSample2 = bitsPerSample[2];
 
 // Alternatively, you can use the TiffTagReader helper if you are trying to read well-known tags.
 TiffTagReader tagReader = new TiffTagReader(fieldReader, ifd);
-TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync()
+TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync();
 
 // TiffValueCollection<T> is a array-like structure for optimizing memory usage. It is allocation-free if the value collection contains no or only one elements.
 ```

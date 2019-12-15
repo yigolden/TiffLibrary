@@ -18,6 +18,12 @@ namespace System.Diagnostics.CodeAnalysis
     {
         public DoesNotReturnAttribute() { }
     }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.ReturnValue, Inherited = false)]
+    internal sealed class MaybeNullAttribute : Attribute
+    {
+        public MaybeNullAttribute() { }
+    }
 }
 
 #endif

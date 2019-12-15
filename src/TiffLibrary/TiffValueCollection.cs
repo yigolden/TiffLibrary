@@ -111,6 +111,7 @@ namespace TiffLibrary
         /// Gets the value of the first element. If the list is empty, returns the default value of <typeparamref name="T"/>.
         /// </summary>
         /// <returns></returns>
+        [return: MaybeNull]
         public T GetFirstOrDefault() => _firstValue;
 
         [DoesNotReturn]

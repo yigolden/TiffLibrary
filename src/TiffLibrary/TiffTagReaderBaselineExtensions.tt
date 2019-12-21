@@ -7,7 +7,7 @@
             Name = "Artist",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -55,7 +55,7 @@
             Name = "Copyright",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -63,7 +63,7 @@
             Name = "DateTime",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -119,7 +119,7 @@
             Name = "HostComputer",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -127,7 +127,7 @@
             Name = "ImageDescription",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -151,7 +151,7 @@
             Name = "Make",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -175,7 +175,7 @@
             Name = "Model",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -239,7 +239,7 @@
             Name = "Software",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new

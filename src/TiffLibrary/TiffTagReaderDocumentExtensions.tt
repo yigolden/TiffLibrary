@@ -7,7 +7,7 @@
             Name = "DocumentName",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new
@@ -15,7 +15,7 @@
             Name = "PageName",
             Type = "string",
             TypeName = "ASCII",
-            ReturnType = "string",
+            ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
         new

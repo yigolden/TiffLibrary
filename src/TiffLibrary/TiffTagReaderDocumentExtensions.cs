@@ -12,18 +12,18 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string> ReadDocumentNameAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadDocumentNameAsync(this TiffTagReader tagReader)
         {
             ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.DocumentName);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(result.GetFirstOrDefault());
             }
 
-            return new ValueTask<string>(TransformValueTaskAsync(valueTask));
+            return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
             {
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.GetFirstOrDefault();
@@ -35,7 +35,7 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
         /// <returns>The values read.</returns>
-        public static string ReadDocumentName(this TiffTagReader tagReader)
+        public static string? ReadDocumentName(this TiffTagReader tagReader)
         {
             TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.DocumentName);
             return result.GetFirstOrDefault();
@@ -50,18 +50,18 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string> ReadPageNameAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadPageNameAsync(this TiffTagReader tagReader)
         {
             ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.PageName);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(result.GetFirstOrDefault());
             }
 
-            return new ValueTask<string>(TransformValueTaskAsync(valueTask));
+            return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
             {
                 TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
                 return result.GetFirstOrDefault();
@@ -73,7 +73,7 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
         /// <returns>The values read.</returns>
-        public static string ReadPageName(this TiffTagReader tagReader)
+        public static string? ReadPageName(this TiffTagReader tagReader)
         {
             TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.PageName);
             return result.GetFirstOrDefault();

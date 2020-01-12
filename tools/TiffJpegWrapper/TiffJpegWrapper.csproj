@@ -10,6 +10,7 @@
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBitReader.cs" Link="JpegLibrary\JpegBitReader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlock8x8.cs" Link="JpegLibrary\JpegBlock8x8.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlock8x8F.cs" Link="JpegLibrary\JpegBlock8x8F.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlockAllocator.cs" Link="JpegLibrary\JpegBlockAllocator.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlockInputReader.cs" Link="JpegLibrary\JpegBlockInputReader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegBlockOutputWriter.cs" Link="JpegLibrary\JpegBlockOutputWriter.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegCanonicalCode.cs" Link="JpegLibrary\JpegCanonicalCode.cs" />
@@ -34,14 +35,14 @@
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardQuantizationTable.cs" Link="JpegLibrary\JpegStandardQuantizationTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegWriter.cs" Link="JpegLibrary\JpegWriter.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegZigZag.cs" Link="JpegLibrary\JpegZigZag.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanBaselineScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanBaselineScanDecoder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanProgressiveScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanProgressiveScanDecoder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanScanDecoder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegScanDecoder.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TiffLibrary\TiffLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="JpegLibrary\" />
   </ItemGroup>
 
   <ItemGroup>

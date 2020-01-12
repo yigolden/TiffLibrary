@@ -16,11 +16,11 @@ namespace JpegLibrary
             Components = components;
         }
 
+        public JpegFrameComponentSpecificationParameters[]? Components { get; }
         public byte SamplePrecision { get; }
         public ushort NumberOfLines { get; }
         public ushort SamplesPerLine { get; }
         public byte NumberOfComponents { get; }
-        public JpegFrameComponentSpecificationParameters[]? Components { get; }
 
         public byte BytesRequired => (byte)(6 + 3 * NumberOfComponents);
 

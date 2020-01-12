@@ -11,10 +11,17 @@ namespace JpegLibrary
     {
         private ReadOnlySequence<byte> _data;
         private int _initialLength;
+
         public JpegReader(ReadOnlySequence<byte> data)
         {
             _data = data;
             _initialLength = checked((int)data.Length);
+        }
+
+        public JpegReader(ReadOnlyMemory<byte> data)
+        {
+            _data = new ReadOnlySequence<byte>(data);
+            _initialLength = data.Length;
         }
 
         public bool IsEmpty => _data.IsEmpty;

@@ -17,8 +17,8 @@ namespace JpegLibrary
             SuccessiveApproximationBitPositionLow = successiveApproximationBitPositionLow;
         }
 
-        public byte NumberOfComponents { get; }
         public JpegScanComponentSpecificationParameters[]? Components { get; }
+        public byte NumberOfComponents { get; }
         public byte StartOfSpectralSelection { get; }
         public byte EndOfSpectralSelection { get; }
         public byte SuccessiveApproximationBitPositionHigh { get; }

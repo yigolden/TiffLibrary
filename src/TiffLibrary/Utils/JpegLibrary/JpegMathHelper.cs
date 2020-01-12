@@ -48,5 +48,12 @@ namespace JpegLibrary
             return Math.Clamp(value, min, max);
 #endif
         }
+
+        public static int CalculateShiftFactor(int value)
+        {
+            int shift = 0;
+            while ((value = value / 2) != 0) shift++;
+            return shift;
+        }
     }
 }

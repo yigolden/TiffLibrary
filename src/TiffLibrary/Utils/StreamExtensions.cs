@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.IO
@@ -7,25 +8,29 @@ namespace System.IO
 #if NO_FAST_SPAN
     internal static class StreamExtensions
     {
-        public static async ValueTask WriteAsync(this Stream stream, ReadOnlyMemory<byte> memory)
+        public static ValueTask WriteAsync(this Stream stream, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            if (MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> segment))
+            if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> array))
             {
-                await stream.WriteAsync(segment.Array, segment.Offset, segment.Count).ConfigureAwait(false);
+                return new ValueTask(stream.WriteAsync(array.Array, array.Offset, array.Count, cancellationToken));
             }
             else
             {
-                // Optimize this
-                byte[] buffer = ArrayPool<byte>.Shared.Rent(memory.Length);
-                try
-                {
-                    memory.CopyTo(buffer);
-                    await stream.WriteAsync(buffer, 0, memory.Length).ConfigureAwait(false);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                }
+                byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
+                buffer.Span.CopyTo(sharedBuffer);
+                return new ValueTask(FinishWriteAsync(stream.WriteAsync(sharedBuffer, 0, buffer.Length, cancellationToken), sharedBuffer));
+            }
+        }
+
+        private static async Task FinishWriteAsync(Task writeTask, byte[] localBuffer)
+        {
+            try
+            {
+                await writeTask.ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(localBuffer);
             }
         }
     }

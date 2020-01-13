@@ -16,7 +16,7 @@ namespace TiffLibrary.ImageDecoder
         {
             if (!ifd.Contains(TiffTag.PhotometricInterpretation))
             {
-                throw new InvalidDataException("This IFD does not seem to be a valid image.");
+                throw new InvalidDataException("PhotometricInterpretation tag is missing.");
             }
             if (ifd.Contains(TiffTag.TileWidth) && ifd.Contains(TiffTag.TileLength))
             {
@@ -26,7 +26,7 @@ namespace TiffLibrary.ImageDecoder
             {
                 return CreateStrippedImageDecoderAsync(operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default, cancellationToken);
             }
-            throw new InvalidDataException("This IFD does not seem to be a valid image.");
+            throw new InvalidDataException("Failed to determine offsets to the image data.");
         }
 
         public static async Task<TiffImageDecoder> CreateStrippedImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options, CancellationToken cancellationToken)

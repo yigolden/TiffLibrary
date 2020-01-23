@@ -68,6 +68,21 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Exif\TiffTagReaderExifIfdExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderExifIfdExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Exif\TiffTagReaderGpsIfdExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderGpsIfdExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Exif\TiffTagReaderInteroperabilityIfdExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderInteroperabilityIfdExtensions.tt</DependentUpon>
+    </Compile>
     <Compile Update="TiffTagReaderBaselineExtensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -87,6 +102,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>TiffTagReaderDocumentExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TiffTagReaderExifExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderExifExtensions.tt</DependentUpon>
     </Compile>
     <Compile Update="TiffTagReaderFacsimileExtensions.cs">
       <DesignTime>True</DesignTime>
@@ -125,6 +145,18 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Update="Exif\TiffTagReaderExifIfdExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderExifIfdExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="Exif\TiffTagReaderGpsIfdExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderGpsIfdExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="Exif\TiffTagReaderInteroperabilityIfdExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderInteroperabilityIfdExtensions.cs</LastGenOutput>
+    </None>
     <None Update="TiffTagReaderBaselineExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TiffTagReaderBaselineExtensions.cs</LastGenOutput>
@@ -140,6 +172,10 @@
     <None Update="TiffTagReaderDocumentExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TiffTagReaderDocumentExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderExifExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderExifExtensions.cs</LastGenOutput>
     </None>
     <None Update="TiffTagReaderFacsimileExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

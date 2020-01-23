@@ -602,6 +602,110 @@ namespace TiffLibrary
 
             return Reader.ReadSRationalField(entry);
         }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.Empty<TiffStreamOffset>());
+            }
+
+            return Reader.ReadIFDFieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffStreamOffset> ReadIFDField(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<TiffStreamOffset>();
+            }
+
+            return Reader.ReadIFDField(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.Empty<TiffStreamOffset>());
+            }
+
+            return Reader.ReadIFD8FieldAsync(entry);
+        }
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffStreamOffset> ReadIFD8Field(TiffTag tag)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<TiffStreamOffset>();
+            }
+
+            return Reader.ReadIFD8Field(entry);
+        }
     }
 
     /// <summary>

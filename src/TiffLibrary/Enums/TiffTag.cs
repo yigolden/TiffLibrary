@@ -399,5 +399,20 @@
         /// JPEGTables
         /// </summary>
         JPEGTables = 0x15B,
+
+        /// <summary>
+        /// ExifIfd
+        /// </summary>
+        ExifIfd = 0x8769,
+
+        /// <summary>
+        /// GpsIfd
+        /// </summary>
+        GpsIfd = 0x8825,
+
+        /// <summary>
+        /// InteroperabilityIfd
+        /// </summary>
+        InteroperabilityIfd = 0xA005,
     }
 }

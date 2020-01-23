@@ -1,0 +1,373 @@
+﻿<#@ template language="C#" #><#@ import namespace="System.Collections.Generic" #>
+<#
+    var Fields = new[]
+    {
+        new
+        {
+            Name = "GPSVersionID",
+            Code = "0x0000",
+            Description = "Indicates the version of GPSInfoIFD.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSLatitudeReference",
+            Code = "0x0001",
+            Description = "Indicates whether the latitude is north or south latitude. The ASCII value 'N' indicates north latitude, and 'S' is south latitude.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSLatitude",
+            Code = "0x0002",
+            Description = "Indicates the latitude. The latitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If latitude is expressed as degrees, minutes and seconds, a typical format would be dd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be dd/1,mmmm/100,0/1.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSLongitudeReference",
+            Code = "0x0003",
+            Description = "Indicates whether the longitude is east or west longitude. ASCII 'E' indicates east longitude, and 'W' is west longitude.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSLongitude",
+            Code = "0x0004",
+            Description = "Indicates the longitude. The longitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If longitude is expressed as degrees, minutes and seconds, a typical format would be ddd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be ddd/1,mmmm/100,0/1.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSAltitudeReference",
+            Code = "0x0005",
+            Description = "Indicates the altitude used as the reference altitude. If the reference is sea level and the altitude is above sea level, 0 is given. If the altitude is below sea level, a value of 1 is given and the altitude is indicated as an absolute value in the GPSAltitude tag. The reference unit is meters. Note that this tag is BYTE type, unlike other reference tags.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "TiffGpsAltitudeReference",
+            ResultHandling = "(TiffGpsAltitudeReference)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSAltitude",
+            Code = "0x0006",
+            Description = "Indicates the altitude based on the reference in GPSAltitudeRef. Altitude is expressed as one RATIONAL value. The reference unit is meters.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSTimeStamp",
+            Code = "0x0007",
+            Description = "Indicates the time as UTC (Coordinated Universal Time). TimeStamp is expressed as three RATIONAL values giving the hour, minute, and second.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSSatellites",
+            Code = "0x0008",
+            Description = "Indicates the GPS satellites used for measurements. This tag can be used to describe the number of satellites, their ID number, angle of elevation, azimuth, SNR and other information in ASCII notation. The format is not specified. If the GPS receiver is incapable of taking measurements, value of the tag shall be set to NULL.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "TiffValueCollection<string>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "GPSStatus",
+            Code = "0x0009",
+            Description = "Indicates the status of the GPS receiver when the image is recorded. 'A' = Measurement is in progress. 'V' = Measurement is Interoperability.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSMeasureMode",
+            Code = "0x000A",
+            Description = "Indicates the GPS measurement mode. '2' = 2-dimensional measurement. '3' = 3-dimensional measurement.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDilutionOfPrecision",
+            Code = "0x000B",
+            Description = "Indicates the GPS DOP (data degree of precision). An HDOP value is written during two-dimensional measurement, and PDOP during three-dimensional measurement.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSSpeedReference",
+            Code = "0x000C",
+            Description = "Indicates the unit used to express the GPS receiver speed of movement. 'K' = Kilometers per hour. 'M' = Miles per hour. 'N' = Knots.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSSpeed",
+            Code = "0x000D",
+            Description = "Indicates the speed of GPS receiver movement.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSTrackReference",
+            Code = "0x000E",
+            Description = "Indicates the reference for giving the direction of GPS receiver movement. 'T' = True direction. 'M' = Magnetic direction.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSTrack",
+            Code = "0x000F",
+            Description = "Indicates the direction of GPS receiver movement. The range of values is from 0.00 to 359.99.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSImageDirectionReference",
+            Code = "0x0010",
+            Description = "Indicates the reference for giving the direction of the image when it is captured. 'T' = True direction. 'M' = Magnetic direction.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSImageDirection",
+            Code = "0x000F",
+            Description = "Indicates the direction of the image when it was captured. The range of values is from 0.00 to 359.99.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSMapDatum",
+            Code = "0x0012",
+            Description = "Indicates the geodetic survey data used by the GPS receiver. If the survey data is restricted to Japan, the value of this tag is 'TOKYO' or 'WGS-84'. If a GPS Info tag is recorded, it is strongly recommended that this tag be recorded.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDestinationLatitudeReference",
+            Code = "0x0013",
+            Description = "Indicates whether the latitude of the destination point is north or south latitude. 'N' = North latitude. 'S' = South latitude.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDestinationLatitude",
+            Code = "0x0014",
+            Description = "Indicates the latitude of the destination point. The latitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If latitude is expressed as degrees, minutes and seconds, a typical format would be dd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be dd/1,mmmm/100,0/1.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSDestinationLongitudeReference",
+            Code = "0x0015",
+            Description = "Indicates whether the longitude of the destination point is east or west longitude. 'E' = East longitude. 'W' = West longitude.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDestinationLongitude",
+            Code = "0x0014",
+            Description = "Indicates the longitude of the destination point. The longitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If longitude is expressed as degrees, minutes and seconds, a typical format would be ddd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be ddd/1,mmmm/100,0/1.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSDestinationBearingReference",
+            Code = "0x0017",
+            Description = "Indicates the reference used for giving the bearing to the destination point. 'T' = True direction. 'M' = Magnetic direction.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDestinationBearing",
+            Code = "0x0018",
+            Description = "Indicates the bearing to the destination point. The range of values is from 0.00 to 359.99.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDestinationDistanceReference",
+            Code = "0x0019",
+            Description = "Indicates the unit used to express the distance to the destination point. 'K' = Kilometers. 'M' = Miles. 'N' = Knots.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDestinationDistance",
+            Code = "0x001A",
+            Description = "Indicates the distance to the destination point.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSProcessingMethod",
+            Code = "0x001B",
+            Description = "A character string recording the name of the method used for location finding. The first byte indicates the character code used, and this is followed by the name of the method. Since the Type is not ASCII, NULL termination is not necessary.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSAreaInformation",
+            Code = "0x001C",
+            Description = "A character string recording the name of the GPS area. The first byte indicates the character code used, and this is followed by the name of the GPS area. Since the Type is not ASCII, NULL termination is not necessary.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "GPSDateStamp",
+            Code = "0x001D",
+            Description = "A character string recording date and time information relative to UTC (Coordinated Universal Time). The format is \"YYYY:MM:DD.\" The length of the string is 11 bytes including NULL.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GPSDifferential",
+            Code = "0x001E",
+            Description = "Indicates whether differential correction is applied to the GPS receiver. 0 = Measurement without differential correction. 1 = Differential correction applied.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort?",
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
+        }
+    };
+
+#>
+using System.Threading.Tasks;
+
+namespace TiffLibrary.Exif
+{
+    public static partial class TiffTagExifReaderExtensions
+    {
+    <#
+    foreach (var field in Fields)
+    {
+    #>
+
+        #region <#= field.Name #>
+
+        /// <summary>
+        /// Read the values of <#= field.Name #> tag.
+        /// Field description: <#= field.Description #>
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
+        public static ValueTask<<#= field.ReturnType #>> ReadGps<#= (field.Name.StartsWith("GPS", System.StringComparison.OrdinalIgnoreCase) ? field.Name.Substring(3) : field.Name) #>Async(this TiffTagReader tagReader)
+        {
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync((TiffTag)<#= field.Code #>);
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();
+                return new ValueTask<<#= field.ReturnType #>>(<#= field.ResultHandling #>);
+            }
+
+            return new ValueTask<<#= field.ReturnType #>>(TransformValueTaskAsync(valueTask));
+
+            static async Task<<#= field.ReturnType #>> TransformValueTaskAsync(ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask)
+            {
+                TiffValueCollection<<#= field.Type #>> result = await valueTask.ConfigureAwait(false);
+                return <#= field.ResultHandling #>;
+            }
+        }
+        
+        /// <summary>
+        /// Read the values of <#= field.Name #> tag.
+        /// Field description: <#= field.Description #>
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static <#= field.ReturnType #> ReadGps<#= (field.Name.StartsWith("GPS", System.StringComparison.OrdinalIgnoreCase) ? field.Name.Substring(3) : field.Name) #>(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field((TiffTag)<#= field.Code #>);
+            return <#= field.ResultHandling #>;
+        }
+
+        #endregion
+    <#
+    }
+    #>
+
+    }
+}

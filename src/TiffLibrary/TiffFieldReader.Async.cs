@@ -1250,6 +1250,26 @@ namespace TiffLibrary
 
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLong8FieldAsync(reader, entry, offset => new TiffStreamOffset(offset)));
             }
+            else if (entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.IFD)
+            {
+                // is inlined ?
+                if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.Single<TiffStreamOffset>(
+                            _context.IsLittleEndian
+                                ? BinaryPrimitives.ReadUInt32LittleEndian(rawOffset)
+                                : BinaryPrimitives.ReadUInt32BigEndian(rawOffset)));
+                    }
+                    TiffStreamOffset[] values = new TiffStreamOffset[valueCount];
+                    InternalCopyInt32Values(rawOffset, values, v => new TiffStreamOffset((uint)v));
+                    return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, v => new TiffStreamOffset((uint)v)));
+            }
 
             throw new InvalidOperationException();
         }

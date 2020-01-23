@@ -1,0 +1,623 @@
+﻿<#@ template language="C#" #><#@ import namespace="System.Collections.Generic" #>
+<#
+    var Fields = new[]
+    {
+        new
+        {
+            Name = "ExposureTime",
+            Code = "0x829A",
+            Description = "Exposure time, given in seconds.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "FNumber",
+            Code = "0x829D",
+            Description = "The F number.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ExposureProgram",
+            Code = "0x8822",
+            Description = "The class of the program used by the camera to set exposure when the picture is taken.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifExposureProgram",
+            ResultHandling = "(TiffExifExposureProgram)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SpectralSensitivity",
+            Code = "0x8824",
+            Description = "Indicates the spectral sensitivity of each channel of the camera used. The tag value is an ASCII string compatible with the standard developed by the ASTM Technical committee.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "TiffValueCollection<string>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "ISOSpeedRatings",
+            Code = "0x8827",
+            Description = "Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffValueCollection<ushort>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "OECF",
+            Code = "0x8828",
+            Description = "Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "ExifVersion",
+            Code = "0x9000",
+            Description = "The version of the supported Exif standard.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "DateTimeOriginal",
+            Code = "0x9003",
+            Description = "The date and time when the original image data was generated. For a digital still camera, this is the date and time the picture was taken or recorded. The format is \"YYYY:MM:DD HH:MM:SS\" with time shown in 24-hour format, and the date and time separated by one blank character (hex 20).",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "DateTimeDigitized",
+            Code = "0x9004",
+            Description = "The date and time when the image was stored as digital data. If, for example, an image was captured by a digital still camera, and at the same time the file was recorded, then the DateTimeOriginal and DateTimeDigitized will have the same contents. The format is \"YYYY:MM:DD HH:MM:SS\" with time shown in 24-hour format, and the date and time separated by one blank character (hex 20).",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ComponentsConfiguration",
+            Code = "0x9101",
+            Description = "Specific to compressed data; specifies the channels and complements PhotometricInterpretation.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "CompressedBitsPerPixel",
+            Code = "0x9102",
+            Description = "Specific to compressed data; states the compressed bits per pixel. The compression mode used for a compressed image is indicated in unit bits per pixel.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ShutterSpeedValue",
+            Code = "0x9201",
+            Description = "Shutter speed. The unit is the APEX (Additive System of Photographic Exposure) setting.",
+            Type = "TiffSRational",
+            TypeName = "SRational",
+            ReturnType = "TiffSRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffSRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ApertureValue",
+            Code = "0x9202",
+            Description = "The lens aperture. The unit is the APEX (Additive System of Photographic Exposure) setting.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "BrightnessValue",
+            Code = "0x9203",
+            Description = "The value of brightness. The unit is the APEX (Additive System of Photographic Exposure) setting. Ordinarily it is given in the range of -99.99 to 99.99. Note that if the numerator of the recorded value is hex FFFFFFFF, Unknown shall be indicated.",
+            Type = "TiffSRational",
+            TypeName = "SRational",
+            ReturnType = "TiffSRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffSRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ExposureBiasValue",
+            Code = "0x9204",
+            Description = "The exposure bias. The unit is the APEX (Additive System of Photographic Exposure) setting. Ordinarily it is given in the range of -99.99 to 99.99.",
+            Type = "TiffSRational",
+            TypeName = "SRational",
+            ReturnType = "TiffSRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffSRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "MaxApertureValue",
+            Code = "0x9205",
+            Description = "The smallest F number of the lens. The unit is the APEX (Additive System of Photographic Exposure) setting. Ordinarily it is given in the range of 00.00 to 99.99, but it is not limited to this range.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SubjectDistance",
+            Code = "0x9206",
+            Description = "The distance to the subject, given in meters. Note that if the numerator of the recorded value is hex FFFFFFFF, Infinity shall be indicated; and if the numerator is 0, Distance unknown shall be indicated.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "MeteringMode",
+            Code = "0x9207",
+            Description = "The metering mode.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifMeteringMode",
+            ResultHandling = "(TiffExifMeteringMode)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "LightSource",
+            Code = "0x9208",
+            Description = "The kind of light source.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifLightSource",
+            ResultHandling = "(TiffExifLightSource)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "Flash",
+            Code = "0x9209",
+            Description = "Indicates the status of flash when the image was shot.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifFlash?",
+            ResultHandling = "result.IsEmpty ? default(TiffExifFlash?) : new TiffExifFlash(result.GetFirstOrDefault())"
+        },
+        new
+        {
+            Name = "FocalLength",
+            Code = "0x920A",
+            Description = "The actual focal length of the lens, in mm.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SubjectArea",
+            Code = "0x9214",
+            Description = "Indicates the location and area of the main subject in the overall scene.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "MakerNote",
+            Code = "0x927C",
+            Description = "Manufacturer specific information.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "UserComment",
+            Code = "0x9286",
+            Description = "Keywords or comments on the image; complements ImageDescription. The character code used in the UserComment tag is identified based on an ID code in a fixed 8-byte area at the start of the tag data area.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "SubsecTime",
+            Code = "0x9290",
+            Description = "A tag used to record fractions of seconds for the DateTime tag.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "TiffValueCollection<string>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "SubsecTimeOriginal",
+            Code = "0x9291",
+            Description = "A tag used to record fractions of seconds for the DateTimeOriginal tag.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "TiffValueCollection<string>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "SubsecTimeDigitized",
+            Code = "0x9292",
+            Description = "A tag used to record fractions of seconds for the DateTimeDigitized tag.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "TiffValueCollection<string>",
+            ResultHandling = "result"
+        },
+        new
+        {
+            Name = "FlashpixVersion",
+            Code = "0xA000",
+            Description = "The Flashpix format version supported by a FPXR file.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "ColorSpace",
+            Code = "0xA001",
+            Description = "The color space information tag is always recorded as the color space specifier.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort?",
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "PixelXDimension",
+            Code = "0xA002",
+            Description = "Specific to compressed data; the valid width of the meaningful image.",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "uint?",
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "PixelYDimension",
+            Code = "0xA003",
+            Description = "Specific to compressed data; the valid height of the meaningful image.",
+            Type = "uint",
+            TypeName = "Long",
+            ReturnType = "uint?",
+            ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "RelatedSoundFile",
+            Code = "0xA004",
+            Description = "Used to record the name of an audio file related to the image data.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "FlashEnergy",
+            Code = "0xA20B",
+            Description = "Indicates the strobe energy at the time the image is captured, as measured in Beam Candle Power Seconds.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SpatialFrequencyResponse",
+            Code = "0xA20C",
+            Description = "Records the camera or input device spatial frequency table and SFR values in the direction of image width, image height, and diagonal direction, as specified in ISO 12233.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "FocalPlaneXResolution",
+            Code = "0xA20E",
+            Description = "Indicates the number of pixels in the image width (X) direction per FocalPlaneResolutionUnit on the camera focal plane.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "FocalPlaneYResolution",
+            Code = "0xA20F",
+            Description = "Indicates the number of pixels in the image height (Y) direction per FocalPlaneResolutionUnit on the camera focal plane.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "FocalPlaneResolutionUnit",
+            Code = "0xA210",
+            Description = "Indicates the unit for measuring FocalPlaneXResolution and FocalPlaneYResolution.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffResolutionUnit",
+            ResultHandling = "result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SubjectLocation",
+            Code = "0xA214",
+            Description = "Indicates the location of the main subject in the scene.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "ExposureIndex",
+            Code = "0xA215",
+            Description = "Indicates the exposure index selected on the camera or input device at the time the image is captured.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SensingMethod",
+            Code = "0xA217",
+            Description = "Indicates the image sensor type on the camera or input device.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifSensingMethod?",
+            ResultHandling = "result.IsEmpty ? default(TiffExifSensingMethod?) : (TiffExifSensingMethod)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "FileSource",
+            Code = "0xA300",
+            Description = "Indicates the image source. If a DSC (Digital Still Camera) recorded the image, this tag will always be set to 3, indicating that the image was recorded on a DSC.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte",
+            ResultHandling = "result.IsEmpty ? (byte)3 : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SceneType",
+            Code = "0xA301",
+            Description = "Indicates the type of scene. If a DSC recorded the image, this tag value shall always be set to 1, indicating that the image was directly photographed.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte",
+            ResultHandling = "result.IsEmpty ? (byte)1 : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "CFAPattern",
+            Code = "0xA302",
+            Description = "Indicates the color filter array (CFA) geometric pattern of the image sensor when a one-chip color area sensor is used.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "CustomRendered",
+            Code = "0xA401",
+            Description = "Indicates the use of special processing on image data, such as rendering geared to output.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifCustomRendered",
+            ResultHandling = "(TiffExifCustomRendered)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ExposureMode",
+            Code = "0xA402",
+            Description = "Indicates the exposure mode set when the image was shot.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifExposureMode?",
+            ResultHandling = "result.IsEmpty ? default(TiffExifExposureMode?) : (TiffExifExposureMode)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "WhiteBalance",
+            Code = "0xA403",
+            Description = "Indicates the white balance mode set when the image was shot.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifWhiteBalance?",
+            ResultHandling = "result.IsEmpty ? default(TiffExifWhiteBalance?) : (TiffExifWhiteBalance)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "DigitalZoomRatio",
+            Code = "0xA404",
+            Description = "Indicates the digital zoom ratio when the image was shot. If the numerator of the recorded value is 0, this indicates that digital zoom was not used.",
+            Type = "TiffRational",
+            TypeName = "Rational",
+            ReturnType = "TiffRational?",
+            ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "FocalLengthIn35mmFilm",
+            Code = "0xA405",
+            Description = "Indicates the equivalent focal length assuming a 35mm film camera, in mm. A value of 0 means the focal length is unknown. Note that this tag differs from the FocalLength tag.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "ushort?",
+            ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "SceneCaptureType",
+            Code = "0xA406",
+            Description = "Indicates the type of scene that was shot. It can also be used to record the mode in which the image was shot. Note that this differs from the SceneType tag.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifSceneCaptureType",
+            ResultHandling = "(TiffExifSceneCaptureType)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "GainControl",
+            Code = "0xA407",
+            Description = "Indicates the degree of overall image gain adjustment.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifGainControl?",
+            ResultHandling = "result.IsEmpty ? default(TiffExifGainControl?) : (TiffExifGainControl)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "Contrast",
+            Code = "0xA408",
+            Description = "Indicates the direction of contrast processing applied by the camera when the image was shot.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifContrast",
+            ResultHandling = "(TiffExifContrast)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "Saturation",
+            Code = "0xA409",
+            Description = "Indicates the direction of saturation processing applied by the camera when the image was shot.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifContrast",
+            ResultHandling = "(TiffExifContrast)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "Sharpness",
+            Code = "0xA40A",
+            Description = "Indicates the direction of sharpness processing applied by the camera when the image was shot.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifSharpness",
+            ResultHandling = "(TiffExifSharpness)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "DeviceSettingDescription",
+            Code = "0xA40B",
+            Description = "This tag indicates information on the picture-taking conditions of a particular camera model. The tag is used only to indicate the picture-taking conditions in the reader.",
+            Type = "byte",
+            TypeName = "Byte",
+            ReturnType = "byte[]",
+            ResultHandling = "result.GetOrCreateArray()"
+        },
+        new
+        {
+            Name = "SubjectDistanceRange",
+            Code = "0xA40C",
+            Description = "Indicates the distance to the subject.",
+            Type = "ushort",
+            TypeName = "Short",
+            ReturnType = "TiffExifSubjectDistanceRange?",
+            ResultHandling = "result.IsEmpty ? default(TiffExifSubjectDistanceRange?) : (TiffExifSubjectDistanceRange)result.GetFirstOrDefault()"
+        },
+        new
+        {
+            Name = "ImageUniqueID",
+            Code = "0xA420",
+            Description = "Indicates an identifier assigned uniquely to each image. It is recorded as an ASCII string equivalent to hexadecimal notation and 128-bit fixed length.",
+            Type = "string",
+            TypeName = "ASCII",
+            ReturnType = "string?",
+            ResultHandling = "result.GetFirstOrDefault()"
+        }
+    };
+
+#>
+using System.Threading.Tasks;
+
+namespace TiffLibrary.Exif
+{
+    public static partial class TiffTagExifReaderExtensions
+    {
+    <#
+    foreach (var field in Fields)
+    {
+    #>
+
+        #region <#= field.Name #>
+
+        /// <summary>
+        /// Read the values of <#= field.Name #> tag.
+        /// Field description: <#= field.Description #>
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
+        public static ValueTask<<#= field.ReturnType #>> ReadExif<#= (field.Name.StartsWith("Exif") ? field.Name.Substring(4) : field.Name) #>Async(this TiffTagReader tagReader)
+        {
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync((TiffTag)<#= field.Code #>);
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();
+                return new ValueTask<<#= field.ReturnType #>>(<#= field.ResultHandling #>);
+            }
+
+            return new ValueTask<<#= field.ReturnType #>>(TransformValueTaskAsync(valueTask));
+
+            static async Task<<#= field.ReturnType #>> TransformValueTaskAsync(ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask)
+            {
+                TiffValueCollection<<#= field.Type #>> result = await valueTask.ConfigureAwait(false);
+                return <#= field.ResultHandling #>;
+            }
+        }
+        
+        /// <summary>
+        /// Read the values of <#= field.Name #> tag.
+        /// Field description: <#= field.Description #>
+        /// </summary>
+        /// <param name="tagReader">The tag reader to use.</param>
+        /// <returns>The values read.</returns>
+        public static <#= field.ReturnType #> ReadExif<#= (field.Name.StartsWith("Exif") ? field.Name.Substring(4) : field.Name) #>(this TiffTagReader tagReader)
+        {
+            TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field((TiffTag)<#= field.Code #>);
+            return <#= field.ResultHandling #>;
+        }
+
+        #endregion
+    <#
+    }
+    #>
+
+    }
+}

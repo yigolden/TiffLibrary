@@ -42,9 +42,12 @@ Note that although files with bits per sample greater than 16 bits can be read b
 * T4 (CompressionTag=3)
 * T6 (CompressionTag=4)
 * LZW (CompressionTag=5)
+* Old-style JPEG (CompressionTag=6)
 * JPEG (CompressionTag=7)
 * Deflate (CompressionTag=8/32946)
 * PackBits (CompressionTag=32773)
+
+Note that support for old-style JPEG is not thoroughly tested and will not be actively developed because it is deprecated in favor of the "new" JPEG compression method (CompressionTag=7).
 
 ## Predictor for Decoding
 

@@ -241,6 +241,11 @@ namespace JpegLibrary
             }
         }
 
+        internal void SetFrameHeader(JpegFrameHeader frameHeader)
+        {
+            _frameHeader = frameHeader;
+        }
+
         private void ProcessFrameHeader(ref JpegReader reader, bool metadataOnly, bool overrideAllowed)
         {
             // Read length field

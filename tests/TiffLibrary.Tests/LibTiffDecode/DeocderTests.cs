@@ -80,11 +80,17 @@ namespace TiffLibrary.Tests.LibTiffDecode
             yield return new object[]
             {
                 // Reference image
+                "Assets/LibTiffDecode/smallliz.png",
+                // Test image
+                "Assets/LibTiffDecode/smallliz.tif"
+            };
+            yield return new object[]
+            {
+                // Reference image
                 "Assets/LibTiffDecode/strike.png",
                 // Test image
                 "Assets/LibTiffDecode/strike.tif"
             };
-            /*
             yield return new object[]
             {
                 // Reference image
@@ -92,7 +98,13 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 // Test image
                 "Assets/LibTiffDecode/ycbcr-cat.tif"
             };
-            */
+            yield return new object[]
+            {
+                // Reference image
+                "Assets/LibTiffDecode/zackthecat.png",
+                // Test image
+                "Assets/LibTiffDecode/zackthecat.tif"
+            };
         }
 
         [Theory]

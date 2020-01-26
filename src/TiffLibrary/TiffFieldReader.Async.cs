@@ -1064,29 +1064,87 @@ namespace TiffLibrary
                 throw new ObjectDisposedException(nameof(TiffFieldReader));
             }
 
-            if (!skipTypeValidation && entry.Type != TiffFieldType.Rational)
-            {
-                throw new InvalidOperationException();
-            }
-
             // is inlined ?
             long valueCount = entry.ValueCount;
-            if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
+            Span<byte> rawOffset = stackalloc byte[8];
+            if (skipTypeValidation || entry.Type == TiffFieldType.Rational)
             {
-                Span<byte> rawOffset = stackalloc byte[8];
-                entry.RestoreRawOffsetBytes(_context, rawOffset);
-                if (valueCount == 1)
+                // is inlined ?
+                if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
-                    Span<TiffRational> singleValueSpan = stackalloc TiffRational[1];
-                    InternalCopyRationalValues(rawOffset, singleValueSpan, null);
-                    return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Single(singleValueSpan[0]));
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        Span<TiffRational> singleValueSpan = stackalloc TiffRational[1];
+                        InternalCopyRationalValues(rawOffset, singleValueSpan, null);
+                        return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Single(singleValueSpan[0]));
+                    }
+                    TiffRational[] values = new TiffRational[valueCount];
+                    InternalCopyRationalValues<TiffRational>(rawOffset, values, null);
+                    return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
-                TiffRational[] values = new TiffRational[valueCount];
-                InternalCopyRationalValues<TiffRational>(rawOffset, values, null);
-                return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
+
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadRationalFieldAsync<TiffRational>(reader, entry));
+            }
+            else if (entry.Type == TiffFieldType.Long)
+            {
+                // is inlined ?
+                if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Single<TiffRational>(
+                            _context.IsLittleEndian
+                                ? new TiffRational(BinaryPrimitives.ReadUInt32LittleEndian(rawOffset), 1)
+                                : new TiffRational(BinaryPrimitives.ReadUInt32BigEndian(rawOffset), 1)));
+                    }
+                    TiffRational[] values = new TiffRational[valueCount];
+                    InternalCopyInt32Values<TiffRational>(rawOffset, values, v => new TiffRational((uint)v, 1));
+                    return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadLongFieldAsync<TiffRational>(reader, entry, v => new TiffRational((uint)v, 1)));
+            }
+            else if (entry.Type == TiffFieldType.Short)
+            {
+                // is inlined ?
+                if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Single<TiffRational>(
+                            _context.IsLittleEndian
+                                ? new TiffRational(BinaryPrimitives.ReadUInt16LittleEndian(rawOffset), 1)
+                                : new TiffRational(BinaryPrimitives.ReadUInt16BigEndian(rawOffset), 1)));
+                    }
+                    TiffRational[] values = new TiffRational[valueCount];
+                    InternalCopyInt16Values<TiffRational>(rawOffset, values, v => new TiffRational((ushort)v, 1));
+                    return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadShortFieldAsync<TiffRational>(reader, entry, v => new TiffRational((ushort)v, 1)));
+            }
+            else if (entry.Type == TiffFieldType.Byte)
+            {
+                // is inlined ?
+                if (valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Single<TiffRational>(new TiffRational(rawOffset[0], 1)));
+                    }
+                    TiffRational[] values = new TiffRational[valueCount];
+                    InternalCopyByteValues<TiffRational>(rawOffset, values, v => new TiffRational(v, 1));
+                    return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadByteFieldAsync<TiffRational>(reader, entry, v => new TiffRational(v, 1)));
             }
 
-            return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadRationalFieldAsync<TiffRational>(reader, entry));
+            throw new InvalidOperationException();
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<TiffRational, TDest>? convertFunc = null) where TDest : struct
@@ -1133,29 +1191,86 @@ namespace TiffLibrary
                 throw new ObjectDisposedException(nameof(TiffFieldReader));
             }
 
-            if (!skipTypeValidation && entry.Type != TiffFieldType.SRational)
-            {
-                throw new InvalidOperationException();
-            }
-
             // is inlined ?
             long valueCount = entry.ValueCount;
-            if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
+            Span<byte> rawOffset = stackalloc byte[8];
+            if (skipTypeValidation || entry.Type == TiffFieldType.Rational)
             {
-                Span<byte> rawOffset = stackalloc byte[8];
-                entry.RestoreRawOffsetBytes(_context, rawOffset);
-                if (valueCount == 1)
+                if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
-                    Span<TiffSRational> singleValueSpan = stackalloc TiffSRational[1];
-                    InternalCopyRationalValues(rawOffset, singleValueSpan, null);
-                    return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Single(singleValueSpan[0]));
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        Span<TiffSRational> singleValueSpan = stackalloc TiffSRational[1];
+                        InternalCopyRationalValues(rawOffset, singleValueSpan, null);
+                        return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Single(singleValueSpan[0]));
+                    }
+                    TiffSRational[] values = new TiffSRational[valueCount];
+                    InternalCopyRationalValues<TiffSRational>(rawOffset, values, null);
+                    return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
-                TiffSRational[] values = new TiffSRational[valueCount];
-                InternalCopyRationalValues<TiffSRational>(rawOffset, values, null);
-                return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
+
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadRationalFieldAsync<TiffSRational>(reader, entry));
+            }
+            else if (entry.Type == TiffFieldType.SLong)
+            {
+                // is inlined ?
+                if (sizeof(int) * valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Single<TiffSRational>(
+                            _context.IsLittleEndian
+                                ? new TiffSRational(BinaryPrimitives.ReadInt32LittleEndian(rawOffset), 1)
+                                : new TiffSRational(BinaryPrimitives.ReadInt32BigEndian(rawOffset), 1)));
+                    }
+                    TiffSRational[] values = new TiffSRational[valueCount];
+                    InternalCopyInt32Values<TiffSRational>(rawOffset, values, v => new TiffSRational(v, 1));
+                    return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadLongFieldAsync<TiffSRational>(reader, entry, v => new TiffSRational(v, 1)));
+            }
+            else if (entry.Type == TiffFieldType.SShort)
+            {
+                // is inlined ?
+                if (sizeof(short) * valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Single<TiffSRational>(
+                            _context.IsLittleEndian
+                                ? new TiffSRational(BinaryPrimitives.ReadInt16LittleEndian(rawOffset), 1)
+                                : new TiffSRational(BinaryPrimitives.ReadInt16BigEndian(rawOffset), 1)));
+                    }
+                    TiffSRational[] values = new TiffSRational[valueCount];
+                    InternalCopyInt16Values<TiffSRational>(rawOffset, values, v => new TiffSRational(v, 1));
+                    return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadShortFieldAsync<TiffSRational>(reader, entry, v => new TiffSRational(v, 1)));
+            }
+            else if (entry.Type == TiffFieldType.SByte)
+            {
+                // is inlined ?
+                if (valueCount <= _context.ByteCountOfValueOffsetField)
+                {
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
+                    {
+                        return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Single<TiffSRational>(new TiffSRational((sbyte)rawOffset[0], 1)));
+                    }
+                    TiffSRational[] values = new TiffSRational[valueCount];
+                    InternalCopyByteValues<TiffSRational>(rawOffset, values, v => new TiffSRational((sbyte)v, 1));
+                    return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
+                }
+
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadByteFieldAsync<TiffSRational>(reader, entry, v => new TiffSRational((sbyte)v, 1)));
             }
 
-            return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadRationalFieldAsync<TiffSRational>(reader, entry));
+            throw new InvalidOperationException();
         }
 
         #endregion

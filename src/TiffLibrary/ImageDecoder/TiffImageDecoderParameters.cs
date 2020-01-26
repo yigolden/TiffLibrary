@@ -42,10 +42,5 @@ namespace TiffLibrary.ImageDecoder
         /// The orientation defined in the Orientation tag.
         /// </summary>
         public TiffOrientation Orientation { get; set; }
-
-        /// <summary>
-        /// Byte count per scan line of each plane.
-        /// </summary>
-        public TiffValueCollection<int> BytesPerScanline { get; set; }
     }
 }

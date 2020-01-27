@@ -56,7 +56,7 @@
     <DefineConstants>$(DefineConstants);NO_MATHF</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0'">
-    <DefineConstants>$(DefineConstants);NO_READONLYSEQUENCE_FISTSPAN</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_READONLYSEQUENCE_FISTSPAN;NO_BIT_OPERATIONS</DefineConstants>
   </PropertyGroup>
 
   <!-- PackageReference for JpegLibrary-->

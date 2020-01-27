@@ -4,6 +4,7 @@ using System;
 using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace JpegLibrary
@@ -72,7 +73,7 @@ namespace JpegLibrary
 
             if (size > 16)
             {
-                return default;
+                throw new InvalidDataException("Invalid Huffman code encountered.");
             }
 
             code16bit >>= (16 - size);

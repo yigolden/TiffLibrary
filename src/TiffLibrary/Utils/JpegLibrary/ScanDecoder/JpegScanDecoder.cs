@@ -99,9 +99,16 @@ namespace JpegLibrary.ScanDecoder
         }
 
         [DoesNotReturn]
-        protected static void ThrowInvalidDataException(string message)
+        protected static void ThrowInvalidDataException(string? message = null)
         {
-            throw new InvalidDataException(message);
+            if (message is null)
+            {
+                throw new InvalidDataException();
+            }
+            else
+            {
+                throw new InvalidDataException(message);
+            }
         }
 
         [DoesNotReturn]

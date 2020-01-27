@@ -24,18 +24,19 @@ namespace JpegLibrary.ScanDecoder
         public override void ProcessScan(ref JpegReader reader, JpegScanHeader scanHeader)
         {
             JpegFrameHeader frameHeader = _frameHeader;
+            var outputWriter = _decoder.GetOutputWriter();
 
             if (frameHeader.Components is null)
             {
-                throw new InvalidOperationException();
+                ThrowInvalidDataException();
             }
             if (scanHeader.Components is null)
             {
-                throw new InvalidOperationException();
+                ThrowInvalidDataException();
             }
-            if (_decoder.GetOutputWriter() is null)
+            if (outputWriter is null)
             {
-                throw new InvalidOperationException();
+                ThrowInvalidDataException();
             }
 
             // Compute maximum sampling factor
@@ -60,8 +61,8 @@ namespace JpegLibrary.ScanDecoder
 
             // DCT Block
             JpegBlock8x8F blockFBuffer = default;
-            JpegBlock8x8F tempFBuffer = default;
             JpegBlock8x8F outputFBuffer = default;
+            JpegBlock8x8F tempFBuffer = default;
 
             JpegBlock8x8 outputBuffer;
 
@@ -100,7 +101,7 @@ namespace JpegLibrary.ScanDecoder
                                 ShiftDataLevel(ref outputFBuffer, ref outputBuffer, levelShift);
 
                                 // CopyToOutput
-                                WriteBlock(in outputBuffer, index, (offsetX + x) * 8, blockOffsetY, hs, vs);
+                                WriteBlock(outputWriter, ref Unsafe.As<JpegBlock8x8, short>(ref outputBuffer), index, (offsetX + x) * 8, blockOffsetY, hs, vs);
                             }
                         }
                     }
@@ -190,45 +191,48 @@ namespace JpegLibrary.ScanDecoder
             }
         }
 
-        private void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSamplingFactor, int verticalSamplingFactor)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void WriteBlock(JpegBlockOutputWriter outputWriter, ref short blockRef, int componentIndex, int x, int y, int horizontalSubsamplingFactor, int verticalSubsamplingFactor)
         {
-            JpegBlockOutputWriter? outputWriter = _decoder.GetOutputWriter();
-            Debug.Assert(!(outputWriter is null));
-
-            if (horizontalSamplingFactor == 1 && verticalSamplingFactor == 1)
+            if (horizontalSubsamplingFactor == 1 && verticalSubsamplingFactor == 1)
             {
-                outputWriter!.WriteBlock(block, componentIndex, x, y);
+                outputWriter!.WriteBlock(ref blockRef, componentIndex, x, y);
             }
             else
             {
-                JpegBlock8x8 tempBlock = default;
+                WriteBlockSlow(outputWriter, ref blockRef, componentIndex, x, y, horizontalSubsamplingFactor, verticalSubsamplingFactor);
+            }
+        }
 
-                int hShift = JpegMathHelper.CalculateShiftFactor(horizontalSamplingFactor);
-                int vShift = JpegMathHelper.CalculateShiftFactor(verticalSamplingFactor);
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void WriteBlockSlow(JpegBlockOutputWriter outputWriter, ref short blockRef, int componentIndex, int x, int y, int horizontalSubsamplingFactor, int verticalSubsamplingFactor)
+        {
+            JpegBlock8x8 tempBlock = default;
 
-                ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
-                ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(tempBlock));
+            int hShift = JpegMathHelper.Log2((uint)horizontalSubsamplingFactor);
+            int vShift = JpegMathHelper.Log2((uint)verticalSubsamplingFactor);
 
-                for (int v = 0; v < verticalSamplingFactor; v++)
+            ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(tempBlock));
+
+            for (int v = 0; v < verticalSubsamplingFactor; v++)
+            {
+                for (int h = 0; h < horizontalSubsamplingFactor; h++)
                 {
-                    for (int h = 0; h < horizontalSamplingFactor; h++)
+                    int vBlock = 8 * v;
+                    int hBlock = 8 * h;
+                    // Fill tempBlock
+                    for (int i = 0; i < 8; i++)
                     {
-                        int vBlock = 8 * v;
-                        int hBlock = 8 * h;
-                        // Fill tempBlock
-                        for (int i = 0; i < 8; i++)
+                        ref short tempRowRef = ref Unsafe.Add(ref tempRef, 8 * i);
+                        ref short blockRowRef = ref Unsafe.Add(ref blockRef, ((vBlock + i) >> vShift) * 8);
+                        for (int j = 0; j < 8; j++)
                         {
-                            ref short tempRowRef = ref Unsafe.Add(ref tempRef, 8 * i);
-                            ref short blockRowRef = ref Unsafe.Add(ref blockRef, ((vBlock + i) >> vShift) * 8);
-                            for (int j = 0; j < 8; j++)
-                            {
-                                Unsafe.Add(ref tempRowRef, j) = Unsafe.Add(ref blockRowRef, (hBlock + j) >> hShift);
-                            }
+                            Unsafe.Add(ref tempRowRef, j) = Unsafe.Add(ref blockRowRef, (hBlock + j) >> hShift);
                         }
-
-                        // Write tempBlock to output
-                        outputWriter!.WriteBlock(tempBlock, componentIndex, x + 8 * h, y + 8 * v);
                     }
+
+                    // Write tempBlock to output
+                    outputWriter.WriteBlock(ref tempRef, componentIndex, x + 8 * h, y + 8 * v);
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace TiffLibrary.Compression
             _output = output;
         }
 
-        public override void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y)
+        public override void WriteBlock(ref short blockRef, int componentIndex, int x, int y)
         {
             int componentCount = _componentCount;
             int width = _width;
@@ -49,17 +49,17 @@ namespace TiffLibrary.Compression
             int writeWidth = Math.Min(width - x, 8);
             int writeHeight = Math.Min(height - y, 8);
 
-            ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
             ref byte destinationRef = ref MemoryMarshal.GetReference(_output.Span);
+            destinationRef = ref Unsafe.Add(ref destinationRef, y * width * componentCount + x * componentCount + componentIndex);
 
             for (int destY = 0; destY < writeHeight; destY++)
             {
-                ref short blockRowRef = ref Unsafe.Add(ref blockRef, destY * 8);
-                ref byte destinationRowRef = ref Unsafe.Add(ref destinationRef, ((y + destY) * width + x) * componentCount + componentIndex);
+                ref byte destinationRowRef = ref Unsafe.Add(ref destinationRef, destY * width * componentCount);
                 for (int destX = 0; destX < writeWidth; destX++)
                 {
-                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = TiffMathHelper.ClampTo8Bit(Unsafe.Add(ref blockRowRef, destX));
+                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = TiffMathHelper.ClampTo8Bit(Unsafe.Add(ref blockRef, destX));
                 }
+                blockRef = ref Unsafe.Add(ref blockRef, 8);
             }
         }
     }

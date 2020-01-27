@@ -91,7 +91,8 @@ namespace JpegLibrary
         /// Fill the buffer until the buffer contains 32 bits data, or the stream ends, or a marker is encountered.
         /// </summary>
         /// <returns></returns>
-        private byte FillBuffer()
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private int FillBuffer()
         {
             // Read until we have at least 32 bits in the buffer
             while (_bitsInBuffer < 32)
@@ -152,9 +153,10 @@ namespace JpegLibrary
             return _bitsInBuffer == 0 ? _nextMarker : 0;
         }
 
-        public int PeekBits(int length, out byte bitsPeeked)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int PeekBits(int length, out int bitsPeeked)
         {
-            byte bitsInBuffer = _bitsInBuffer;
+            int bitsInBuffer = _bitsInBuffer;
             if (bitsInBuffer < length)
             {
                 bitsInBuffer = FillBuffer();
@@ -165,7 +167,7 @@ namespace JpegLibrary
                 }
             }
             int remainingBits = bitsInBuffer - length;
-            bitsPeeked = (byte)length;
+            bitsPeeked = length;
             return (int)(_buffer >> remainingBits) & ((1 << length) - 1);
         }
 

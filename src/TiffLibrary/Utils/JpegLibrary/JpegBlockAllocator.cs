@@ -127,9 +127,11 @@ namespace JpegLibrary
             JpegBlockOutputWriter? outputWriter = _writer;
             Debug.Assert(!(outputWriter is null));
 
+            ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
+
             if (horizontalSamplingFactor == 1 && verticalSamplingFactor == 1)
             {
-                outputWriter!.WriteBlock(block, componentIndex, x, y);
+                outputWriter!.WriteBlock(ref blockRef, componentIndex, x, y);
             }
             else
             {
@@ -138,7 +140,6 @@ namespace JpegLibrary
                 int hShift = CalculateShiftFactor(horizontalSamplingFactor);
                 int vShift = CalculateShiftFactor(verticalSamplingFactor);
 
-                ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
                 ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(tempBlock));
 
                 for (int v = 0; v < verticalSamplingFactor; v++)
@@ -159,7 +160,7 @@ namespace JpegLibrary
                         }
 
                         // Write tempBlock to output
-                        outputWriter!.WriteBlock(tempBlock, componentIndex, x + 8 * h, y + 8 * v);
+                        outputWriter!.WriteBlock(ref tempRef, componentIndex, x + 8 * h, y + 8 * v);
                     }
                 }
             }

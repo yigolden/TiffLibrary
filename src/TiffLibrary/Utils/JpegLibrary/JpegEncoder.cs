@@ -354,21 +354,21 @@ namespace JpegLibrary
         private static void ReadBlock(JpegBlockInputReader inputReader, out JpegBlock8x8 block, int componentIndex, int x, int y, int h, int v)
         {
             block = default;
+            ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref block);
 
             if (h == 1 && v == 1)
             {
-                inputReader.ReadBlock(ref block, componentIndex, x, y);
+                inputReader.ReadBlock(ref blockRef, componentIndex, x, y);
                 return;
             }
 
-            ReadBlockWithSubsample(inputReader, ref block, componentIndex, x, y, h, v);
+            ReadBlockWithSubsample(inputReader, ref blockRef, componentIndex, x, y, h, v);
         }
 
-        private static void ReadBlockWithSubsample(JpegBlockInputReader inputReader, ref JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSubsampling, int verticalSubsampling)
+        private static void ReadBlockWithSubsample(JpegBlockInputReader inputReader, ref short blockRef, int componentIndex, int x, int y, int horizontalSubsampling, int verticalSubsampling)
         {
             JpegBlock8x8 temp = default;
 
-            ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref block);
             ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref temp);
 
             int th = horizontalSubsampling, tv = verticalSubsampling, hShift = 0, vShift = 0;
@@ -384,7 +384,7 @@ namespace JpegLibrary
             {
                 for (int h = 0; h < horizontalSubsampling; h++)
                 {
-                    inputReader.ReadBlock(ref temp, componentIndex, x + 8 * h, y + 8 * v);
+                    inputReader.ReadBlock(ref tempRef, componentIndex, x + 8 * h, y + 8 * v);
 
                     CopySubsampleBlock(ref tempRef, ref blockRef, h << hBlockShift, v << vBlockShift, hShift, vShift);
                 }

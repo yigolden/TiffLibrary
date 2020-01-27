@@ -38,13 +38,12 @@ namespace TiffLibrary.Compression
 
         public override int Height => _height;
 
-        public override void ReadBlock(ref JpegBlock8x8 block, int componentIndex, int x, int y)
+        public override void ReadBlock(ref short blockRef, int componentIndex, int x, int y)
         {
             int width = _width;
             int componentCount = _componentCount;
 
             ref byte sourceRef = ref MemoryMarshal.GetReference(MemoryMarshal.AsBytes(_buffer.Span));
-            ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref block);
 
             int blockWidth = Math.Min(width - x, 8);
             int blockHeight = Math.Min(_height - y, 8);

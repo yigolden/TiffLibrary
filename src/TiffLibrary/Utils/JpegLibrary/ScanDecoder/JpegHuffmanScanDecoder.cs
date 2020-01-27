@@ -11,14 +11,10 @@ namespace JpegLibrary.ScanDecoder
     {
         public JpegHuffmanScanDecoder(JpegDecoder decoder) : base(decoder) { }
 
-        protected static byte DecodeHuffmanCode(ref JpegBitReader reader, JpegHuffmanDecodingTable table)
+        protected static int DecodeHuffmanCode(ref JpegBitReader reader, JpegHuffmanDecodingTable table)
         {
-            int bits = reader.PeekBits(16, out byte bitsRead);
+            int bits = reader.PeekBits(16, out int bitsRead);
             JpegHuffmanDecodingTable.Entry entry = table.Lookup(bits);
-            if (entry.CodeSize == 0)
-            {
-                ThrowInvalidDataException("Invalid Huffman code encountered.");
-            }
             bitsRead = Math.Min(entry.CodeSize, bitsRead);
             _ = reader.TryAdvanceBits(bitsRead, out _);
             return entry.CodeValue;
@@ -31,6 +27,7 @@ namespace JpegLibrary.ScanDecoder
             ref ushort elementRef = ref MemoryMarshal.GetReference(quantizationTable.Elements);
             ref short sourceRef = ref Unsafe.As<JpegBlock8x8, short>(ref input);
             ref float destinationRef = ref Unsafe.As<JpegBlock8x8F, float>(ref output);
+
             for (int i = 0; i < 64; i++)
             {
                 Unsafe.Add(ref destinationRef, JpegZigZag.BufferIndexToBlock(i)) = Unsafe.Add(ref elementRef, i) * Unsafe.Add(ref sourceRef, i);
@@ -48,14 +45,10 @@ namespace JpegLibrary.ScanDecoder
             }
         }
 
-        protected static JpegHuffmanDecodingTable.Entry DecodeHuffmanCode(ref JpegBitReader reader, JpegHuffmanDecodingTable table, out int code, out byte bitsRead)
+        protected static JpegHuffmanDecodingTable.Entry DecodeHuffmanCode(ref JpegBitReader reader, JpegHuffmanDecodingTable table, out int code, out int bitsRead)
         {
             int bits = reader.PeekBits(16, out bitsRead);
             JpegHuffmanDecodingTable.Entry entry = table.Lookup(bits);
-            if (entry.CodeSize == 0)
-            {
-                ThrowInvalidDataException("Invalid Huffman code encountered.");
-            }
             bitsRead = Math.Min(entry.CodeSize, bitsRead);
             _ = reader.TryAdvanceBits(bitsRead, out _);
             code = bits >> (16 - bitsRead);

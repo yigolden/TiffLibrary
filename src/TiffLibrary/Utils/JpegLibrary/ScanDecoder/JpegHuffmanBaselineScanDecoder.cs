@@ -24,7 +24,7 @@ namespace JpegLibrary.ScanDecoder
         public override void ProcessScan(ref JpegReader reader, JpegScanHeader scanHeader)
         {
             JpegFrameHeader frameHeader = _frameHeader;
-            var outputWriter = _decoder.GetOutputWriter();
+            JpegBlockOutputWriter? outputWriter = _decoder.GetOutputWriter();
 
             if (frameHeader.Components is null)
             {

@@ -24,15 +24,23 @@ namespace TiffLibrary.Compression
             Memory<byte> data;
             try
             {
-                using (IMemoryOwner<byte> bufferHandle = memoryPool.Rent(_streamRegion.Length))
+                const int BufferSize = 81920;
+                using (var bufferWriter = new MemoryPoolBufferWriter(memoryPool))
                 {
                     // Read JPEG stream
-                    Memory<byte> buffer = bufferHandle.Memory.Slice(0, _streamRegion.Length);
-                    await contentReader.ReadAsync(_streamRegion.Offset, buffer, context.CancellationToken).ConfigureAwait(false);
+                    TiffStreamRegion streamRegion = _streamRegion;
+                    do
+                    {
+                        int readSize = Math.Min(streamRegion.Length, BufferSize);
+                        Memory<byte> memory = bufferWriter.GetMemory(readSize);
+                        readSize = await contentReader.ReadAsync(streamRegion.Offset, memory, context.CancellationToken).ConfigureAwait(false);
+                        bufferWriter.Advance(readSize);
+                        streamRegion = new TiffStreamRegion(streamRegion.Offset + readSize, streamRegion.Length - readSize);
+                    } while (streamRegion.Length > 0);
 
                     // Identify the image
                     var decoder = new JpegDecoder();
-                    decoder.SetInput(buffer);
+                    decoder.SetInput(bufferWriter.GetReadOnlySequence());
                     decoder.Identify();
                     if (decoder.Width != context.SourceImageSize.Width || decoder.Height != context.SourceImageSize.Height)
                     {
@@ -46,10 +54,10 @@ namespace TiffLibrary.Compression
                     // Adjust buffer size and reading region to reduce buffer size
                     int skippedWidth = context.SourceReadOffset.X / 8 * 8;
                     int skippedHeight = context.SourceReadOffset.Y / 8 * 8;
-                    context.SourceImageSize = new TiffSize(context.SourceImageSize.Width - skippedWidth, context.SourceImageSize.Height - skippedHeight);
                     context.SourceReadOffset = new TiffPoint(context.SourceReadOffset.X % 8, context.SourceReadOffset.Y % 8);
                     int bufferWidth = context.SourceReadOffset.X + context.ReadSize.Width;
                     int bufferHeight = context.SourceReadOffset.Y + context.ReadSize.Height;
+                    context.SourceImageSize = new TiffSize(bufferWidth, bufferHeight);
 
                     // Allocate buffer and decode image
                     int dataSize = bufferWidth * bufferHeight * decoder.NumberOfComponents;

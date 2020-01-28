@@ -14,8 +14,6 @@ namespace TiffLibrary.Compression
         private int _componentCount;
         private Memory<byte> _output;
 
-        public JpegBuffer8BitOutputWriter() { }
-
         public JpegBuffer8BitOutputWriter(int width, int skippedScanlines, int height, int componentsCount, Memory<byte> output)
         {
             if (output.Length < (width * height * componentsCount))
@@ -34,9 +32,8 @@ namespace TiffLibrary.Compression
         {
             int componentCount = _componentCount;
             int width = _width;
-            int height = _height;
 
-            if (x > width || y > _height)
+            if (x >= width || y >= _height)
             {
                 return;
             }
@@ -47,7 +44,7 @@ namespace TiffLibrary.Compression
             }
 
             int writeWidth = Math.Min(width - x, 8);
-            int writeHeight = Math.Min(height - y, 8);
+            int writeHeight = Math.Min(_height - y, 8);
 
             ref byte destinationRef = ref MemoryMarshal.GetReference(_output.Span);
             destinationRef = ref Unsafe.Add(ref destinationRef, y * width * componentCount + x * componentCount + componentIndex);

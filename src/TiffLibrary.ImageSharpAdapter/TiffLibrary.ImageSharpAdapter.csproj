@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Title>TiffLibrary.ImageSharpAdapter</Title>
     <Description>An adapter that enables SixLabors.ImageSharp to decode and encode TIFF files using TiffLibrary package.</Description>
-    <TargetFrameworks>netstandard1.3;netstandard2.0;netcoreapp2.1;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;netstandard2.0;net472;netcoreapp2.1;netstandard2.1</TargetFrameworks>
     <SignAssembly>false</SignAssembly> <!-- ImageSharp is not strong-name signed. -->
     <NoWarn>$(NoWarn);CA1001;CA2000;CA2213</NoWarn>
     <!-- CA1001: Types that own disposable fields should be disposable -->
@@ -12,7 +12,7 @@
     <!-- CA2213: Disposable fields should be disposed -->
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472'">
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
@@ -20,7 +20,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="$(SixLaborsImageSharpPackageVersion)" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="$(SystemRuntimeCompilerServicesUnsafePackageVersion)" />
   </ItemGroup>
 

@@ -24,6 +24,47 @@ namespace TiffLibrary
         /// </summary>
         public TiffStreamOffset FirstImageFileDirectoryOffset => new TiffStreamOffset(_imageFileDirectoryOffset);
 
+        /// <summary>
+        /// Gets whether this file is little-endian.
+        /// </summary>
+        public bool IsLittleEndian => _operationContext?.IsLittleEndian ?? throw new ObjectDisposedException(nameof(TiffFileReader));
+
+        /// <summary>
+        /// Gets whether this file is a standard TIFF file.
+        /// </summary>
+        public bool IsStandardTiff
+        {
+            get
+            {
+                TiffOperationContext? operationContext = _operationContext;
+                if (operationContext is null)
+                {
+                    throw new ObjectDisposedException(nameof(TiffFileReader));
+                }
+                TiffOperationContext standardTiff = TiffOperationContext.StandardTIFF;
+                return operationContext.ByteCountOfImageFileDirectoryCountField == standardTiff.ByteCountOfImageFileDirectoryCountField
+                    && operationContext.ByteCountOfValueOffsetField == standardTiff.ByteCountOfValueOffsetField;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether this file is a BigTIFF file.
+        /// </summary>
+        public bool IsBigTiff
+        {
+            get
+            {
+                TiffOperationContext? operationContext = _operationContext;
+                if (operationContext is null)
+                {
+                    throw new ObjectDisposedException(nameof(TiffFileReader));
+                }
+                TiffOperationContext bigTiff = TiffOperationContext.BigTIFF;
+                return operationContext.ByteCountOfImageFileDirectoryCountField == bigTiff.ByteCountOfImageFileDirectoryCountField
+                    && operationContext.ByteCountOfValueOffsetField == bigTiff.ByteCountOfValueOffsetField;
+            }
+        }
+
         #region Constuction
 
         internal TiffFileReader(ITiffFileContentSource contentSource, in TiffFileHeader header, bool leaveOpen)

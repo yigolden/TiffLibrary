@@ -56,54 +56,54 @@ namespace TiffLibrary
                 // Noop
             }
 
-            public override int Read(long offset, ArraySegment<byte> buffer)
+            public override int Read(TiffStreamOffset offset, ArraySegment<byte> buffer)
             {
-                if (offset > _memory.Length)
+                if (offset.Offset > _memory.Length)
                 {
                     return default;
                 }
-                int offset32 = checked((int)offset);
+                int offset32 = checked((int)offset.Offset);
                 ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
                 span = span.Slice(0, Math.Min(buffer.Count, span.Length));
                 span.CopyTo(buffer.AsSpan());
                 return span.Length;
             }
 
-            public override int Read(long offset, Memory<byte> buffer)
+            public override int Read(TiffStreamOffset offset, Memory<byte> buffer)
             {
-                if (offset > _memory.Length)
+                if (offset.Offset > _memory.Length)
                 {
                     return default;
                 }
-                int offset32 = checked((int)offset);
+                int offset32 = checked((int)offset.Offset);
                 ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
                 span = span.Slice(0, Math.Min(buffer.Length, span.Length));
                 span.CopyTo(buffer.Span);
                 return span.Length;
             }
 
-            public override ValueTask<int> ReadAsync(long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
+            public override ValueTask<int> ReadAsync(TiffStreamOffset offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (offset > _memory.Length)
+                if (offset.Offset > _memory.Length)
                 {
                     return default;
                 }
-                int offset32 = checked((int)offset);
+                int offset32 = checked((int)offset.Offset);
                 ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
                 span = span.Slice(0, Math.Min(buffer.Count, span.Length));
                 span.CopyTo(buffer.AsSpan());
                 return new ValueTask<int>(span.Length);
             }
 
-            public override ValueTask<int> ReadAsync(long offset, Memory<byte> buffer, CancellationToken cancellationToken)
+            public override ValueTask<int> ReadAsync(TiffStreamOffset offset, Memory<byte> buffer, CancellationToken cancellationToken)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (offset > _memory.Length)
+                if (offset.Offset > _memory.Length)
                 {
                     return default;
                 }
-                int offset32 = checked((int)offset);
+                int offset32 = checked((int)offset.Offset);
                 ReadOnlySpan<byte> span = _memory.Span.Slice(offset32);
                 span = span.Slice(0, Math.Min(buffer.Length, span.Length));
                 span.CopyTo(buffer.Span);

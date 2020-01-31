@@ -49,19 +49,19 @@ namespace TiffLibrary.ImageSharpAdapter
                 // Noop
             }
 
-            public override int Read(long offset, Memory<byte> buffer)
+            public override int Read(TiffStreamOffset offset, Memory<byte> buffer)
             {
                 Stream stream = _stream;
                 if (stream is null)
                 {
                     throw new ObjectDisposedException(nameof(ContentReader));
                 }
-                if (offset > stream.Length)
+                if (offset.Offset > stream.Length)
                 {
                     return 0;
                 }
 
-                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Seek(offset.Offset, SeekOrigin.Begin);
 
                 if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
                 {

@@ -66,7 +66,7 @@ namespace TiffLibrary
                 _reader = reader;
             }
 
-            public override int Read(long offset, Memory<byte> buffer)
+            public override int Read(TiffStreamOffset offset, Memory<byte> buffer)
             {
                 TiffFileContentReader? reader = _reader;
                 if (reader is null)
@@ -76,7 +76,7 @@ namespace TiffLibrary
                 return reader.Read(offset, buffer);
             }
 
-            public override int Read(long offset, ArraySegment<byte> buffer)
+            public override int Read(TiffStreamOffset offset, ArraySegment<byte> buffer)
             {
                 TiffFileContentReader? reader = _reader;
                 if (reader is null)

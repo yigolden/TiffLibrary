@@ -29,10 +29,6 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(next));
             }
-            if (context.OperationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
 
             int skippedRowOffset = context.SourceImageSize.Width * context.SourceReadOffset.Y;
             int planarByteCount = sizeof(ushort) * context.SourceImageSize.Width * context.SourceImageSize.Height;
@@ -45,12 +41,10 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffCmyk64> writer = context.GetWriter<TiffCmyk64>();
 
-            TiffOperationContext operationContext = context.OperationContext;
-
             int rows = context.ReadSize.Height;
             int cols = context.ReadSize.Width;
 
-            if (operationContext.IsLittleEndian == BitConverter.IsLittleEndian)
+            if (context.IsLittleEndian == BitConverter.IsLittleEndian)
             {
                 for (int row = 0; row < rows; row++)
                 {

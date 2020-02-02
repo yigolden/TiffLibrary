@@ -71,13 +71,21 @@ namespace TiffLibrary.Compression
                 }
                 outputWriter = new JpegBuffer8BitOutputWriter(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
             }
-            else if (decoder.Precision == 12)
+            else if (decoder.Precision < 8)
+            {
+                if (context.BitsPerSample.GetFirstOrDefault() != 8)
+                {
+                    throw new InvalidDataException($"Precision of {decoder.Precision} bit is not expected.");
+                }
+                outputWriter = new JpegBufferAny8BitOutputWriter(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, decoder.Precision, output);
+            }
+            else if (decoder.Precision <= 16)
             {
                 if (context.BitsPerSample.GetFirstOrDefault() != 16)
                 {
-                    throw new InvalidDataException("Precision of 12 bit is not expected.");
+                    throw new InvalidDataException($"Precision of {decoder.Precision} bit is not expected.");
                 }
-                outputWriter = new JpegBuffer12BitOutputWriter(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
+                outputWriter = new JpegBufferAny16BitOutputWriter(outputBufferSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, decoder.Precision, output);
             }
             else
             {

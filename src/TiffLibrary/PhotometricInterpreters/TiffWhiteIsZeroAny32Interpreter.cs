@@ -47,10 +47,6 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(next));
             }
-            if (context.OperationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
 
             int bitCount = _bitCount;
             bool isHigherOrderBitsFirst = _fillOrder != TiffFillOrder.LowerOrderBitsFirst;
@@ -65,7 +61,7 @@ namespace TiffLibrary.PhotometricInterpreters
             int cols = context.ReadSize.Width;
 
             // BitReader.Read reads bytes in big-endian way, we only need to reverse the endianness if the source is little-endian.
-            bool reverseEndianness = context.OperationContext.IsLittleEndian && bitCount % 8 == 0;
+            bool reverseEndianness = context.IsLittleEndian && bitCount % 8 == 0;
             bool canDoFastPath = bitCount >= 16 && !reverseEndianness;
 
             for (int row = 0; row < rows; row++)

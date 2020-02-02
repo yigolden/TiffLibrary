@@ -29,10 +29,6 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(next));
             }
-            if (context.OperationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
 
             int bytesPerScanline = context.SourceImageSize.Width * 2;
             Memory<byte> source = context.UncompressedData.Slice(context.SourceReadOffset.Y * bytesPerScanline);
@@ -40,8 +36,7 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffGray16> writer = context.GetWriter<TiffGray16>();
 
-            TiffOperationContext operationContext = context.OperationContext;
-            bool reverseEndiannessNeeded = operationContext.IsLittleEndian != BitConverter.IsLittleEndian;
+            bool reverseEndiannessNeeded = context.IsLittleEndian != BitConverter.IsLittleEndian;
             int rows = context.ReadSize.Height;
 
             if (reverseEndiannessNeeded)

@@ -37,18 +37,12 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffBgra64> writer = context.GetWriter<TiffBgra64>();
 
-            TiffOperationContext? operationContext = context.OperationContext;
-            if (operationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
-
             int rows = context.ReadSize.Height;
             for (int row = 0; row < rows; row++)
             {
                 using TiffPixelSpanHandle<TiffBgra64> pixelSpanHandle = writer.GetRowSpan(row);
                 Span<byte> rowDestinationSpan = MemoryMarshal.Cast<TiffBgra64, byte>(pixelSpanHandle.GetSpan());
-                CopyScanlineRgbToBgra(sourceSpan.Slice(6 * context.SourceReadOffset.X, 6 * context.ReadSize.Width), rowDestinationSpan.Slice(0, 8 * context.ReadSize.Width), context.ReadSize.Width, operationContext.IsLittleEndian == BitConverter.IsLittleEndian);
+                CopyScanlineRgbToBgra(sourceSpan.Slice(6 * context.SourceReadOffset.X, 6 * context.ReadSize.Width), rowDestinationSpan.Slice(0, 8 * context.ReadSize.Width), context.ReadSize.Width, context.IsLittleEndian == BitConverter.IsLittleEndian);
                 sourceSpan = sourceSpan.Slice(bytesPerScanline);
             }
 

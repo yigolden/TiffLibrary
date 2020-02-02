@@ -20,6 +20,11 @@ namespace TiffLibrary.ImageDecoder
         public abstract CancellationToken CancellationToken { get; set; }
 
         /// <summary>
+        /// Gets whether the uncompressed data is little endian.
+        /// </summary>
+        public virtual bool IsLittleEndian => OperationContext?.IsLittleEndian ?? throw new InvalidOperationException("Operation context is not specified.");
+
+        /// <summary>
         /// Parameters of how the TIFF file should be parsed.
         /// </summary>
         public abstract TiffOperationContext? OperationContext { get; set; }

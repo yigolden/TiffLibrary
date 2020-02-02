@@ -38,6 +38,26 @@ namespace TiffLibrary.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte Clamp8Bit(short input, ushort maxValue)
+        {
+#if NO_MATH_CLAMP
+            return (byte)Math.Min(Math.Max(input, (short)0), (short)maxValue);
+#else
+            return (byte)Math.Clamp(input, (short)0, (short)maxValue);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort Clamp16Bit(ushort input, ushort maxValue)
+        {
+#if NO_MATH_CLAMP
+            return Math.Min(Math.Max(input, (ushort)0), maxValue);
+#else
+            return Math.Clamp(input, (ushort)0, maxValue);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ClampTo8Bit(long value)
         {
 #if NO_MATH_CLAMP

@@ -66,30 +66,50 @@ namespace TiffLibrary.ImageDecoder
             TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
             TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
 
-            // Special case for 12-bit JPEG
-            bool is12BitJpeg = false;
+            // Special case for JPEG
+            ITiffImageDecoderMiddleware? jpegBitsExpansionMiddleware = null;
             if (compression == TiffCompression.Jpeg)
             {
-                // The JpegDecompressionAlgorithm class will output 16-bit pixels for such images
-                // Therefore, we treat it as if it is a 16-bit image in the following steps.
+                // First, make sure all the componenets have the same bit depth
+                if (bitsPerSample.IsEmpty)
+                {
+                    throw new NotSupportedException("BitsPerSample tag it not specified.");
+                }
+                ushort firstBitsPerSample = bitsPerSample.GetFirstOrDefault();
+                foreach (ushort bits in bitsPerSample)
+                {
+                    if (bits != firstBitsPerSample)
+                    {
+                        throw new NotSupportedException("Components have different bits.");
+                    }
+                }
 
-                // BlackIsZero or WhiteIsZero
-                if ((photometricInterpretation == TiffPhotometricInterpretation.BlackIsZero || photometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero) && bitsPerSample.Count == 1 && bitsPerSample[0] == 12)
+                // The JpegDecompressionAlgorithm class will output either 8-bit pixels or 16-bit pixels for such images
+                // Therefore, we treat it as if it is a 8-bit image or 16-bit image in the following steps.
+
+                if (firstBitsPerSample < 8)
                 {
-                    bitsPerSample = TiffValueCollection.Single((ushort)16);
-                    is12BitJpeg = true;
+                    var newBitsPerSample = new TiffMutableValueCollection<ushort>(bitsPerSample.Count);
+                    for (int i = 0; i < bitsPerSample.Count; i++)
+                    {
+                        newBitsPerSample[i] = 8;
+                    }
+                    bitsPerSample = newBitsPerSample.GetReadOnlyView();
+                    jpegBitsExpansionMiddleware = new Jpeg8BitSampleExpansionMiddleware(firstBitsPerSample);
                 }
-                // YCbCr or RGB
-                else if ((photometricInterpretation == TiffPhotometricInterpretation.RGB || photometricInterpretation == TiffPhotometricInterpretation.YCbCr) && bitsPerSample.Count == 3 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12)
+                else if (firstBitsPerSample > 8 && firstBitsPerSample < 16)
                 {
-                    bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16 });
-                    is12BitJpeg = true;
+                    var newBitsPerSample = new TiffMutableValueCollection<ushort>(bitsPerSample.Count);
+                    for (int i = 0; i < bitsPerSample.Count; i++)
+                    {
+                        newBitsPerSample[i] = 16;
+                    }
+                    bitsPerSample = newBitsPerSample.GetReadOnlyView();
+                    jpegBitsExpansionMiddleware = new Jpeg16BitSampleExpansionMiddleware(firstBitsPerSample);
                 }
-                // CMYK
-                else if (photometricInterpretation == TiffPhotometricInterpretation.Seperated && bitsPerSample.Count == 4 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12 && bitsPerSample[3] == 12)
+                else if (firstBitsPerSample > 16)
                 {
-                    bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16, 16 });
-                    is12BitJpeg = true;
+                    throw new NotSupportedException($"JPEG compression does not support {firstBitsPerSample} bits image.");
                 }
             }
 
@@ -112,16 +132,16 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: Decompression
             builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
 
+            // For JPEG: Sample Expansion
+            if (!(jpegBitsExpansionMiddleware is null))
+            {
+                builder.Add(jpegBitsExpansionMiddleware);
+            }
+
             // Middleware: ReverseYCbCrSubsampling
             if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
             {
                 await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader).ConfigureAwait(false);
-            }
-
-            // Special case for 12-bit JPEG
-            if (is12BitJpeg)
-            {
-                builder.Add(new Jpeg16BitEndianessCorrectionMiddleware());
             }
 
             // Middleware: ReversePredictor
@@ -163,30 +183,50 @@ namespace TiffLibrary.ImageDecoder
             uint? tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
             Debug.Assert(tileWidth.HasValue);
 
-            // Special case for 12-bit JPEG
-            bool is12BitJpeg = false;
+            // Special case for JPEG
+            ITiffImageDecoderMiddleware? jpegBitsExpansionMiddleware = null;
             if (compression == TiffCompression.Jpeg)
             {
-                // The JpegDecompressionAlgorithm class will output 16-bit pixels for such images
-                // Therefore, we treat it as if it is a 16-bit image in the following steps.
+                // First, make sure all the componenets have the same bit depth
+                if (bitsPerSample.IsEmpty)
+                {
+                    throw new NotSupportedException("BitsPerSample tag it not specified.");
+                }
+                ushort firstBitsPerSample = bitsPerSample.GetFirstOrDefault();
+                foreach (ushort bits in bitsPerSample)
+                {
+                    if (bits != firstBitsPerSample)
+                    {
+                        throw new NotSupportedException("Components have different bits.");
+                    }
+                }
 
-                // BlackIsZero or WhiteIsZero
-                if ((photometricInterpretation == TiffPhotometricInterpretation.BlackIsZero || photometricInterpretation == TiffPhotometricInterpretation.WhiteIsZero) && bitsPerSample.Count == 1 && bitsPerSample[0] == 12)
+                // The JpegDecompressionAlgorithm class will output either 8-bit pixels or 16-bit pixels for such images
+                // Therefore, we treat it as if it is a 8-bit image or 16-bit image in the following steps.
+
+                if (firstBitsPerSample < 8)
                 {
-                    bitsPerSample = TiffValueCollection.Single((ushort)16);
-                    is12BitJpeg = true;
+                    var newBitsPerSample = new TiffMutableValueCollection<ushort>(bitsPerSample.Count);
+                    for (int i = 0; i < bitsPerSample.Count; i++)
+                    {
+                        newBitsPerSample[i] = firstBitsPerSample;
+                    }
+                    bitsPerSample = newBitsPerSample.GetReadOnlyView();
+                    jpegBitsExpansionMiddleware = new Jpeg8BitSampleExpansionMiddleware(firstBitsPerSample);
                 }
-                // YCbCr or RGB
-                else if ((photometricInterpretation == TiffPhotometricInterpretation.RGB || photometricInterpretation == TiffPhotometricInterpretation.YCbCr) && bitsPerSample.Count == 3 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12)
+                else if (firstBitsPerSample > 8 && firstBitsPerSample < 16)
                 {
-                    bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16 });
-                    is12BitJpeg = true;
+                    var newBitsPerSample = new TiffMutableValueCollection<ushort>(bitsPerSample.Count);
+                    for (int i = 0; i < bitsPerSample.Count; i++)
+                    {
+                        newBitsPerSample[i] = firstBitsPerSample;
+                    }
+                    bitsPerSample = newBitsPerSample.GetReadOnlyView();
+                    jpegBitsExpansionMiddleware = new Jpeg16BitSampleExpansionMiddleware(firstBitsPerSample);
                 }
-                // CMYK
-                else if (photometricInterpretation == TiffPhotometricInterpretation.Seperated && bitsPerSample.Count == 4 && bitsPerSample[0] == 12 && bitsPerSample[1] == 12 && bitsPerSample[2] == 12 && bitsPerSample[3] == 12)
+                else if (firstBitsPerSample > 16)
                 {
-                    bitsPerSample = TiffValueCollection.UnsafeWrap(new ushort[] { 16, 16, 16, 16 });
-                    is12BitJpeg = true;
+                    throw new NotSupportedException($"JPEG compression does not support {firstBitsPerSample} bits image.");
                 }
             }
 
@@ -209,16 +249,16 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: Decompression
             builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
 
+            // For JPEG: Sample Expansion
+            if (!(jpegBitsExpansionMiddleware is null))
+            {
+                builder.Add(jpegBitsExpansionMiddleware);
+            }
+
             // Middleware: ReverseYCbCrSubsampling
             if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
             {
                 await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader).ConfigureAwait(false);
-            }
-
-            // Special case for 12-bit JPEG
-            if (is12BitJpeg)
-            {
-                builder.Add(new Jpeg16BitEndianessCorrectionMiddleware());
             }
 
             // Middleware: ReversePredictor

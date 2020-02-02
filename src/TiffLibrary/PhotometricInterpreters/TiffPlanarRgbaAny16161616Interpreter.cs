@@ -58,10 +58,6 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(next));
             }
-            if (context.OperationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
 
             Span<ushort> bitsPerSample = stackalloc ushort[4];
             _bitsPerSample.CopyTo(bitsPerSample);
@@ -89,10 +85,11 @@ namespace TiffLibrary.PhotometricInterpreters
             int cols = context.ReadSize.Width;
 
             // BitReader.Read reads bytes in big-endian way, we only need to reverse the endianness if the source is little-endian.
-            bool reverseEndiannessR = context.OperationContext.IsLittleEndian && bitsPerSample[0] % 8 == 0;
-            bool reverseEndiannessG = context.OperationContext.IsLittleEndian && bitsPerSample[1] % 8 == 0;
-            bool reverseEndiannessB = context.OperationContext.IsLittleEndian && bitsPerSample[2] % 8 == 0;
-            bool reverseEndiannessA = context.OperationContext.IsLittleEndian && bitsPerSample[3] % 8 == 0;
+            bool isLittleEndian = context.IsLittleEndian;
+            bool reverseEndiannessR = isLittleEndian && bitsPerSample[0] % 8 == 0;
+            bool reverseEndiannessG = isLittleEndian && bitsPerSample[1] % 8 == 0;
+            bool reverseEndiannessB = isLittleEndian && bitsPerSample[2] % 8 == 0;
+            bool reverseEndiannessA = isLittleEndian && bitsPerSample[3] % 8 == 0;
             bool canDoFastPath = bitsPerSample[0] >= 16 && bitsPerSample[1] >= 16 && bitsPerSample[2] >= 16 && bitsPerSample[3] >= 16
                                  && !reverseEndiannessR & !reverseEndiannessG & !reverseEndiannessB & !reverseEndiannessA;
 

@@ -37,15 +37,9 @@ namespace TiffLibrary.PhotometricInterpreters
 
             using TiffPixelBufferWriter<TiffCmyk64> writer = context.GetWriter<TiffCmyk64>();
 
-            TiffOperationContext? operationContext = context.OperationContext;
-            if (operationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
-
             int rows = context.ReadSize.Height;
 
-            if (operationContext.IsLittleEndian == BitConverter.IsLittleEndian)
+            if (context.IsLittleEndian == BitConverter.IsLittleEndian)
             {
                 for (int row = 0; row < rows; row++)
                 {

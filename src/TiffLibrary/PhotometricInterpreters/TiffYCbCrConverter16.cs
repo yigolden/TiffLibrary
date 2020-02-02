@@ -168,7 +168,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 pixel.R = TiffMathHelper.RoundAndClampTo16Bit(cr * _cr2r + y);
                 pixel.G = TiffMathHelper.RoundAndClampTo16Bit(_y2g * y + _cr2g * cr + _cb2g * cb);
                 pixel.B = TiffMathHelper.RoundAndClampTo16Bit(cb * _cb2b + y);
-                pixel.A = byte.MaxValue;
+                pixel.A = ushort.MaxValue;
             }
         }
 

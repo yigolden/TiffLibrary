@@ -6,17 +6,18 @@ using TiffLibrary.Utils;
 
 namespace TiffLibrary.Compression
 {
-    internal sealed class JpegBuffer12BitOutputWriter : JpegBlockOutputWriter
+    internal sealed class JpegBufferAny16BitOutputWriter : JpegBlockOutputWriter
     {
         private int _width;
         private int _skippedScanlines;
         private int _height;
         private int _componentCount;
+        private readonly int _maxValue;
         private Memory<byte> _output;
 
-        public JpegBuffer12BitOutputWriter(int width, int skippedScanlines, int height, int componentsCount, Memory<byte> output)
+        public JpegBufferAny16BitOutputWriter(int width, int skippedScanlines, int height, int componentsCount, int bitCount, Memory<byte> output)
         {
-            if (output.Length < (width * height * componentsCount))
+            if (output.Length < (width * height * componentsCount * 2))
             {
                 throw new ArgumentException("Destination buffer is too small.");
             }
@@ -25,6 +26,7 @@ namespace TiffLibrary.Compression
             _skippedScanlines = skippedScanlines / 8 * 8; // Align to block
             _height = height;
             _componentCount = componentsCount;
+            _maxValue = (1 << bitCount) - 1;
             _output = output;
         }
 
@@ -32,9 +34,8 @@ namespace TiffLibrary.Compression
         {
             int componentCount = _componentCount;
             int width = _width;
-            int height = _height;
 
-            if (x > width || y > _height)
+            if (x >= width || y >= _height)
             {
                 return;
             }
@@ -45,7 +46,8 @@ namespace TiffLibrary.Compression
             }
 
             int writeWidth = Math.Min(width - x, 8);
-            int writeHeight = Math.Min(height - y, 8);
+            int writeHeight = Math.Min(_height - y, 8);
+            ushort maxValue = (ushort)_maxValue;
 
             ref ushort destinationRef = ref Unsafe.As<byte, ushort>(ref MemoryMarshal.GetReference(_output.Span));
             destinationRef = ref Unsafe.Add(ref destinationRef, y * width * componentCount + x * componentCount + componentIndex);
@@ -55,19 +57,10 @@ namespace TiffLibrary.Compression
                 ref ushort destinationRowRef = ref Unsafe.Add(ref destinationRef, destY * width * componentCount);
                 for (int destX = 0; destX < writeWidth; destX++)
                 {
-                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = (ushort)FastExpandBits(TiffMathHelper.ClampTo12Bit(Unsafe.Add(ref blockRef, destX)));
+                    Unsafe.Add(ref destinationRowRef, destX * componentCount) = TiffMathHelper.Clamp16Bit((ushort)Unsafe.Add(ref blockRef, destX), maxValue);
                 }
                 blockRef = ref Unsafe.Add(ref blockRef, 8);
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint FastExpandBits(uint bits)
-        {
-            const int bitCount = 12;
-            const int targetBitCount = 16;
-            const int remainingBits = targetBitCount - bitCount;
-            return (bits << remainingBits) | (bits & ((uint)(1 << remainingBits) - 1));
         }
     }
 }

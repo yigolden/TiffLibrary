@@ -49,10 +49,6 @@ namespace TiffLibrary.PhotometricInterpreters
             {
                 throw new ArgumentNullException(nameof(next));
             }
-            if (context.OperationContext is null)
-            {
-                throw new InvalidOperationException("Failed to acquire OperationContext.");
-            }
 
             TiffYCbCrConverter16 converter = _converter;
 
@@ -64,7 +60,7 @@ namespace TiffLibrary.PhotometricInterpreters
 
             int rows = context.ReadSize.Height;
             int cols = context.ReadSize.Width;
-            bool reverseEndiannessNeeded = context.OperationContext.IsLittleEndian != BitConverter.IsLittleEndian;
+            bool reverseEndiannessNeeded = context.IsLittleEndian != BitConverter.IsLittleEndian;
 
             if (reverseEndiannessNeeded)
             {

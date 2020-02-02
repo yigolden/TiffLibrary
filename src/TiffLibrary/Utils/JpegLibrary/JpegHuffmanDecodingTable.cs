@@ -65,8 +65,10 @@ namespace JpegLibrary
             Debug.Assert(!(_values is null));
             Debug.Assert(!(_valOffset is null));
 
+            ushort[] maxCode = _maxCode!;
+
             int size = 9;
-            while (code16bit > _maxCode![size])
+            while (code16bit > maxCode[size])
             {
                 size++;
             }

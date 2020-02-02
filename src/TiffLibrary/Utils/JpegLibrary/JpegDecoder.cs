@@ -19,8 +19,6 @@ namespace JpegLibrary
 
         private JpegFrameHeader? _frameHeader;
         private ushort _restartInterval;
-        private bool _extended;
-        private bool _progressive;
         private byte? _maxHorizontalSamplingFactor;
         private byte? _maxVerticalSamplingFactor;
 
@@ -28,9 +26,6 @@ namespace JpegLibrary
 
         private List<JpegQuantizationTable>? _quantizationTables;
         private List<JpegHuffmanDecodingTable>? _huffmanTables;
-
-        public bool IsExtendedJpeg => _extended;
-        public bool IsProgressiveJpeg => _progressive;
 
         public void SetInput(ReadOnlyMemory<byte> inputBuffer)
             => SetInput(new ReadOnlySequence<byte>(inputBuffer));
@@ -73,21 +68,17 @@ namespace JpegLibrary
                     case JpegMarker.StartOfImage:
                         break;
                     case JpegMarker.StartOfFrame0:
-                        _extended = false;
-                        _progressive = false;
                         ProcessFrameHeader(ref reader, false, false);
                         break;
                     case JpegMarker.StartOfFrame1:
-                        _extended = true;
-                        _progressive = false;
                         ProcessFrameHeader(ref reader, false, false);
                         break;
                     case JpegMarker.StartOfFrame2:
-                        _extended = false;
-                        _progressive = true;
                         ProcessFrameHeader(ref reader, false, false);
                         break;
                     case JpegMarker.StartOfFrame3:
+                        ProcessFrameHeader(ref reader, false, false);
+                        break;
                     case JpegMarker.StartOfFrame5:
                     case JpegMarker.StartOfFrame6:
                     case JpegMarker.StartOfFrame7:
@@ -470,24 +461,12 @@ namespace JpegLibrary
                     switch (marker)
                     {
                         case JpegMarker.StartOfFrame0:
-                            _extended = false;
-                            _progressive = false;
-                            ProcessFrameHeader(ref reader, false, true);
-                            scanDecoder = JpegScanDecoder.Create(marker, this, _frameHeader.GetValueOrDefault());
-                            break;
                         case JpegMarker.StartOfFrame1:
-                            _extended = true;
-                            _progressive = false;
-                            ProcessFrameHeader(ref reader, false, true);
-                            scanDecoder = JpegScanDecoder.Create(marker, this, _frameHeader.GetValueOrDefault());
-                            break;
                         case JpegMarker.StartOfFrame2:
-                            _extended = false;
-                            _progressive = true;
+                        case JpegMarker.StartOfFrame3:
                             ProcessFrameHeader(ref reader, false, true);
                             scanDecoder = JpegScanDecoder.Create(marker, this, _frameHeader.GetValueOrDefault());
                             break;
-                        case JpegMarker.StartOfFrame3:
                         case JpegMarker.StartOfFrame5:
                         case JpegMarker.StartOfFrame6:
                         case JpegMarker.StartOfFrame7:

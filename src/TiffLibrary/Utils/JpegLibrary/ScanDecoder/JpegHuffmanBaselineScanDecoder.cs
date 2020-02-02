@@ -8,23 +8,50 @@ namespace JpegLibrary.ScanDecoder
 {
     internal sealed class JpegHuffmanBaselineScanDecoder : JpegHuffmanScanDecoder
     {
-        private readonly JpegDecoder _decoder;
         private readonly JpegFrameHeader _frameHeader;
 
+        private readonly int _maxHorizontalSampling;
+        private readonly int _maxVerticalSampling;
+
         private readonly ushort _restartInterval;
+        private readonly int _mcusPerLine;
+        private readonly int _mcusPerColumn;
+        private readonly int _levelShift;
+
+        private readonly JpegDecodeComponent[] _components;
 
         public JpegHuffmanBaselineScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
         {
-            _decoder = decoder;
             _frameHeader = frameHeader;
 
+            // Compute maximum sampling factor
+            int maxHorizontalSampling = 1;
+            int maxVerticalSampling = 1;
+            foreach (JpegFrameComponentSpecificationParameters currentFrameComponent in frameHeader.Components!)
+            {
+                maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentFrameComponent.HorizontalSamplingFactor);
+                maxVerticalSampling = Math.Max(maxVerticalSampling, currentFrameComponent.VerticalSamplingFactor);
+            }
+            _maxHorizontalSampling = maxHorizontalSampling;
+            _maxVerticalSampling = maxVerticalSampling;
+
             _restartInterval = decoder.GetRestartInterval();
+            _mcusPerLine = (frameHeader.SamplesPerLine + 8 * maxHorizontalSampling - 1) / (8 * maxHorizontalSampling);
+            _mcusPerColumn = (frameHeader.NumberOfLines + 8 * maxVerticalSampling - 1) / (8 * maxVerticalSampling);
+            _levelShift = 1 << (frameHeader.SamplePrecision - 1);
+
+            // Pre-allocate the JpegDecodeComponent instances
+            _components = new JpegDecodeComponent[frameHeader.NumberOfComponents];
+            for (int i = 0; i < _components.Length; i++)
+            {
+                _components[i] = new JpegDecodeComponent();
+            }
         }
 
         public override void ProcessScan(ref JpegReader reader, JpegScanHeader scanHeader)
         {
             JpegFrameHeader frameHeader = _frameHeader;
-            JpegBlockOutputWriter? outputWriter = _decoder.GetOutputWriter();
+            JpegBlockOutputWriter? outputWriter = Decoder.GetOutputWriter();
 
             if (frameHeader.Components is null)
             {
@@ -39,25 +66,17 @@ namespace JpegLibrary.ScanDecoder
                 ThrowInvalidDataException();
             }
 
-            // Compute maximum sampling factor
-            int maxHorizontalSampling = 1;
-            int maxVerticalSampling = 1;
-            foreach (JpegFrameComponentSpecificationParameters currentFrameComponent in frameHeader.Components)
-            {
-                maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentFrameComponent.HorizontalSamplingFactor);
-                maxVerticalSampling = Math.Max(maxVerticalSampling, currentFrameComponent.VerticalSamplingFactor);
-            }
-
             // Resolve each component
-            JpegDecodeComponent[] components = InitDecodeComponents(frameHeader, scanHeader);
+            Span<JpegDecodeComponent> components = _components.AsSpan(0, InitDecodeComponents(frameHeader, scanHeader, _components));
 
             // Prepare
-            int mcusPerLine = (frameHeader.SamplesPerLine + 8 * maxHorizontalSampling - 1) / (8 * maxHorizontalSampling);
-            int mcusPerColumn = (frameHeader.NumberOfLines + 8 * maxVerticalSampling - 1) / (8 * maxVerticalSampling);
-            JpegBitReader bitReader = new JpegBitReader(reader.RemainingBytes);
+            int maxHorizontalSampling = _maxHorizontalSampling;
+            int maxVerticalSampling = _maxVerticalSampling;
             int mcusBeforeRestart = _restartInterval;
-
-            int levelShift = 1 << (frameHeader.SamplePrecision - 1);
+            int mcusPerLine = _mcusPerLine;
+            int mcusPerColumn = _mcusPerColumn;
+            int levelShift = _levelShift;
+            JpegBitReader bitReader = new JpegBitReader(reader.RemainingBytes);
 
             // DCT Block
             JpegBlock8x8F blockFBuffer = default;
@@ -157,7 +176,7 @@ namespace JpegLibrary.ScanDecoder
             int t = DecodeHuffmanCode(ref reader, component.DcTable!);
             if (t != 0)
             {
-                t = Receive(ref reader, t);
+                t = ReceiveAndExtend(ref reader, t);
             }
 
             t += component.DcPredictor;
@@ -176,7 +195,7 @@ namespace JpegLibrary.ScanDecoder
                 if (s != 0)
                 {
                     i += r;
-                    s = Receive(ref reader, s);
+                    s = ReceiveAndExtend(ref reader, s);
                     Unsafe.Add(ref destinationRef, Math.Min(i++, 63)) = (short)s;
                 }
                 else

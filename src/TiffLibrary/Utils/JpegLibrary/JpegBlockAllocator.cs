@@ -64,10 +64,10 @@ namespace JpegLibrary
 
             int length = index * Unsafe.SizeOf<JpegBlock8x8>();
             byte[] buffer = _buffer = ArrayPool<byte>.Shared.Rent(length);
-            buffer.AsSpan(0, length).Fill(0);
+            buffer.AsSpan(0, length).Clear();
         }
 
-        public ref JpegBlock8x8 GetBlockReference(int componentIndex, int x, int y)
+        public ref JpegBlock8x8 GetBlockReference(int componentIndex, int blockX, int blockY)
         {
             ComponentAllocation[]? components = _components;
             if (components is null)
@@ -81,15 +81,6 @@ namespace JpegLibrary
             }
             ComponentAllocation component = components[componentIndex];
 
-            int horizontalSubsamplingFactor = component.HorizontalSubsamplingFactor;
-            int verticalSubsamplingFactor = component.VerticalSubsamplingFactor;
-
-            Debug.Assert((x % (8 * horizontalSubsamplingFactor)) == 0);
-            Debug.Assert((y % (8 * verticalSubsamplingFactor)) == 0);
-
-            int blockX = x / (8 * horizontalSubsamplingFactor);
-            int blockY = y / (8 * verticalSubsamplingFactor);
-
             ref JpegBlock8x8 blockRef = ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_buffer.AsSpan()));
             if (blockX >= component.HorizontalComponentBlock || blockY >= component.VerticalComponentBlock)
             {
@@ -102,31 +93,34 @@ namespace JpegLibrary
         public void Flush()
         {
             ComponentAllocation[]? components = _components;
-            if (!(components is null))
-            {
-                for (int i = 0; i < components.Length; i++)
-                {
-                    ComponentAllocation component = components[i];
-                    ref JpegBlock8x8 componentBlockRef = ref Unsafe.Add(ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_buffer.AsSpan())), component.ComponentBlockOffset);
 
-                    for (int row = 0; row < component.VerticalComponentBlock; row++)
+            if (components is null)
+            {
+                return;
+            }
+
+            JpegBlockOutputWriter? outputWriter = _writer;
+            Debug.Assert(!(outputWriter is null));
+
+            for (int i = 0; i < components.Length; i++)
+            {
+                ComponentAllocation component = components[i];
+                ref JpegBlock8x8 componentBlockRef = ref Unsafe.Add(ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_buffer.AsSpan())), component.ComponentBlockOffset);
+
+                for (int row = 0; row < component.VerticalComponentBlock; row++)
+                {
+                    ref JpegBlock8x8 rowRef = ref Unsafe.Add(ref componentBlockRef, row * component.HorizontalComponentBlock);
+                    for (int col = 0; col < component.HorizontalComponentBlock; col++)
                     {
-                        ref JpegBlock8x8 rowRef = ref Unsafe.Add(ref componentBlockRef, row * component.HorizontalComponentBlock);
-                        for (int col = 0; col < component.HorizontalComponentBlock; col++)
-                        {
-                            ref JpegBlock8x8 blockRef = ref Unsafe.Add(ref rowRef, col);
-                            WriteBlock(blockRef, i, col * component.HorizontalSubsamplingFactor * 8, row * component.VerticalSubsamplingFactor * 8, component.HorizontalSubsamplingFactor, component.VerticalSubsamplingFactor);
-                        }
+                        ref JpegBlock8x8 blockRef = ref Unsafe.Add(ref rowRef, col);
+                        WriteBlock(outputWriter!, blockRef, i, col * component.HorizontalSubsamplingFactor * 8, row * component.VerticalSubsamplingFactor * 8, component.HorizontalSubsamplingFactor, component.VerticalSubsamplingFactor);
                     }
                 }
             }
         }
 
-        private void WriteBlock(in JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSamplingFactor, int verticalSamplingFactor)
+        private static void WriteBlock(JpegBlockOutputWriter outputWriter, in JpegBlock8x8 block, int componentIndex, int x, int y, int horizontalSamplingFactor, int verticalSamplingFactor)
         {
-            JpegBlockOutputWriter? outputWriter = _writer;
-            Debug.Assert(!(outputWriter is null));
-
             ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(block));
 
             if (horizontalSamplingFactor == 1 && verticalSamplingFactor == 1)
@@ -137,8 +131,8 @@ namespace JpegLibrary
             {
                 JpegBlock8x8 tempBlock = default;
 
-                int hShift = CalculateShiftFactor(horizontalSamplingFactor);
-                int vShift = CalculateShiftFactor(verticalSamplingFactor);
+                int hShift = JpegMathHelper.Log2((uint)horizontalSamplingFactor);
+                int vShift = JpegMathHelper.Log2((uint)verticalSamplingFactor);
 
                 ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref Unsafe.AsRef(tempBlock));
 
@@ -164,13 +158,6 @@ namespace JpegLibrary
                     }
                 }
             }
-        }
-
-        private static int CalculateShiftFactor(int value)
-        {
-            int shift = 0;
-            while ((value = value / 2) != 0) shift++;
-            return shift;
         }
 
         public void Dispose()

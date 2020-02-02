@@ -22,20 +22,20 @@
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegFrameHeader.cs" Link="JpegLibrary\JpegFrameHeader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanDecodingTable.cs" Link="JpegLibrary\JpegHuffmanDecodingTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTable.cs" Link="JpegLibrary\JpegHuffmanEncodingTable.cs" />
-    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableBuilder.cs" Link="JpegLibrary\JpegHuffmanEncodingTableBuilder.cs" />
-    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableBuilderCollection.cs" Link="JpegLibrary\JpegHuffmanEncodingTableBuilderCollection.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableCollection.cs" Link="JpegLibrary\JpegHuffmanEncodingTableCollection.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarker.cs" Link="JpegLibrary\JpegMarker.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarkerHelper.cs" Link="JpegLibrary\JpegMarkerHelper.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMathHelper.cs" Link="JpegLibrary\JpegMathHelper.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegQuantizationTable.cs" Link="JpegLibrary\JpegQuantizationTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegReader.cs" Link="JpegLibrary\JpegReader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegScanlineAllocator.cs" Link="JpegLibrary\JpegScanlineAllocator.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegScanHeader.cs" Link="JpegLibrary\JpegScanHeader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardHuffmanEncodingTable.cs" Link="JpegLibrary\JpegStandardHuffmanEncodingTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardQuantizationTable.cs" Link="JpegLibrary\JpegStandardQuantizationTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegWriter.cs" Link="JpegLibrary\JpegWriter.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegZigZag.cs" Link="JpegLibrary\JpegZigZag.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanBaselineScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanBaselineScanDecoder.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanLosslessScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanLosslessScanDecoder.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanProgressiveScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanProgressiveScanDecoder.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegHuffmanScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegHuffmanScanDecoder.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\ScanDecoder\JpegScanDecoder.cs" Link="JpegLibrary\ScanDecoder\JpegScanDecoder.cs" />

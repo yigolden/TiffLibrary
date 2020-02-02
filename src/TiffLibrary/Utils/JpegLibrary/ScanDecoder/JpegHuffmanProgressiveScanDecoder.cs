@@ -8,11 +8,8 @@ namespace JpegLibrary.ScanDecoder
 {
     internal sealed class JpegHuffmanProgressiveScanDecoder : JpegHuffmanScanDecoder
     {
-        private readonly JpegDecoder _decoder;
         private readonly JpegFrameHeader _frameHeader;
 
-        private readonly int _maxHorizontalSampling;
-        private readonly int _maxVerticalSampling;
         private readonly ushort _restartInterval;
         private readonly int _mcusPerLine;
         private readonly int _mcusPerColumn;
@@ -26,7 +23,6 @@ namespace JpegLibrary.ScanDecoder
 
         public JpegHuffmanProgressiveScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
         {
-            _decoder = decoder;
             _frameHeader = frameHeader;
 
             // Compute maximum sampling factor
@@ -37,8 +33,6 @@ namespace JpegLibrary.ScanDecoder
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentFrameComponent.HorizontalSamplingFactor);
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentFrameComponent.VerticalSamplingFactor);
             }
-            _maxHorizontalSampling = maxHorizontalSampling;
-            _maxVerticalSampling = maxVerticalSampling;
 
             _restartInterval = decoder.GetRestartInterval();
             _mcusPerLine = (frameHeader.SamplesPerLine + 8 * maxHorizontalSampling - 1) / (8 * maxHorizontalSampling);
@@ -68,7 +62,7 @@ namespace JpegLibrary.ScanDecoder
             {
                 throw new InvalidOperationException();
             }
-            if (_decoder.GetOutputWriter() is null)
+            if (Decoder.GetOutputWriter() is null)
             {
                 throw new InvalidOperationException();
             }
@@ -96,28 +90,25 @@ namespace JpegLibrary.ScanDecoder
 
             int mcusPerColumn = _mcusPerColumn;
             int mcusPerLine = _mcusPerLine;
-            int maxVerticalSampling = _maxVerticalSampling;
-            int maxHorizontalSampling = _maxHorizontalSampling;
 
             for (int rowMcu = 0; rowMcu < mcusPerColumn; rowMcu++)
             {
-                int offsetY = rowMcu * maxVerticalSampling;
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
-                    int offsetX = colMcu * maxHorizontalSampling;
-
                     foreach (JpegDecodeComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
                         int v = component.VerticalSamplingFactor;
+                        int offsetX = colMcu * h;
+                        int offsetY = rowMcu * v;
 
                         for (int y = 0; y < v; y++)
                         {
-                            int blockOffsetY = (offsetY + y) * 8;
+                            int blockOffsetY = offsetY + y;
                             for (int x = 0; x < h; x++)
                             {
-                                ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(index, (offsetX + x) * 8, blockOffsetY);
+                                ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(index, offsetX + x, blockOffsetY);
 
                                 ReadBlockProgressiveDC(ref bitReader, component, scanHeader, ref blockRef);
                             }
@@ -137,18 +128,17 @@ namespace JpegLibrary.ScanDecoder
             JpegBlockAllocator allocator = _allocator;
             JpegBitReader bitReader = new JpegBitReader(reader.RemainingBytes);
 
-            int width = _frameHeader.SamplesPerLine;
-            int height = _frameHeader.NumberOfLines;
-            int stepX = 8 * component.HorizontalSubsamplingFactor;
-            int stepY = 8 * component.VerticalSubsamplingFactor;
+            int componentIndex = component.ComponentIndex;
+            int horizontalBlockCount = (_frameHeader.SamplesPerLine + 8 * component.HorizontalSubsamplingFactor - 1) / (8 * component.HorizontalSubsamplingFactor);
+            int verticalBlockCount = (_frameHeader.NumberOfLines + 8 * component.VerticalSubsamplingFactor - 1) / (8 * component.VerticalSubsamplingFactor);
 
             if (scanHeader.StartOfSpectralSelection == 0)
             {
-                for (int offsetY = 0; offsetY < height; offsetY += stepY)
+                for (int blockY = 0; blockY < verticalBlockCount; blockY++)
                 {
-                    for (int offsetX = 0; offsetX < width; offsetX += stepX)
+                    for (int blockX = 0; blockX < horizontalBlockCount; blockX++)
                     {
-                        ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(component.ComponentIndex, offsetX, offsetY);
+                        ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(componentIndex, blockX, blockY);
 
                         ReadBlockProgressiveDC(ref bitReader, component, scanHeader, ref blockRef);
 
@@ -161,11 +151,11 @@ namespace JpegLibrary.ScanDecoder
             }
             else
             {
-                for (int offsetY = 0; offsetY < height; offsetY += stepY)
+                for (int blockY = 0; blockY < verticalBlockCount; blockY++)
                 {
-                    for (int offsetX = 0; offsetX < width; offsetX += stepX)
+                    for (int blockX = 0; blockX < horizontalBlockCount; blockX++)
                     {
-                        ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(component.ComponentIndex, offsetX, offsetY);
+                        ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(componentIndex, blockX, blockY);
 
                         ReadBlockProgressiveAC(ref bitReader, component, scanHeader, ref _eobrun, ref blockRef);
 
@@ -219,7 +209,7 @@ namespace JpegLibrary.ScanDecoder
                 int s = DecodeHuffmanCode(ref reader, component.DcTable!);
                 if (s != 0)
                 {
-                    s = Receive(ref reader, s);
+                    s = ReceiveAndExtend(ref reader, s);
                 }
 
                 s += component.DcPredictor;
@@ -266,7 +256,7 @@ namespace JpegLibrary.ScanDecoder
 
                     if (s != 0)
                     {
-                        s = Receive(ref reader, s);
+                        s = ReceiveAndExtend(ref reader, s);
                         Unsafe.Add(ref blockDataRef, Math.Min(i, 63)) = (short)(s << low);
                     }
                     else
@@ -410,8 +400,6 @@ namespace JpegLibrary.ScanDecoder
 
             int mcusPerColumn = _mcusPerColumn;
             int mcusPerLine = _mcusPerLine;
-            int maxVerticalSampling = _maxVerticalSampling;
-            int maxHorizontalSampling = _maxHorizontalSampling;
             int levelShift = _levelShift;
             JpegDecodeComponent[] components = _components;
 
@@ -421,27 +409,23 @@ namespace JpegLibrary.ScanDecoder
 
             for (int rowMcu = 0; rowMcu < mcusPerColumn; rowMcu++)
             {
-                int offsetY = rowMcu * maxVerticalSampling;
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
-                    int offsetX = colMcu * maxHorizontalSampling;
-
                     // Scan an interleaved mcu... process components in order
                     foreach (JpegDecodeComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
                         int v = component.VerticalSamplingFactor;
-                        int hs = component.HorizontalSubsamplingFactor;
-                        int vs = component.VerticalSubsamplingFactor;
+                        int offsetX = colMcu * h;
+                        int offsetY = rowMcu * v;
 
                         for (int y = 0; y < v; y++)
                         {
-                            int blockOffsetY = (offsetY + y) * 8;
+                            int blockOffsetY = offsetY + y;
                             for (int x = 0; x < h; x++)
                             {
-                                // Read MCU
-                                ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(index, (offsetX + x) * 8, blockOffsetY);
+                                ref JpegBlock8x8 blockRef = ref allocator.GetBlockReference(index, offsetX + x, blockOffsetY);
 
                                 // Dequantization
                                 DequantizeBlockAndUnZigZag(component.QuantizationTable, ref blockRef, ref blockFBuffer);

@@ -29,7 +29,7 @@ namespace TiffJpegWrapper
             decoder.Identify(loadQuantizationTables: false);
 
             ushort[] bitsPerSample = new ushort[decoder.NumberOfComponents];
-            ushort bits = decoder.IsExtendedJpeg ? (ushort)12 : (ushort)8;
+            ushort bits = (ushort)decoder.Precision;
             for (int i = 0; i < bitsPerSample.Length; i++)
             {
                 bitsPerSample[i] = bits;

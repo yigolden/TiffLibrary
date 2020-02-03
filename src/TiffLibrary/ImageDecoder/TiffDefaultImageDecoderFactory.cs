@@ -18,39 +18,46 @@ namespace TiffLibrary.ImageDecoder
             TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
             try
             {
-                var fieldReader = new TiffFieldReader(reader, operationContext, cancellationToken);
-                try
-                {
-                    var tagReader = new TiffTagReader(fieldReader, ifd);
-
-                    // Special case for old-style JPEG compression
-                    TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
-                    if (compression == TiffCompression.OldJpeg)
-                    {
-                        return await CreateLegacyJpegImageDecoderAsync(tagReader, operationContext, contentSource, reader, options ?? TiffImageDecoderOptions.Default, cancellationToken).ConfigureAwait(false);
-                    }
-
-                    if (!ifd.Contains(TiffTag.PhotometricInterpretation))
-                    {
-                        throw new InvalidDataException("PhotometricInterpretation tag is missing.");
-                    }
-                    if (ifd.Contains(TiffTag.TileWidth) && ifd.Contains(TiffTag.TileLength))
-                    {
-                        return await CreateTiledImageDecoderAsync(tagReader, operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default).ConfigureAwait(false);
-                    }
-                    if (ifd.Contains(TiffTag.StripOffsets))
-                    {
-                        return await CreateStrippedImageDecoderAsync(tagReader, operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default).ConfigureAwait(false);
-                    }
-                }
-                finally
-                {
-                    await fieldReader.DisposeAsync().ConfigureAwait(false);
-                }
+                return await CreateImageDecoderAsync(operationContext, contentSource, reader, ifd, options, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
                 await reader.DisposeAsync().ConfigureAwait(false);
+            }
+
+            throw new InvalidDataException("Failed to determine offsets to the image data.");
+        }
+
+        public static async Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffFileContentReader reader, TiffImageFileDirectory ifd, TiffImageDecoderOptions? options, CancellationToken cancellationToken)
+        {
+            var fieldReader = new TiffFieldReader(reader, operationContext, cancellationToken);
+            try
+            {
+                var tagReader = new TiffTagReader(fieldReader, ifd);
+
+                // Special case for old-style JPEG compression
+                TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
+                if (compression == TiffCompression.OldJpeg)
+                {
+                    return await CreateLegacyJpegImageDecoderAsync(tagReader, operationContext, contentSource, reader, options ?? TiffImageDecoderOptions.Default, cancellationToken).ConfigureAwait(false);
+                }
+
+                if (!ifd.Contains(TiffTag.PhotometricInterpretation))
+                {
+                    throw new InvalidDataException("PhotometricInterpretation tag is missing.");
+                }
+                if (ifd.Contains(TiffTag.TileWidth) && ifd.Contains(TiffTag.TileLength))
+                {
+                    return await CreateTiledImageDecoderAsync(tagReader, operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default).ConfigureAwait(false);
+                }
+                if (ifd.Contains(TiffTag.StripOffsets))
+                {
+                    return await CreateStrippedImageDecoderAsync(tagReader, operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                await fieldReader.DisposeAsync().ConfigureAwait(false);
             }
 
             throw new InvalidDataException("Failed to determine offsets to the image data.");

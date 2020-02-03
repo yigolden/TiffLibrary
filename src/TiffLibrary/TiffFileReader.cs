@@ -265,10 +265,6 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the IFD is read and returns <see cref="TiffImageFileDirectory"/>.</returns>
         public async Task<TiffImageFileDirectory> ReadImageFileDirectoryAsync(TiffStreamOffset offset, CancellationToken cancellationToken = default)
         {
-            if (offset.IsZero)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
             if (_operationContext is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFileReader));
@@ -301,10 +297,6 @@ namespace TiffLibrary
         /// <returns>The <see cref="TiffImageFileDirectory"/> instance.</returns>
         public TiffImageFileDirectory ReadImageFileDirectory(TiffStreamOffset offset)
         {
-            if (offset.IsZero)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
             if (_operationContext is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFileReader));
@@ -481,23 +473,78 @@ namespace TiffLibrary
         #region Image Decoder
 
         /// <summary>
-        /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
+        /// Creates a <see cref="TiffImageDecoder"/> for the first IFD with the default decoding options.
         /// </summary>
-        /// <param name="ifd">The ifd to decode.</param>
         /// <returns>An image decoder.</returns>
-        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd)
+        public TiffImageDecoder CreateImageDecoder()
+            => CreateImageDecoder((TiffImageDecoderOptions?)null);
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the first IFD with the default decoding options.
+        /// </summary>
+        /// <param name="options">The options to use when decoding image.</param>
+        /// <returns>An image decoder.</returns>
+        public TiffImageDecoder CreateImageDecoder(TiffImageDecoderOptions? options)
         {
-            if (ifd is null)
-            {
-                throw new ArgumentNullException(nameof(ifd));
-            }
             if (_operationContext is null)
             {
                 throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
-            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, null, CancellationToken.None).GetAwaiter().GetResult();
+            TiffFileContentSource contentSource = TiffSyncFileContentSource.WrapSource(_contentSource);
+            using TiffFileContentReader reader = contentSource.OpenReader();
+            try
+            {
+                TiffImageFileDirectory ifd = ReadImageFileDirectoryAsync(reader, _operationContext, _imageFileDirectoryOffset, default).GetAwaiter().GetResult();
+                return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, contentSource, reader, ifd, options, default).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                reader.DisposeAsync().ConfigureAwait(false);
+            }
         }
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
+        /// </summary>
+        /// <param name="ifdOffset">The offset to the IFD.</param>
+        /// <returns>An image decoder.</returns>
+        public TiffImageDecoder CreateImageDecoder(TiffStreamOffset ifdOffset)
+            => CreateImageDecoder(ifdOffset, null);
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
+        /// </summary>
+        /// <param name="ifdOffset">The offset to the IFD.</param>
+        /// <param name="options">The options to use when decoding image.</param>
+        /// <returns>An image decoder.</returns>
+        public TiffImageDecoder CreateImageDecoder(TiffStreamOffset ifdOffset, TiffImageDecoderOptions? options)
+        {
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
+            TiffFileContentSource contentSource = TiffSyncFileContentSource.WrapSource(_contentSource);
+            using TiffFileContentReader reader = contentSource.OpenReader();
+            try
+            {
+                TiffImageFileDirectory ifd = ReadImageFileDirectoryAsync(reader, _operationContext, ifdOffset.ToInt64(), default).GetAwaiter().GetResult();
+                return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, contentSource, reader, ifd, options, default).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                reader.DisposeAsync().ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
+        /// </summary>
+        /// <param name="ifd">The ifd to decode.</param>
+        /// <returns>An image decoder.</returns>
+        public TiffImageDecoder CreateImageDecoder(TiffImageFileDirectory ifd)
+            => CreateImageDecoder(ifd, null);
 
         /// <summary>
         /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD.
@@ -519,6 +566,73 @@ namespace TiffLibrary
             return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, TiffSyncFileContentSource.WrapSource(_contentSource), ifd, options, CancellationToken.None).GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the the first IFD with the default decoding options.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
+        /// <returns>An image decoder.</returns>
+        public Task<TiffImageDecoder> CreateImageDecoderAsync(CancellationToken cancellationToken = default)
+            => CreateImageDecoderAsync((TiffImageDecoderOptions?)null, cancellationToken);
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the first IFD with the default decoding options.
+        /// </summary>
+        /// <param name="options">The options to use when decoding image.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
+        /// <returns>An image decoder.</returns>
+        public async Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageDecoderOptions? options, CancellationToken cancellationToken = default)
+        {
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
+            TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            try
+            {
+                TiffImageFileDirectory ifd = await ReadImageFileDirectoryAsync(reader, _operationContext, _imageFileDirectoryOffset, cancellationToken).ConfigureAwait(false);
+                return await TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, reader, ifd, options, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                await reader.DisposeAsync().ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
+        /// </summary>
+        /// <param name="ifdOffset">The offset to the IFD.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
+        /// <returns>An image decoder.</returns>
+        public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffStreamOffset ifdOffset, CancellationToken cancellationToken = default)
+            => CreateImageDecoderAsync(ifdOffset, null, cancellationToken);
+
+        /// <summary>
+        /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
+        /// </summary>
+        /// <param name="ifdOffset">The offset to the IFD.</param>
+        /// <param name="options">The options to use when decoding image.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
+        /// <returns>An image decoder.</returns>
+        public async Task<TiffImageDecoder> CreateImageDecoderAsync(TiffStreamOffset ifdOffset, TiffImageDecoderOptions? options, CancellationToken cancellationToken = default)
+        {
+            if (_operationContext is null)
+            {
+                throw new ObjectDisposedException(nameof(TiffFileReader));
+            }
+
+            TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            try
+            {
+                TiffImageFileDirectory ifd = await ReadImageFileDirectoryAsync(reader, _operationContext, ifdOffset.ToInt64(), cancellationToken).ConfigureAwait(false);
+                return await TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, reader, ifd, options, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                await reader.DisposeAsync().ConfigureAwait(false);
+            }
+        }
 
         /// <summary>
         /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD with the default decoding options.
@@ -527,18 +641,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> that fires if the user wants to stop the initialization process of <see cref="TiffImageDecoder"/>.</param>
         /// <returns>An image decoder.</returns>
         public Task<TiffImageDecoder> CreateImageDecoderAsync(TiffImageFileDirectory ifd, CancellationToken cancellationToken = default)
-        {
-            if (ifd is null)
-            {
-                throw new ArgumentNullException(nameof(ifd));
-            }
-            if (_operationContext is null)
-            {
-                throw new ObjectDisposedException(nameof(TiffFileReader));
-            }
-
-            return TiffDefaultImageDecoderFactory.CreateImageDecoderAsync(_operationContext, _contentSource, ifd, null, cancellationToken);
-        }
+            => CreateImageDecoderAsync(ifd, null, cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="TiffImageDecoder"/> for the specified IFD.

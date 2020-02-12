@@ -144,7 +144,7 @@ TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync(ifd);
 
 // Create an array to hold the pixels
 TiffRgba32[] pixels = new TiffRgba32[decoder.Width * decoder.Height];
-TiffMemoryPixelBuffer<TiffRgba32> pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, decoder.Width, decoder.Height);
+TiffMemoryPixelBuffer<TiffRgba32> pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, decoder.Width, decoder.Height, writable: true);
 
 // Decode the image. Note that this call will create a `Stream` instance for reading pixel data if we are reading from file. It will be disposed before DecodeAsync completes.
 await decoder.DecodeAsync(pixelBuffer);
@@ -159,7 +159,7 @@ TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync(ifd);
 
 // Buffer for a sub-region.
 TiffRgba32[] pixels = new TiffRgba32[1024 * 1024];
-TiffMemoryPixelBuffer<TiffRgba32> pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, 1024, 1024);
+TiffMemoryPixelBuffer<TiffRgba32> pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, 1024, 1024, writable: true);
 
 // Read a sub-region starting from (2048, 2048).
 await decoder.DecodeAsync(new TiffPoint(2048, 2048), pixelBuffer);
@@ -190,7 +190,7 @@ builder.ApplyPredictor = TiffPredictor.HorizontalDifferencing;
 TiffImageEncoder<TiffRgba32> encoder = builder.Build<TiffRgba32>(); // The encoder instance can be reused.
 
 // The pixel buffer to read from.
-var pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, 1024, 1024);
+var pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, 1024, 1024, writable: true);
 
 // Opens the file for writing.
 using var writer = await TiffFileWriter.OpenAsync(@"C:\Data\test2.tif", useBigTiff: false);

@@ -130,8 +130,8 @@ namespace TiffLibrary.Tests.PhotometricInterpretations
             TiffRgba64[] refBuffer = new TiffRgba64[refDecoder.Width * refDecoder.Height];
             TiffRgba64[] testBuffer = new TiffRgba64[testDecoder.Width * testDecoder.Height];
 
-            await refDecoder.DecodeAsync(new TiffMemoryPixelBuffer<TiffRgba64>(refBuffer, refDecoder.Width, refDecoder.Height));
-            await testDecoder.DecodeAsync(new TiffMemoryPixelBuffer<TiffRgba64>(testBuffer, testDecoder.Width, testDecoder.Height));
+            await refDecoder.DecodeAsync(TiffPixelBuffer.Create(refBuffer, refDecoder.Width, refDecoder.Height));
+            await testDecoder.DecodeAsync(TiffPixelBuffer.Create(testBuffer, testDecoder.Width, testDecoder.Height));
 
             ShiftPixels(MemoryMarshal.Cast<TiffRgba64, ushort>(refBuffer), BufferBitDepth - refBitDepth);
             ShiftPixels(MemoryMarshal.Cast<TiffRgba64, ushort>(testBuffer), BufferBitDepth - testBitDepth);

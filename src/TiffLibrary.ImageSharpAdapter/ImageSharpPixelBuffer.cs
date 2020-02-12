@@ -31,5 +31,7 @@ namespace TiffLibrary.ImageSharpAdapter
         {
             return MemoryMarshal.Cast<TImageSharpPixel, TTiffPixel>(_image.GetPixelSpan());
         }
+
+        public ReadOnlySpan<TTiffPixel> GetReadOnlySpan() => GetSpan();
     }
 }

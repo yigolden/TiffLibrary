@@ -23,5 +23,11 @@ namespace TiffLibrary
         /// </summary>
         /// <returns>A <see cref="Span{TPixel}"/> representing memory of the entire region in row-major order.</returns>
         Span<TPixel> GetSpan();
+
+        /// <summary>
+        /// Gets a <see cref="ReadOnlySpan{TPixel}"/> representing memory of the entire region in row-major order.
+        /// </summary>
+        /// <returns>A <see cref="ReadOnlySpan{TPixel}"/> representing memory of the entire region in row-major order.</returns>
+        ReadOnlySpan<TPixel> GetReadOnlySpan();
     }
 }

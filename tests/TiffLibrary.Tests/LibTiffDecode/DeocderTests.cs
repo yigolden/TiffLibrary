@@ -125,7 +125,7 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 Assert.Equal(refImage.Height, decoder.Height);
                 TiffRgba32[] pixels = new TiffRgba32[decoder.Width * decoder.Height];
 
-                decoder.Decode(new TiffMemoryPixelBuffer<TiffRgba32>(pixels, decoder.Width, decoder.Height));
+                decoder.Decode(TiffPixelBuffer.Create(pixels, decoder.Width, decoder.Height));
 
                 AssertEqual(refImage, pixels);
 
@@ -151,7 +151,7 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 Assert.Equal(refImage.Height, decoder.Height);
                 TiffRgba32[] pixels = new TiffRgba32[decoder.Width * decoder.Height];
 
-                await decoder.DecodeAsync(new TiffMemoryPixelBuffer<TiffRgba32>(pixels, decoder.Width, decoder.Height));
+                await decoder.DecodeAsync(TiffPixelBuffer.Create(pixels, decoder.Width, decoder.Height));
 
                 AssertEqual(refImage, pixels);
 

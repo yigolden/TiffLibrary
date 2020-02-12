@@ -14,5 +14,10 @@ namespace TiffLibrary.PixelBuffer
         {
             return Span<TPixel>.Empty;
         }
+
+        public ReadOnlySpan<TPixel> GetReadOnlySpan()
+        {
+            return ReadOnlySpan<TPixel>.Empty;
+        }
     }
 }

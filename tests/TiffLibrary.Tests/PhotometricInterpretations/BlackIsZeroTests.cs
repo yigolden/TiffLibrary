@@ -77,8 +77,8 @@ namespace TiffLibrary.Tests.PhotometricInterpretations
             TiffGray16[] refBuffer = new TiffGray16[refDecoder.Width * refDecoder.Height];
             TiffGray16[] testBuffer = new TiffGray16[testDecoder.Width * testDecoder.Height];
 
-            await refDecoder.DecodeAsync(new TiffMemoryPixelBuffer<TiffGray16>(refBuffer, refDecoder.Width, refDecoder.Height));
-            await testDecoder.DecodeAsync(new TiffMemoryPixelBuffer<TiffGray16>(testBuffer, testDecoder.Width, testDecoder.Height));
+            await refDecoder.DecodeAsync(TiffPixelBuffer.Create(refBuffer, refDecoder.Width, refDecoder.Height));
+            await testDecoder.DecodeAsync(TiffPixelBuffer.Create(testBuffer, testDecoder.Width, testDecoder.Height));
 
             ShiftPixels(MemoryMarshal.Cast<TiffGray16, ushort>(refBuffer), BufferBitDepth - refBitDepth);
             ShiftPixels(MemoryMarshal.Cast<TiffGray16, ushort>(testBuffer), BufferBitDepth - testBitDepth);

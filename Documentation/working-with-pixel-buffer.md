@@ -9,7 +9,7 @@ called TiffMemoryPixelBuffer to wrap `Memory<TPixel>` as `ITiffPixelBuffer<TPixe
 
 ``` csharp
 Memory<TiffRgba32> pixels = new TiffRgba32[256 * 256];
-var pixelBuffer = new TiffMemoryPixelBuffer<TPixel>(pixels, 256, 256);
+var pixelBuffer = new TiffMemoryPixelBuffer<TPixel>(pixels, 256, 256, writable: true);
 ```
 
 Once you have created an `ITiffPixelBuffer<TPixel>` instance, you can use it as the image buffer when working with `TiffImageDecoder` or `TiffImageEncoder<TPixel>`.
@@ -79,7 +79,7 @@ namespace TiffLibrary.Tests
 While `ITiffPixelBuffer<TPixel>` provides a machanism to access the entire region of the pixel buffer, sometimes we want to limit TiffLibrary to only access a sub-region of the entire pixel buffer. This is where the `TiffPixelBuffer<TPixel>` struct can come in handy. `TiffPixelBuffer<TPixel>` is a struct that represents a sub-region of the pixel buffer of `ITiffPixelBuffer<TPixel>`. It basically stores the reference to the pixel buffer itself, the starting point of the sub-region, and the size of the sub-region. The following code shows how to create a `TiffPixelBuffer<TPixel>` struct.
 
 ``` csharp
-ITiffPixelBuffer<TiffGray8> pixelBuffer = new TiffMemoryPixelBuffer<TiffGray8>(new TiffGray8[1000 * 1000], 1000, 1000);
+ITiffPixelBuffer<TiffGray8> pixelBuffer = new TiffMemoryPixelBuffer<TiffGray8>(new TiffGray8[1000 * 1000], 1000, 1000, writable: true);
 TiffPixelBuffer<TiffGray8> structBuffer;
 
 // Create the struct using its constructor

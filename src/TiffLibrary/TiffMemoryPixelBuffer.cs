@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace TiffLibrary
 {
@@ -11,19 +13,16 @@ namespace TiffLibrary
         private readonly Memory<TPixel> _buffer;
         private readonly int _width;
         private readonly int _height;
+        private readonly bool _readonly;
 
         /// <summary>
-        /// Initialize the region with the specified <see cref="Memory{TPixel}"/>.
+        /// Initialize the region with the specified <see cref="ReadOnlyMemory{TPixel}"/>.
         /// </summary>
         /// <param name="buffer">The memory buffer.</param>
         /// <param name="width">The width of the region.</param>
         /// <param name="height">The height of the region.</param>
-        public TiffMemoryPixelBuffer(Memory<TPixel> buffer, int width, int height)
+        public TiffMemoryPixelBuffer(ReadOnlyMemory<TPixel> buffer, int width, int height)
         {
-            if (buffer.Length < width * height)
-            {
-                throw new ArgumentException("buffer is too small.");
-            }
             if (width < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(width));
@@ -32,9 +31,41 @@ namespace TiffLibrary
             {
                 throw new ArgumentOutOfRangeException(nameof(height));
             }
+            if (buffer.Length < width * height)
+            {
+                throw new ArgumentException("buffer is too small.");
+            }
+            _buffer = MemoryMarshal.AsMemory(buffer).Slice(0, width * height);
+            _width = width;
+            _height = height;
+            _readonly = true;
+        }
+
+        /// <summary>
+        /// Initialize the region with the specified <see cref="Memory{TPixel}"/>.
+        /// </summary>
+        /// <param name="buffer">The memory buffer.</param>
+        /// <param name="width">The width of the region.</param>
+        /// <param name="height">The height of the region.</param>
+        /// <param name="writable">Whether this pixel buffer is writable.</param>
+        public TiffMemoryPixelBuffer(Memory<TPixel> buffer, int width, int height, bool writable)
+        {
+            if (width < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(width));
+            }
+            if (height < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(height));
+            }
+            if (buffer.Length < width * height)
+            {
+                throw new ArgumentException("buffer is too small.");
+            }
             _buffer = buffer.Slice(0, width * height);
             _width = width;
             _height = height;
+            _readonly = !writable;
         }
 
         /// <inheritdoc />
@@ -46,7 +77,22 @@ namespace TiffLibrary
         /// <inheritdoc />
         public Span<TPixel> GetSpan()
         {
+            if (_readonly)
+            {
+                ThrowWriteToReadOnlyPixelBuffer();
+            }
             return _buffer.Span.Slice(0, _width * _height);
+        }
+
+        /// <inheritdoc />
+        public ReadOnlySpan<TPixel> GetReadOnlySpan()
+        {
+            return _buffer.Span.Slice(0, _width * _height);
+        }
+
+        private static void ThrowWriteToReadOnlyPixelBuffer()
+        {
+            throw new InvalidOperationException("Can not write to a read-only pixel buffer.");
         }
     }
 }

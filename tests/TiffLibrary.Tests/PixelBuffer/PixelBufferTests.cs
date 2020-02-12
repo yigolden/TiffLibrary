@@ -17,7 +17,7 @@ namespace TiffLibrary.Tests.PixelBuffer
             pixels[3] = new TiffGray8(0x21);
             pixels[4] = new TiffGray8(0x22);
             pixels[5] = new TiffGray8(0x23);
-            return new TiffMemoryPixelBuffer<TiffGray8>(pixels, 3, 2);
+            return new TiffMemoryPixelBuffer<TiffGray8>(pixels, 3, 2, writable: true);
         }
 
         [Fact]
@@ -36,8 +36,8 @@ namespace TiffLibrary.Tests.PixelBuffer
             Assert.Equal(0xCD, pixels[0].Intensity);
             Assert.Equal(0xEF, pixels[5].Intensity);
 
-            Assert.Throws<ArgumentOutOfRangeException>("width", () => new TiffMemoryPixelBuffer<TiffGray8>(Array.Empty<TiffGray8>(), -1, 0));
-            Assert.Throws<ArgumentOutOfRangeException>("height", () => new TiffMemoryPixelBuffer<TiffGray8>(Array.Empty<TiffGray8>(), 0, -1));
+            Assert.Throws<ArgumentOutOfRangeException>("width", () => TiffPixelBuffer.Create(Array.Empty<TiffGray8>(), -1, 0));
+            Assert.Throws<ArgumentOutOfRangeException>("height", () => TiffPixelBuffer.Create(Array.Empty<TiffGray8>(), 0, -1));
         }
 
         [Fact]
@@ -48,10 +48,11 @@ namespace TiffLibrary.Tests.PixelBuffer
             Assert.Equal(0, structBuffer.Height);
             Assert.True(structBuffer.IsEmpty);
 
-            var pixelBuffer = new TiffMemoryPixelBuffer<TiffGray8>(Array.Empty<TiffGray8>(), 0, 0);
+            var pixelBuffer = new TiffMemoryPixelBuffer<TiffGray8>(Array.Empty<TiffGray8>(), 0, 0, writable: true);
             Assert.Equal(0, pixelBuffer.Width);
             Assert.Equal(0, pixelBuffer.Height);
             Assert.True(pixelBuffer.GetSpan().IsEmpty);
+            Assert.True(pixelBuffer.GetReadOnlySpan().IsEmpty);
 
             structBuffer = pixelBuffer.AsPixelBuffer();
             Assert.Equal(0, structBuffer.Width);
@@ -98,6 +99,20 @@ namespace TiffLibrary.Tests.PixelBuffer
             Assert.Equal(1, offset.Y);
             Assert.Equal(2, size.Width);
             Assert.Equal(1, size.Height);
+        }
+
+        [Fact]
+        public void TestReadOnly()
+        {
+            TiffGray8[] buffer = new TiffGray8[3 * 2];
+            var pixelBuffer1 = new TiffMemoryPixelBuffer<TiffGray8>(buffer, 3, 2);
+            var pixelBuffer2 = new TiffMemoryPixelBuffer<TiffGray8>(buffer, 3, 2, writable: false);
+
+            Assert.Throws<InvalidOperationException>(() => pixelBuffer1.GetSpan());
+            Assert.Throws<InvalidOperationException>(() => pixelBuffer2.GetSpan());
+
+            Assert.Equal(buffer.Length, pixelBuffer1.GetReadOnlySpan().Length);
+            Assert.Equal(buffer.Length, pixelBuffer2.GetReadOnlySpan().Length);
         }
     }
 }

@@ -40,12 +40,12 @@ namespace TiffLibrary.PixelBuffer
             int width = Math.Min(_size.Width - offset.X, destination.Width);
             int height = Math.Min(_size.Height - offset.Y, destination.Height);
 
-            Span<TPixel> buffer = _buffer.GetSpan();
+            ReadOnlySpan<TPixel> buffer = _buffer.GetSpan();
             int bufferWidth = _size.Width;
 
             for (int row = 0; row < height; row++)
             {
-                Span<TPixel> sourceSpan = buffer.Slice(bufferWidth * (offset.Y + row) + offset.X, width);
+                ReadOnlySpan<TPixel> sourceSpan = buffer.Slice(bufferWidth * (offset.Y + row) + offset.X, width);
                 using TiffPixelSpanHandle<TPixel> destinationHandle = destination.GetRowSpan(row);
                 sourceSpan.CopyTo(destinationHandle.GetSpan());
             }

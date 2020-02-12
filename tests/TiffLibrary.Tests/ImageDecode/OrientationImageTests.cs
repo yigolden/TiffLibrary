@@ -42,7 +42,7 @@ namespace TiffLibrary.Tests.ImageDecode
                 Assert.Equal(refImage.Height, decoder.Height);
                 TiffRgb24[] pixels = new TiffRgb24[decoder.Width * decoder.Height];
 
-                decoder.Decode(new TiffMemoryPixelBuffer<TiffRgb24>(pixels, decoder.Width, decoder.Height));
+                decoder.Decode(TiffPixelBuffer.Create(pixels, decoder.Width, decoder.Height));
 
                 AssertEqual(refImage, pixels);
 
@@ -68,7 +68,7 @@ namespace TiffLibrary.Tests.ImageDecode
                 Assert.Equal(refImage.Height, decoder.Height);
                 TiffRgb24[] pixels = new TiffRgb24[decoder.Width * decoder.Height];
 
-                await decoder.DecodeAsync(new TiffMemoryPixelBuffer<TiffRgb24>(pixels, decoder.Width, decoder.Height));
+                await decoder.DecodeAsync(TiffPixelBuffer.Create(pixels, decoder.Width, decoder.Height));
 
                 AssertEqual(refImage, pixels);
 

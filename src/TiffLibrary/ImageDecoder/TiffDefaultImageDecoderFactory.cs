@@ -339,11 +339,22 @@ namespace TiffLibrary.ImageDecoder
             MemoryPool<byte> memoryPool = options.MemoryPool ?? MemoryPool<byte>.Shared;
             if (jpegStream.Length > 0)
             {
-                using IMemoryOwner<byte> bufferHandle = memoryPool.Rent(jpegStream.Length);
-                await contentReader.ReadAsync(jpegStream.Offset, bufferHandle.Memory.Slice(0, jpegStream.Length), cancellationToken).ConfigureAwait(false);
+                // Read JPEG stream.
+                const int BufferSize = 81920;
+                using var bufferWriter = new MemoryPoolBufferWriter(memoryPool);
+                TiffStreamRegion streamRegion = jpegStream;
+                do
+                {
+                    int readSize = Math.Min(streamRegion.Length, BufferSize);
+                    Memory<byte> memory = bufferWriter.GetMemory(readSize);
+                    readSize = await contentReader.ReadAsync(streamRegion.Offset, memory, cancellationToken).ConfigureAwait(false);
+                    bufferWriter.Advance(readSize);
+                    streamRegion = new TiffStreamRegion(streamRegion.Offset + readSize, streamRegion.Length - readSize);
+                } while (streamRegion.Length > 0);
 
+                // Identify JPEG stream.
                 var decoder = new JpegDecoder();
-                decoder.SetInput(bufferHandle.Memory.Slice(0, jpegStream.Length));
+                decoder.SetInput(bufferWriter.GetReadOnlySequence());
                 try
                 {
                     decoder.Identify();

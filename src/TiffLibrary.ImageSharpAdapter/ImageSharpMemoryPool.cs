@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using SixLabors.Memory;
 
 namespace TiffLibrary.ImageSharpAdapter
@@ -6,6 +7,8 @@ namespace TiffLibrary.ImageSharpAdapter
     internal sealed class ImageSharpMemoryPool : MemoryPool<byte>
     {
         private readonly MemoryAllocator _memoryAllocator;
+
+        private const int MinimumBufferSize = 4096;
 
         public ImageSharpMemoryPool(MemoryAllocator memoryAllocator)
         {
@@ -16,7 +19,7 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public override IMemoryOwner<byte> Rent(int minBufferSize = -1)
         {
-            return _memoryAllocator.Allocate<byte>(minBufferSize, AllocationOptions.None);
+            return _memoryAllocator.AllocateManagedByteBuffer(Math.Max(minBufferSize, MinimumBufferSize));
         }
 
         protected override void Dispose(bool disposing)

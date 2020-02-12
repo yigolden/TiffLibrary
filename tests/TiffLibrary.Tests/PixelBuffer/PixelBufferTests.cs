@@ -36,8 +36,8 @@ namespace TiffLibrary.Tests.PixelBuffer
             Assert.Equal(0xCD, pixels[0].Intensity);
             Assert.Equal(0xEF, pixels[5].Intensity);
 
-            Assert.Throws<ArgumentOutOfRangeException>("width", () => TiffPixelBuffer.Create(Array.Empty<TiffGray8>(), -1, 0));
-            Assert.Throws<ArgumentOutOfRangeException>("height", () => TiffPixelBuffer.Create(Array.Empty<TiffGray8>(), 0, -1));
+            Assert.Throws<ArgumentOutOfRangeException>("width", () => TiffPixelBuffer.Wrap(Array.Empty<TiffGray8>(), -1, 0));
+            Assert.Throws<ArgumentOutOfRangeException>("height", () => TiffPixelBuffer.Wrap(Array.Empty<TiffGray8>(), 0, -1));
         }
 
         [Fact]

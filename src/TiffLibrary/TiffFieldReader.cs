@@ -32,7 +32,7 @@ namespace TiffLibrary
             TiffFileContentReader? reader = _reader;
             if (reader is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowObjectDisposedException();
             }
             return reader;
         }
@@ -42,9 +42,14 @@ namespace TiffLibrary
             TiffFileContentReader? reader = _reader;
             if (reader is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowObjectDisposedException();
             }
             return TiffSyncFileContentSource.WrapReader(reader);
+        }
+
+        private static void ThrowObjectDisposedException()
+        {
+            throw new ObjectDisposedException(nameof(TiffFieldReader));
         }
 
         /// <inheritdoc />

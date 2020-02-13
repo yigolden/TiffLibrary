@@ -36,7 +36,7 @@ namespace TiffLibrary.ImageDecoder
                 var tagReader = new TiffTagReader(fieldReader, ifd);
 
                 // Special case for old-style JPEG compression
-                TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
+                TiffCompression compression = await tagReader.ReadCompressionAsync(cancellationToken).ConfigureAwait(false);
                 if (compression == TiffCompression.OldJpeg)
                 {
                     return await CreateLegacyJpegImageDecoderAsync(tagReader, operationContext, contentSource, reader, options ?? TiffImageDecoderOptions.Default, cancellationToken).ConfigureAwait(false);
@@ -48,11 +48,11 @@ namespace TiffLibrary.ImageDecoder
                 }
                 if (ifd.Contains(TiffTag.TileWidth) && ifd.Contains(TiffTag.TileLength))
                 {
-                    return await CreateTiledImageDecoderAsync(tagReader, operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default).ConfigureAwait(false);
+                    return await CreateTiledImageDecoderAsync(tagReader, operationContext, contentSource, options ?? TiffImageDecoderOptions.Default, cancellationToken).ConfigureAwait(false);
                 }
                 if (ifd.Contains(TiffTag.StripOffsets))
                 {
-                    return await CreateStrippedImageDecoderAsync(tagReader, operationContext, contentSource, ifd, options ?? TiffImageDecoderOptions.Default).ConfigureAwait(false);
+                    return await CreateStrippedImageDecoderAsync(tagReader, operationContext, contentSource, options ?? TiffImageDecoderOptions.Default, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally
@@ -63,15 +63,15 @@ namespace TiffLibrary.ImageDecoder
             throw new InvalidDataException("Failed to determine offsets to the image data.");
         }
 
-        public static async Task<TiffImageDecoder> CreateStrippedImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public static async Task<TiffImageDecoder> CreateStrippedImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             // Basic Informations
-            TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync().ConfigureAwait(false)).GetValueOrDefault();
-            TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
-            int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
-            int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
-            TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
-            TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
+            TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync(cancellationToken).ConfigureAwait(false)).GetValueOrDefault();
+            TiffCompression compression = await tagReader.ReadCompressionAsync(cancellationToken).ConfigureAwait(false);
+            int width = (int)await tagReader.ReadImageWidthAsync(cancellationToken).ConfigureAwait(false);
+            int height = (int)await tagReader.ReadImageLengthAsync(cancellationToken).ConfigureAwait(false);
+            TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync(cancellationToken).ConfigureAwait(false);
+            TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync(cancellationToken).ConfigureAwait(false);
 
             // Special case for JPEG
             ITiffImageDecoderMiddleware? jpegBitsExpansionMiddleware = null;
@@ -129,15 +129,15 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: ApplyOrientation
             if (!options.IgnoreOrientation)
             {
-                orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
+                orientation = await tagReader.ReadOrientationAsync(cancellationToken).ConfigureAwait(false);
                 BuildApplyOrientationMiddleware(builder, orientation);
             }
 
             // Middleware: ImageEnumerator
-            await BuildStrippedImageEnumerator(builder, tagReader, compression, height, bytesPerScanline).ConfigureAwait(false);
+            await BuildStrippedImageEnumerator(builder, tagReader, compression, height, bytesPerScanline, cancellationToken).ConfigureAwait(false);
 
             // Middleware: Decompression
-            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
+            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
 
             // For JPEG: Sample Expansion
             if (!(jpegBitsExpansionMiddleware is null))
@@ -148,11 +148,11 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: ReverseYCbCrSubsampling
             if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
             {
-                await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader).ConfigureAwait(false);
+                await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader, cancellationToken).ConfigureAwait(false);
             }
 
             // Middleware: ReversePredictor
-            TiffPredictor prediction = await tagReader.ReadPredictorAsync();
+            TiffPredictor prediction = await tagReader.ReadPredictorAsync(cancellationToken);
             if (prediction != TiffPredictor.None)
             {
                 builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
@@ -160,8 +160,8 @@ namespace TiffLibrary.ImageDecoder
 
             // Middleware: Photometric Interpretation
             ITiffImageDecoderMiddleware photometricInterpretationMiddleware = planarConfiguration == TiffPlanarConfiguration.Planar ?
-                await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options).ConfigureAwait(false) :
-                await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options).ConfigureAwait(false);
+                await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options, cancellationToken).ConfigureAwait(false) :
+                await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options, cancellationToken).ConfigureAwait(false);
             builder.Add(photometricInterpretationMiddleware);
 
             var parameters = new TiffImageDecoderParameters()
@@ -169,7 +169,7 @@ namespace TiffLibrary.ImageDecoder
                 MemoryPool = options.MemoryPool ?? MemoryPool<byte>.Shared,
                 OperationContext = operationContext,
                 ContentSource = contentSource,
-                ImageFileDirectory = ifd,
+                ImageFileDirectory = tagReader.ImageFileDirectory,
                 PixelConverterFactory = options.PixelConverterFactory,
                 ImageSize = new TiffSize(width, height),
                 Orientation = orientation
@@ -178,16 +178,16 @@ namespace TiffLibrary.ImageDecoder
             return new TiffImageDecoderPipelineAdapter(parameters, builder.Build());
         }
 
-        public static async Task<TiffImageDecoder> CreateTiledImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions options)
+        public static async Task<TiffImageDecoder> CreateTiledImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             // Basic Informations
-            TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync().ConfigureAwait(false)).GetValueOrDefault();
-            TiffCompression compression = await tagReader.ReadCompressionAsync().ConfigureAwait(false);
-            int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
-            int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
-            TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
-            TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false);
-            uint? tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
+            TiffPhotometricInterpretation photometricInterpretation = (await tagReader.ReadPhotometricInterpretationAsync(cancellationToken).ConfigureAwait(false)).GetValueOrDefault();
+            TiffCompression compression = await tagReader.ReadCompressionAsync(cancellationToken).ConfigureAwait(false);
+            int width = (int)await tagReader.ReadImageWidthAsync(cancellationToken).ConfigureAwait(false);
+            int height = (int)await tagReader.ReadImageLengthAsync(cancellationToken).ConfigureAwait(false);
+            TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync(cancellationToken).ConfigureAwait(false);
+            TiffValueCollection<ushort> bitsPerSample = await tagReader.ReadBitsPerSampleAsync(cancellationToken).ConfigureAwait(false);
+            uint? tileWidth = await tagReader.ReadTileWidthAsync(cancellationToken).ConfigureAwait(false);
             Debug.Assert(tileWidth.HasValue);
 
             // Special case for JPEG
@@ -246,15 +246,15 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: ApplyOrientation
             if (!options.IgnoreOrientation)
             {
-                orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
+                orientation = await tagReader.ReadOrientationAsync(cancellationToken).ConfigureAwait(false);
                 BuildApplyOrientationMiddleware(builder, orientation);
             }
 
             // Middleware: ImageEnumerator
-            await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count).ConfigureAwait(false);
+            await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count, cancellationToken).ConfigureAwait(false);
 
             // Middleware: Decompression
-            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader).ConfigureAwait(false)));
+            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
 
             // For JPEG: Sample Expansion
             if (!(jpegBitsExpansionMiddleware is null))
@@ -265,11 +265,11 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: ReverseYCbCrSubsampling
             if (photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.OldJpeg && compression != TiffCompression.Jpeg)
             {
-                await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader).ConfigureAwait(false);
+                await BuildReverseYCbCrSubsamlpingMiddleware(builder, planarConfiguration, bitsPerSample, tagReader, cancellationToken).ConfigureAwait(false);
             }
 
             // Middleware: ReversePredictor
-            TiffPredictor prediction = await tagReader.ReadPredictorAsync();
+            TiffPredictor prediction = await tagReader.ReadPredictorAsync(cancellationToken);
             if (prediction != TiffPredictor.None)
             {
                 builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
@@ -277,8 +277,8 @@ namespace TiffLibrary.ImageDecoder
 
             // Middleware: Photometric Interpretation
             ITiffImageDecoderMiddleware photometricInterpretationMiddleware = planarConfiguration == TiffPlanarConfiguration.Planar ?
-                await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options).ConfigureAwait(false) :
-                await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options).ConfigureAwait(false);
+                await ResolvePlanarPhotometricInterpretationMiddlewareAsync(photometricInterpretation, bitsPerSample, tagReader, options, cancellationToken).ConfigureAwait(false) :
+                await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation, compression, bitsPerSample, tagReader, options, cancellationToken).ConfigureAwait(false);
             builder.Add(photometricInterpretationMiddleware);
 
             var parameters = new TiffImageDecoderParameters()
@@ -286,7 +286,7 @@ namespace TiffLibrary.ImageDecoder
                 MemoryPool = options.MemoryPool ?? MemoryPool<byte>.Shared,
                 OperationContext = operationContext,
                 ContentSource = contentSource,
-                ImageFileDirectory = ifd,
+                ImageFileDirectory = tagReader.ImageFileDirectory,
                 PixelConverterFactory = options.PixelConverterFactory,
                 ImageSize = new TiffSize(width, height),
                 Orientation = orientation
@@ -298,11 +298,11 @@ namespace TiffLibrary.ImageDecoder
         public static async Task<TiffImageDecoder> CreateLegacyJpegImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffFileContentReader contentReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             TiffImageFileDirectory ifd = tagReader.ImageFileDirectory;
-            TiffPhotometricInterpretation? photometricInterpretation = await tagReader.ReadPhotometricInterpretationAsync();
-            int width = (int)await tagReader.ReadImageWidthAsync().ConfigureAwait(false);
-            int height = (int)await tagReader.ReadImageLengthAsync().ConfigureAwait(false);
-            TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync().ConfigureAwait(false);
-            TiffValueCollection<ushort> bitsPerSample = ifd.Contains(TiffTag.BitsPerSample) ? await tagReader.ReadBitsPerSampleAsync().ConfigureAwait(false) : TiffValueCollection.Empty<ushort>();
+            TiffPhotometricInterpretation? photometricInterpretation = await tagReader.ReadPhotometricInterpretationAsync(cancellationToken);
+            int width = (int)await tagReader.ReadImageWidthAsync(cancellationToken).ConfigureAwait(false);
+            int height = (int)await tagReader.ReadImageLengthAsync(cancellationToken).ConfigureAwait(false);
+            TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync(cancellationToken).ConfigureAwait(false);
+            TiffValueCollection<ushort> bitsPerSample = ifd.Contains(TiffTag.BitsPerSample) ? await tagReader.ReadBitsPerSampleAsync(cancellationToken).ConfigureAwait(false) : TiffValueCollection.Empty<ushort>();
 
             // Validate photometric interpretation tag and planar configuration tag.
             if (photometricInterpretation.HasValue &&
@@ -323,7 +323,7 @@ namespace TiffLibrary.ImageDecoder
 
             if (ifd.Contains(TiffTag.JPEGInterchangeFormat) && ifd.Contains(TiffTag.JPEGInterchangeFormatLength))
             {
-                jpegStream = new TiffStreamRegion(await tagReader.ReadJPEGInterchangeFormatAsync().ConfigureAwait(false), (int)(await tagReader.ReadJPEGInterchangeFormatLengthAsync().ConfigureAwait(false)));
+                jpegStream = new TiffStreamRegion(await tagReader.ReadJPEGInterchangeFormatAsync(cancellationToken).ConfigureAwait(false), (int)(await tagReader.ReadJPEGInterchangeFormatLengthAsync(cancellationToken).ConfigureAwait(false)));
             }
             else if (!ifd.Contains(TiffTag.JPEGProc))
             {
@@ -331,7 +331,7 @@ namespace TiffLibrary.ImageDecoder
                 TiffImageFileDirectoryEntry lengthEntry = ifd.FindEntry(TiffTag.StripByteCounts);
                 if (offsetEntry.ValueCount == 1 && lengthEntry.ValueCount == 1)
                 {
-                    jpegStream = new TiffStreamRegion((long)(await tagReader.ReadStripOffsetsAsync().ConfigureAwait(false)).GetFirstOrDefault(), (int)(await tagReader.ReadStripByteCountsAsync().ConfigureAwait(false)).GetFirstOrDefault());
+                    jpegStream = new TiffStreamRegion((long)(await tagReader.ReadStripOffsetsAsync(cancellationToken).ConfigureAwait(false)).GetFirstOrDefault(), (int)(await tagReader.ReadStripByteCountsAsync(cancellationToken).ConfigureAwait(false)).GetFirstOrDefault());
                 }
             }
 
@@ -446,7 +446,7 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: ApplyOrientation
             if (!options.IgnoreOrientation)
             {
-                orientation = await tagReader.ReadOrientationAsync().ConfigureAwait(false);
+                orientation = await tagReader.ReadOrientationAsync(cancellationToken).ConfigureAwait(false);
                 BuildApplyOrientationMiddleware(builder, orientation);
             }
 
@@ -463,11 +463,11 @@ namespace TiffLibrary.ImageDecoder
                 // Middleware: ImageEnumerator
                 if (ifd.Contains(TiffTag.StripOffsets))
                 {
-                    await BuildStrippedImageEnumerator(builder, tagReader, TiffCompression.OldJpeg, height, bytesPerScanline).ConfigureAwait(false);
+                    await BuildStrippedImageEnumerator(builder, tagReader, TiffCompression.OldJpeg, height, bytesPerScanline, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count).ConfigureAwait(false);
+                    await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count, cancellationToken).ConfigureAwait(false);
                 }
 
 
@@ -476,7 +476,7 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // Middleware: Photometric Interpretation
-            ITiffImageDecoderMiddleware photometricInterpretationMiddleware = await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation.GetValueOrDefault(), TiffCompression.OldJpeg, bitsPerSample, tagReader, options).ConfigureAwait(false);
+            ITiffImageDecoderMiddleware photometricInterpretationMiddleware = await ResolveChunkyPhotometricInterpretationMiddlewareAsync(photometricInterpretation.GetValueOrDefault(), TiffCompression.OldJpeg, bitsPerSample, tagReader, options, cancellationToken).ConfigureAwait(false);
             builder.Add(photometricInterpretationMiddleware);
 
             var parameters = new TiffImageDecoderParameters
@@ -493,12 +493,12 @@ namespace TiffLibrary.ImageDecoder
             return new TiffImageDecoderPipelineAdapter(parameters, builder.Build());
         }
 
-        private static async Task BuildStrippedImageEnumerator(TiffImageDecoderPipelineBuilder builder, TiffTagReader tagReader, TiffCompression compression, int height, TiffValueCollection<int> bytesPerScanline)
+        private static async Task BuildStrippedImageEnumerator(TiffImageDecoderPipelineBuilder builder, TiffTagReader tagReader, TiffCompression compression, int height, TiffValueCollection<int> bytesPerScanline, CancellationToken cancellationToken)
         {
             // Strip data
-            int rowsPerStrip = (int)(await tagReader.ReadRowsPerStripAsync().ConfigureAwait(false));
-            TiffValueCollection<ulong> stripOffsets = await tagReader.ReadStripOffsetsAsync().ConfigureAwait(false);
-            TiffValueCollection<ulong> stripsByteCount = await tagReader.ReadStripByteCountsAsync().ConfigureAwait(false);
+            int rowsPerStrip = (int)(await tagReader.ReadRowsPerStripAsync(cancellationToken).ConfigureAwait(false));
+            TiffValueCollection<ulong> stripOffsets = await tagReader.ReadStripOffsetsAsync(cancellationToken).ConfigureAwait(false);
+            TiffValueCollection<ulong> stripsByteCount = await tagReader.ReadStripByteCountsAsync(cancellationToken).ConfigureAwait(false);
             int stripCount = stripOffsets.Count;
             if (stripCount == 0)
             {
@@ -555,22 +555,22 @@ namespace TiffLibrary.ImageDecoder
             }
         }
 
-        private static async Task BuildTiledImageEnumerator(TiffImageDecoderPipelineBuilder builder, TiffTagReader tagReader, int planeCount)
+        private static async Task BuildTiledImageEnumerator(TiffImageDecoderPipelineBuilder builder, TiffTagReader tagReader, int planeCount, CancellationToken cancellationToken)
         {
             // Read Tile Size 
-            uint? tileWidth = await tagReader.ReadTileWidthAsync().ConfigureAwait(false);
-            uint? tileHeight = await tagReader.ReadTileLengthAsync().ConfigureAwait(false);
+            uint? tileWidth = await tagReader.ReadTileWidthAsync(cancellationToken).ConfigureAwait(false);
+            uint? tileHeight = await tagReader.ReadTileLengthAsync(cancellationToken).ConfigureAwait(false);
             // TileWidth and TileHeight can not be null because they were checked in TiffFileReader.InternalCreateImageDecoderInstance
             Debug.Assert(tileWidth != null && tileHeight != null);
 
             // Read Tile Offsets
-            TiffValueCollection<ulong> tileOffsets = await tagReader.ReadTileOffsetsAsync().ConfigureAwait(false);
-            TiffValueCollection<ulong> tileByteCounts = await tagReader.ReadTileByteCountsAsync().ConfigureAwait(false);
+            TiffValueCollection<ulong> tileOffsets = await tagReader.ReadTileOffsetsAsync(cancellationToken).ConfigureAwait(false);
+            TiffValueCollection<ulong> tileByteCounts = await tagReader.ReadTileByteCountsAsync(cancellationToken).ConfigureAwait(false);
             if (tileOffsets.IsEmpty || tileByteCounts.IsEmpty)
             {
                 // Fallback to using StripOffsets and StripByteCounts
-                tileOffsets = await tagReader.ReadStripOffsetsAsync().ConfigureAwait(false);
-                tileByteCounts = await tagReader.ReadStripByteCountsAsync().ConfigureAwait(false);
+                tileOffsets = await tagReader.ReadStripOffsetsAsync(cancellationToken).ConfigureAwait(false);
+                tileByteCounts = await tagReader.ReadStripByteCountsAsync(cancellationToken).ConfigureAwait(false);
             }
 
             // Validate
@@ -594,9 +594,9 @@ namespace TiffLibrary.ImageDecoder
             }
         }
 
-        private static async Task BuildReverseYCbCrSubsamlpingMiddleware(TiffImageDecoderPipelineBuilder builder, TiffPlanarConfiguration planarConfiguration, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+        private static async Task BuildReverseYCbCrSubsamlpingMiddleware(TiffImageDecoderPipelineBuilder builder, TiffPlanarConfiguration planarConfiguration, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
         {
-            ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync().ConfigureAwait(false);
+            ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync(cancellationToken).ConfigureAwait(false);
             if (subsampling.Length == 0)
             {
                 return;
@@ -727,7 +727,7 @@ namespace TiffLibrary.ImageDecoder
             throw new NotSupportedException("Photometric interpretation not supported.");
         }
 
-        private static ValueTask<ITiffDecompressionAlgorithm> ResolveDecompressionAlgorithmAsync(TiffCompression compression, TiffTagReader tagReader)
+        private static ValueTask<ITiffDecompressionAlgorithm> ResolveDecompressionAlgorithmAsync(TiffCompression compression, TiffTagReader tagReader, CancellationToken cancellationToken)
         {
             ITiffDecompressionAlgorithm decompressionAlgorithm;
 
@@ -738,11 +738,11 @@ namespace TiffLibrary.ImageDecoder
                     decompressionAlgorithm = NoneCompressionAlgorithm.Instance;
                     break;
                 case TiffCompression.ModifiedHuffmanCompression:
-                    return ResolveModifiedHuffmanDecompressionAlgorithmAsync(tagReader);
+                    return ResolveModifiedHuffmanDecompressionAlgorithmAsync(tagReader, cancellationToken);
                 case TiffCompression.T4Encoding:
-                    return ResolveT4DecompressionAlgorithmAsync(tagReader);
+                    return ResolveT4DecompressionAlgorithmAsync(tagReader, cancellationToken);
                 case TiffCompression.T6Encoding:
-                    return ResolveT6DecompressionAlgorithmAsync(tagReader);
+                    return ResolveT6DecompressionAlgorithmAsync(tagReader, cancellationToken);
                 case TiffCompression.Lzw:
                     decompressionAlgorithm = LzwCompressionAlgorithm.Instance;
                     break;
@@ -754,23 +754,23 @@ namespace TiffLibrary.ImageDecoder
                     decompressionAlgorithm = PackBitsCompressionAlgorithm.Instance;
                     break;
                 case TiffCompression.Jpeg:
-                    return ResolveJpegDecompressionAlgorithmAsync(tagReader);
+                    return ResolveJpegDecompressionAlgorithmAsync(tagReader, cancellationToken);
                 default:
                     throw new NotSupportedException("Compression algorithm not supported.");
             }
 
             return new ValueTask<ITiffDecompressionAlgorithm>(decompressionAlgorithm);
 
-            async ValueTask<ITiffDecompressionAlgorithm> ResolveModifiedHuffmanDecompressionAlgorithmAsync(TiffTagReader tagReader)
+            async ValueTask<ITiffDecompressionAlgorithm> ResolveModifiedHuffmanDecompressionAlgorithmAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
                 return ModifiedHuffmanCompressionAlgorithm.GetSharedInstance(fillOrder);
             }
 
-            static async ValueTask<ITiffDecompressionAlgorithm> ResolveT4DecompressionAlgorithmAsync(TiffTagReader tagReader)
+            static async ValueTask<ITiffDecompressionAlgorithm> ResolveT4DecompressionAlgorithmAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
-                TiffT4Options t4Options = await tagReader.ReadT4OptionsAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
+                TiffT4Options t4Options = await tagReader.ReadT4OptionsAsync(cancellationToken).ConfigureAwait(false);
                 if (t4Options.HasFlag(TiffT4Options.UseUncompressedMode))
                 {
                     throw new NotSupportedException("Uncompressed mode is not supported.");
@@ -782,10 +782,10 @@ namespace TiffLibrary.ImageDecoder
                 return CcittGroup3OneDimensionalCompressionAlgorithm.GetSharedInstance(fillOrder);
             }
 
-            static async ValueTask<ITiffDecompressionAlgorithm> ResolveT6DecompressionAlgorithmAsync(TiffTagReader tagReader)
+            static async ValueTask<ITiffDecompressionAlgorithm> ResolveT6DecompressionAlgorithmAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
-                TiffT6Options t6Options = await tagReader.ReadT6OptionsAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
+                TiffT6Options t6Options = await tagReader.ReadT6OptionsAsync(cancellationToken).ConfigureAwait(false);
                 if (t6Options.HasFlag(TiffT6Options.AllowUncompressedMode))
                 {
                     throw new NotSupportedException("Uncompressed mode is not supported.");
@@ -793,27 +793,27 @@ namespace TiffLibrary.ImageDecoder
                 return CcittGroup4Compression.GetSharedInstance(fillOrder);
             }
 
-            static async ValueTask<ITiffDecompressionAlgorithm> ResolveJpegDecompressionAlgorithmAsync(TiffTagReader tagReader)
+            static async ValueTask<ITiffDecompressionAlgorithm> ResolveJpegDecompressionAlgorithmAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                byte[] jpegTables = await tagReader.ReadJPEGTablesAsync().ConfigureAwait(false);
+                byte[] jpegTables = await tagReader.ReadJPEGTablesAsync(cancellationToken).ConfigureAwait(false);
                 return new JpegDecompressionAlgorithm(jpegTables, 3);
             }
         }
 
         private static async ValueTask<ITiffDecompressionAlgorithm> ResolveLegacyJpegDecompressionAlgorithmAsync(TiffTagReader tagReader, TiffFileContentReader reader, MemoryPool<byte> memoryPool, CancellationToken cancellationToken)
         {
-            ushort jpegProc = await tagReader.ReadJPEGProcAsync().ConfigureAwait(false);
+            ushort jpegProc = await tagReader.ReadJPEGProcAsync(cancellationToken).ConfigureAwait(false);
             if (jpegProc != 1)
             {
                 throw new NotSupportedException("Only baseline JPEG is supported.");
             }
 
             // JPEG decoding parameters
-            ushort restartInterval = await tagReader.ReadJPEGRestartIntervalAsync().ConfigureAwait(false);
-            ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync().ConfigureAwait(false);
-            uint[] jpegQTablesOffset = await tagReader.ReadJPEGQTablesAsync().ConfigureAwait(false);
-            uint[] jpegDcTablesOffset = await tagReader.ReadJPEGDCTablesAsync().ConfigureAwait(false);
-            uint[] jpegAcTablesOffset = await tagReader.ReadJPEGACTablesAsync().ConfigureAwait(false);
+            ushort restartInterval = await tagReader.ReadJPEGRestartIntervalAsync(cancellationToken).ConfigureAwait(false);
+            ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync(cancellationToken).ConfigureAwait(false);
+            uint[] jpegQTablesOffset = await tagReader.ReadJPEGQTablesAsync(cancellationToken).ConfigureAwait(false);
+            uint[] jpegDcTablesOffset = await tagReader.ReadJPEGDCTablesAsync(cancellationToken).ConfigureAwait(false);
+            uint[] jpegAcTablesOffset = await tagReader.ReadJPEGACTablesAsync(cancellationToken).ConfigureAwait(false);
 
             // Validate these parameters.
             int componentCount = jpegQTablesOffset.Length;
@@ -866,7 +866,7 @@ namespace TiffLibrary.ImageDecoder
             return algorithm;
         }
 
-        private static ValueTask<ITiffImageDecoderMiddleware> ResolveChunkyPhotometricInterpretationMiddlewareAsync(TiffPhotometricInterpretation photometricInterpretation, TiffCompression compression, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options)
+        private static ValueTask<ITiffImageDecoderMiddleware> ResolveChunkyPhotometricInterpretationMiddlewareAsync(TiffPhotometricInterpretation photometricInterpretation, TiffCompression compression, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             if (compression == TiffCompression.ModifiedHuffmanCompression || compression == TiffCompression.T4Encoding || compression == TiffCompression.T6Encoding)
             {
@@ -893,56 +893,56 @@ namespace TiffLibrary.ImageDecoder
                 case TiffPhotometricInterpretation.WhiteIsZero:
                     if (bitsPerSample.Count == 1)
                     {
-                        return ResolveWhiteIsZeroAsync(bitsPerSample.GetFirstOrDefault(), tagReader);
+                        return ResolveWhiteIsZeroAsync(bitsPerSample.GetFirstOrDefault(), tagReader, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.BlackIsZero:
                     if (bitsPerSample.Count == 1)
                     {
-                        return ResolveBlackIsZeroAsync(bitsPerSample.GetFirstOrDefault(), tagReader);
+                        return ResolveBlackIsZeroAsync(bitsPerSample.GetFirstOrDefault(), tagReader, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.RGB:
                     if (bitsPerSample.Count == 3)
                     {
-                        return ResolveRgbAsync(bitsPerSample, tagReader);
+                        return ResolveRgbAsync(bitsPerSample, tagReader, cancellationToken);
                     }
                     if (bitsPerSample.Count == 4)
                     {
-                        return ResolveRgbaAsync(bitsPerSample, tagReader, options);
+                        return ResolveRgbaAsync(bitsPerSample, tagReader, options, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.PaletteColor:
                     if (bitsPerSample.Count == 1)
                     {
-                        return ResolvePaletteColorAsync(bitsPerSample.GetFirstOrDefault(), tagReader);
+                        return ResolvePaletteColorAsync(bitsPerSample.GetFirstOrDefault(), tagReader, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.TransparencyMask:
                     if (bitsPerSample.Count == 1 && bitsPerSample.GetFirstOrDefault() == 1)
                     {
-                        return ResolveTransparencyMaskAsync(tagReader);
+                        return ResolveTransparencyMaskAsync(tagReader, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.Seperated:
                     if (bitsPerSample.Count == 4)
                     {
-                        return ResolveCmykAsync(bitsPerSample, tagReader);
+                        return ResolveCmykAsync(bitsPerSample, tagReader, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
                     if (bitsPerSample.Count == 3)
                     {
-                        return ResolveYCbCrAsync(bitsPerSample, tagReader);
+                        return ResolveYCbCrAsync(bitsPerSample, tagReader, cancellationToken);
                     }
                     break;
             }
 
             throw new NotSupportedException("Photometric interpretation not supported.");
 
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveWhiteIsZeroAsync(int bitCount, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveWhiteIsZeroAsync(int bitCount, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
                 if (bitCount == 1)
                 {
                     return new TiffWhiteIsZero1Interpreter(fillOrder);
@@ -976,9 +976,9 @@ namespace TiffLibrary.ImageDecoder
 
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveBlackIsZeroAsync(int bitCount, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveBlackIsZeroAsync(int bitCount, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
                 if (bitCount == 1)
                 {
                     return new TiffBlackIsZero1Interpreter(fillOrder);
@@ -1013,10 +1013,10 @@ namespace TiffLibrary.ImageDecoder
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
 
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 3);
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
 
                 if (fillOrder == 0 || fillOrder == TiffFillOrder.HigherOrderBitsFirst)
                 {
@@ -1045,11 +1045,11 @@ namespace TiffLibrary.ImageDecoder
 
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbaAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbaAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 4);
-                TiffValueCollection<TiffExtraSample> extraSamples = await tagReader.ReadExtraSamplesAsync().ConfigureAwait(false);
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffValueCollection<TiffExtraSample> extraSamples = await tagReader.ReadExtraSamplesAsync(cancellationToken).ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
                 if (extraSamples.Count == 1 && (extraSamples[0] == TiffExtraSample.AssociatedAlphaData || extraSamples[0] == TiffExtraSample.UnassociatedAlphaData))
                 {
                     if (fillOrder == 0 || fillOrder == TiffFillOrder.HigherOrderBitsFirst)
@@ -1079,36 +1079,36 @@ namespace TiffLibrary.ImageDecoder
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolvePaletteColorAsync(int bitCount, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolvePaletteColorAsync(int bitCount, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
                 if (fillOrder == 0 || fillOrder == TiffFillOrder.HigherOrderBitsFirst)
                 {
                     switch (bitCount)
                     {
                         case 4:
-                            return new TiffPaletteColor4Interpreter(await tagReader.ReadColorMapAsync().ConfigureAwait(false));
+                            return new TiffPaletteColor4Interpreter(await tagReader.ReadColorMapAsync(cancellationToken).ConfigureAwait(false));
                         case 8:
-                            return new TiffPaletteColor8Interpreter(await tagReader.ReadColorMapAsync().ConfigureAwait(false));
+                            return new TiffPaletteColor8Interpreter(await tagReader.ReadColorMapAsync(cancellationToken).ConfigureAwait(false));
                     }
                 }
 
                 if (bitCount <= 8)
                 {
-                    return new TiffPaletteColorAny8Interpreter(await tagReader.ReadColorMapAsync().ConfigureAwait(false), bitCount, fillOrder);
+                    return new TiffPaletteColorAny8Interpreter(await tagReader.ReadColorMapAsync(cancellationToken).ConfigureAwait(false), bitCount, fillOrder);
                 }
 
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveTransparencyMaskAsync(TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveTransparencyMaskAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
                 return new TiffTransparencyMask1Interpreter(fillOrder);
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveCmykAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveCmykAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 4);
-                TiffInkSet inkSet = await tagReader.ReadInkSetAsync().ConfigureAwait(false);
+                TiffInkSet inkSet = await tagReader.ReadInkSetAsync(cancellationToken).ConfigureAwait(false);
                 if (inkSet == TiffInkSet.CMYK)
                 {
                     if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8 && bitsPerSample[3] == 8)
@@ -1122,59 +1122,59 @@ namespace TiffLibrary.ImageDecoder
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveYCbCrAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveYCbCrAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 3);
                 if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8)
                 {
-                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
-                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
+                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync(cancellationToken).ConfigureAwait(false);
+                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync(cancellationToken).ConfigureAwait(false);
                     return new TiffChunkyYCbCr888Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
                 if (bitsPerSample[0] == 16 && bitsPerSample[1] == 16 && bitsPerSample[2] == 16)
                 {
-                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
-                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
+                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync(cancellationToken).ConfigureAwait(false);
+                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync(cancellationToken).ConfigureAwait(false);
                     return new TiffChunkyYCbCr161616Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
         }
 
-        private static ValueTask<ITiffImageDecoderMiddleware> ResolvePlanarPhotometricInterpretationMiddlewareAsync(TiffPhotometricInterpretation photometricInterpretation, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options)
+        private static ValueTask<ITiffImageDecoderMiddleware> ResolvePlanarPhotometricInterpretationMiddlewareAsync(TiffPhotometricInterpretation photometricInterpretation, TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             switch (photometricInterpretation)
             {
                 case TiffPhotometricInterpretation.RGB:
                     if (bitsPerSample.Count == 3)
                     {
-                        return ResolveRgbAsync(bitsPerSample, tagReader);
+                        return ResolveRgbAsync(bitsPerSample, tagReader, cancellationToken);
                     }
                     if (bitsPerSample.Count == 4)
                     {
-                        return ResolveRgbaAsync(bitsPerSample, tagReader, options);
+                        return ResolveRgbaAsync(bitsPerSample, tagReader, options, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.Seperated:
                     if (bitsPerSample.Count == 4)
                     {
-                        return ResolveCmykAsync(bitsPerSample, tagReader);
+                        return ResolveCmykAsync(bitsPerSample, tagReader, cancellationToken);
                     }
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
                     if (bitsPerSample.Count == 3)
                     {
-                        return ResolveYCbCrAsync(bitsPerSample, tagReader);
+                        return ResolveYCbCrAsync(bitsPerSample, tagReader, cancellationToken);
                     }
                     break;
             }
 
             throw new NotSupportedException("Photometric interpretation not supported.");
 
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 3);
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
 
                 if (fillOrder == 0 || fillOrder == TiffFillOrder.HigherOrderBitsFirst)
                 {
@@ -1204,11 +1204,11 @@ namespace TiffLibrary.ImageDecoder
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
 
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbaAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbaAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 4);
-                TiffValueCollection<TiffExtraSample> extraSamples = await tagReader.ReadExtraSamplesAsync().ConfigureAwait(false);
-                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync().ConfigureAwait(false);
+                TiffValueCollection<TiffExtraSample> extraSamples = await tagReader.ReadExtraSamplesAsync(cancellationToken).ConfigureAwait(false);
+                TiffFillOrder fillOrder = await tagReader.ReadFillOrderAsync(cancellationToken).ConfigureAwait(false);
 
                 if (bitsPerSample[0] <= 16 && bitsPerSample[1] <= 16 && bitsPerSample[2] <= 16 && bitsPerSample[3] <= 16)
                 {
@@ -1221,10 +1221,10 @@ namespace TiffLibrary.ImageDecoder
 
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveCmykAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveCmykAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 4);
-                TiffInkSet inkSet = await tagReader.ReadInkSetAsync().ConfigureAwait(false);
+                TiffInkSet inkSet = await tagReader.ReadInkSetAsync(cancellationToken).ConfigureAwait(false);
                 if (inkSet == TiffInkSet.CMYK)
                 {
                     if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8 && bitsPerSample[3] == 8)
@@ -1238,13 +1238,13 @@ namespace TiffLibrary.ImageDecoder
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");
             }
-            static async ValueTask<ITiffImageDecoderMiddleware> ResolveYCbCrAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader)
+            static async ValueTask<ITiffImageDecoderMiddleware> ResolveYCbCrAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 Debug.Assert(bitsPerSample.Count == 3);
                 if (bitsPerSample[0] == 8 && bitsPerSample[1] == 8 && bitsPerSample[2] == 8)
                 {
-                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync().ConfigureAwait(false);
-                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync().ConfigureAwait(false);
+                    TiffRational[] coefficients = await tagReader.ReadYCbCrCoefficientsAsync(cancellationToken).ConfigureAwait(false);
+                    TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync(cancellationToken).ConfigureAwait(false);
                     return new TiffPlanarYCbCr888Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
                 throw new NotSupportedException("Photometric interpretation not supported.");

@@ -98,8 +98,8 @@ namespace TiffMerge
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            TiffValueCollection<ulong> offsets = await tagReader.ReadStripOffsetsAsync();
-            TiffValueCollection<ulong> byteCounts = await tagReader.ReadStripByteCountsAsync();
+            TiffValueCollection<ulong> offsets = await tagReader.ReadStripOffsetsAsync(cancellationToken);
+            TiffValueCollection<ulong> byteCounts = await tagReader.ReadStripByteCountsAsync(cancellationToken);
 
             if (offsets.Count != byteCounts.Count)
             {
@@ -152,8 +152,8 @@ namespace TiffMerge
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            TiffValueCollection<ulong> offsets = await tagReader.ReadTileOffsetsAsync();
-            TiffValueCollection<ulong> byteCounts = await tagReader.ReadTileByteCountsAsync();
+            TiffValueCollection<ulong> offsets = await tagReader.ReadTileOffsetsAsync(cancellationToken);
+            TiffValueCollection<ulong> byteCounts = await tagReader.ReadTileByteCountsAsync(cancellationToken);
 
             if (offsets.Count != byteCounts.Count)
             {

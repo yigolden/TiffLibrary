@@ -27,14 +27,14 @@ namespace TiffDump
                 Console.WriteLine($"IFD #{ifdIndex++} (Offset = {ifdOffset})");
 
                 Console.WriteLine("  Well-known Tags:");
-                await DumpWellKnownTagsAsync(fieldReader, ifd);
+                await DumpWellKnownTagsAsync(fieldReader, ifd, cancellationToken);
                 Console.WriteLine();
 
                 Console.WriteLine("  Entries:");
                 for (int i = 0; i < ifd.Count; i++)
                 {
                     TiffImageFileDirectoryEntry entry = ifd[i];
-                    await DumpIfdEntryAsync(i, fieldReader, entry);
+                    await DumpIfdEntryAsync(i, fieldReader, entry, cancellationToken);
                 }
                 if (ifd.Count == 0)
                 {
@@ -50,71 +50,71 @@ namespace TiffDump
             return 0;
         }
 
-        private static async Task DumpWellKnownTagsAsync(TiffFieldReader fieldReader, TiffImageFileDirectory ifd)
+        private static async Task DumpWellKnownTagsAsync(TiffFieldReader fieldReader, TiffImageFileDirectory ifd, CancellationToken cancellationToken)
         {
             int count = 0;
             var tagReader = new TiffTagReader(fieldReader, ifd);
 
             if (ifd.Contains(TiffTag.PhotometricInterpretation))
             {
-                Console.WriteLine("    PhotometricInterpretation = " + (await tagReader.ReadPhotometricInterpretationAsync()));
+                Console.WriteLine("    PhotometricInterpretation = " + (await tagReader.ReadPhotometricInterpretationAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.SamplesPerPixel))
             {
-                Console.WriteLine("    SamplesPerPixel = " + (await tagReader.ReadSamplesPerPixelAsync()));
+                Console.WriteLine("    SamplesPerPixel = " + (await tagReader.ReadSamplesPerPixelAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.BitsPerSample))
             {
                 Console.Write("    BitsPerSample = ");
-                DumpValueCollecionSimple(await tagReader.ReadBitsPerSampleAsync());
+                DumpValueCollecionSimple(await tagReader.ReadBitsPerSampleAsync(cancellationToken));
                 Console.WriteLine();
                 count++;
             }
             if (ifd.Contains(TiffTag.ImageWidth))
             {
-                Console.WriteLine("    ImageWidth = " + (await tagReader.ReadImageWidthAsync()));
+                Console.WriteLine("    ImageWidth = " + (await tagReader.ReadImageWidthAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.ImageLength))
             {
-                Console.WriteLine("    ImageLength = " + (await tagReader.ReadImageLengthAsync()));
+                Console.WriteLine("    ImageLength = " + (await tagReader.ReadImageLengthAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.Compression))
             {
-                Console.WriteLine("    Compression = " + (await tagReader.ReadCompressionAsync()));
+                Console.WriteLine("    Compression = " + (await tagReader.ReadCompressionAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.FillOrder))
             {
-                Console.WriteLine("    FillOrder = " + (await tagReader.ReadFillOrderAsync()));
+                Console.WriteLine("    FillOrder = " + (await tagReader.ReadFillOrderAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.Predictor))
             {
-                Console.WriteLine("    Predictor = " + (await tagReader.ReadPredictorAsync()));
+                Console.WriteLine("    Predictor = " + (await tagReader.ReadPredictorAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.Orientation))
             {
-                Console.WriteLine("    Orientation = " + (await tagReader.ReadOrientationAsync()));
+                Console.WriteLine("    Orientation = " + (await tagReader.ReadOrientationAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.RowsPerStrip))
             {
-                Console.WriteLine("    RowsPerStrip = " + (await tagReader.ReadRowsPerStripAsync()));
+                Console.WriteLine("    RowsPerStrip = " + (await tagReader.ReadRowsPerStripAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.TileWidth))
             {
-                Console.WriteLine("    TileWidth = " + (await tagReader.ReadTileWidthAsync()));
+                Console.WriteLine("    TileWidth = " + (await tagReader.ReadTileWidthAsync(cancellationToken)));
                 count++;
             }
             if (ifd.Contains(TiffTag.TileLength))
             {
-                Console.WriteLine("    TileLength = " + (await tagReader.ReadTileLengthAsync()));
+                Console.WriteLine("    TileLength = " + (await tagReader.ReadTileLengthAsync(cancellationToken)));
                 count++;
             }
 
@@ -124,7 +124,7 @@ namespace TiffDump
             }
         }
 
-        private static async Task DumpIfdEntryAsync(int index, TiffFieldReader fieldReader, TiffImageFileDirectoryEntry entry)
+        private static async Task DumpIfdEntryAsync(int index, TiffFieldReader fieldReader, TiffImageFileDirectoryEntry entry, CancellationToken cancellationToken)
         {
             string tagName = Enum.IsDefined(typeof(TiffTag), entry.Tag) ? $"{entry.Tag} ({(int)entry.Tag})" : ((int)entry.Tag).ToString();
             string typeName = Enum.IsDefined(typeof(TiffFieldType), entry.Type) ? entry.Type.ToString() : "Unknown";
@@ -137,7 +137,7 @@ namespace TiffDump
                     Console.Write(" Binary data not shown.");
                     break;
                 case TiffFieldType.ASCII:
-                    TiffValueCollection<string> valuesAscii = await fieldReader.ReadASCIIFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<string> valuesAscii = await fieldReader.ReadASCIIFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     if (valuesAscii.IsEmpty)
                     {
                         // Do nothing
@@ -156,15 +156,15 @@ namespace TiffDump
                     }
                     break;
                 case TiffFieldType.Short:
-                    TiffValueCollection<ushort> valuesShort = await fieldReader.ReadShortFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<ushort> valuesShort = await fieldReader.ReadShortFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesShort);
                     break;
                 case TiffFieldType.Long:
-                    TiffValueCollection<uint> valuesLong = await fieldReader.ReadLongFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<uint> valuesLong = await fieldReader.ReadLongFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesLong);
                     break;
                 case TiffFieldType.Rational:
-                    TiffValueCollection<TiffRational> valuesRational = await fieldReader.ReadRationalFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<TiffRational> valuesRational = await fieldReader.ReadRationalFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesRational);
                     break;
                 case TiffFieldType.SByte:
@@ -174,39 +174,39 @@ namespace TiffDump
                     Console.Write(" Binary data not shown.");
                     break;
                 case TiffFieldType.SShort:
-                    TiffValueCollection<short> valuesSShort = await fieldReader.ReadSShortFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<short> valuesSShort = await fieldReader.ReadSShortFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesSShort);
                     break;
                 case TiffFieldType.SLong:
-                    TiffValueCollection<int> valuesSLong = await fieldReader.ReadSLongFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<int> valuesSLong = await fieldReader.ReadSLongFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesSLong);
                     break;
                 case TiffFieldType.SRational:
-                    TiffValueCollection<TiffSRational> valuesSRational = await fieldReader.ReadSRationalFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<TiffSRational> valuesSRational = await fieldReader.ReadSRationalFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesSRational);
                     break;
                 case TiffFieldType.Float:
-                    TiffValueCollection<float> valuesFloat = await fieldReader.ReadFloatFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<float> valuesFloat = await fieldReader.ReadFloatFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesFloat);
                     break;
                 case TiffFieldType.Double:
-                    TiffValueCollection<double> valuesDouble = await fieldReader.ReadDoubleFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<double> valuesDouble = await fieldReader.ReadDoubleFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesDouble);
                     break;
                 case TiffFieldType.IFD:
-                    TiffValueCollection<TiffStreamOffset> valuesIfd = await fieldReader.ReadIFDFieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<TiffStreamOffset> valuesIfd = await fieldReader.ReadIFDFieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesIfd);
                     break;
                 case TiffFieldType.Long8:
-                    TiffValueCollection<ulong> valuesLong8 = await fieldReader.ReadLong8FieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<ulong> valuesLong8 = await fieldReader.ReadLong8FieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesLong8);
                     break;
                 case TiffFieldType.SLong8:
-                    TiffValueCollection<long> valuesSLong8 = await fieldReader.ReadSLong8FieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<long> valuesSLong8 = await fieldReader.ReadSLong8FieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesSLong8);
                     break;
                 case TiffFieldType.IFD8:
-                    TiffValueCollection<TiffStreamOffset> valuesIfd8 = await fieldReader.ReadIFD8FieldAsync(entry, skipTypeValidation: true);
+                    TiffValueCollection<TiffStreamOffset> valuesIfd8 = await fieldReader.ReadIFD8FieldAsync(entry, skipTypeValidation: true, cancellationToken: cancellationToken);
                     DumpValueCollecion(valuesIfd8);
                     break;
                 default:

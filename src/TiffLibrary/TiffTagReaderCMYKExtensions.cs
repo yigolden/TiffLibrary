@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary
 {
@@ -11,10 +12,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.InkSet"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffInkSet> ReadInkSetAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffInkSet> ReadInkSetAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.InkSet);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.InkSet, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -49,10 +51,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.NumberOfInks"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort> ReadNumberOfInksAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort> ReadNumberOfInksAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.NumberOfInks);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.NumberOfInks, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -87,10 +90,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.InkNames"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string[]> ReadInkNamesAsync(this TiffTagReader tagReader)
+        public static ValueTask<string[]> ReadInkNamesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.InkNames);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.InkNames, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -125,10 +129,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.DotRange"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort[]> ReadDotRangeAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort[]> ReadDotRangeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.DotRange);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.DotRange, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -163,10 +168,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.TargetPrinter"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<ushort>> ReadTargetPrinterAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<ushort>> ReadTargetPrinterAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TargetPrinter);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TargetPrinter, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();

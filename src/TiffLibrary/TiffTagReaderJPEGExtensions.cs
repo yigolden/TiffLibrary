@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary
 {
@@ -11,10 +12,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGTables"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadJPEGTablesAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadJPEGTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync(TiffTag.JPEGTables);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync(TiffTag.JPEGTables, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -49,10 +51,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGProc"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort> ReadJPEGProcAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort> ReadJPEGProcAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGProc);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGProc, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -87,10 +90,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGInterchangeFormat"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint> ReadJPEGInterchangeFormatAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint> ReadJPEGInterchangeFormatAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormat);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormat, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -125,10 +129,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGInterchangeFormatLength"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint> ReadJPEGInterchangeFormatLengthAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint> ReadJPEGInterchangeFormatLengthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormatLength);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormatLength, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -163,10 +168,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGRestartInterval"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort> ReadJPEGRestartIntervalAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort> ReadJPEGRestartIntervalAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGRestartInterval);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGRestartInterval, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -201,10 +207,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGQTables"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint[]> ReadJPEGQTablesAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint[]> ReadJPEGQTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGQTables);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGQTables, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -239,10 +246,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGDCTables"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint[]> ReadJPEGDCTablesAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint[]> ReadJPEGDCTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGDCTables);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGDCTables, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -277,10 +285,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.JPEGACTables"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint[]> ReadJPEGACTablesAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint[]> ReadJPEGACTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGACTables);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGACTables, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();

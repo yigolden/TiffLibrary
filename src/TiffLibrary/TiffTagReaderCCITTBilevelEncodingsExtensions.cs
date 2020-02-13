@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary
 {
@@ -11,10 +12,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.T4Options"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffT4Options> ReadT4OptionsAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffT4Options> ReadT4OptionsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T4Options);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T4Options, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -49,10 +51,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.T6Options"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffT6Options> ReadT6OptionsAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffT6Options> ReadT6OptionsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T6Options);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T6Options, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();

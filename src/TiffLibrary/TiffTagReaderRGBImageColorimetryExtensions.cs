@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary
 {
@@ -11,10 +12,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.WhitePoint"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadWhitePointAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadWhitePointAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.WhitePoint);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.WhitePoint, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -49,10 +51,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.PrimaryChromaticities"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadPrimaryChromaticitiesAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadPrimaryChromaticitiesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.PrimaryChromaticities);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.PrimaryChromaticities, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -87,10 +90,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.TransferFunction"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort[]> ReadTransferFunctionAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort[]> ReadTransferFunctionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferFunction);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferFunction, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -125,10 +129,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.TransferRange"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort[]> ReadTransferRangeAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort[]> ReadTransferRangeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferRange);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferRange, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -163,10 +168,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.ReferenceBlackWhite"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadReferenceBlackWhiteAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadReferenceBlackWhiteAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.ReferenceBlackWhite);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.ReferenceBlackWhite, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();

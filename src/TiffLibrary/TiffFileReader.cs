@@ -451,7 +451,7 @@ namespace TiffLibrary
             }
 
             TiffFileContentReader reader = _contentSource.OpenReader();
-            return new TiffFieldReader(reader, _operationContext, CancellationToken.None);
+            return new TiffFieldReader(reader, _operationContext);
         }
 
         /// <summary>
@@ -467,7 +467,7 @@ namespace TiffLibrary
             }
 
             TiffFileContentReader reader = await _contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
-            return new TiffFieldReader(reader, _operationContext, cancellationToken);
+            return new TiffFieldReader(reader, _operationContext);
         }
 
         #endregion

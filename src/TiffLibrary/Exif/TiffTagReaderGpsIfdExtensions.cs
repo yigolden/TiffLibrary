@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary.Exif
 {
@@ -12,10 +13,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the version of GPSInfoIFD.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadGpsVersionIDAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadGpsVersionIDAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x0000);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x0000, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -52,10 +54,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates whether the latitude is north or south latitude. The ASCII value 'N' indicates north latitude, and 'S' is south latitude.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsLatitudeReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsLatitudeReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0001);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0001, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -92,10 +95,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the latitude. The latitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If latitude is expressed as degrees, minutes and seconds, a typical format would be dd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be dd/1,mmmm/100,0/1.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadGpsLatitudeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadGpsLatitudeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0002);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0002, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -132,10 +136,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates whether the longitude is east or west longitude. ASCII 'E' indicates east longitude, and 'W' is west longitude.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsLongitudeReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsLongitudeReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0003);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0003, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -172,10 +177,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the longitude. The longitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If longitude is expressed as degrees, minutes and seconds, a typical format would be ddd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be ddd/1,mmmm/100,0/1.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadGpsLongitudeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadGpsLongitudeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0004);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0004, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -212,10 +218,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the altitude used as the reference altitude. If the reference is sea level and the altitude is above sea level, 0 is given. If the altitude is below sea level, a value of 1 is given and the altitude is indicated as an absolute value in the GPSAltitude tag. The reference unit is meters. Note that this tag is BYTE type, unlike other reference tags.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffGpsAltitudeReference> ReadGpsAltitudeReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffGpsAltitudeReference> ReadGpsAltitudeReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x0005);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x0005, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -252,10 +259,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the altitude based on the reference in GPSAltitudeRef. Altitude is expressed as one RATIONAL value. The reference unit is meters.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsAltitudeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsAltitudeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0006);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0006, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -292,10 +300,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the time as UTC (Coordinated Universal Time). TimeStamp is expressed as three RATIONAL values giving the hour, minute, and second.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadGpsTimeStampAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadGpsTimeStampAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0007);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0007, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -332,10 +341,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the GPS satellites used for measurements. This tag can be used to describe the number of satellites, their ID number, angle of elevation, azimuth, SNR and other information in ASCII notation. The format is not specified. If the GPS receiver is incapable of taking measurements, value of the tag shall be set to NULL.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<string>> ReadGpsSatellitesAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<string>> ReadGpsSatellitesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0008);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0008, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -372,10 +382,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the status of the GPS receiver when the image is recorded. 'A' = Measurement is in progress. 'V' = Measurement is Interoperability.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsStatusAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsStatusAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0009);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0009, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -412,10 +423,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the GPS measurement mode. '2' = 2-dimensional measurement. '3' = 3-dimensional measurement.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsMeasureModeAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsMeasureModeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x000A);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x000A, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -452,10 +464,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the GPS DOP (data degree of precision). An HDOP value is written during two-dimensional measurement, and PDOP during three-dimensional measurement.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsDilutionOfPrecisionAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsDilutionOfPrecisionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000B);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000B, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -492,10 +505,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the unit used to express the GPS receiver speed of movement. 'K' = Kilometers per hour. 'M' = Miles per hour. 'N' = Knots.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsSpeedReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsSpeedReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x000C);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x000C, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -532,10 +546,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the speed of GPS receiver movement.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsSpeedAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsSpeedAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000D);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000D, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -572,10 +587,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the reference for giving the direction of GPS receiver movement. 'T' = True direction. 'M' = Magnetic direction.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsTrackReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsTrackReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x000E);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x000E, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -612,10 +628,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the direction of GPS receiver movement. The range of values is from 0.00 to 359.99.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsTrackAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsTrackAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000F);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000F, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -652,10 +669,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the reference for giving the direction of the image when it is captured. 'T' = True direction. 'M' = Magnetic direction.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsImageDirectionReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsImageDirectionReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0010);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0010, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -692,10 +710,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the direction of the image when it was captured. The range of values is from 0.00 to 359.99.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsImageDirectionAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsImageDirectionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000F);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x000F, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -732,10 +751,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the geodetic survey data used by the GPS receiver. If the survey data is restricted to Japan, the value of this tag is 'TOKYO' or 'WGS-84'. If a GPS Info tag is recorded, it is strongly recommended that this tag be recorded.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsMapDatumAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsMapDatumAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0012);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0012, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -772,10 +792,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates whether the latitude of the destination point is north or south latitude. 'N' = North latitude. 'S' = South latitude.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsDestinationLatitudeReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsDestinationLatitudeReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0013);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0013, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -812,10 +833,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the latitude of the destination point. The latitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If latitude is expressed as degrees, minutes and seconds, a typical format would be dd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be dd/1,mmmm/100,0/1.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadGpsDestinationLatitudeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadGpsDestinationLatitudeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0014);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0014, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -852,10 +874,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates whether the longitude of the destination point is east or west longitude. 'E' = East longitude. 'W' = West longitude.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsDestinationLongitudeReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsDestinationLongitudeReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0015);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0015, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -892,10 +915,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the longitude of the destination point. The longitude is expressed as three RATIONAL values giving the degrees, minutes, and seconds, respectively. If longitude is expressed as degrees, minutes and seconds, a typical format would be ddd/1,mm/1,ss/1. When degrees and minutes are used and, for example, fractions of minutes are given up to two decimal places, the format would be ddd/1,mmmm/100,0/1.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational[]> ReadGpsDestinationLongitudeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational[]> ReadGpsDestinationLongitudeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0014);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0014, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -932,10 +956,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the reference used for giving the bearing to the destination point. 'T' = True direction. 'M' = Magnetic direction.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsDestinationBearingReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsDestinationBearingReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0017);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0017, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -972,10 +997,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the bearing to the destination point. The range of values is from 0.00 to 359.99.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsDestinationBearingAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsDestinationBearingAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0018);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x0018, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1012,10 +1038,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the unit used to express the distance to the destination point. 'K' = Kilometers. 'M' = Miles. 'N' = Knots.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsDestinationDistanceReferenceAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsDestinationDistanceReferenceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0019);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x0019, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -1052,10 +1079,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the distance to the destination point.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadGpsDestinationDistanceAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadGpsDestinationDistanceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x001A);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x001A, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1092,10 +1120,11 @@ namespace TiffLibrary.Exif
         /// Field description: A character string recording the name of the method used for location finding. The first byte indicates the character code used, and this is followed by the name of the method. Since the Type is not ASCII, NULL termination is not necessary.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadGpsProcessingMethodAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadGpsProcessingMethodAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x001B);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x001B, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1132,10 +1161,11 @@ namespace TiffLibrary.Exif
         /// Field description: A character string recording the name of the GPS area. The first byte indicates the character code used, and this is followed by the name of the GPS area. Since the Type is not ASCII, NULL termination is not necessary.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadGpsAreaInformationAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadGpsAreaInformationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x001C);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x001C, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1172,10 +1202,11 @@ namespace TiffLibrary.Exif
         /// Field description: A character string recording date and time information relative to UTC (Coordinated Universal Time). The format is "YYYY:MM:DD." The length of the string is 11 bytes including NULL.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadGpsDateStampAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadGpsDateStampAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x001D);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x001D, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -1212,10 +1243,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates whether differential correction is applied to the GPS receiver. 0 = Measurement without differential correction. 1 = Differential correction applied.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort?> ReadGpsDifferentialAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort?> ReadGpsDifferentialAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x001E);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x001E, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();

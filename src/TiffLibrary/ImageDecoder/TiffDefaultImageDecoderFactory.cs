@@ -30,7 +30,7 @@ namespace TiffLibrary.ImageDecoder
 
         public static async Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffFileContentReader reader, TiffImageFileDirectory ifd, TiffImageDecoderOptions? options, CancellationToken cancellationToken)
         {
-            var fieldReader = new TiffFieldReader(reader, operationContext, cancellationToken);
+            var fieldReader = new TiffFieldReader(reader, operationContext);
             try
             {
                 var tagReader = new TiffTagReader(fieldReader, ifd);

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary.Exif
 {
@@ -12,10 +13,11 @@ namespace TiffLibrary.Exif
         /// Field description: Exposure time, given in seconds.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifExposureTimeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifExposureTimeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x829A);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x829A, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -52,10 +54,11 @@ namespace TiffLibrary.Exif
         /// Field description: The F number.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifFNumberAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifFNumberAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x829D);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x829D, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -92,10 +95,11 @@ namespace TiffLibrary.Exif
         /// Field description: The class of the program used by the camera to set exposure when the picture is taken.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifExposureProgram> ReadExifExposureProgramAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifExposureProgram> ReadExifExposureProgramAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x8822);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x8822, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -132,10 +136,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the spectral sensitivity of each channel of the camera used. The tag value is an ASCII string compatible with the standard developed by the ASTM Technical committee.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<string>> ReadExifSpectralSensitivityAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<string>> ReadExifSpectralSensitivityAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x8824);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x8824, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -172,10 +177,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<ushort>> ReadExifISOSpeedRatingsAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<ushort>> ReadExifISOSpeedRatingsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x8827);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x8827, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -212,10 +218,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifOECFAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifOECFAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x8828);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x8828, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -252,10 +259,11 @@ namespace TiffLibrary.Exif
         /// Field description: The version of the supported Exif standard.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifVersionAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifVersionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x9000);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x9000, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -292,10 +300,11 @@ namespace TiffLibrary.Exif
         /// Field description: The date and time when the original image data was generated. For a digital still camera, this is the date and time the picture was taken or recorded. The format is "YYYY:MM:DD HH:MM:SS" with time shown in 24-hour format, and the date and time separated by one blank character (hex 20).
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadExifDateTimeOriginalAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadExifDateTimeOriginalAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9003);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9003, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -332,10 +341,11 @@ namespace TiffLibrary.Exif
         /// Field description: The date and time when the image was stored as digital data. If, for example, an image was captured by a digital still camera, and at the same time the file was recorded, then the DateTimeOriginal and DateTimeDigitized will have the same contents. The format is "YYYY:MM:DD HH:MM:SS" with time shown in 24-hour format, and the date and time separated by one blank character (hex 20).
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadExifDateTimeDigitizedAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadExifDateTimeDigitizedAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9004);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9004, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -372,10 +382,11 @@ namespace TiffLibrary.Exif
         /// Field description: Specific to compressed data; specifies the channels and complements PhotometricInterpretation.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifComponentsConfigurationAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifComponentsConfigurationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x9101);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x9101, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -412,10 +423,11 @@ namespace TiffLibrary.Exif
         /// Field description: Specific to compressed data; states the compressed bits per pixel. The compression mode used for a compressed image is indicated in unit bits per pixel.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifCompressedBitsPerPixelAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifCompressedBitsPerPixelAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9102);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9102, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -452,10 +464,11 @@ namespace TiffLibrary.Exif
         /// Field description: Shutter speed. The unit is the APEX (Additive System of Photographic Exposure) setting.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffSRational?> ReadExifShutterSpeedValueAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffSRational?> ReadExifShutterSpeedValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffSRational>> valueTask = tagReader.ReadSRationalFieldAsync((TiffTag)0x9201);
+            ValueTask<TiffValueCollection<TiffSRational>> valueTask = tagReader.ReadSRationalFieldAsync((TiffTag)0x9201, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffSRational> result = valueTask.GetAwaiter().GetResult();
@@ -492,10 +505,11 @@ namespace TiffLibrary.Exif
         /// Field description: The lens aperture. The unit is the APEX (Additive System of Photographic Exposure) setting.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifApertureValueAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifApertureValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9202);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9202, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -532,10 +546,11 @@ namespace TiffLibrary.Exif
         /// Field description: The value of brightness. The unit is the APEX (Additive System of Photographic Exposure) setting. Ordinarily it is given in the range of -99.99 to 99.99. Note that if the numerator of the recorded value is hex FFFFFFFF, Unknown shall be indicated.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffSRational?> ReadExifBrightnessValueAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffSRational?> ReadExifBrightnessValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffSRational>> valueTask = tagReader.ReadSRationalFieldAsync((TiffTag)0x9203);
+            ValueTask<TiffValueCollection<TiffSRational>> valueTask = tagReader.ReadSRationalFieldAsync((TiffTag)0x9203, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffSRational> result = valueTask.GetAwaiter().GetResult();
@@ -572,10 +587,11 @@ namespace TiffLibrary.Exif
         /// Field description: The exposure bias. The unit is the APEX (Additive System of Photographic Exposure) setting. Ordinarily it is given in the range of -99.99 to 99.99.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffSRational?> ReadExifExposureBiasValueAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffSRational?> ReadExifExposureBiasValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffSRational>> valueTask = tagReader.ReadSRationalFieldAsync((TiffTag)0x9204);
+            ValueTask<TiffValueCollection<TiffSRational>> valueTask = tagReader.ReadSRationalFieldAsync((TiffTag)0x9204, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffSRational> result = valueTask.GetAwaiter().GetResult();
@@ -612,10 +628,11 @@ namespace TiffLibrary.Exif
         /// Field description: The smallest F number of the lens. The unit is the APEX (Additive System of Photographic Exposure) setting. Ordinarily it is given in the range of 00.00 to 99.99, but it is not limited to this range.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifMaxApertureValueAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifMaxApertureValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9205);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9205, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -652,10 +669,11 @@ namespace TiffLibrary.Exif
         /// Field description: The distance to the subject, given in meters. Note that if the numerator of the recorded value is hex FFFFFFFF, Infinity shall be indicated; and if the numerator is 0, Distance unknown shall be indicated.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifSubjectDistanceAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifSubjectDistanceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9206);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x9206, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -692,10 +710,11 @@ namespace TiffLibrary.Exif
         /// Field description: The metering mode.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifMeteringMode> ReadExifMeteringModeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifMeteringMode> ReadExifMeteringModeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9207);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9207, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -732,10 +751,11 @@ namespace TiffLibrary.Exif
         /// Field description: The kind of light source.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifLightSource> ReadExifLightSourceAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifLightSource> ReadExifLightSourceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9208);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9208, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -772,10 +792,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the status of flash when the image was shot.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifFlash?> ReadExifFlashAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifFlash?> ReadExifFlashAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9209);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9209, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -812,10 +833,11 @@ namespace TiffLibrary.Exif
         /// Field description: The actual focal length of the lens, in mm.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifFocalLengthAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifFocalLengthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x920A);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0x920A, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -852,10 +874,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the location and area of the main subject in the overall scene.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort[]> ReadExifSubjectAreaAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort[]> ReadExifSubjectAreaAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9214);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0x9214, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -892,10 +915,11 @@ namespace TiffLibrary.Exif
         /// Field description: Manufacturer specific information.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifMakerNoteAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifMakerNoteAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x927C);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x927C, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -932,10 +956,11 @@ namespace TiffLibrary.Exif
         /// Field description: Keywords or comments on the image; complements ImageDescription. The character code used in the UserComment tag is identified based on an ID code in a fixed 8-byte area at the start of the tag data area.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifUserCommentAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifUserCommentAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x9286);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0x9286, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -972,10 +997,11 @@ namespace TiffLibrary.Exif
         /// Field description: A tag used to record fractions of seconds for the DateTime tag.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<string>> ReadExifSubsecTimeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<string>> ReadExifSubsecTimeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9290);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9290, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -1012,10 +1038,11 @@ namespace TiffLibrary.Exif
         /// Field description: A tag used to record fractions of seconds for the DateTimeOriginal tag.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<string>> ReadExifSubsecTimeOriginalAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<string>> ReadExifSubsecTimeOriginalAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9291);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9291, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -1052,10 +1079,11 @@ namespace TiffLibrary.Exif
         /// Field description: A tag used to record fractions of seconds for the DateTimeDigitized tag.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffValueCollection<string>> ReadExifSubsecTimeDigitizedAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffValueCollection<string>> ReadExifSubsecTimeDigitizedAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9292);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0x9292, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -1092,10 +1120,11 @@ namespace TiffLibrary.Exif
         /// Field description: The Flashpix format version supported by a FPXR file.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifFlashpixVersionAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifFlashpixVersionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA000);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA000, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1132,10 +1161,11 @@ namespace TiffLibrary.Exif
         /// Field description: The color space information tag is always recorded as the color space specifier.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort?> ReadExifColorSpaceAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort?> ReadExifColorSpaceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA001);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA001, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1172,10 +1202,11 @@ namespace TiffLibrary.Exif
         /// Field description: Specific to compressed data; the valid width of the meaningful image.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint?> ReadExifPixelXDimensionAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint?> ReadExifPixelXDimensionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync((TiffTag)0xA002);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync((TiffTag)0xA002, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -1212,10 +1243,11 @@ namespace TiffLibrary.Exif
         /// Field description: Specific to compressed data; the valid height of the meaningful image.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<uint?> ReadExifPixelYDimensionAsync(this TiffTagReader tagReader)
+        public static ValueTask<uint?> ReadExifPixelYDimensionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync((TiffTag)0xA003);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync((TiffTag)0xA003, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -1252,10 +1284,11 @@ namespace TiffLibrary.Exif
         /// Field description: Used to record the name of an audio file related to the image data.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadExifRelatedSoundFileAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadExifRelatedSoundFileAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0xA004);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0xA004, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
@@ -1292,10 +1325,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the strobe energy at the time the image is captured, as measured in Beam Candle Power Seconds.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifFlashEnergyAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifFlashEnergyAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA20B);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA20B, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1332,10 +1366,11 @@ namespace TiffLibrary.Exif
         /// Field description: Records the camera or input device spatial frequency table and SFR values in the direction of image width, image height, and diagonal direction, as specified in ISO 12233.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifSpatialFrequencyResponseAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifSpatialFrequencyResponseAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA20C);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA20C, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1372,10 +1407,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the number of pixels in the image width (X) direction per FocalPlaneResolutionUnit on the camera focal plane.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifFocalPlaneXResolutionAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifFocalPlaneXResolutionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA20E);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA20E, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1412,10 +1448,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the number of pixels in the image height (Y) direction per FocalPlaneResolutionUnit on the camera focal plane.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifFocalPlaneYResolutionAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifFocalPlaneYResolutionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA20F);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA20F, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1452,10 +1489,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the unit for measuring FocalPlaneXResolution and FocalPlaneYResolution.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffResolutionUnit> ReadExifFocalPlaneResolutionUnitAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffResolutionUnit> ReadExifFocalPlaneResolutionUnitAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA210);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA210, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1492,10 +1530,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the location of the main subject in the scene.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort[]> ReadExifSubjectLocationAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort[]> ReadExifSubjectLocationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA214);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA214, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1532,10 +1571,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the exposure index selected on the camera or input device at the time the image is captured.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifExposureIndexAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifExposureIndexAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA215);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA215, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1572,10 +1612,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the image sensor type on the camera or input device.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifSensingMethod?> ReadExifSensingMethodAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifSensingMethod?> ReadExifSensingMethodAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA217);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA217, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1612,10 +1653,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the image source. If a DSC (Digital Still Camera) recorded the image, this tag will always be set to 3, indicating that the image was recorded on a DSC.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte> ReadExifFileSourceAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte> ReadExifFileSourceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA300);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA300, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1652,10 +1694,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the type of scene. If a DSC recorded the image, this tag value shall always be set to 1, indicating that the image was directly photographed.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte> ReadExifSceneTypeAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte> ReadExifSceneTypeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA301);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA301, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1692,10 +1735,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the color filter array (CFA) geometric pattern of the image sensor when a one-chip color area sensor is used.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifCFAPatternAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifCFAPatternAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA302);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA302, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -1732,10 +1776,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the use of special processing on image data, such as rendering geared to output.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifCustomRendered> ReadExifCustomRenderedAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifCustomRendered> ReadExifCustomRenderedAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA401);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA401, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1772,10 +1817,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the exposure mode set when the image was shot.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifExposureMode?> ReadExifExposureModeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifExposureMode?> ReadExifExposureModeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA402);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA402, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1812,10 +1858,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the white balance mode set when the image was shot.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifWhiteBalance?> ReadExifWhiteBalanceAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifWhiteBalance?> ReadExifWhiteBalanceAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA403);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA403, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1852,10 +1899,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the digital zoom ratio when the image was shot. If the numerator of the recorded value is 0, this indicates that digital zoom was not used.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffRational?> ReadExifDigitalZoomRatioAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffRational?> ReadExifDigitalZoomRatioAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA404);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync((TiffTag)0xA404, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1892,10 +1940,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the equivalent focal length assuming a 35mm film camera, in mm. A value of 0 means the focal length is unknown. Note that this tag differs from the FocalLength tag.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<ushort?> ReadExifFocalLengthIn35mmFilmAsync(this TiffTagReader tagReader)
+        public static ValueTask<ushort?> ReadExifFocalLengthIn35mmFilmAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA405);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA405, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1932,10 +1981,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the type of scene that was shot. It can also be used to record the mode in which the image was shot. Note that this differs from the SceneType tag.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifSceneCaptureType> ReadExifSceneCaptureTypeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifSceneCaptureType> ReadExifSceneCaptureTypeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA406);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA406, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1972,10 +2022,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the degree of overall image gain adjustment.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifGainControl?> ReadExifGainControlAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifGainControl?> ReadExifGainControlAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA407);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA407, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -2012,10 +2063,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the direction of contrast processing applied by the camera when the image was shot.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifContrast> ReadExifContrastAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifContrast> ReadExifContrastAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA408);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA408, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -2052,10 +2104,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the direction of saturation processing applied by the camera when the image was shot.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifContrast> ReadExifSaturationAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifContrast> ReadExifSaturationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA409);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA409, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -2092,10 +2145,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the direction of sharpness processing applied by the camera when the image was shot.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifSharpness> ReadExifSharpnessAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifSharpness> ReadExifSharpnessAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA40A);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA40A, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -2132,10 +2186,11 @@ namespace TiffLibrary.Exif
         /// Field description: This tag indicates information on the picture-taking conditions of a particular camera model. The tag is used only to indicate the picture-taking conditions in the reader.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<byte[]> ReadExifDeviceSettingDescriptionAsync(this TiffTagReader tagReader)
+        public static ValueTask<byte[]> ReadExifDeviceSettingDescriptionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA40B);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync((TiffTag)0xA40B, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -2172,10 +2227,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates the distance to the subject.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffExifSubjectDistanceRange?> ReadExifSubjectDistanceRangeAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffExifSubjectDistanceRange?> ReadExifSubjectDistanceRangeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA40C);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync((TiffTag)0xA40C, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -2212,10 +2268,11 @@ namespace TiffLibrary.Exif
         /// Field description: Indicates an identifier assigned uniquely to each image. It is recorded as an ASCII string equivalent to hexadecimal notation and 128-bit fixed length.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<string?> ReadExifImageUniqueIDAsync(this TiffTagReader tagReader)
+        public static ValueTask<string?> ReadExifImageUniqueIDAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0xA420);
+            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync((TiffTag)0xA420, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();

@@ -17,14 +17,12 @@ namespace TiffLibrary
     {
         private TiffFileContentReader? _reader;
         private TiffOperationContext? _context;
-        private CancellationToken _cancellationToken;
         private readonly bool _reverseEndianNeeded;
 
-        internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context, CancellationToken cancellationToken = default)
+        internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context)
         {
             _reader = reader;
             _context = context;
-            _cancellationToken = cancellationToken;
             _reverseEndianNeeded = BitConverter.IsLittleEndian != context.IsLittleEndian;
         }
 
@@ -60,7 +58,6 @@ namespace TiffLibrary
             _context = null;
             _reader?.Dispose();
             _reader = null;
-            _cancellationToken = default;
         }
 
         /// <inheritdoc />
@@ -72,7 +69,6 @@ namespace TiffLibrary
                 await _reader.DisposeAsync().ConfigureAwait(false);
                 _reader = null;
             }
-            _cancellationToken = default;
         }
 
         #region Copy values
@@ -206,7 +202,7 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyByteValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<byte, TDest>? convertFunc = null) where TDest : struct
+        private static void InternalCopyByteValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<byte, TDest>? convertFunc) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, values.Length);
 
@@ -229,7 +225,7 @@ namespace TiffLibrary
             }
         }
 
-        private void InternalCopyDoubleValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<double, TDest>? convertFunc = null) where TDest : struct
+        private void InternalCopyDoubleValues<TDest>(ReadOnlySpan<byte> buffer, Span<TDest> values, Func<double, TDest>? convertFunc) where TDest : struct
         {
             ReadOnlySpan<byte> src = buffer.Slice(0, sizeof(double) * values.Length);
             bool reverseEndianNeeded = _reverseEndianNeeded;

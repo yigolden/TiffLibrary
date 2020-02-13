@@ -15,6 +15,7 @@
     };
 
 #>
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.Exif
@@ -33,10 +34,11 @@ namespace TiffLibrary.Exif
         /// Field description: <#= field.Description #>
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<<#= field.ReturnType #>> Read<#= field.Name #>Async(this TiffTagReader tagReader)
+        public static ValueTask<<#= field.ReturnType #>> Read<#= field.Name #>Async(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync((TiffTag)<#= field.Code #>);
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync((TiffTag)<#= field.Code #>, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();

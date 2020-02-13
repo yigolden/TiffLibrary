@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace TiffLibrary
 {
@@ -11,10 +12,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.ExifIfd"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffStreamOffset> ReadExifIfdAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffStreamOffset> ReadExifIfdAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.ExifIfd);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.ExifIfd, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();
@@ -49,10 +51,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.GpsIfd"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffStreamOffset> ReadGpsIfdAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffStreamOffset> ReadGpsIfdAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.GpsIfd);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.GpsIfd, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();
@@ -87,10 +90,11 @@ namespace TiffLibrary
         /// Read the values of <see cref="TiffTag.InteroperabilityIfd"/>.
         /// </summary>
         /// <param name="tagReader">The tag reader to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
-        public static ValueTask<TiffStreamOffset> ReadInteroperabilityIfdAsync(this TiffTagReader tagReader)
+        public static ValueTask<TiffStreamOffset> ReadInteroperabilityIfdAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.InteroperabilityIfd);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.InteroperabilityIfd, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using TiffLibrary.Utils;
 
 namespace TiffLibrary
@@ -101,6 +102,12 @@ namespace TiffLibrary
         public override int GetHashCode()
         {
             return HashHelpers.Combine(Numerator.GetHashCode(), Denominator.GetHashCode());
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return Numerator.ToString("G", CultureInfo.InvariantCulture) + "/" + Denominator.ToString("G", CultureInfo.InvariantCulture);
         }
     }
 }

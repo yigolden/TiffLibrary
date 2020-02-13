@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageSharpAdapter
@@ -20,8 +21,10 @@ namespace TiffLibrary.ImageSharpAdapter
             return _reader;
         }
 
-        public override ValueTask<TiffFileContentReader> OpenReaderAsync()
+        public override ValueTask<TiffFileContentReader> OpenReaderAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             return new ValueTask<TiffFileContentReader>(_reader);
         }
 

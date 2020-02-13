@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -18,8 +19,9 @@ namespace TiffLibrary
         /// <summary>
         /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
         /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
-        ValueTask<TiffFileContentReader> OpenReaderAsync();
+        ValueTask<TiffFileContentReader> OpenReaderAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting
@@ -34,17 +36,11 @@ namespace TiffLibrary
     /// </summary>
     public abstract class TiffFileContentSource : ITiffFileContentSource, IAsyncDisposable
     {
-        /// <summary>
-        /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
-        /// </summary>
-        /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
+        /// <inheritdoc />
         public abstract TiffFileContentReader OpenReader();
 
-        /// <summary>
-        /// Opens a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
-        /// </summary>
-        /// <returns>A instance of <see cref="TiffFileContentReader"/>.</returns>
-        public virtual ValueTask<TiffFileContentReader> OpenReaderAsync()
+        /// <inheritdoc />
+        public virtual ValueTask<TiffFileContentReader> OpenReaderAsync(CancellationToken cancellationToken = default)
             => new ValueTask<TiffFileContentReader>(OpenReader());
 
         /// <summary>

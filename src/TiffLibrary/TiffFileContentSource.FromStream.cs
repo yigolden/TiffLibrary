@@ -34,8 +34,10 @@ namespace TiffLibrary
             return reader;
         }
 
-        public override ValueTask<TiffFileContentReader> OpenReaderAsync()
+        public override ValueTask<TiffFileContentReader> OpenReaderAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             ContentReader? reader = _reader;
             if (reader is null)
             {

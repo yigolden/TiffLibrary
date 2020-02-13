@@ -113,7 +113,7 @@ namespace TiffLibrary.ImageDecoder
                 throw new InvalidOperationException("Failed to acquire ContentSource.");
             }
 
-            TiffFileContentReader reader = await _parameters.ContentSource.OpenReaderAsync().ConfigureAwait(false);
+            TiffFileContentReader reader = await _parameters.ContentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 var context = new TiffDefaultImageDecoderContext<TPixel>()

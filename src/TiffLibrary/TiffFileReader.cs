@@ -198,8 +198,9 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="contentSource">The content source to use.</param>
         /// <param name="leaveOpen">Whether the stream source should be left open when the <see cref="TiffFileReader"/> is disposed or when we failed to create <see cref="TiffFileReader"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static async Task<TiffFileReader> OpenAsync(ITiffFileContentSource contentSource, bool leaveOpen = true)
+        public static async Task<TiffFileReader> OpenAsync(ITiffFileContentSource contentSource, bool leaveOpen = true, CancellationToken cancellationToken = default)
         {
             if (contentSource is null)
             {
@@ -208,7 +209,7 @@ namespace TiffLibrary
 
             try
             {
-                TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
+                TiffFileContentReader reader = await contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
                 try
                 {
                     byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
@@ -270,7 +271,7 @@ namespace TiffLibrary
                 throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
-            TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            TiffFileContentReader reader = await _contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 return await ReadImageFileDirectoryAsync(reader, _operationContext, offset.ToInt64(), cancellationToken).ConfigureAwait(false);
@@ -427,10 +428,11 @@ namespace TiffLibrary
         /// <summary>
         /// Createa a <see cref="TiffFileContentReader"/> to read bytes from TIFF file source.
         /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>The <see cref="TiffFileContentReader"/> instance.</returns>
-        public async Task<TiffFileContentReader> CreateContentReaderAsync()
+        public async Task<TiffFileContentReader> CreateContentReaderAsync(CancellationToken cancellationToken = default)
         {
-            return await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            return await _contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
         }
 
         #endregion
@@ -464,7 +466,7 @@ namespace TiffLibrary
                 throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
-            TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            TiffFileContentReader reader = await _contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
             return new TiffFieldReader(reader, _operationContext, cancellationToken);
         }
 
@@ -587,7 +589,7 @@ namespace TiffLibrary
                 throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
-            TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            TiffFileContentReader reader = await _contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 TiffImageFileDirectory ifd = await ReadImageFileDirectoryAsync(reader, _operationContext, _imageFileDirectoryOffset, cancellationToken).ConfigureAwait(false);
@@ -622,7 +624,7 @@ namespace TiffLibrary
                 throw new ObjectDisposedException(nameof(TiffFileReader));
             }
 
-            TiffFileContentReader reader = await _contentSource.OpenReaderAsync().ConfigureAwait(false);
+            TiffFileContentReader reader = await _contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 TiffImageFileDirectory ifd = await ReadImageFileDirectoryAsync(reader, _operationContext, ifdOffset.ToInt64(), cancellationToken).ConfigureAwait(false);

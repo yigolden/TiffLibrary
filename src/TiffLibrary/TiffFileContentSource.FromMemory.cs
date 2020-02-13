@@ -22,8 +22,10 @@ namespace TiffLibrary
             return _reader;
         }
 
-        public override ValueTask<TiffFileContentReader> OpenReaderAsync()
+        public override ValueTask<TiffFileContentReader> OpenReaderAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (_reader is null)
             {
                 throw new ObjectDisposedException(nameof(TiffMemoryContentSource));

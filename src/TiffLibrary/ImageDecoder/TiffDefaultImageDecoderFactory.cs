@@ -15,7 +15,7 @@ namespace TiffLibrary.ImageDecoder
 
         public static async Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageFileDirectory ifd, TiffImageDecoderOptions? options, CancellationToken cancellationToken)
         {
-            TiffFileContentReader reader = await contentSource.OpenReaderAsync().ConfigureAwait(false);
+            TiffFileContentReader reader = await contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 return await CreateImageDecoderAsync(operationContext, contentSource, reader, ifd, options, cancellationToken).ConfigureAwait(false);

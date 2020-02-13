@@ -40,6 +40,7 @@ namespace TiffLibrary.Compression
 
                     // Identify the image
                     var decoder = new JpegDecoder();
+                    decoder.MemoryPool = memoryPool;
                     decoder.SetInput(bufferWriter.GetReadOnlySequence());
                     decoder.Identify();
                     if (decoder.Width != context.SourceImageSize.Width || decoder.Height != context.SourceImageSize.Height)

@@ -110,6 +110,7 @@ namespace TiffLibrary.Compression
             frameHeader = new JpegFrameHeader(frameHeader.SamplePrecision, (ushort)context.ImageSize.Height, (ushort)context.ImageSize.Width, frameHeader.NumberOfComponents, frameHeader.Components);
 
             var decoder = new JpegDecoder();
+            decoder.MemoryPool = context.MemoryPool;
             decoder.SetFrameHeader(frameHeader);
             decoder.SetRestartInterval(_restartInterval);
 

@@ -102,6 +102,7 @@ namespace TiffLibrary.ImageDecoder
                     int bytesPerScanline = _bytesPerScanlines[i];
                     var decompressionContext = new TiffDecompressionContext
                     {
+                        MemoryPool = memoryPool,
                         PhotometricInterpretation = _photometricInterpretation,
                         BitsPerSample = _bitsPerSample,
                         ImageSize = context.SourceImageSize,

@@ -46,6 +46,7 @@ namespace TiffLibrary.Compression
 
             // Identify this block
             JpegDecoder decoder = Interlocked.Exchange(ref _decoder, null) ?? LoadJpegDecoder();
+            decoder.MemoryPool = context.MemoryPool;
             decoder.SetInput(input);
             decoder.Identify();
 

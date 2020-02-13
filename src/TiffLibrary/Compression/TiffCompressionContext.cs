@@ -1,10 +1,17 @@
-﻿namespace TiffLibrary.Compression
+﻿using System.Buffers;
+
+namespace TiffLibrary.Compression
 {
     /// <summary>
     /// Information of the image to be encoded.
     /// </summary>
     public class TiffCompressionContext
     {
+        /// <summary>
+        /// The memory pool to use when allocating large chunk of memory.
+        /// </summary>
+        public MemoryPool<byte>? MemoryPool { get; set; }
+
         /// <summary>
         /// The photometric interpretation.
         /// </summary>

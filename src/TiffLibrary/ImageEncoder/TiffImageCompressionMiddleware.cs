@@ -57,6 +57,7 @@ namespace TiffLibrary.ImageEncoder
 
             var compressionContext = new TiffCompressionContext
             {
+                MemoryPool = context.MemoryPool,
                 PhotometricInterpretation = context.PhotometricInterpretation,
                 ImageSize = context.ImageSize,
                 BitsPerSample = context.BitsPerSample,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -47,6 +48,7 @@ namespace TiffLibrary
             return TiffSyncFileContentSource.WrapReader(reader);
         }
 
+        [DoesNotReturn]
         private static void ThrowObjectDisposedException()
         {
             throw new ObjectDisposedException(nameof(TiffFieldReader));

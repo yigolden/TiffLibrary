@@ -27,6 +27,8 @@ namespace JpegLibrary
         private List<JpegQuantizationTable>? _quantizationTables;
         private List<JpegHuffmanDecodingTable>? _huffmanTables;
 
+        public MemoryPool<byte>? MemoryPool { get; set; }
+
         public void SetInput(ReadOnlyMemory<byte> inputBuffer)
             => SetInput(new ReadOnlySequence<byte>(inputBuffer));
 
@@ -442,7 +444,6 @@ namespace JpegLibrary
                 return;
             }
 
-            using var allocator = new JpegBlockAllocator(_outputWriter);
             JpegScanDecoder? scanDecoder = null;
             try
             {

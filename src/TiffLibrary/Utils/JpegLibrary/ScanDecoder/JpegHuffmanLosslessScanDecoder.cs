@@ -13,7 +13,7 @@ namespace JpegLibrary.ScanDecoder
         private readonly int _mcusPerLine;
         private readonly int _mcusPerColumn;
 
-        private readonly JpegScanlineAllocator _allocator;
+        private readonly JpegPartialScanlineAllocator _allocator;
         private readonly JpegDecodeComponent[] _components;
 
         public JpegHuffmanLosslessScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
@@ -38,7 +38,7 @@ namespace JpegLibrary.ScanDecoder
             {
                 ThrowInvalidDataException("Output writer is not set.");
             }
-            _allocator = new JpegScanlineAllocator(outputWriter);
+            _allocator = new JpegPartialScanlineAllocator(outputWriter, decoder.MemoryPool);
             _allocator.Allocate(frameHeader);
 
             // Pre-allocate the JpegDecodeComponent instances
@@ -63,7 +63,7 @@ namespace JpegLibrary.ScanDecoder
             // Resolve each component
             Span<JpegDecodeComponent> components = _components.AsSpan(0, InitDecodeComponents(_frameHeader, scanHeader, _components));
 
-            JpegScanlineAllocator allocator = _allocator;
+            JpegPartialScanlineAllocator allocator = _allocator;
             int mcusPerLine = _mcusPerLine;
             int mcusPerColumn = _mcusPerColumn;
 
@@ -169,7 +169,25 @@ namespace JpegLibrary.ScanDecoder
                         mcusBeforeRestart = restartInterval;
                     }
                 }
+
+                // Flush allocator
+                if (rowMcu == mcusPerColumn - 1)
+                {
+                    foreach (JpegDecodeComponent component in components)
+                    {
+                        allocator.FlushLastMcu(component.ComponentIndex, (rowMcu + 1) * component.VerticalSamplingFactor);
+                    }
+                }
+                else
+                {
+                    foreach (JpegDecodeComponent component in components)
+                    {
+                        allocator.FlushMcu(component.ComponentIndex, (rowMcu + 1) * component.VerticalSamplingFactor);
+                    }
+                }
             }
+
+
 
             bitReader.AdvanceAlignByte();
             int bytesConsumed = reader.RemainingByteCount - bitReader.RemainingBits / 8;
@@ -201,9 +219,8 @@ namespace JpegLibrary.ScanDecoder
 
         public override void Dispose()
         {
-            JpegScanlineAllocator allocator = _allocator;
+            JpegPartialScanlineAllocator allocator = _allocator;
 
-            allocator.Flush();
             allocator.Dispose();
         }
 

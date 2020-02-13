@@ -11,13 +11,15 @@ namespace JpegLibrary
     internal sealed class JpegBlockAllocator : IDisposable
     {
         private readonly JpegBlockOutputWriter _writer;
-        private byte[]? _buffer;
+        private readonly MemoryPool<byte> _memoryPool;
+        private IMemoryOwner<byte>? _bufferHandle;
         private ComponentAllocation[]? _components;
 
-        internal JpegBlockAllocator(JpegBlockOutputWriter writer)
+        internal JpegBlockAllocator(JpegBlockOutputWriter writer, MemoryPool<byte>? memoryPool = null)
         {
             _writer = writer;
-            _buffer = null;
+            _memoryPool = memoryPool ?? MemoryPool<byte>.Shared;
+            _bufferHandle = null;
             _components = null;
         }
 
@@ -62,9 +64,9 @@ namespace JpegLibrary
                 index += componentAllocations[i].HorizontalComponentBlock * componentAllocations[i].VerticalComponentBlock;
             }
 
-            int length = index * Unsafe.SizeOf<JpegBlock8x8>();
-            byte[] buffer = _buffer = ArrayPool<byte>.Shared.Rent(length);
-            buffer.AsSpan(0, length).Clear();
+            int length = index * Unsafe.SizeOf<short>();
+            IMemoryOwner<byte> bufferHandle = _bufferHandle = _memoryPool.Rent(length);
+            bufferHandle.Memory.Span.Slice(0, length).Clear();
         }
 
         public ref JpegBlock8x8 GetBlockReference(int componentIndex, int blockX, int blockY)
@@ -74,14 +76,14 @@ namespace JpegLibrary
             {
                 throw new InvalidOperationException();
             }
-            Debug.Assert(_buffer != null);
+            Debug.Assert(_bufferHandle != null);
             if ((uint)componentIndex >= (uint)components.Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(componentIndex));
             }
             ComponentAllocation component = components[componentIndex];
 
-            ref JpegBlock8x8 blockRef = ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_buffer.AsSpan()));
+            ref JpegBlock8x8 blockRef = ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_bufferHandle!.Memory.Span));
             if (blockX >= component.HorizontalComponentBlock || blockY >= component.VerticalComponentBlock)
             {
                 return ref blockRef;
@@ -105,7 +107,7 @@ namespace JpegLibrary
             for (int i = 0; i < components.Length; i++)
             {
                 ComponentAllocation component = components[i];
-                ref JpegBlock8x8 componentBlockRef = ref Unsafe.Add(ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_buffer.AsSpan())), component.ComponentBlockOffset);
+                ref JpegBlock8x8 componentBlockRef = ref Unsafe.Add(ref Unsafe.As<byte, JpegBlock8x8>(ref MemoryMarshal.GetReference(_bufferHandle!.Memory.Span)), component.ComponentBlockOffset);
 
                 for (int row = 0; row < component.VerticalComponentBlock; row++)
                 {
@@ -162,9 +164,10 @@ namespace JpegLibrary
 
         public void Dispose()
         {
-            if (!(_buffer is null))
+            if (!(_bufferHandle is null))
             {
-                ArrayPool<byte>.Shared.Return(_buffer);
+                _bufferHandle.Dispose();
+                _bufferHandle = null;
             }
         }
 

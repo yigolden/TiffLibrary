@@ -44,7 +44,7 @@ namespace JpegLibrary.ScanDecoder
             {
                 ThrowInvalidDataException("Output writer is not set.");
             }
-            _allocator = new JpegBlockAllocator(outputWriter);
+            _allocator = new JpegBlockAllocator(outputWriter, decoder.MemoryPool);
             _allocator.Allocate(frameHeader);
 
             // Pre-allocate the JpegDecodeComponent instances

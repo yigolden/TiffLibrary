@@ -26,9 +26,9 @@
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarker.cs" Link="JpegLibrary\JpegMarker.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarkerHelper.cs" Link="JpegLibrary\JpegMarkerHelper.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMathHelper.cs" Link="JpegLibrary\JpegMathHelper.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegPartialScanlineAllocator.cs" Link="JpegLibrary\JpegPartialScanlineAllocator.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegQuantizationTable.cs" Link="JpegLibrary\JpegQuantizationTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegReader.cs" Link="JpegLibrary\JpegReader.cs" />
-    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegScanlineAllocator.cs" Link="JpegLibrary\JpegScanlineAllocator.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegScanHeader.cs" Link="JpegLibrary\JpegScanHeader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardHuffmanEncodingTable.cs" Link="JpegLibrary\JpegStandardHuffmanEncodingTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegStandardQuantizationTable.cs" Link="JpegLibrary\JpegStandardQuantizationTable.cs" />

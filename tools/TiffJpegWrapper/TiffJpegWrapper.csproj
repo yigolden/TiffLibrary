@@ -22,6 +22,7 @@
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegFrameHeader.cs" Link="JpegLibrary\JpegFrameHeader.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanDecodingTable.cs" Link="JpegLibrary\JpegHuffmanDecodingTable.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTable.cs" Link="JpegLibrary\JpegHuffmanEncodingTable.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableBuilder.cs" Link="JpegLibrary\JpegHuffmanEncodingTableBuilder.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegHuffmanEncodingTableCollection.cs" Link="JpegLibrary\JpegHuffmanEncodingTableCollection.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarker.cs" Link="JpegLibrary\JpegMarker.cs" />
     <Compile Include="..\..\src\TiffLibrary\Utils\JpegLibrary\JpegMarkerHelper.cs" Link="JpegLibrary\JpegMarkerHelper.cs" />

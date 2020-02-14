@@ -11,6 +11,22 @@ namespace JpegLibrary
 
         public bool IsEmpty => _tables is null;
 
+        public bool ContainsTableBuilder()
+        {
+            if (_tables is null)
+            {
+                return false;
+            }
+            foreach (EncodingTableWithIdentifier table in _tables)
+            {
+                if (table.EncodingTable is JpegHuffmanEncodingTableBuilder)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public JpegHuffmanEncodingTable? GetTable(bool isDcTable, byte identifier)
         {
             if (_tables is null)
@@ -22,13 +38,30 @@ namespace JpegLibrary
             {
                 if (table.TableClass == tableClass && table.Identifier == identifier)
                 {
-                    return table.EncodingTable;
+                    return table.EncodingTable as JpegHuffmanEncodingTable;
                 }
             }
             return null;
         }
 
-        public void AddTable(byte tableClass, byte identifier, JpegHuffmanEncodingTable encodingTable)
+        public JpegHuffmanEncodingTableBuilder? GetTableBuilder(bool isDcTable, byte identifier)
+        {
+            if (_tables is null)
+            {
+                return null;
+            }
+            byte tableClass = isDcTable ? (byte)0 : (byte)1;
+            foreach (EncodingTableWithIdentifier table in _tables)
+            {
+                if (table.TableClass == tableClass && table.Identifier == identifier)
+                {
+                    return table.EncodingTable as JpegHuffmanEncodingTableBuilder;
+                }
+            }
+            return null;
+        }
+
+        public void AddTable(byte tableClass, byte identifier, JpegHuffmanEncodingTable? encodingTable)
         {
             if (_tables is null)
             {
@@ -41,7 +74,14 @@ namespace JpegLibrary
                     throw new InvalidOperationException();
                 }
             }
-            _tables.Add(new EncodingTableWithIdentifier(tableClass, identifier, encodingTable));
+            if (encodingTable is null)
+            {
+                _tables.Add(new EncodingTableWithIdentifier(tableClass, identifier, new JpegHuffmanEncodingTableBuilder()));
+            }
+            else
+            {
+                _tables.Add(new EncodingTableWithIdentifier(tableClass, identifier, encodingTable));
+            }
         }
 
         public ushort GetTotalBytesRequired()
@@ -54,8 +94,12 @@ namespace JpegLibrary
             ushort bytesRequired = 0;
             foreach (EncodingTableWithIdentifier item in _tables)
             {
+                if (!(item.EncodingTable is JpegHuffmanEncodingTable encodingTable))
+                {
+                    throw new InvalidOperationException();
+                }
                 bytesRequired++;
-                bytesRequired += item.EncodingTable.BytesRequired;
+                bytesRequired += encodingTable.BytesRequired;
             }
             return bytesRequired;
         }
@@ -70,6 +114,11 @@ namespace JpegLibrary
             bytesWritten = 0;
             foreach (EncodingTableWithIdentifier item in _tables)
             {
+                if (!(item.EncodingTable is JpegHuffmanEncodingTable encodingTable))
+                {
+                    throw new InvalidOperationException();
+                }
+
                 if (buffer.IsEmpty)
                 {
                     return false;
@@ -78,7 +127,7 @@ namespace JpegLibrary
                 buffer = buffer.Slice(1);
                 bytesWritten++;
 
-                if (!item.EncodingTable.TryWrite(buffer, out int bytes))
+                if (!encodingTable.TryWrite(buffer, out int bytes))
                 {
                     bytesWritten += bytes;
                     return false;
@@ -99,12 +148,34 @@ namespace JpegLibrary
 
             foreach (EncodingTableWithIdentifier item in _tables)
             {
-                int bytesRequired = 1 + item.EncodingTable.BytesRequired;
+                if (!(item.EncodingTable is JpegHuffmanEncodingTable encodingTable))
+                {
+                    throw new InvalidOperationException();
+                }
+
+                int bytesRequired = 1 + encodingTable.BytesRequired;
                 Span<byte> buffer = writer.GetSpan(bytesRequired);
                 buffer[0] = (byte)(item.TableClass << 4 | (item.Identifier & 0xf));
                 buffer = buffer.Slice(1);
-                item.EncodingTable.TryWrite(buffer, out _);
+                encodingTable.TryWrite(buffer, out _);
                 writer.Advance(bytesRequired);
+            }
+        }
+
+        public void BuildTables(bool optimal)
+        {
+            List<EncodingTableWithIdentifier>? tables = _tables;
+            if (tables is null)
+            {
+                return;
+            }
+            for (int i = 0; i < tables.Count; i++)
+            {
+                EncodingTableWithIdentifier current = tables[i];
+                if (current.EncodingTable is JpegHuffmanEncodingTableBuilder builder)
+                {
+                    tables[i] = new EncodingTableWithIdentifier(current.TableClass, current.Identifier, builder.Build(optimal));
+                }
             }
         }
 
@@ -116,10 +187,18 @@ namespace JpegLibrary
                 Identifier = identifier;
                 EncodingTable = encodingTable;
             }
+            public EncodingTableWithIdentifier(byte tableClass, byte identifier, JpegHuffmanEncodingTableBuilder tableBuilder)
+            {
+                TableClass = tableClass;
+                Identifier = identifier;
+                EncodingTable = tableBuilder;
+            }
 
             public byte TableClass { get; }
             public byte Identifier { get; }
-            public JpegHuffmanEncodingTable EncodingTable { get; }
+
+            // This can either be JpegHuffmanEncodingTable or JpegHuffmanEncodingTableBuilder
+            public object EncodingTable { get; }
         }
 
     }

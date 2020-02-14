@@ -17,9 +17,9 @@ namespace JpegLibrary.ScanDecoder
         private int _mcusBeforeRestart;
         private int _eobrun;
 
+        private readonly JpegBlockOutputWriter _outputWriter;
         private readonly JpegBlockAllocator _allocator;
         private readonly JpegDecodeComponent[] _components;
-
 
         public JpegHuffmanProgressiveScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
         {
@@ -44,7 +44,8 @@ namespace JpegLibrary.ScanDecoder
             {
                 ThrowInvalidDataException("Output writer is not set.");
             }
-            _allocator = new JpegBlockAllocator(outputWriter, decoder.MemoryPool);
+            _outputWriter = outputWriter;
+            _allocator = new JpegBlockAllocator(decoder.MemoryPool);
             _allocator.Allocate(frameHeader);
 
             // Pre-allocate the JpegDecodeComponent instances
@@ -53,7 +54,6 @@ namespace JpegLibrary.ScanDecoder
             {
                 _components[i] = new JpegDecodeComponent();
             }
-
         }
 
         public override void ProcessScan(ref JpegReader reader, JpegScanHeader scanHeader)
@@ -441,7 +441,7 @@ namespace JpegLibrary.ScanDecoder
                 }
             }
 
-            allocator.Flush();
+            allocator.Flush(_outputWriter);
             allocator.Dispose();
         }
 

@@ -12,6 +12,8 @@ namespace JpegLibrary
         internal byte AcTableIdentifier { get; set; }
         internal JpegHuffmanEncodingTable? DcTable { get; set; }
         internal JpegHuffmanEncodingTable? AcTable { get; set; }
+        internal JpegHuffmanEncodingTableBuilder? DcTableBuilder { get; set; }
+        internal JpegHuffmanEncodingTableBuilder? AcTableBuilder { get; set; }
         internal JpegQuantizationTable QuantizationTable { get; set; }
 
         internal int HorizontalSubsamplingFactor { get; set; }

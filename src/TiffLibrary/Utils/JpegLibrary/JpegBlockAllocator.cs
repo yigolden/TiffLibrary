@@ -10,14 +10,12 @@ namespace JpegLibrary
 {
     internal sealed class JpegBlockAllocator : IDisposable
     {
-        private readonly JpegBlockOutputWriter _writer;
         private readonly MemoryPool<byte> _memoryPool;
         private IMemoryOwner<byte>? _bufferHandle;
         private ComponentAllocation[]? _components;
 
-        internal JpegBlockAllocator(JpegBlockOutputWriter writer, MemoryPool<byte>? memoryPool = null)
+        internal JpegBlockAllocator(MemoryPool<byte>? memoryPool = null)
         {
-            _writer = writer;
             _memoryPool = memoryPool ?? MemoryPool<byte>.Shared;
             _bufferHandle = null;
             _components = null;
@@ -25,6 +23,11 @@ namespace JpegLibrary
 
         public void Allocate(JpegFrameHeader frameHeader)
         {
+            if (!(_bufferHandle is null))
+            {
+                throw new InvalidOperationException();
+            }
+
             // Compute maximum sampling factor
             int maxHorizontalSampling = 1;
             int maxVerticalSampling = 1;
@@ -64,7 +67,7 @@ namespace JpegLibrary
                 index += componentAllocations[i].HorizontalComponentBlock * componentAllocations[i].VerticalComponentBlock;
             }
 
-            int length = index * Unsafe.SizeOf<short>();
+            int length = index * Unsafe.SizeOf<JpegBlock8x8>();
             IMemoryOwner<byte> bufferHandle = _bufferHandle = _memoryPool.Rent(length);
             bufferHandle.Memory.Span.Slice(0, length).Clear();
         }
@@ -92,17 +95,19 @@ namespace JpegLibrary
             return ref Unsafe.Add(ref blockRef, component.ComponentBlockOffset + blockY * component.HorizontalComponentBlock + blockX);
         }
 
-        public void Flush()
+        public void Flush(JpegBlockOutputWriter outputWriter)
         {
+            if (outputWriter is null)
+            {
+                throw new ArgumentNullException(nameof(outputWriter));
+            }
+
             ComponentAllocation[]? components = _components;
 
             if (components is null)
             {
                 return;
             }
-
-            JpegBlockOutputWriter? outputWriter = _writer;
-            Debug.Assert(!(outputWriter is null));
 
             for (int i = 0; i < components.Length; i++)
             {
@@ -115,7 +120,7 @@ namespace JpegLibrary
                     for (int col = 0; col < component.HorizontalComponentBlock; col++)
                     {
                         ref JpegBlock8x8 blockRef = ref Unsafe.Add(ref rowRef, col);
-                        WriteBlock(outputWriter!, blockRef, i, col * component.HorizontalSubsamplingFactor * 8, row * component.VerticalSubsamplingFactor * 8, component.HorizontalSubsamplingFactor, component.VerticalSubsamplingFactor);
+                        WriteBlock(outputWriter, blockRef, i, col * component.HorizontalSubsamplingFactor * 8, row * component.VerticalSubsamplingFactor * 8, component.HorizontalSubsamplingFactor, component.VerticalSubsamplingFactor);
                     }
                 }
             }

@@ -31,13 +31,22 @@ namespace JpegLibrary
 
         protected T CloneParameters<T>() where T : JpegEncoder, new()
         {
-            return new T()
+            bool optimizeCoding = _huffmanTables.ContainsTableBuilder();
+            var cloned = new T()
             {
                 _minimumBufferSegmentSize = _minimumBufferSegmentSize,
                 _quantizationTables = _quantizationTables,
-                _huffmanTables = _huffmanTables,
-                _encodeComponents = _encodeComponents
+                _huffmanTables = optimizeCoding ? _huffmanTables.DeepClone() : _huffmanTables
             };
+            List<JpegEncodeComponent>? components = _encodeComponents;
+            if (!(components is null))
+            {
+                foreach (JpegEncodeComponent item in components)
+                {
+                    cloned.AddComponent(item.QuantizationTable.Identifier, item.DcTableIdentifier, item.AcTableIdentifier, item.HorizontalSamplingFactor, item.VerticalSamplingFactor);
+                }
+            }
+            return cloned;
         }
 
         public MemoryPool<byte>? MemoryPool { get; set; }
@@ -639,12 +648,8 @@ namespace JpegLibrary
 
             ref short tempRef = ref Unsafe.As<JpegBlock8x8, short>(ref temp);
 
-            int th = horizontalSubsampling, tv = verticalSubsampling, hShift = 0, vShift = 0;
-            while ((th = th / 2) != 0)
-                hShift++;
-            while ((tv = tv / 2) != 0)
-                vShift++;
-
+            int hShift = JpegMathHelper.Log2((uint)horizontalSubsampling);
+            int vShift = JpegMathHelper.Log2((uint)verticalSubsampling);
             int hBlockShift = 3 - hShift;
             int vBlockShift = 3 - vShift;
 

@@ -50,6 +50,11 @@ namespace TiffLibrary.ImageSharpAdapter
         int JpegQuality { get; }
 
         /// <summary>
+        /// Gets whether to generate optimal Huffman table when encoding. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
+        /// </summary>
+        bool JpegOptimizeCoding { get; }
+
+        /// <summary>
         /// Gets the horizontal chroma subsampling factor for YCbCr image.
         /// </summary>
         public int HorizontalChromaSubSampling { get; }

@@ -27,6 +27,18 @@ namespace JpegLibrary
             return false;
         }
 
+        public JpegHuffmanEncodingTableCollection DeepClone()
+        {
+            if (_tables is null)
+            {
+                return default;
+            }
+            return new JpegHuffmanEncodingTableCollection()
+            {
+                _tables = new List<EncodingTableWithIdentifier>(_tables)
+            };
+        }
+
         public JpegHuffmanEncodingTable? GetTable(bool isDcTable, byte identifier)
         {
             if (_tables is null)

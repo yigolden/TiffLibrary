@@ -19,7 +19,6 @@ namespace TiffLibrary.Compression
         private readonly int _horizontalSubsampling;
         private readonly int _verticalSubsampling;
         private int _componentCount;
-        private readonly int _quality;
         private readonly bool _useSharedJpegTables;
 
         private TiffJpegEncoder? _encoder;
@@ -32,12 +31,15 @@ namespace TiffLibrary.Compression
         /// <param name="quality">The quality factor to use when generating quantization table.</param>
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality)
         {
+            if ((uint)quality > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(quality));
+            }
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = 1;
             _verticalSubsampling = 1;
-            _quality = quality;
             _useSharedJpegTables = false;
-            Initialize();
+            Initialize(quality, false);
         }
 
         /// <summary>
@@ -48,12 +50,15 @@ namespace TiffLibrary.Compression
         /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality, bool useSharedJpegTables)
         {
+            if ((uint)quality > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(quality));
+            }
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = 1;
             _verticalSubsampling = 1;
-            _quality = quality;
             _useSharedJpegTables = useSharedJpegTables;
-            Initialize();
+            Initialize(quality, false);
         }
 
         /// <summary>
@@ -66,15 +71,39 @@ namespace TiffLibrary.Compression
         /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int horizontalSubsampling, int verticalSubsampling, int quality, bool useSharedJpegTables)
         {
+            if ((uint)quality > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(quality));
+            }
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = horizontalSubsampling;
             _verticalSubsampling = verticalSubsampling;
-            _quality = quality;
             _useSharedJpegTables = useSharedJpegTables;
-            Initialize();
+            Initialize(quality, false);
         }
 
-        private void Initialize()
+        /// <summary>
+        /// Initialize the object.
+        /// </summary>
+        /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
+        /// <param name="horizontalSubsampling">The horizontal subsampling factor for YCbCr image.</param>
+        /// <param name="verticalSubsampling">The vertical subsampling factor for YCbCr image.</param>
+        /// <param name="options">Options to use when encoding with JPEG compression.</param>
+        public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int horizontalSubsampling, int verticalSubsampling, TiffJpegEncodingOptions? options)
+        {
+            options = options ?? TiffJpegEncodingOptions.Default;
+            if ((uint)options.Quality > 100)
+            {
+                throw new ArgumentException("Quality should be between 0 and 100.");
+            }
+            _photometricInterpretation = photometricInterpretation;
+            _horizontalSubsampling = horizontalSubsampling;
+            _verticalSubsampling = verticalSubsampling;
+            _useSharedJpegTables = options.UseSharedJpegTables && !options.OptimizeCoding;
+            Initialize(options.Quality, options.OptimizeCoding);
+        }
+
+        private void Initialize(int quality, bool optimizeCoding)
         {
             TiffJpegEncoder encoder;
             switch (_photometricInterpretation)
@@ -83,17 +112,33 @@ namespace TiffLibrary.Compression
                 case TiffPhotometricInterpretation.WhiteIsZero:
                     _componentCount = 1;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
-                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
-                    encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
-                    encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), quality));
+                    if (optimizeCoding)
+                    {
+                        encoder.SetHuffmanTable(true, 0);
+                        encoder.SetHuffmanTable(false, 0);
+                    }
+                    else
+                    {
+                        encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
+                        encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                    }
                     encoder.AddComponent(0, 0, 0, 1, 1); // Y component
                     break;
                 case TiffPhotometricInterpretation.RGB:
                     _componentCount = 3;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
-                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
-                    encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
-                    encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), quality));
+                    if (optimizeCoding)
+                    {
+                        encoder.SetHuffmanTable(true, 0);
+                        encoder.SetHuffmanTable(false, 0);
+                    }
+                    else
+                    {
+                        encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
+                        encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                    }
                     encoder.AddComponent(0, 0, 0, 1, 1); // R component
                     encoder.AddComponent(0, 0, 0, 1, 1); // G component
                     encoder.AddComponent(0, 0, 0, 1, 1); // B component
@@ -101,9 +146,17 @@ namespace TiffLibrary.Compression
                 case TiffPhotometricInterpretation.Seperated:
                     _componentCount = 4;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
-                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
-                    encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
-                    encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), quality));
+                    if (optimizeCoding)
+                    {
+                        encoder.SetHuffmanTable(true, 0);
+                        encoder.SetHuffmanTable(false, 0);
+                    }
+                    else
+                    {
+                        encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
+                        encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                    }
                     encoder.AddComponent(0, 0, 0, 1, 1); // C component
                     encoder.AddComponent(0, 0, 0, 1, 1); // M component
                     encoder.AddComponent(0, 0, 0, 1, 1); // Y component
@@ -112,12 +165,22 @@ namespace TiffLibrary.Compression
                 case TiffPhotometricInterpretation.YCbCr:
                     _componentCount = 3;
                     encoder = new TiffJpegEncoder(minimumBufferSegmentSize: MinimumBufferSegmentSize);
-                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), _quality));
-                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetChrominanceTable(JpegElementPrecision.Precision8Bit, 1), _quality));
-                    encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
-                    encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
-                    encoder.SetHuffmanTable(true, 1, JpegStandardHuffmanEncodingTable.GetChrominanceDCTable());
-                    encoder.SetHuffmanTable(false, 1, JpegStandardHuffmanEncodingTable.GetChrominanceACTable());
+                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetLuminanceTable(JpegElementPrecision.Precision8Bit, 0), quality));
+                    encoder.SetQuantizationTable(JpegStandardQuantizationTable.ScaleByQuality(JpegStandardQuantizationTable.GetChrominanceTable(JpegElementPrecision.Precision8Bit, 1), quality));
+                    if (optimizeCoding)
+                    {
+                        encoder.SetHuffmanTable(true, 0);
+                        encoder.SetHuffmanTable(false, 0);
+                        encoder.SetHuffmanTable(true, 1);
+                        encoder.SetHuffmanTable(false, 1);
+                    }
+                    else
+                    {
+                        encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
+                        encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
+                        encoder.SetHuffmanTable(true, 1, JpegStandardHuffmanEncodingTable.GetChrominanceDCTable());
+                        encoder.SetHuffmanTable(false, 1, JpegStandardHuffmanEncodingTable.GetChrominanceACTable());
+                    }
                     encoder.AddComponent(0, 0, 0, (byte)_horizontalSubsampling, (byte)_verticalSubsampling); // Y component
                     encoder.AddComponent(1, 1, 1, 1, 1); // Cb component
                     encoder.AddComponent(1, 1, 1, 1, 1); // Cr component
@@ -169,6 +232,7 @@ namespace TiffLibrary.Compression
             CheckBitsPerSample(context.BitsPerSample);
 
             TiffJpegEncoder encoder = _encoder.CloneParameter();
+            encoder.MemoryPool = context.MemoryPool;
 
             // Input
             JpegBufferInputReader inputReader = Interlocked.Exchange(ref _inputReader, null) ?? new JpegBufferInputReader();

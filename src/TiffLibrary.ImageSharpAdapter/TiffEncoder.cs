@@ -21,7 +21,7 @@ namespace TiffLibrary.ImageSharpAdapter
         /// <summary>
         /// Gets or sets the compression method to use when compressing input image.
         /// </summary>
-        public TiffCompression Compression { get; set; } = TiffCompression.Lzw;
+        public TiffCompression Compression { get; set; } = TiffCompression.Deflate;
 
         /// <summary>
         /// Gets or sets whether the output TIFF file should be a tiled TIFF file.
@@ -31,12 +31,12 @@ namespace TiffLibrary.ImageSharpAdapter
         /// <summary>
         /// Gets or sets the number of rows when the output TIFF file is a stripped TIFF file.
         /// </summary>
-        public int RowsPerStrip { get; set; } = 0;
+        public int RowsPerStrip { get; set; }
 
         /// <summary>
         /// Gets or sets the tile size when the output TIFF file is a tiled TIFF file. Both with and height should be multiples of 16.
         /// </summary>
-        public Size TileSize { get; set; } = new Size(512, 512);
+        public Size TileSize { get; set; } = new Size(256, 256);
 
         /// <summary>
         /// Gets or sets the predictor to use on the image.
@@ -57,6 +57,11 @@ namespace TiffLibrary.ImageSharpAdapter
         /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
         /// </summary>
         public int JpegQuality { get; set; } = 75;
+
+        /// <summary>
+        /// Gets or sets whether to generate optimal Huffman table when encoding. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
+        /// </summary>
+        public bool JpegOptimizeCoding { get; set; }
 
         /// <summary>
         /// Gets or sets the horizontal chroma subsampling factor for YCbCr image.

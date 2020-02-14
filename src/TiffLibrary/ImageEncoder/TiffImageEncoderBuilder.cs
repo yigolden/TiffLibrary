@@ -59,7 +59,13 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
         /// </summary>
+        [Obsolete("The value of this property is now ignored. Use JpegOptions property instead.")]
         public int JpegQuality { get; set; } = 75;
+
+        /// <summary>
+        /// Gets or sets the options to use when encoding with JPEG compression. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
+        /// </summary>
+        public TiffJpegEncodingOptions? JpegOptions { get; set; }
 
         /// <summary>
         /// Gets or sets the horizontal chroma subsampling factor for YCbCr image.
@@ -163,11 +169,12 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, DeflateCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.Jpeg:
-                    if ((uint)JpegQuality > 100)
+                    TiffJpegEncodingOptions jpegOptions = JpegOptions ?? TiffJpegEncodingOptions.Default;
+                    if ((uint)jpegOptions.Quality > 100)
                     {
                         throw new InvalidOperationException("JpegQuality should be set between 0 and 100.");
                     }
-                    var jpegCompressionAlgorithm = new JpegCompressionAlgorithm(PhotometricInterpretation, horizontalSubsampling, verticalSubsampling, JpegQuality, useSharedJpegTables: true);
+                    var jpegCompressionAlgorithm = new JpegCompressionAlgorithm(PhotometricInterpretation, horizontalSubsampling, verticalSubsampling, jpegOptions);
                     pipelineBuilder.Add(jpegCompressionAlgorithm.GetTableWriter<TPixel>());
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, jpegCompressionAlgorithm));
                     break;

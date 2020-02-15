@@ -20,20 +20,30 @@ ITiffPixelBufferWriter<TPixel> writer = GetWriter(decoder.Width, decoder.Height)
 await decoder.DecodeAsync(offset: default, readSize: new TiffSize(decoder.Width, decoder.Height), destinationOffset: default, writer: writer);
 ```
 
-TiffLibrary provides a serious of extension methods on `TiffImageDeocder.DecodeAsync` to help you simplify you code when decoding images. Here is the full list of the extension methods.
+TiffLibrary provides a serious of extension methods on `TiffImageDeocder` to help you simplify you code when decoding images. The extension methods are located in `TiffImageDecoderExtensions` class. They can work on four types of buffer. Below is the full list of the decoding APIs available.
 
 ``` csharp
-// APIs that works on ITiffPixelBufferWriter<TPixel> interface or TiffPixelBufferWriter<TPixel> struct
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
+// APIs that works on ITiffPixelBufferWriter<TPixel> interface
+Task DecodeAsync<TPixel>(ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken); // This is the instance method on TiffImageDecoder
 
-// APIs that works on ITiffPixelBuffer<TPixel> interface or TiffPixelBuffer<TPixel> struct by creating an adapter over ITiffPixelBufferWriter<TPixel>
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
-Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged;
+// APIs that works on TiffPixelBufferWriter<TPixel> struct
+Task DecodeAsync<TPixel>(TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken);
+
+// APIs that works on ITiffPixelBuffer<TPixel> interface
+Task DecodeAsync<TPixel>(ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+
+// APIs that works on TiffPixelBuffer<TPixel> struct
+Task DecodeAsync<TPixel>(TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
+Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken);
 ```

@@ -124,8 +124,9 @@ namespace TiffLibrary.Compression
             var outputWriter = new JpegBuffer8BitOutputWriter(context.ImageSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
             decoder.SetOutputWriter(outputWriter);
 
+            // It's fine that we don't dispose JpegHuffmanBaselineScanDecode.
             var reader = new JpegReader(input);
-            var scanDecoder = new JpegHuffmanBaselineScanDecoder(decoder, frameHeader);
+            var scanDecoder = new JpegHuffmanBaselineScanDecoder(decoder, frameHeader, outputWriter);
             scanDecoder.ProcessScan(ref reader, _scanHeader);
         }
 

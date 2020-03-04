@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using TiffLibrary.Utils;
 
 namespace JpegLibrary.ScanDecoder
 {
@@ -14,26 +15,6 @@ namespace JpegLibrary.ScanDecoder
         public abstract void ProcessScan(ref JpegReader reader, JpegScanHeader scanHeader);
 
         public abstract void Dispose();
-
-        public static JpegScanDecoder? Create(JpegMarker sofMarker, JpegDecoder decoder, JpegFrameHeader header)
-        {
-            switch (sofMarker)
-            {
-                case JpegMarker.StartOfFrame0:
-                case JpegMarker.StartOfFrame1:
-                    return new JpegHuffmanBaselineScanDecoder(decoder, header);
-                case JpegMarker.StartOfFrame2:
-                    return new JpegHuffmanProgressiveScanDecoder(decoder, header);
-                case JpegMarker.StartOfFrame3:
-                    return new JpegHuffmanLosslessScanDecoder(decoder, header);
-                case JpegMarker.StartOfFrame9:
-                    return new JpegArithmeticSequentialScanDecoder(decoder, header);
-                case JpegMarker.StartOfFrame10:
-                    return new JpegArithmeticProgressiveScanDecoder(decoder, header);
-                default:
-                    return null;
-            }
-        }
 
         [DoesNotReturn]
         protected static void ThrowInvalidDataException(string? message = null)
@@ -75,7 +56,7 @@ namespace JpegLibrary.ScanDecoder
 
             for (int i = 0; i < 64; i++)
             {
-                Unsafe.Add(ref destinationRef, i) = (short)(JpegMathHelper.RoundToInt32(Unsafe.Add(ref sourceRef, i)) + levelShift);
+                Unsafe.Add(ref destinationRef, i) = (short)(TiffMathHelper.RoundToInt32(Unsafe.Add(ref sourceRef, i)) + levelShift);
             }
         }
     }

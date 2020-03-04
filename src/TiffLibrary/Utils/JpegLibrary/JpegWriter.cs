@@ -235,22 +235,6 @@ namespace JpegLibrary
             }
         }
 
-        /*
-        public void WriteRestartMarker(JpegMarker restartMarker)
-        {
-            if (!restartMarker.IsRestartMarker())
-            {
-                throw new ArgumentOutOfRangeException(nameof(restartMarker));
-            }
-            if (!_bitMode)
-            {
-                throw new InvalidOperationException("Restart marker can only be written in bit mode.");
-            }
-
-            Flush();
-        }
-        */
-
         public void WriteMarker(JpegMarker marker)
         {
             EnsureBuffer(2);

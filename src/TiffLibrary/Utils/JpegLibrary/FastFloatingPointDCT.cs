@@ -1,6 +1,9 @@
-﻿#nullable enable
+﻿// Copyright (c) Six Labors and contributors.
+// Licensed under the Apache License, Version 2.0.
 
-// This code is copied from https://github.com/SixLabors/ImageSharp
+#nullable enable
+
+// This code is copied from https://github.com/SixLabors/ImageSharp/blob/v1.0.0-beta7/src/ImageSharp/Formats/Jpeg/Components/FastFloatingPointDCT.cs
 
 using System.Numerics;
 using System.Runtime.CompilerServices;

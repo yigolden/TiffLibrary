@@ -26,6 +26,7 @@ namespace JpegLibrary
 
         private List<JpegQuantizationTable>? _quantizationTables;
         private List<JpegHuffmanDecodingTable>? _huffmanTables;
+        private List<JpegArithmeticDecodingTable>? _arithmeticTables;
 
         public MemoryPool<byte>? MemoryPool { get; set; }
 
@@ -70,22 +71,16 @@ namespace JpegLibrary
                     case JpegMarker.StartOfImage:
                         break;
                     case JpegMarker.StartOfFrame0:
-                        ProcessFrameHeader(ref reader, false, false);
-                        break;
                     case JpegMarker.StartOfFrame1:
-                        ProcessFrameHeader(ref reader, false, false);
-                        break;
                     case JpegMarker.StartOfFrame2:
-                        ProcessFrameHeader(ref reader, false, false);
-                        break;
                     case JpegMarker.StartOfFrame3:
+                    case JpegMarker.StartOfFrame9:
+                    case JpegMarker.StartOfFrame10:
                         ProcessFrameHeader(ref reader, false, false);
                         break;
                     case JpegMarker.StartOfFrame5:
                     case JpegMarker.StartOfFrame6:
                     case JpegMarker.StartOfFrame7:
-                    case JpegMarker.StartOfFrame9:
-                    case JpegMarker.StartOfFrame10:
                     case JpegMarker.StartOfFrame11:
                     case JpegMarker.StartOfFrame13:
                     case JpegMarker.StartOfFrame14:
@@ -99,14 +94,7 @@ namespace JpegLibrary
                         ProcessDefineRestartInterval(ref reader);
                         break;
                     case JpegMarker.DefineQuantizationTable:
-                        if (loadQuantizationTables)
-                        {
-                            ProcessDefineQuantizationTable(ref reader);
-                        }
-                        else
-                        {
-                            ProcessOtherMarker(ref reader);
-                        }
+                        ProcessDefineQuantizationTable(ref reader, loadQuantizationTables);
                         break;
                     case JpegMarker.DefineRestart0:
                     case JpegMarker.DefineRestart1:
@@ -314,7 +302,7 @@ namespace JpegLibrary
                         ProcessDefineHuffmanTable(ref reader);
                         break;
                     case JpegMarker.DefineQuantizationTable:
-                        ProcessDefineQuantizationTable(ref reader);
+                        ProcessDefineQuantizationTable(ref reader, loadQuantizationTables: true);
                         break;
                     case JpegMarker.DefineRestartInterval:
                         ProcessDefineRestartInterval(ref reader);
@@ -326,7 +314,6 @@ namespace JpegLibrary
                         break;
                 }
             }
-
         }
 
         [DoesNotReturn]
@@ -465,14 +452,14 @@ namespace JpegLibrary
                         case JpegMarker.StartOfFrame1:
                         case JpegMarker.StartOfFrame2:
                         case JpegMarker.StartOfFrame3:
+                        case JpegMarker.StartOfFrame9:
+                        case JpegMarker.StartOfFrame10:
                             ProcessFrameHeader(ref reader, false, true);
                             scanDecoder = JpegScanDecoder.Create(marker, this, _frameHeader.GetValueOrDefault());
                             break;
                         case JpegMarker.StartOfFrame5:
                         case JpegMarker.StartOfFrame6:
                         case JpegMarker.StartOfFrame7:
-                        case JpegMarker.StartOfFrame9:
-                        case JpegMarker.StartOfFrame10:
                         case JpegMarker.StartOfFrame11:
                         case JpegMarker.StartOfFrame13:
                         case JpegMarker.StartOfFrame14:
@@ -482,8 +469,11 @@ namespace JpegLibrary
                         case JpegMarker.DefineHuffmanTable:
                             ProcessDefineHuffmanTable(ref reader);
                             break;
+                        case JpegMarker.DefineArithmeticCodingConditioning:
+                            ProcessDefineArithmeticCodingConditioning(ref reader);
+                            break;
                         case JpegMarker.DefineQuantizationTable:
-                            ProcessDefineQuantizationTable(ref reader);
+                            ProcessDefineQuantizationTable(ref reader, loadQuantizationTables: true);
                             break;
                         case JpegMarker.DefineRestartInterval:
                             ProcessDefineRestartInterval(ref reader);
@@ -587,7 +577,7 @@ namespace JpegLibrary
             }
         }
 
-        private void ProcessDefineQuantizationTable(ref JpegReader reader)
+        private void ProcessDefineArithmeticCodingConditioning(ref JpegReader reader)
         {
             if (!reader.TryReadLength(out ushort length))
             {
@@ -599,7 +589,40 @@ namespace JpegLibrary
                 ThrowInvalidDataException(reader.ConsumedBytes, "Unexpected end of input data when reading segment content.");
                 return;
             }
-            ProcessDefineQuantizationTable(buffer, reader.ConsumedBytes - length);
+            ProcessDefineArithmeticCodingConditioning(buffer, reader.ConsumedBytes - length);
+        }
+
+        private void ProcessDefineArithmeticCodingConditioning(ReadOnlySequence<byte> segment, int currentOffset)
+        {
+            while (!segment.IsEmpty)
+            {
+                if (!JpegArithmeticDecodingTable.TryParse(segment, out JpegArithmeticDecodingTable? arithmeticTable, out int bytesConsumed))
+                {
+                    ThrowInvalidDataException(currentOffset, "Failed to parse arithmetic coding conditioning.");
+                    return;
+                }
+                segment = segment.Slice(bytesConsumed);
+                currentOffset += bytesConsumed;
+                SetArithmeticTable(arithmeticTable);
+            }
+        }
+
+        private void ProcessDefineQuantizationTable(ref JpegReader reader, bool loadQuantizationTables)
+        {
+            if (!reader.TryReadLength(out ushort length))
+            {
+                ThrowInvalidDataException(reader.ConsumedBytes, "Unexpected end of input data when reading segment length.");
+                return;
+            }
+            if (!reader.TryReadBytes(length, out ReadOnlySequence<byte> buffer))
+            {
+                ThrowInvalidDataException(reader.ConsumedBytes, "Unexpected end of input data when reading segment content.");
+                return;
+            }
+            if (loadQuantizationTables)
+            {
+                ProcessDefineQuantizationTable(buffer, reader.ConsumedBytes - length);
+            }
         }
 
         private void ProcessDefineQuantizationTable(ReadOnlySequence<byte> segment, int currentOffset)
@@ -619,22 +642,17 @@ namespace JpegLibrary
 
         public void ClearHuffmanTable()
         {
-            List<JpegHuffmanDecodingTable>? list = _huffmanTables;
-            if (list is null)
-            {
-                list = _huffmanTables = new List<JpegHuffmanDecodingTable>(4);
-            }
-            list.Clear();
+            _huffmanTables?.Clear();
+        }
+
+        public void ClearArithmeticTable()
+        {
+            _arithmeticTables?.Clear();
         }
 
         public void ClearQuantizationTable()
         {
-            List<JpegQuantizationTable>? list = _quantizationTables;
-            if (list is null)
-            {
-                list = _quantizationTables = new List<JpegQuantizationTable>(2);
-            }
-            list.Clear();
+            _quantizationTables?.Clear();
         }
 
         internal void SetHuffmanTable(JpegHuffmanDecodingTable table)
@@ -647,6 +665,25 @@ namespace JpegLibrary
             for (int i = 0; i < list.Count; i++)
             {
                 JpegHuffmanDecodingTable item = list[i];
+                if (item.TableClass == table.TableClass && item.Identifier == table.Identifier)
+                {
+                    list[i] = table;
+                    return;
+                }
+            }
+            list.Add(table);
+        }
+
+        internal void SetArithmeticTable(JpegArithmeticDecodingTable table)
+        {
+            List<JpegArithmeticDecodingTable>? list = _arithmeticTables;
+            if (list is null)
+            {
+                list = _arithmeticTables = new List<JpegArithmeticDecodingTable>(4);
+            }
+            for (int i = 0; i < list.Count; i++)
+            {
+                JpegArithmeticDecodingTable item = list[i];
                 if (item.TableClass == table.TableClass && item.Identifier == table.Identifier)
                 {
                     list[i] = table;
@@ -684,6 +721,24 @@ namespace JpegLibrary
             }
             int tableClass = isDcTable ? 0 : 1;
             foreach (JpegHuffmanDecodingTable item in huffmanTables)
+            {
+                if (item.TableClass == tableClass && item.Identifier == identifier)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+
+        internal JpegArithmeticDecodingTable? GetArithmeticTable(bool isDcTable, byte identifier)
+        {
+            List<JpegArithmeticDecodingTable>? arithmeticTables = _arithmeticTables;
+            if (arithmeticTables is null)
+            {
+                return null;
+            }
+            int tableClass = isDcTable ? 0 : 1;
+            foreach (JpegArithmeticDecodingTable item in arithmeticTables)
             {
                 if (item.TableClass == tableClass && item.Identifier == identifier)
                 {
@@ -734,14 +789,9 @@ namespace JpegLibrary
 
         public void ResetTables()
         {
-            if (!(_huffmanTables is null))
-            {
-                _huffmanTables.Clear();
-            }
-            if (!(_quantizationTables is null))
-            {
-                _quantizationTables.Clear();
-            }
+            _huffmanTables?.Clear();
+            _arithmeticTables?.Clear();
+            _quantizationTables?.Clear();
         }
 
         internal JpegBlockOutputWriter? GetOutputWriter()

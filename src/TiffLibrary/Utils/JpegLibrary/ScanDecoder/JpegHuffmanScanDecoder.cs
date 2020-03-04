@@ -2,8 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace JpegLibrary.ScanDecoder
 {
@@ -16,7 +14,7 @@ namespace JpegLibrary.ScanDecoder
             Decoder = decoder;
         }
 
-        protected int InitDecodeComponents(JpegFrameHeader frameHeader, JpegScanHeader scanHeader, Span<JpegDecodeComponent> components)
+        protected int InitDecodeComponents(JpegFrameHeader frameHeader, JpegScanHeader scanHeader, Span<JpegHuffmanDecodingComponent> components)
         {
             Debug.Assert(!(frameHeader.Components is null));
             Debug.Assert(!(scanHeader.Components is null));
@@ -54,10 +52,10 @@ namespace JpegLibrary.ScanDecoder
                 {
                     ThrowInvalidDataException();
                 }
-                JpegDecodeComponent component = components[i];
+                JpegHuffmanDecodingComponent component = components[i];
                 if (component is null)
                 {
-                    components[i] = component = new JpegDecodeComponent();
+                    components[i] = component = new JpegHuffmanDecodingComponent();
                 }
                 component.ComponentIndex = componentIndex;
                 component.HorizontalSamplingFactor = frameComponent.GetValueOrDefault().HorizontalSamplingFactor;
@@ -73,9 +71,9 @@ namespace JpegLibrary.ScanDecoder
             return scanHeader.NumberOfComponents;
         }
 
-        protected JpegDecodeComponent[] InitDecodeComponents(JpegFrameHeader frameHeader, JpegScanHeader scanHeader)
+        protected JpegHuffmanDecodingComponent[] InitDecodeComponents(JpegFrameHeader frameHeader, JpegScanHeader scanHeader)
         {
-            JpegDecodeComponent[] components = new JpegDecodeComponent[scanHeader.NumberOfComponents];
+            JpegHuffmanDecodingComponent[] components = new JpegHuffmanDecodingComponent[scanHeader.NumberOfComponents];
             InitDecodeComponents(frameHeader, scanHeader, components);
             return components;
         }
@@ -87,31 +85,6 @@ namespace JpegLibrary.ScanDecoder
             bitsRead = Math.Min(entry.CodeSize, bitsRead);
             _ = reader.TryAdvanceBits(bitsRead, out _);
             return entry.CodeValue;
-        }
-
-        protected static void DequantizeBlockAndUnZigZag(JpegQuantizationTable quantizationTable, ref JpegBlock8x8 input, ref JpegBlock8x8F output)
-        {
-            Debug.Assert(!quantizationTable.IsEmpty);
-
-            ref ushort elementRef = ref MemoryMarshal.GetReference(quantizationTable.Elements);
-            ref short sourceRef = ref Unsafe.As<JpegBlock8x8, short>(ref input);
-            ref float destinationRef = ref Unsafe.As<JpegBlock8x8F, float>(ref output);
-
-            for (int i = 0; i < 64; i++)
-            {
-                Unsafe.Add(ref destinationRef, JpegZigZag.BufferIndexToBlock(i)) = Unsafe.Add(ref elementRef, i) * Unsafe.Add(ref sourceRef, i);
-            }
-        }
-
-        protected static void ShiftDataLevel(ref JpegBlock8x8F source, ref JpegBlock8x8 destination, int levelShift)
-        {
-            ref float sourceRef = ref Unsafe.As<JpegBlock8x8F, float>(ref source);
-            ref short destinationRef = ref Unsafe.As<JpegBlock8x8, short>(ref destination);
-
-            for (int i = 0; i < 64; i++)
-            {
-                Unsafe.Add(ref destinationRef, i) = (short)(JpegMathHelper.RoundToInt32(Unsafe.Add(ref sourceRef, i)) + levelShift);
-            }
         }
 
         protected static JpegHuffmanDecodingTable.Entry DecodeHuffmanCode(ref JpegBitReader reader, JpegHuffmanDecodingTable table, out int code, out int bitsRead)

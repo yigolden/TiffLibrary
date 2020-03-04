@@ -18,7 +18,7 @@ namespace JpegLibrary
 
         private List<JpegQuantizationTable>? _quantizationTables;
         private JpegHuffmanEncodingTableCollection _huffmanTables;
-        private List<JpegEncodeComponent>? _encodeComponents;
+        private List<JpegHuffmanEncodingComponent>? _encodeComponents;
 
         public JpegEncoder() : this(4096) { }
 
@@ -38,10 +38,10 @@ namespace JpegLibrary
                 _quantizationTables = _quantizationTables,
                 _huffmanTables = optimizeCoding ? _huffmanTables.DeepClone() : _huffmanTables
             };
-            List<JpegEncodeComponent>? components = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? components = _encodeComponents;
             if (!(components is null))
             {
-                foreach (JpegEncodeComponent item in components)
+                foreach (JpegHuffmanEncodingComponent item in components)
                 {
                     cloned.AddComponent(item.QuantizationTable.Identifier, item.DcTableIdentifier, item.AcTableIdentifier, item.HorizontalSamplingFactor, item.VerticalSamplingFactor);
                 }
@@ -125,10 +125,10 @@ namespace JpegLibrary
                 throw new ArgumentOutOfRangeException(nameof(verticalSubsampling), "Subsampling factor can only be 1, 2 or 4.");
             }
 
-            List<JpegEncodeComponent>? components = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? components = _encodeComponents;
             if (components is null)
             {
-                _encodeComponents = components = new List<JpegEncodeComponent>(4);
+                _encodeComponents = components = new List<JpegHuffmanEncodingComponent>(4);
             }
 
             JpegQuantizationTable quantizationTable = GetQuantizationTable(quantizationTableIdentifier);
@@ -157,7 +157,7 @@ namespace JpegLibrary
                 }
             }
 
-            var component = new JpegEncodeComponent
+            var component = new JpegHuffmanEncodingComponent
             {
                 ComponentIndex = components.Count,
                 HorizontalSamplingFactor = horizontalSubsampling,
@@ -268,7 +268,7 @@ namespace JpegLibrary
             {
                 throw new InvalidOperationException("Input is not specified.");
             }
-            List<JpegEncodeComponent>? encodeComponents = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? encodeComponents = _encodeComponents;
             if (encodeComponents is null || encodeComponents.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -276,7 +276,7 @@ namespace JpegLibrary
             JpegFrameComponentSpecificationParameters[] components = new JpegFrameComponentSpecificationParameters[encodeComponents.Count];
             for (int i = 0; i < encodeComponents.Count; i++)
             {
-                JpegEncodeComponent thisComponent = encodeComponents[i];
+                JpegHuffmanEncodingComponent thisComponent = encodeComponents[i];
                 components[i] = new JpegFrameComponentSpecificationParameters((byte)(i + 1), thisComponent.HorizontalSamplingFactor, thisComponent.VerticalSamplingFactor, thisComponent.QuantizationTable.Identifier);
             }
             JpegFrameHeader frameHeader = new JpegFrameHeader(8, (ushort)input.Height, (ushort)input.Width, (byte)components.Length, components);
@@ -293,7 +293,7 @@ namespace JpegLibrary
 
         protected void WriteStartOfScan(ref JpegWriter writer)
         {
-            List<JpegEncodeComponent>? encodeComponents = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? encodeComponents = _encodeComponents;
             if (encodeComponents is null || encodeComponents.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -301,7 +301,7 @@ namespace JpegLibrary
             JpegScanComponentSpecificationParameters[] components = new JpegScanComponentSpecificationParameters[encodeComponents.Count];
             for (int i = 0; i < encodeComponents.Count; i++)
             {
-                JpegEncodeComponent thisComponent = encodeComponents[i];
+                JpegHuffmanEncodingComponent thisComponent = encodeComponents[i];
                 components[i] = new JpegScanComponentSpecificationParameters((byte)(i + 1), thisComponent.DcTableIdentifier, thisComponent.AcTableIdentifier);
             }
             var scanHeader = new JpegScanHeader((byte)components.Length, components, 0, 63, 0, 0);
@@ -317,7 +317,7 @@ namespace JpegLibrary
         protected void TransformBlocks(JpegBlockAllocator allocator)
         {
             JpegBlockInputReader inputReader = _input ?? throw new InvalidOperationException("Input is not specified.");
-            List<JpegEncodeComponent>? components = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? components = _encodeComponents;
             if (components is null || components.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -326,13 +326,13 @@ namespace JpegLibrary
             // Compute maximum sampling factor and reset DC predictor
             int maxHorizontalSampling = 1;
             int maxVerticalSampling = 1;
-            foreach (JpegEncodeComponent currentComponent in components)
+            foreach (JpegHuffmanEncodingComponent currentComponent in components)
             {
                 currentComponent.DcPredictor = 0;
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentComponent.HorizontalSamplingFactor);
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentComponent.VerticalSamplingFactor);
             }
-            foreach (JpegEncodeComponent currentComponent in components)
+            foreach (JpegHuffmanEncodingComponent currentComponent in components)
             {
                 currentComponent.HorizontalSubsamplingFactor = maxHorizontalSampling / currentComponent.HorizontalSamplingFactor;
                 currentComponent.VerticalSubsamplingFactor = maxVerticalSampling / currentComponent.VerticalSamplingFactor;
@@ -350,7 +350,7 @@ namespace JpegLibrary
             {
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
-                    foreach (JpegEncodeComponent component in components)
+                    foreach (JpegHuffmanEncodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
@@ -387,7 +387,7 @@ namespace JpegLibrary
 
         protected void BuildHuffmanTables(JpegFrameHeader frameHeader, JpegBlockAllocator allocator, bool optimal = false)
         {
-            List<JpegEncodeComponent>? components = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? components = _encodeComponents;
             if (components is null || components.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -396,7 +396,7 @@ namespace JpegLibrary
             // Compute maximum sampling factor and reset DC predictor
             int maxHorizontalSampling = 1;
             int maxVerticalSampling = 1;
-            foreach (JpegEncodeComponent currentComponent in components)
+            foreach (JpegHuffmanEncodingComponent currentComponent in components)
             {
                 currentComponent.DcPredictor = 0;
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentComponent.HorizontalSamplingFactor);
@@ -410,7 +410,7 @@ namespace JpegLibrary
             {
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
-                    foreach (JpegEncodeComponent component in components)
+                    foreach (JpegHuffmanEncodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
@@ -436,7 +436,7 @@ namespace JpegLibrary
             _huffmanTables.BuildTables(optimal);
 
             // Reset huffman table
-            foreach (JpegEncodeComponent component in components)
+            foreach (JpegHuffmanEncodingComponent component in components)
             {
                 component.DcTable = _huffmanTables.GetTable(true, component.DcTableIdentifier);
                 component.AcTable = _huffmanTables.GetTable(false, component.AcTableIdentifier);
@@ -445,7 +445,7 @@ namespace JpegLibrary
             }
         }
 
-        private static void GatherBlockStatistics(JpegEncodeComponent component, ref JpegBlock8x8 block)
+        private static void GatherBlockStatistics(JpegHuffmanEncodingComponent component, ref JpegBlock8x8 block)
         {
             ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref block);
 
@@ -495,7 +495,7 @@ namespace JpegLibrary
 
         protected void WritePreparedScanData(JpegFrameHeader frameHeader, JpegBlockAllocator allocator, ref JpegWriter writer)
         {
-            List<JpegEncodeComponent>? components = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? components = _encodeComponents;
             if (components is null || components.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -504,7 +504,7 @@ namespace JpegLibrary
             // Compute maximum sampling factor and reset DC predictor
             int maxHorizontalSampling = 1;
             int maxVerticalSampling = 1;
-            foreach (JpegEncodeComponent currentComponent in components)
+            foreach (JpegHuffmanEncodingComponent currentComponent in components)
             {
                 currentComponent.DcPredictor = 0;
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentComponent.HorizontalSamplingFactor);
@@ -520,7 +520,7 @@ namespace JpegLibrary
             {
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
-                    foreach (JpegEncodeComponent component in components)
+                    foreach (JpegHuffmanEncodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
@@ -549,7 +549,7 @@ namespace JpegLibrary
         protected void WriteScanData(ref JpegWriter writer)
         {
             JpegBlockInputReader inputReader = _input ?? throw new InvalidOperationException("Input is not specified.");
-            List<JpegEncodeComponent>? components = _encodeComponents;
+            List<JpegHuffmanEncodingComponent>? components = _encodeComponents;
             if (components is null || components.Count == 0)
             {
                 throw new InvalidOperationException("No component is specified.");
@@ -558,13 +558,13 @@ namespace JpegLibrary
             // Compute maximum sampling factor and reset DC predictor
             int maxHorizontalSampling = 1;
             int maxVerticalSampling = 1;
-            foreach (JpegEncodeComponent currentComponent in components)
+            foreach (JpegHuffmanEncodingComponent currentComponent in components)
             {
                 currentComponent.DcPredictor = 0;
                 maxHorizontalSampling = Math.Max(maxHorizontalSampling, currentComponent.HorizontalSamplingFactor);
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentComponent.VerticalSamplingFactor);
             }
-            foreach (JpegEncodeComponent currentComponent in components)
+            foreach (JpegHuffmanEncodingComponent currentComponent in components)
             {
                 currentComponent.HorizontalSubsamplingFactor = maxHorizontalSampling / currentComponent.HorizontalSamplingFactor;
                 currentComponent.VerticalSubsamplingFactor = maxVerticalSampling / currentComponent.VerticalSamplingFactor;
@@ -592,7 +592,7 @@ namespace JpegLibrary
                     int offsetX = colMcu * maxHorizontalSampling;
 
                     // Scan an interleaved mcu... process components in order
-                    foreach (JpegEncodeComponent component in components)
+                    foreach (JpegHuffmanEncodingComponent component in components)
                     {
                         int h = component.HorizontalSamplingFactor;
                         int v = component.VerticalSamplingFactor;
@@ -714,7 +714,7 @@ namespace JpegLibrary
             }
         }
 
-        private static void EncodeBlock(ref JpegWriter writer, JpegEncodeComponent component, ref JpegBlock8x8 block)
+        private static void EncodeBlock(ref JpegWriter writer, JpegHuffmanEncodingComponent component, ref JpegBlock8x8 block)
         {
             ref short blockRef = ref Unsafe.As<JpegBlock8x8, short>(ref block);
 

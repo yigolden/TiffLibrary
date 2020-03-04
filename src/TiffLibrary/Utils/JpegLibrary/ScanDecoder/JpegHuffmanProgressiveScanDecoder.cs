@@ -10,16 +10,16 @@ namespace JpegLibrary.ScanDecoder
     {
         private readonly JpegFrameHeader _frameHeader;
 
-        private readonly ushort _restartInterval;
         private readonly int _mcusPerLine;
         private readonly int _mcusPerColumn;
         private readonly int _levelShift;
+        private ushort _restartInterval;
         private int _mcusBeforeRestart;
         private int _eobrun;
 
         private readonly JpegBlockOutputWriter _outputWriter;
         private readonly JpegBlockAllocator _allocator;
-        private readonly JpegDecodeComponent[] _components;
+        private readonly JpegHuffmanDecodingComponent[] _components;
 
         public JpegHuffmanProgressiveScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
         {
@@ -34,7 +34,6 @@ namespace JpegLibrary.ScanDecoder
                 maxVerticalSampling = Math.Max(maxVerticalSampling, currentFrameComponent.VerticalSamplingFactor);
             }
 
-            _restartInterval = decoder.GetRestartInterval();
             _mcusPerLine = (frameHeader.SamplesPerLine + 8 * maxHorizontalSampling - 1) / (8 * maxHorizontalSampling);
             _mcusPerColumn = (frameHeader.NumberOfLines + 8 * maxVerticalSampling - 1) / (8 * maxVerticalSampling);
             _levelShift = 1 << (frameHeader.SamplePrecision - 1);
@@ -49,10 +48,10 @@ namespace JpegLibrary.ScanDecoder
             _allocator.Allocate(frameHeader);
 
             // Pre-allocate the JpegDecodeComponent instances
-            _components = new JpegDecodeComponent[frameHeader.NumberOfComponents];
+            _components = new JpegHuffmanDecodingComponent[frameHeader.NumberOfComponents];
             for (int i = 0; i < _components.Length; i++)
             {
-                _components[i] = new JpegDecodeComponent();
+                _components[i] = new JpegHuffmanDecodingComponent();
             }
         }
 
@@ -68,8 +67,9 @@ namespace JpegLibrary.ScanDecoder
             }
 
             // Resolve each component
-            Span<JpegDecodeComponent> components = _components.AsSpan(0, InitDecodeComponents(_frameHeader, scanHeader, _components));
+            Span<JpegHuffmanDecodingComponent> components = _components.AsSpan(0, InitDecodeComponents(_frameHeader, scanHeader, _components));
 
+            _restartInterval = Decoder.GetRestartInterval();
             _mcusBeforeRestart = _restartInterval;
             _eobrun = 0;
 
@@ -83,7 +83,7 @@ namespace JpegLibrary.ScanDecoder
             }
         }
 
-        private void DecodeProgressiveDataInterleaved(ref JpegReader reader, JpegScanHeader scanHeader, Span<JpegDecodeComponent> components)
+        private void DecodeProgressiveDataInterleaved(ref JpegReader reader, JpegScanHeader scanHeader, Span<JpegHuffmanDecodingComponent> components)
         {
             JpegBlockAllocator allocator = _allocator;
             JpegBitReader bitReader = new JpegBitReader(reader.RemainingBytes);
@@ -95,7 +95,7 @@ namespace JpegLibrary.ScanDecoder
             {
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
-                    foreach (JpegDecodeComponent component in components)
+                    foreach (JpegHuffmanDecodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
@@ -123,7 +123,7 @@ namespace JpegLibrary.ScanDecoder
             }
         }
 
-        private void DecodeProgressiveDataNonInterleaved(ref JpegReader reader, JpegScanHeader scanHeader, JpegDecodeComponent component)
+        private void DecodeProgressiveDataNonInterleaved(ref JpegReader reader, JpegScanHeader scanHeader, JpegHuffmanDecodingComponent component)
         {
             JpegBlockAllocator allocator = _allocator;
             JpegBitReader bitReader = new JpegBitReader(reader.RemainingBytes);
@@ -189,7 +189,7 @@ namespace JpegLibrary.ScanDecoder
                 _mcusBeforeRestart = _restartInterval;
                 _eobrun = 0;
 
-                foreach (JpegDecodeComponent component in _components)
+                foreach (JpegHuffmanDecodingComponent component in _components)
                 {
                     component.DcPredictor = 0;
                 }
@@ -199,7 +199,7 @@ namespace JpegLibrary.ScanDecoder
         }
 
 
-        private static void ReadBlockProgressiveDC(ref JpegBitReader reader, JpegDecodeComponent component, JpegScanHeader scanHeader, ref JpegBlock8x8 destinationBlock)
+        private static void ReadBlockProgressiveDC(ref JpegBitReader reader, JpegHuffmanDecodingComponent component, JpegScanHeader scanHeader, ref JpegBlock8x8 destinationBlock)
         {
             ref short blockDataRef = ref Unsafe.As<JpegBlock8x8, short>(ref destinationBlock);
 
@@ -227,7 +227,7 @@ namespace JpegLibrary.ScanDecoder
             }
         }
 
-        private static void ReadBlockProgressiveAC(ref JpegBitReader reader, JpegDecodeComponent component, JpegScanHeader scanHeader, ref int eobrun, ref JpegBlock8x8 destinationBlock)
+        private static void ReadBlockProgressiveAC(ref JpegBitReader reader, JpegHuffmanDecodingComponent component, JpegScanHeader scanHeader, ref int eobrun, ref JpegBlock8x8 destinationBlock)
         {
             ref short blockDataRef = ref Unsafe.As<JpegBlock8x8, short>(ref destinationBlock);
             JpegHuffmanDecodingTable acTable = component.AcTable!;
@@ -401,7 +401,7 @@ namespace JpegLibrary.ScanDecoder
             int mcusPerColumn = _mcusPerColumn;
             int mcusPerLine = _mcusPerLine;
             int levelShift = _levelShift;
-            JpegDecodeComponent[] components = _components;
+            JpegHuffmanDecodingComponent[] components = _components;
 
             JpegBlock8x8F blockFBuffer = default;
             JpegBlock8x8F outputFBuffer = default;
@@ -412,7 +412,7 @@ namespace JpegLibrary.ScanDecoder
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
                     // Scan an interleaved mcu... process components in order
-                    foreach (JpegDecodeComponent component in components)
+                    foreach (JpegHuffmanDecodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;

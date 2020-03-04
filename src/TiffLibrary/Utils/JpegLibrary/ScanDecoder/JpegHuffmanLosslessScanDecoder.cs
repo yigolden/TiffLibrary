@@ -14,7 +14,7 @@ namespace JpegLibrary.ScanDecoder
         private readonly int _mcusPerColumn;
 
         private readonly JpegPartialScanlineAllocator _allocator;
-        private readonly JpegDecodeComponent[] _components;
+        private readonly JpegHuffmanDecodingComponent[] _components;
 
         public JpegHuffmanLosslessScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
         {
@@ -42,10 +42,10 @@ namespace JpegLibrary.ScanDecoder
             _allocator.Allocate(frameHeader);
 
             // Pre-allocate the JpegDecodeComponent instances
-            _components = new JpegDecodeComponent[frameHeader.NumberOfComponents];
+            _components = new JpegHuffmanDecodingComponent[frameHeader.NumberOfComponents];
             for (int i = 0; i < _components.Length; i++)
             {
-                _components[i] = new JpegDecodeComponent();
+                _components[i] = new JpegHuffmanDecodingComponent();
             }
         }
 
@@ -61,7 +61,7 @@ namespace JpegLibrary.ScanDecoder
             }
 
             // Resolve each component
-            Span<JpegDecodeComponent> components = _components.AsSpan(0, InitDecodeComponents(_frameHeader, scanHeader, _components));
+            Span<JpegHuffmanDecodingComponent> components = _components.AsSpan(0, InitDecodeComponents(_frameHeader, scanHeader, _components));
 
             JpegPartialScanlineAllocator allocator = _allocator;
             int mcusPerLine = _mcusPerLine;
@@ -79,7 +79,7 @@ namespace JpegLibrary.ScanDecoder
                 for (int colMcu = 0; colMcu < mcusPerLine; colMcu++)
                 {
                     // Scan an interleaved mcu... process components in order
-                    foreach (JpegDecodeComponent component in components)
+                    foreach (JpegHuffmanDecodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         JpegHuffmanDecodingTable losslessTable = component.DcTable!;
@@ -173,14 +173,14 @@ namespace JpegLibrary.ScanDecoder
                 // Flush allocator
                 if (rowMcu == mcusPerColumn - 1)
                 {
-                    foreach (JpegDecodeComponent component in components)
+                    foreach (JpegHuffmanDecodingComponent component in components)
                     {
                         allocator.FlushLastMcu(component.ComponentIndex, (rowMcu + 1) * component.VerticalSamplingFactor);
                     }
                 }
                 else
                 {
-                    foreach (JpegDecodeComponent component in components)
+                    foreach (JpegHuffmanDecodingComponent component in components)
                     {
                         allocator.FlushMcu(component.ComponentIndex, (rowMcu + 1) * component.VerticalSamplingFactor);
                     }

@@ -1,12 +1,11 @@
 ﻿#nullable enable
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace JpegLibrary.ScanDecoder
 {
-    internal sealed class JpegHuffmanBaselineScanDecoder : JpegHuffmanScanDecoder
+    internal class JpegArithmeticSequentialScanDecoder : JpegArithmeticScanDecoder
     {
         private readonly JpegFrameHeader _frameHeader;
 
@@ -18,9 +17,9 @@ namespace JpegLibrary.ScanDecoder
         private readonly int _mcusPerColumn;
         private readonly int _levelShift;
 
-        private readonly JpegHuffmanDecodingComponent[] _components;
+        private readonly JpegArithmeticDecodingComponent[] _components;
 
-        public JpegHuffmanBaselineScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
+        public JpegArithmeticSequentialScanDecoder(JpegDecoder decoder, JpegFrameHeader frameHeader) : base(decoder)
         {
             _frameHeader = frameHeader;
 
@@ -41,10 +40,10 @@ namespace JpegLibrary.ScanDecoder
             _levelShift = 1 << (frameHeader.SamplePrecision - 1);
 
             // Pre-allocate the JpegDecodeComponent instances
-            _components = new JpegHuffmanDecodingComponent[frameHeader.NumberOfComponents];
+            _components = new JpegArithmeticDecodingComponent[frameHeader.NumberOfComponents];
             for (int i = 0; i < _components.Length; i++)
             {
-                _components[i] = new JpegHuffmanDecodingComponent();
+                _components[i] = new JpegArithmeticDecodingComponent();
             }
         }
 
@@ -67,7 +66,17 @@ namespace JpegLibrary.ScanDecoder
             }
 
             // Resolve each component
-            Span<JpegHuffmanDecodingComponent> components = _components.AsSpan(0, InitDecodeComponents(frameHeader, scanHeader, _components));
+            Span<JpegArithmeticDecodingComponent> components = _components.AsSpan(0, InitDecodeComponents(frameHeader, scanHeader, _components));
+
+            foreach (JpegArithmeticDecodingComponent component in _components)
+            {
+                component.DcPredictor = 0;
+                component.DcContext = 0;
+                component.DcStatistics?.Reset();
+                component.AcStatistics?.Reset();
+            }
+
+            Reset();
 
             // Prepare
             int maxHorizontalSampling = _maxHorizontalSampling;
@@ -93,7 +102,7 @@ namespace JpegLibrary.ScanDecoder
                     int offsetX = colMcu * maxHorizontalSampling;
 
                     // Scan an interleaved mcu... process components in order
-                    foreach (JpegHuffmanDecodingComponent component in components)
+                    foreach (JpegArithmeticDecodingComponent component in components)
                     {
                         int index = component.ComponentIndex;
                         int h = component.HorizontalSamplingFactor;
@@ -108,7 +117,7 @@ namespace JpegLibrary.ScanDecoder
                             {
                                 // Read MCU
                                 outputBuffer = default;
-                                ReadBlockBaseline(ref bitReader, component, ref outputBuffer);
+                                ReadBlock(ref bitReader, component, ref outputBuffer);
 
                                 // Dequantization
                                 DequantizeBlockAndUnZigZag(component.QuantizationTable, ref outputBuffer, ref blockFBuffer);
@@ -144,11 +153,15 @@ namespace JpegLibrary.ScanDecoder
 
                         mcusBeforeRestart = _restartInterval;
 
-                        foreach (JpegHuffmanDecodingComponent component in components)
+                        foreach (JpegArithmeticDecodingComponent component in components)
                         {
                             component.DcPredictor = 0;
+                            component.DcContext = 0;
+                            component.DcStatistics?.Reset();
+                            component.AcStatistics?.Reset();
                         }
 
+                        Reset();
                     }
                 }
             }
@@ -165,48 +178,132 @@ namespace JpegLibrary.ScanDecoder
             reader.TryAdvance(bytesConsumed);
         }
 
-        private static void ReadBlockBaseline(ref JpegBitReader reader, JpegHuffmanDecodingComponent component, ref JpegBlock8x8 destinationBlock)
+        private void ReadBlock(ref JpegBitReader reader, JpegArithmeticDecodingComponent component, ref JpegBlock8x8 destinationBlock)
         {
             ref short destinationRef = ref Unsafe.As<JpegBlock8x8, short>(ref destinationBlock);
 
-            Debug.Assert(!(component.DcTable is null));
-            Debug.Assert(!(component.AcTable is null));
+            /* Sections F.2.4.1 & F.1.4.4.1: Decoding of DC coefficients */
 
-            // DC
-            int t = DecodeHuffmanCode(ref reader, component.DcTable!);
-            if (t != 0)
+            /* Table F.4: Point to statistics bin S0 for DC coefficient coding */
+            ref byte st = ref Unsafe.Add(ref component.DcStatistics!.GetReference(), component.DcContext);
+
+            /* Figure F.19: Decode_DC_DIFF */
+            if (DecodeBinaryDecision(ref reader, ref st) == 0)
             {
-                t = ReceiveAndExtend(ref reader, t);
+                component.DcContext = 0;
             }
-
-            t += component.DcPredictor;
-            component.DcPredictor = t;
-            destinationRef = (short)t;
-
-            // AC
-            JpegHuffmanDecodingTable acTable = component.AcTable!;
-            for (int i = 1; i < 64;)
+            else
             {
-                int s = DecodeHuffmanCode(ref reader, acTable);
-
-                int r = s >> 4;
-                s &= 15;
-
-                if (s != 0)
+                /* Figure F.21: Decoding nonzero value v */
+                /* Figure F.22: Decoding the sign of v */
+                int sign = DecodeBinaryDecision(ref reader, ref Unsafe.Add(ref st, 1));
+                st = ref Unsafe.Add(ref st, 2 + sign);
+                /* Figure F.23: Decoding the magnitude category of v */
+                int m = DecodeBinaryDecision(ref reader, ref st);
+                if (m != 0)
                 {
-                    i += r;
-                    s = ReceiveAndExtend(ref reader, s);
-                    Unsafe.Add(ref destinationRef, Math.Min(i++, 63)) = (short)s;
+                    st = ref component.DcStatistics!.GetReference(20);
+                    while (DecodeBinaryDecision(ref reader, ref st) != 0)
+                    {
+                        if ((m <<= 1) == 0x8000)
+                        {
+                            ThrowInvalidDataException("Invalid arithmetic code.");
+                        }
+                        st = ref Unsafe.Add(ref st, 1);
+                    }
+                }
+                /* Section F.1.4.4.1.2: Establish dc_context conditioning category */
+                if (m < (int)((1L << component.DcTable!.DcL) >> 1))
+                {
+                    component.DcContext = 0; /* zero diff category */
+                }
+                else if (m > (int)((1L << component.DcTable!.DcU) >> 1))
+                {
+                    component.DcContext = 12 + (sign * 4); /* large diff category */
                 }
                 else
                 {
-                    if (r == 0)
-                    {
-                        break;
-                    }
-
-                    i += 16;
+                    component.DcContext = 4 + (sign * 4);  /* small diff category */
                 }
+                int v = m;
+                /* Figure F.24: Decoding the magnitude bit pattern of v */
+                st = ref Unsafe.Add(ref st, 14);
+                while ((m >>= 1) != 0)
+                {
+                    if (DecodeBinaryDecision(ref reader, ref st) != 0)
+                    {
+                        v |= m;
+                    }
+                }
+                v += 1;
+                if (sign != 0)
+                {
+                    v = -v;
+                }
+                component.DcPredictor = (short)(component.DcPredictor + v);
+            }
+
+            destinationRef = (short)component.DcPredictor;
+
+            /* Sections F.2.4.2 & F.1.4.4.2: Decoding of AC coefficients */
+            JpegArithmeticStatistics acStatistics = component.AcStatistics!;
+            JpegArithmeticDecodingTable acTable = component.AcTable!;
+
+            for (int k = 1; k <= 63; k++)
+            {
+                st = ref acStatistics.GetReference(3 * (k - 1));
+                if (DecodeBinaryDecision(ref reader, ref st) != 0)
+                {
+                    /* EOB flag */
+                    break;
+                }
+                while (DecodeBinaryDecision(ref reader, ref Unsafe.Add(ref st, 1)) == 0)
+                {
+                    st = ref Unsafe.Add(ref st, 3);
+                    k++;
+                    if (k > 63)
+                    {
+                        ThrowInvalidDataException("Invalid arithmetic code.");
+                    }
+                }
+                /* Figure F.21: Decoding nonzero value v */
+                /* Figure F.22: Decoding the sign of v */
+                int sign = DecodeBinaryDecision(ref reader, ref GetFixedBinReference());
+                st = ref Unsafe.Add(ref st, 2);
+                /* Figure F.23: Decoding the magnitude category of v */
+                int m = DecodeBinaryDecision(ref reader, ref st);
+                if (m != 0)
+                {
+                    if (DecodeBinaryDecision(ref reader, ref st) != 0)
+                    {
+                        m <<= 1;
+                        st = ref acStatistics.GetReference(k <= acTable.AcKx ? 189 : 217);
+                        while (DecodeBinaryDecision(ref reader, ref st) != 0)
+                        {
+                            if ((m <<= 1) == 0x8000)
+                            {
+                                ThrowInvalidDataException();
+                            }
+                            st = ref Unsafe.Add(ref st, 1);
+                        }
+                    }
+                }
+                int v = m;
+                /* Figure F.24: Decoding the magnitude bit pattern of v */
+                st = ref Unsafe.Add(ref st, 14);
+                while ((m >>= 1) != 0)
+                {
+                    if (DecodeBinaryDecision(ref reader, ref st) != 0)
+                    {
+                        v |= m;
+                    }
+                }
+                v += 1;
+                if (sign != 0)
+                {
+                    v = -v;
+                }
+                Unsafe.Add(ref destinationRef, k) = (short)v;
             }
         }
 
@@ -260,5 +357,6 @@ namespace JpegLibrary.ScanDecoder
         {
             // Do nothing
         }
+
     }
 }

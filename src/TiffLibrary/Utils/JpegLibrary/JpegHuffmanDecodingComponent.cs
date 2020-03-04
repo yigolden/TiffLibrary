@@ -2,7 +2,7 @@
 
 namespace JpegLibrary
 {
-    internal class JpegDecodeComponent
+    internal class JpegHuffmanDecodingComponent
     {
         public int ComponentIndex { get; internal set; }
         public byte HorizontalSamplingFactor { get; internal set; }
@@ -11,7 +11,6 @@ namespace JpegLibrary
         internal JpegHuffmanDecodingTable? DcTable { get; set; }
         internal JpegHuffmanDecodingTable? AcTable { get; set; }
         internal JpegQuantizationTable QuantizationTable { get; set; }
-
         internal int HorizontalSubsamplingFactor { get; set; }
         internal int VerticalSubsamplingFactor { get; set; }
     }

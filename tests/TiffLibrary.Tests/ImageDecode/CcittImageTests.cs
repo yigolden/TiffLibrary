@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
@@ -45,6 +46,12 @@ namespace TiffLibrary.Tests.ImageDecode
 
                 AssertEqual(refImage, pixels);
 
+                using (var image = new Image<Gray8>(decoder.Width, decoder.Height))
+                {
+                    decoder.Decode(image);
+                    AssertEqual(refImage, image);
+                }
+
                 ifdOffset = ifd.NextOffset;
             }
         }
@@ -71,15 +78,40 @@ namespace TiffLibrary.Tests.ImageDecode
 
                 AssertEqual(refImage, pixels);
 
+                using (var image = new Image<Gray8>(decoder.Width, decoder.Height))
+                {
+                    decoder.Decode(image);
+                    AssertEqual(refImage, image);
+                }
+
                 ifdOffset = ifd.NextOffset;
             }
         }
 
         private static void AssertEqual<T1, T2>(Image<T1> refImage, T2[] testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged
         {
+            Assert.Equal(Unsafe.SizeOf<T1>(), Unsafe.SizeOf<T2>());
+            int width = refImage.Width;
+            int height = refImage.Height;
+            Assert.Equal(width * height, testImage.Length);
+            for (int i = 0; i < height; i++)
+            {
+                Assert.True(MemoryMarshal.AsBytes(refImage.GetPixelRowSpan(i)).SequenceEqual(MemoryMarshal.AsBytes(testImage.AsSpan(i * width, width))));
+            }
             Span<byte> refImageSpan = MemoryMarshal.AsBytes(refImage.GetPixelSpan());
             Span<byte> testImageSpan = MemoryMarshal.AsBytes(testImage.AsSpan());
             Assert.True(refImageSpan.SequenceEqual(testImageSpan));
+        }
+
+        private static void AssertEqual<T1, T2>(Image<T1> refImage, Image<T2> testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged, IPixel<T2>
+        {
+            Assert.Equal(Unsafe.SizeOf<T1>(), Unsafe.SizeOf<T2>());
+            Assert.Equal(refImage.Width, testImage.Width);
+            Assert.Equal(refImage.Height, testImage.Height);
+            for (int i = 0; i < refImage.Height; i++)
+            {
+                Assert.True(MemoryMarshal.AsBytes(refImage.GetPixelRowSpan(i)).SequenceEqual(MemoryMarshal.AsBytes(testImage.GetPixelRowSpan(i))));
+            }
         }
     }
 }

@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\TiffLibrary.ImageSharpAdapter\TiffLibrary.ImageSharpAdapter.csproj" />
     <ProjectReference Include="..\..\src\TiffLibrary\TiffLibrary.csproj" />
   </ItemGroup>
 

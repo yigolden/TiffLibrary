@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using JpegLibrary;
-using JpegLibrary.ScanDecoder;
 
 namespace TiffLibrary.Compression
 {
@@ -110,6 +108,7 @@ namespace TiffLibrary.Compression
             frameHeader = new JpegFrameHeader(frameHeader.SamplePrecision, (ushort)context.ImageSize.Height, (ushort)context.ImageSize.Width, frameHeader.NumberOfComponents, frameHeader.Components);
 
             var decoder = new JpegDecoder();
+            decoder.StartOfFrame = JpegMarker.StartOfFrame0;
             decoder.MemoryPool = context.MemoryPool;
             decoder.SetFrameHeader(frameHeader);
             decoder.SetRestartInterval(_restartInterval);
@@ -124,10 +123,8 @@ namespace TiffLibrary.Compression
             var outputWriter = new JpegBuffer8BitOutputWriter(context.ImageSize.Width, context.SkippedScanlines, context.SkippedScanlines + context.RequestedScanlines, decoder.NumberOfComponents, output);
             decoder.SetOutputWriter(outputWriter);
 
-            // It's fine that we don't dispose JpegHuffmanBaselineScanDecode.
             var reader = new JpegReader(input);
-            var scanDecoder = new JpegHuffmanBaselineScanDecoder(decoder, frameHeader, outputWriter);
-            scanDecoder.ProcessScan(ref reader, _scanHeader);
+            decoder.ProcessScan(ref reader, _scanHeader);
         }
 
         readonly struct ComponentInfo

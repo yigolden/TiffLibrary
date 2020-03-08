@@ -101,14 +101,14 @@ namespace TiffLibrary.ImageSharpAdapter
         private async Task BuildAndEncodeAsync<TImageSharpPixel, TTiffPixel>(TiffImageEncoderBuilder builder, Image<TImageSharpPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TImageSharpPixel : struct, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
         {
             TiffImageEncoder<TTiffPixel> encoder = builder.Build<TTiffPixel>();
-            await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBuffer<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);
+            await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBufferReader<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);
         }
 
         private async Task EncodeImageSlowAsync<TPixel>(TiffImageEncoderBuilder builder, Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TPixel : struct, IPixel<TPixel>
         {
             using Image<Rgba32> img = image.CloneAs<Rgba32>(_configuration);
             TiffImageEncoder<TiffRgba32> encoder = builder.Build<TiffRgba32>();
-            await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBuffer<Rgba32, TiffRgba32>(img)).ConfigureAwait(false);
+            await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBufferReader<Rgba32, TiffRgba32>(img)).ConfigureAwait(false);
         }
     }
 }

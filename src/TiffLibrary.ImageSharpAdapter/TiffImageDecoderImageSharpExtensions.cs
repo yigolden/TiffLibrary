@@ -73,35 +73,35 @@ namespace TiffLibrary
 
             if (destinationImage is Image<Gray8> imageOfGray8)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Gray8, TiffGray8>(imageOfGray8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray8, TiffGray8>(imageOfGray8));
             }
             else if (destinationImage is Image<Gray16> imageOfGray16)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Gray16, TiffGray16>(imageOfGray16));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray16, TiffGray16>(imageOfGray16));
             }
             else if (destinationImage is Image<Alpha8> imageOfAlpha8)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Alpha8, TiffMask>(imageOfAlpha8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Alpha8, TiffMask>(imageOfAlpha8));
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Rgb24, TiffRgb24>(imageOfRgb24));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24));
             }
             else if (destinationImage is Image<Rgba32> imageOfRgba32)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Rgba32, TiffRgba32>(imageOfRgba32));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32));
             }
             else if (destinationImage is Image<Rgba64> imageOfRgba64)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Rgba64, TiffRgba64>(imageOfRgba64));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64));
             }
             else if (destinationImage is Image<Bgr24> imageOfBgr24)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Bgr24, TiffBgr24>(imageOfBgr24));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24));
             }
             else if (destinationImage is Image<Bgra32> imageOfBgra32)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Bgra32, TiffBgra32>(imageOfBgra32));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32));
             }
             else
             {
@@ -114,7 +114,7 @@ namespace TiffLibrary
 
                 using (var temp = new Image<Rgba32>(readSize.Width, readSize.Height))
                 {
-                    decoder.Decode(offset, readSize, default, new ImageSharpPixelBuffer<Rgba32, TiffRgba32>(temp));
+                    decoder.Decode(offset, readSize, default, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(temp));
                     destinationImage.Mutate(ctx => ctx.ApplyProcessor(new WriteRegionProcessor<Rgba32>(temp), new Rectangle(destinationOffset.X, destinationOffset.Y, readSize.Width, readSize.Height)));
                 }
             }
@@ -187,35 +187,35 @@ namespace TiffLibrary
 
             if (destinationImage is Image<Gray8> imageOfGray8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Gray8, TiffGray8>(imageOfGray8));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray8, TiffGray8>(imageOfGray8));
             }
             else if (destinationImage is Image<Gray16> imageOfGray16)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Gray16, TiffGray16>(imageOfGray16));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray16, TiffGray16>(imageOfGray16));
             }
             else if (destinationImage is Image<Alpha8> imageOfAlpha8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Alpha8, TiffMask>(imageOfAlpha8));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Alpha8, TiffMask>(imageOfAlpha8));
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Rgb24, TiffRgb24>(imageOfRgb24));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24));
             }
             else if (destinationImage is Image<Rgba32> imageOfRgba32)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Rgba32, TiffRgba32>(imageOfRgba32));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32));
             }
             else if (destinationImage is Image<Rgba64> imageOfRgba64)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Rgba64, TiffRgba64>(imageOfRgba64));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64));
             }
             else if (destinationImage is Image<Bgr24> imageOfBgr24)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Bgr24, TiffBgr24>(imageOfBgr24));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24));
             }
             else if (destinationImage is Image<Bgra32> imageOfBgra32)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBuffer<Bgra32, TiffBgra32>(imageOfBgra32));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32));
             }
             else
             {
@@ -233,7 +233,7 @@ namespace TiffLibrary
 
                 using (var temp = new Image<Rgba32>(readSize.Width, readSize.Height))
                 {
-                    await decoder.DecodeAsync(offset, readSize, default, new ImageSharpPixelBuffer<Rgba32, TiffRgba32>(temp), cancellationToken).ConfigureAwait(false);
+                    await decoder.DecodeAsync(offset, readSize, default, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(temp), cancellationToken).ConfigureAwait(false);
                     destinationImage.Mutate(ctx => ctx.ApplyProcessor(new WriteRegionProcessor<Rgba32>(temp), new Rectangle(destinationOffset.X, destinationOffset.Y, readSize.Width, readSize.Height)));
                 }
             }

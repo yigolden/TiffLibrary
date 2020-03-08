@@ -26,8 +26,8 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public ValueTask ReadAsync(TiffPoint offset, TiffPixelBufferWriter<TTiffPixel> destination, CancellationToken cancellationToken)
         {
-            var destinationWriter = TiffPixelBufferUnsafeMarshal.GetBuffer(destination, out TiffPoint destinationOffset, out TiffSize size);
-            var newDestination = new ImageSharpConversionPixelBufferWriter<TImageSharpPixel, TIntermediate, TTiffPixel>(destinationWriter).AsPixelBufferWriter().Crop(destinationOffset, size);
+            ITiffPixelBufferWriter<TTiffPixel> destinationWriter = TiffPixelBufferUnsafeMarshal.GetBuffer(destination, out TiffPoint destinationOffset, out TiffSize size);
+            TiffPixelBufferWriter<TImageSharpPixel> newDestination = new ImageSharpConversionPixelBufferWriter<TImageSharpPixel, TIntermediate, TTiffPixel>(destinationWriter).AsPixelBufferWriter().Crop(destinationOffset, size);
             return _source.ReadAsync(offset, newDestination, cancellationToken);
         }
     }

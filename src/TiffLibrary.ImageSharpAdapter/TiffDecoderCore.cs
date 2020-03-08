@@ -88,7 +88,7 @@ namespace TiffLibrary.ImageSharpAdapter
             Image<TImageSharpPixel>? image = new Image<TImageSharpPixel>(_configuration, decoder.Width, decoder.Height);
             try
             {
-                await decoder.DecodeAsync(new ImageSharpPixelBuffer<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);
+                await decoder.DecodeAsync(new ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);
                 return Interlocked.Exchange(ref image, null)!;
             }
             finally
@@ -100,7 +100,7 @@ namespace TiffLibrary.ImageSharpAdapter
         private async Task<Image<TImageSharpPixel>> DecodeImageSlowAsync<TImageSharpPixel>(TiffImageDecoder decoder) where TImageSharpPixel : struct, IPixel<TImageSharpPixel>
         {
             using var image = new Image<Rgba32>(_configuration, decoder.Width, decoder.Height);
-            await decoder.DecodeAsync(new ImageSharpPixelBuffer<Rgba32, TiffRgba32>(image)).ConfigureAwait(false);
+            await decoder.DecodeAsync(new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(image)).ConfigureAwait(false);
             return image.CloneAs<TImageSharpPixel>();
         }
     }

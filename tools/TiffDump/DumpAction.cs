@@ -30,7 +30,7 @@ namespace TiffDump
                 await DumpWellKnownTagsAsync(fieldReader, ifd, cancellationToken);
                 Console.WriteLine();
 
-                Console.WriteLine("  Entries:");
+                Console.WriteLine("  Tags:");
                 for (int i = 0; i < ifd.Count; i++)
                 {
                     TiffImageFileDirectoryEntry entry = ifd[i];
@@ -38,7 +38,7 @@ namespace TiffDump
                 }
                 if (ifd.Count == 0)
                 {
-                    Console.WriteLine("    No entries found.");
+                    Console.WriteLine("    No tags found.");
                 }
 
                 Console.WriteLine();
@@ -129,7 +129,7 @@ namespace TiffDump
             string tagName = Enum.IsDefined(typeof(TiffTag), entry.Tag) ? $"{entry.Tag} ({(int)entry.Tag})" : ((int)entry.Tag).ToString();
             string typeName = Enum.IsDefined(typeof(TiffFieldType), entry.Type) ? entry.Type.ToString() : "Unknown";
 
-            Console.Write($"    Entry #{index}: {tagName}, {typeName}[{entry.ValueCount}].");
+            Console.Write($"    Tag #{index}: {tagName}, {typeName}[{entry.ValueCount}].");
 
             switch (entry.Type)
             {

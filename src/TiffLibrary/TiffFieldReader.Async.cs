@@ -1037,7 +1037,7 @@ namespace TiffLibrary
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int fieldLength = checked(sizeof(float) * (int)entry.ValueCount);
+            int fieldLength = checked(sizeof(double) * (int)entry.ValueCount);
             byte[] buffer = ArrayPool<byte>.Shared.Rent(fieldLength);
             try
             {

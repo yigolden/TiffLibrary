@@ -123,7 +123,7 @@ namespace TiffLibrary.Compression
                         encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
                         encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
                     }
-                    encoder.AddComponent(0, 0, 0, 1, 1); // Y component
+                    encoder.AddComponent(0, 0, 0, 0, 1, 1); // Y component
                     break;
                 case TiffPhotometricInterpretation.RGB:
                     _componentCount = 3;
@@ -139,9 +139,9 @@ namespace TiffLibrary.Compression
                         encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
                         encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
                     }
-                    encoder.AddComponent(0, 0, 0, 1, 1); // R component
-                    encoder.AddComponent(0, 0, 0, 1, 1); // G component
-                    encoder.AddComponent(0, 0, 0, 1, 1); // B component
+                    encoder.AddComponent(0, 0, 0, 0, 1, 1); // R component
+                    encoder.AddComponent(1, 0, 0, 0, 1, 1); // G component
+                    encoder.AddComponent(2, 0, 0, 0, 1, 1); // B component
                     break;
                 case TiffPhotometricInterpretation.Seperated:
                     _componentCount = 4;
@@ -157,10 +157,10 @@ namespace TiffLibrary.Compression
                         encoder.SetHuffmanTable(true, 0, JpegStandardHuffmanEncodingTable.GetLuminanceDCTable());
                         encoder.SetHuffmanTable(false, 0, JpegStandardHuffmanEncodingTable.GetLuminanceACTable());
                     }
-                    encoder.AddComponent(0, 0, 0, 1, 1); // C component
-                    encoder.AddComponent(0, 0, 0, 1, 1); // M component
-                    encoder.AddComponent(0, 0, 0, 1, 1); // Y component
-                    encoder.AddComponent(0, 0, 0, 1, 1); // K component
+                    encoder.AddComponent(0, 0, 0, 0, 1, 1); // C component
+                    encoder.AddComponent(1, 0, 0, 0, 1, 1); // M component
+                    encoder.AddComponent(2, 0, 0, 0, 1, 1); // Y component
+                    encoder.AddComponent(3, 0, 0, 0, 1, 1); // K component
                     break;
                 case TiffPhotometricInterpretation.YCbCr:
                     _componentCount = 3;
@@ -181,9 +181,9 @@ namespace TiffLibrary.Compression
                         encoder.SetHuffmanTable(true, 1, JpegStandardHuffmanEncodingTable.GetChrominanceDCTable());
                         encoder.SetHuffmanTable(false, 1, JpegStandardHuffmanEncodingTable.GetChrominanceACTable());
                     }
-                    encoder.AddComponent(0, 0, 0, (byte)_horizontalSubsampling, (byte)_verticalSubsampling); // Y component
-                    encoder.AddComponent(1, 1, 1, 1, 1); // Cb component
-                    encoder.AddComponent(1, 1, 1, 1, 1); // Cr component
+                    encoder.AddComponent(0, 0, 0, 0, (byte)_horizontalSubsampling, (byte)_verticalSubsampling); // Y component
+                    encoder.AddComponent(1, 1, 1, 1, 1, 1); // Cb component
+                    encoder.AddComponent(2, 1, 1, 1, 1, 1); // Cr component
                     break;
                 default:
                     throw new NotSupportedException("JPEG compression only supports BlackIsZero, WhiteIsZero, RGB, YCbCr and CMYK photometric interpretation.");

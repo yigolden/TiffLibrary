@@ -276,6 +276,11 @@
         ConsecutiveBadFaxLines = 0x148,
 
         /// <summary>
+        /// SubIFDs
+        /// </summary>
+        SubIFDs = 0x14A,
+
+        /// <summary>
         /// InkSet.
         /// </summary>
         InkSet = 0x14C,
@@ -324,6 +329,26 @@
         /// TransferRange.
         /// </summary>
         TransferRange = 0x156,
+
+        /// <summary>
+        /// ClipPath
+        /// </summary>
+        ClipPath = 0x157,
+
+        /// <summary>
+        /// XClipPathUnits
+        /// </summary>
+        XClipPathUnits = 0x158,
+
+        /// <summary>
+        /// XClipPathUnits
+        /// </summary>
+        YClipPathUnits = 0x159,
+
+        /// <summary>
+        /// Indexed
+        /// </summary>
+        Indexed = 0x15A,
 
         /// <summary>
         /// JPEGProc.

@@ -111,6 +111,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>TiffTagReaderJPEGExtensions.tt</DependentUpon>
     </Compile>
+    <Compile Update="TiffTagReaderPageMakerExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TiffTagReaderPageMakerExtensions.tt</DependentUpon>
+    </Compile>
     <Compile Update="TiffTagReaderPredictorExtensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -176,6 +181,10 @@
     <None Update="TiffTagReaderJPEGExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TiffTagReaderJPEGExtensions.cs</LastGenOutput>
+    </None>
+    <None Update="TiffTagReaderPageMakerExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TiffTagReaderPageMakerExtensions.cs</LastGenOutput>
     </None>
     <None Update="TiffTagReaderPredictorExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

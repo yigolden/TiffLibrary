@@ -8,7 +8,7 @@ namespace TiffDump
 {
     internal class DumpAction
     {
-        public static async Task<int> Dump(FileInfo file, CancellationToken cancellationToken)
+        public static async Task<int> Dump(FileInfo file, long? offset, CancellationToken cancellationToken)
         {
             await using TiffFileReader tiff = await TiffFileReader.OpenAsync(file.FullName);
             await using TiffFieldReader fieldReader = await tiff.CreateFieldReaderAsync(cancellationToken);
@@ -19,7 +19,7 @@ namespace TiffDump
             Console.WriteLine();
 
             int ifdIndex = 0;
-            TiffStreamOffset ifdOffset = tiff.FirstImageFileDirectoryOffset;
+            TiffStreamOffset ifdOffset = offset.HasValue ? new TiffStreamOffset(offset.GetValueOrDefault()) : tiff.FirstImageFileDirectoryOffset;
             while (!ifdOffset.IsZero)
             {
                 TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync(ifdOffset, cancellationToken);

@@ -51,7 +51,7 @@
         Deflate = 8,
 
         /// <summary>
-        /// PackBits compression, a simple byte-oriented run length scheme. See the PackBits section for details.
+        /// PackBits compression, a simple byte-oriented run length scheme.
         /// </summary>
         PackBits = 32773,
 
@@ -59,5 +59,10 @@
         /// Deflate compression - old.
         /// </summary>
         OldDeflate = 32946,
+
+        /// <summary>
+        /// ThunderScan 4-bit compression.
+        /// </summary>
+        ThunderScan = 32809,
     }
 }

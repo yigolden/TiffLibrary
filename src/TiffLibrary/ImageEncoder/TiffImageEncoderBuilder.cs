@@ -181,6 +181,9 @@ namespace TiffLibrary
                 case TiffCompression.PackBits:
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, PackBitsCompressionAlgorithm.Instance));
                     break;
+                case TiffCompression.ThunderScan:
+                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, ThunderScanCompressionAlgorithm.Instance));
+                    break;
                 case TiffCompression.OldDeflate:
                     throw new NotSupportedException("Legacy Deflate compression is not supported. Use TiffCompression.Deflate instead.");
                 case TiffCompression.OldJpeg:

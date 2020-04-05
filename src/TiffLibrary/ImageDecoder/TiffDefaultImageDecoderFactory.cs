@@ -755,6 +755,9 @@ namespace TiffLibrary.ImageDecoder
                     break;
                 case TiffCompression.Jpeg:
                     return ResolveJpegDecompressionAlgorithmAsync(tagReader, cancellationToken);
+                case TiffCompression.ThunderScan:
+                    decompressionAlgorithm = ThunderScanCompressionAlgorithm.Instance;
+                    break;
                 default:
                     throw new NotSupportedException("Compression algorithm not supported.");
             }

@@ -106,6 +106,13 @@ namespace TiffLibrary.Tests.LibTiffDecode
                 // Test image
                 "Assets/LibTiffDecode/zackthecat.tif"
             };
+            yield return new object[]
+            {
+                // Reference image
+                "Assets/LibTiffDecode/thunderscan.png",
+                // Test image
+                "Assets/LibTiffDecode/thunderscan.tif"
+            };
         }
 
         [Theory]

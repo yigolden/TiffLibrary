@@ -46,7 +46,8 @@ Note that although files with bits per sample greater than 16 bits can be read b
 * JPEG (CompressionTag=7)
 * Deflate (CompressionTag=8/32946)
 * PackBits (CompressionTag=32773)
-* ThunderScan (CompressionTag=32809)
+* ThunderScan 4-bit gray-scale (CompressionTag=32809)
+* NeXT 2-bit gray-scale (CompressionTag=32766)
 
 Note that support for old-style JPEG is not thoroughly tested and will not be actively developed because it is deprecated in favor of the "new" JPEG compression method (CompressionTag=7).
 
@@ -88,7 +89,8 @@ TiffLibrary supports decoding of the image in any of the following orientation.
 * JPEG (CompressionTag=7)
 * Deflate (CompressionTag=8)
 * PackBits (CompressionTag=32773)
-* ThunderScan (CompressionTag=32809)
+* ThunderScan 4-bit gray-scale (CompressionTag=32809)
+* NeXT 2-bit gray-scale (CompressionTag=32766)
 
 Notes about JPEG: JPEG compression only supports 8-bit BlackIsZero, WhiteIaZero, RGB, CMYK and YCbCr photometric interpretations.
 

@@ -758,6 +758,9 @@ namespace TiffLibrary.ImageDecoder
                 case TiffCompression.ThunderScan:
                     decompressionAlgorithm = ThunderScanCompressionAlgorithm.Instance;
                     break;
+                case TiffCompression.NeXT:
+                    decompressionAlgorithm = NeXTCompressionAlgorithm.Instance;
+                    break;
                 default:
                     throw new NotSupportedException("Compression algorithm not supported.");
             }

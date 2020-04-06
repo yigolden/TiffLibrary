@@ -41,7 +41,7 @@ namespace TiffLibrary.Compression
             context.BitsPerSample = TiffValueCollection.Single<ushort>(4);
 
             Span<byte> buffer = stackalloc byte[4];
-            var encoder = new ThunderScanEncoder(outputWriter, buffer, 16384);
+            var encoder = new ThunderScanEncoder(outputWriter, buffer);
 
             int height = context.ImageSize.Height;
             int bytesPerScanline = context.BytesPerScanline;
@@ -266,7 +266,6 @@ namespace TiffLibrary.Compression
         ref struct ThunderScanEncoder
         {
             private readonly IBufferWriter<byte> _writer;
-            private readonly int _minimumSegmentSize;
             private readonly Span<sbyte> _temp;
 
             private State _state;
@@ -276,12 +275,11 @@ namespace TiffLibrary.Compression
             private Span<byte> _outputSpan;
             private int _bytesWritten;
 
-            public ThunderScanEncoder(IBufferWriter<byte> writer, Span<byte> temp, int minimumSegmentSize)
+            public ThunderScanEncoder(IBufferWriter<byte> writer, Span<byte> temp)
             {
                 Debug.Assert(temp.Length >= 3);
 
                 _writer = writer;
-                _minimumSegmentSize = minimumSegmentSize;
                 _temp = MemoryMarshal.Cast<byte, sbyte>(temp);
 
                 _state = State.None;
@@ -521,7 +519,7 @@ namespace TiffLibrary.Compression
                 {
                     _writer.Advance(_bytesWritten);
                 }
-                _outputSpan = _writer.GetSpan(_minimumSegmentSize);
+                _outputSpan = _writer.GetSpan();
                 _bytesWritten = 0;
             }
 

@@ -64,5 +64,10 @@
         /// ThunderScan 4-bit compression.
         /// </summary>
         ThunderScan = 32809,
+
+        /// <summary>
+        /// NeXT 2-bit Grey Scale compression algorithm
+        /// </summary>
+        NeXT = 32766,
     }
 }

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\TiffLibrary\Utils\BitReader.cs" Link="BitReader.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\BitWriter.cs" Link="BitWriter.cs" />
+    <Compile Include="..\..\src\TiffLibrary\Utils\TiffMathHelper.cs" Link="Utils\TiffMathHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+  </ItemGroup>
+
+</Project>

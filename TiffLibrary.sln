@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiffMerge", "tools\TiffMerg
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiffDump", "tools\TiffDump\TiffDump.csproj", "{FA621927-6F3B-4954-B67C-26BECC137F19}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiffLibrary.Benchmarks", "tests\TiffLibrary.Benchmarks\TiffLibrary.Benchmarks.csproj", "{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,18 @@ Global
 		{FA621927-6F3B-4954-B67C-26BECC137F19}.Release|x64.Build.0 = Release|Any CPU
 		{FA621927-6F3B-4954-B67C-26BECC137F19}.Release|x86.ActiveCfg = Release|Any CPU
 		{FA621927-6F3B-4954-B67C-26BECC137F19}.Release|x86.Build.0 = Release|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Debug|x64.Build.0 = Debug|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Debug|x86.Build.0 = Debug|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Release|x64.ActiveCfg = Release|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Release|x64.Build.0 = Release|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Release|x86.ActiveCfg = Release|Any CPU
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +128,7 @@ Global
 		{4517CE07-D849-400B-A74A-EBD9A0B6A984} = {F63E432A-CFD2-4A93-B8F7-734B09ABC5F9}
 		{745B3192-E583-4EC9-B9C7-CE1442CF82F9} = {F63E432A-CFD2-4A93-B8F7-734B09ABC5F9}
 		{FA621927-6F3B-4954-B67C-26BECC137F19} = {F63E432A-CFD2-4A93-B8F7-734B09ABC5F9}
+		{81B3826F-ABF4-4D82-BAA0-73EC2CDB5CB1} = {7FFF9921-E30D-478F-BF15-3AC049E533DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8A0390E8-E74C-4DD7-9B5E-9E922550F19C}

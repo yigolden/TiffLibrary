@@ -201,7 +201,7 @@ namespace TiffLibrary
             Debug.Assert(bitsCount > _availableBufferBits);
             bitsCount -= _availableBufferBits;
             _totalConsumedBits += _availableBufferBits;
-            int qwordCount = TiffMathHelper.DivRem(bitsCount, 64, out int remainingBits);
+            int qwordCount = TiffMathHelper.DivRem64(bitsCount, out int remainingBits);
             if (_source.Length <= 8 * qwordCount)
             {
                 ThrowArgumentOutOfRangeException(nameof(bitsCount));

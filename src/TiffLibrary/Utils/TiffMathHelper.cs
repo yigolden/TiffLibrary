@@ -7,16 +7,11 @@ namespace TiffLibrary.Utils
 {
     internal static class TiffMathHelper
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int DivRem(int a, int b, out int result)
+        public static int DivRem64(int a, out int result)
         {
-#if NO_MATH_DIVREM
-            int div = a / b;
-            result = a - (div * b);
+            int div = a / 64;
+            result = a - (div * 64);
             return div;
-#else
-            return Math.DivRem(a, b, out result);
-#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

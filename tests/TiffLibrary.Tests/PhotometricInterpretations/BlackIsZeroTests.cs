@@ -92,7 +92,6 @@ namespace TiffLibrary.Tests.PhotometricInterpretations
             {
                 buffer[i] = (ushort)(buffer[i] >> bitCount);
             }
-
         }
 
     }

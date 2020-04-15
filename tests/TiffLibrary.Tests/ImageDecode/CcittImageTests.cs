@@ -98,9 +98,6 @@ namespace TiffLibrary.Tests.ImageDecode
             {
                 Assert.True(MemoryMarshal.AsBytes(refImage.GetPixelRowSpan(i)).SequenceEqual(MemoryMarshal.AsBytes(testImage.AsSpan(i * width, width))));
             }
-            Span<byte> refImageSpan = MemoryMarshal.AsBytes(refImage.GetPixelSpan());
-            Span<byte> testImageSpan = MemoryMarshal.AsBytes(testImage.AsSpan());
-            Assert.True(refImageSpan.SequenceEqual(testImageSpan));
         }
 
         private static void AssertEqual<T1, T2>(Image<T1> refImage, Image<T2> testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged, IPixel<T2>

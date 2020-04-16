@@ -5,7 +5,7 @@
 
     <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>2.9.7</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
-	<MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
+    <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
 
     <MicrosoftBclAsyncInterfacesPackageVersion>1.1.0</MicrosoftBclAsyncInterfacesPackageVersion>
     <SystemMemoryPackageVersion>4.5.4</SystemMemoryPackageVersion>

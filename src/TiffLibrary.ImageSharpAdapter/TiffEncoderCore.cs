@@ -60,6 +60,7 @@ namespace TiffLibrary.ImageSharpAdapter
             builder.Predictor = options.Predictor;
             builder.EnableTransparencyForRgb = options.EnableTransparencyForRgb;
             builder.Orientation = options.Orientation;
+            builder.DeflateCompressionLevel = options.DeflateCompressionLevel;
             builder.JpegOptions = new TiffJpegEncodingOptions { Quality = options.JpegQuality, OptimizeCoding = options.JpegOptimizeCoding };
             builder.HorizontalChromaSubSampling = options.HorizontalChromaSubSampling;
             builder.VerticalChromaSubSampling = options.VerticalChromaSubSampling;

@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
+using TiffLibrary.Compression;
 
 namespace TiffLibrary.ImageSharpAdapter
 {
@@ -52,6 +53,11 @@ namespace TiffLibrary.ImageSharpAdapter
         /// Gets or sets the orientation in the output TIFF file.
         /// </summary>
         public TiffOrientation Orientation { get; set; }
+
+        /// <summary>
+        /// Gets or sets the compression level used in Deflate algorithm. A value of 9 is best, and 1 is least compression. The default is 6.
+        /// </summary>
+        public TiffDeflateCompressionLevel DeflateCompressionLevel { get; set; }
 
         /// <summary>
         /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.

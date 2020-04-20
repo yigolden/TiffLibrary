@@ -10,45 +10,23 @@ namespace TiffLibrary.Compression
     /// </summary>
     public class DeflateCompressionAlgorithm : ITiffCompressionAlgorithm, ITiffDecompressionAlgorithm
     {
-        private readonly CompressionLevel _compressionLevel;
-
-        /// <summary>
-        /// The compression level used in Deflate algorithm.
-        /// </summary>
-        public enum CompressionLevel
-        {
-            /// <summary>
-            /// Optimal.
-            /// </summary>
-            Optimal = 9,
-
-            /// <summary>
-            /// Fatest.
-            /// </summary>
-            Fastest = 1,
-
-            /// <summary>
-            /// Default.
-            /// </summary>
-            Default = -1,
-
-            /// <summary>
-            /// NoCompression.
-            /// </summary>
-            NoCompression = 0,
-        }
+        private readonly TiffDeflateCompressionLevel _compressionLevel;
 
         /// <summary>
         /// A shared instance of <see cref="DeflateCompressionAlgorithm"/> using default compression level. When decompressing or compressing using default level, this instance can be used to avoid an extra allocation of <see cref="DeflateCompressionAlgorithm"/>.
         /// </summary>
-        public static DeflateCompressionAlgorithm Instance { get; } = new DeflateCompressionAlgorithm(CompressionLevel.Default);
+        public static DeflateCompressionAlgorithm Instance { get; } = new DeflateCompressionAlgorithm(TiffDeflateCompressionLevel.Default);
 
         /// <summary>
         /// Initialize the object with the specified compression level.
         /// </summary>
         /// <param name="compressionLevel"></param>
-        public DeflateCompressionAlgorithm(CompressionLevel compressionLevel)
+        public DeflateCompressionAlgorithm(TiffDeflateCompressionLevel compressionLevel)
         {
+            if ((int)compressionLevel != -1 && (uint)compressionLevel > 9)
+            {
+                throw new ArgumentOutOfRangeException(nameof(compressionLevel));
+            }
             _compressionLevel = compressionLevel;
         }
 

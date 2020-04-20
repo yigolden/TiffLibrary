@@ -57,9 +57,14 @@ namespace TiffLibrary
         public TiffOrientation Orientation { get; set; }
 
         /// <summary>
+        /// The compression level used in Deflate algorithm. A value of 9 is best, and 1 is least compression. The default is 6.
+        /// </summary>
+        public TiffDeflateCompressionLevel DeflateCompressionLevel { get; set; }
+
+        /// <summary>
         /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
         /// </summary>
-        [Obsolete("The value of this property is now ignored. Use JpegOptions property instead.")]
+        [Obsolete("This property is ignored and will be removed in future versions. Use JpegOptions property instead.")]
         public int JpegQuality { get; set; } = 75;
 
         /// <summary>
@@ -166,7 +171,7 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, LzwCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.Deflate:
-                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, DeflateCompressionAlgorithm.Instance));
+                    pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, DeflateCompressionLevel == TiffDeflateCompressionLevel.Default ? DeflateCompressionAlgorithm.Instance : new DeflateCompressionAlgorithm(DeflateCompressionLevel)));
                     break;
                 case TiffCompression.Jpeg:
                     TiffJpegEncodingOptions jpegOptions = JpegOptions ?? TiffJpegEncodingOptions.Default;

@@ -19,7 +19,9 @@ namespace TiffLibrary.Compression
         private readonly int _horizontalSubsampling;
         private readonly int _verticalSubsampling;
         private int _componentCount;
-        private readonly bool _useSharedJpegTables;
+        private readonly bool _useSharedHuffmanTables;
+        private readonly bool _useSharedQuantizationTables;
+        private readonly bool _optimizeCoding;
 
         private TiffJpegEncoder? _encoder;
         private JpegBufferInputReader? _inputReader;
@@ -38,7 +40,9 @@ namespace TiffLibrary.Compression
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = 1;
             _verticalSubsampling = 1;
-            _useSharedJpegTables = false;
+            _useSharedHuffmanTables = false;
+            _useSharedQuantizationTables = false;
+            _optimizeCoding = false;
             Initialize(quality, false);
         }
 
@@ -48,6 +52,7 @@ namespace TiffLibrary.Compression
         /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
         /// <param name="quality">The quality factor to use when generating quantization table.</param>
         /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
+        [Obsolete("This method will be removed in future versions. Use the overload with the TiffJpegEncodingOptions parameter.")]
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality, bool useSharedJpegTables)
         {
             if ((uint)quality > 100)
@@ -57,7 +62,9 @@ namespace TiffLibrary.Compression
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = 1;
             _verticalSubsampling = 1;
-            _useSharedJpegTables = useSharedJpegTables;
+            _useSharedHuffmanTables = useSharedJpegTables;
+            _useSharedQuantizationTables = useSharedJpegTables;
+            _optimizeCoding = false;
             Initialize(quality, false);
         }
 
@@ -69,6 +76,7 @@ namespace TiffLibrary.Compression
         /// <param name="verticalSubsampling">The vertical subsampling factor for YCbCr image.</param>
         /// <param name="quality">The quality factor to use when generating quantization table.</param>
         /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
+        [Obsolete("This method will be removed in future versions. Use the overload with the TiffJpegEncodingOptions parameter.")]
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int horizontalSubsampling, int verticalSubsampling, int quality, bool useSharedJpegTables)
         {
             if ((uint)quality > 100)
@@ -78,7 +86,9 @@ namespace TiffLibrary.Compression
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = horizontalSubsampling;
             _verticalSubsampling = verticalSubsampling;
-            _useSharedJpegTables = useSharedJpegTables;
+            _useSharedHuffmanTables = useSharedJpegTables;
+            _useSharedQuantizationTables = useSharedJpegTables;
+            _optimizeCoding = false;
             Initialize(quality, false);
         }
 
@@ -99,7 +109,9 @@ namespace TiffLibrary.Compression
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = horizontalSubsampling;
             _verticalSubsampling = verticalSubsampling;
-            _useSharedJpegTables = options.UseSharedJpegTables && !options.OptimizeCoding;
+            _useSharedHuffmanTables = options.UseSharedHuffmanTables && !options.OptimizeCoding;
+            _useSharedQuantizationTables = options.UseSharedQuantizationTables;
+            _optimizeCoding = options.OptimizeCoding;
             Initialize(options.Quality, options.OptimizeCoding);
         }
 
@@ -245,14 +257,7 @@ namespace TiffLibrary.Compression
             encoder.SetOutput(outputWriter);
 
             // Encoder
-            if (_useSharedJpegTables)
-            {
-                encoder.EncodeWithoutTables();
-            }
-            else
-            {
-                encoder.Encode();
-            }
+            encoder.Encode(!_useSharedHuffmanTables, !_useSharedQuantizationTables, _optimizeCoding);
 
             // Reset state
             inputReader.Reset();
@@ -273,25 +278,27 @@ namespace TiffLibrary.Compression
                 throw new InvalidOperationException("JPEG encoder is not initialized.");
             }
 
-            return new JpegTableWriter<TPixel>(_encoder, _useSharedJpegTables);
+            return new JpegTableWriter<TPixel>(_encoder, _useSharedHuffmanTables, _useSharedQuantizationTables);
         }
 
         class JpegTableWriter<TPixel> : ITiffImageEncoderMiddleware<TPixel> where TPixel : unmanaged
         {
             private readonly TiffJpegEncoder _encoder;
-            private readonly bool _isEnabled;
+            private readonly bool _useSharedHuffmanTables;
+            private readonly bool _useSharedQuantizationTables;
             private byte[]? _jpegTables;
 
-            public JpegTableWriter(TiffJpegEncoder encoder, bool isEnabled)
+            public JpegTableWriter(TiffJpegEncoder encoder, bool useSharedHuffmanTables, bool useSharedQuantizationTables)
             {
                 _encoder = encoder;
-                _isEnabled = isEnabled;
+                _useSharedHuffmanTables = useSharedHuffmanTables;
+                _useSharedQuantizationTables = useSharedQuantizationTables;
             }
 
             public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
                 TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-                if (_isEnabled && !(ifdWriter is null))
+                if (!(ifdWriter is null) && (_useSharedHuffmanTables || _useSharedQuantizationTables))
                 {
                     if (_jpegTables is null)
                     {
@@ -318,7 +325,7 @@ namespace TiffLibrary.Compression
             private void InitializeTables()
             {
                 using var buffer = new MemoryPoolBufferWriter();
-                _encoder.WriteTables(buffer);
+                _encoder.WriteTables(buffer, _useSharedHuffmanTables, _useSharedQuantizationTables);
                 _jpegTables = buffer.ToArray();
             }
         }
@@ -328,7 +335,7 @@ namespace TiffLibrary.Compression
             public TiffJpegEncoder() { }
             public TiffJpegEncoder(int minimumBufferSegmentSize) : base(minimumBufferSegmentSize) { }
 
-            public void WriteTables(IBufferWriter<byte> buffer)
+            public void WriteTables(IBufferWriter<byte> buffer, bool writeHuffmanTables, bool writeQuantizationTables)
             {
                 if (buffer is null)
                 {
@@ -338,21 +345,55 @@ namespace TiffLibrary.Compression
                 var writer = new JpegWriter(buffer, minimumBufferSize: MinimumBufferSegmentSize);
 
                 WriteStartOfImage(ref writer);
-                WriteQuantizationTables(ref writer);
-                WriteHuffmanTables(ref writer);
+                if (writeQuantizationTables)
+                {
+                    WriteQuantizationTables(ref writer);
+                }
+                if (writeHuffmanTables)
+                {
+                    WriteHuffmanTables(ref writer);
+                }
                 WriteEndOfImage(ref writer);
 
                 writer.Flush();
             }
 
-            public void EncodeWithoutTables()
+            public void Encode(bool writeHuffmanTables, bool writeQuantizationTables, bool optimizeCoding)
             {
                 JpegWriter writer = CreateJpegWriter();
 
                 WriteStartOfImage(ref writer);
-                WriteStartOfFrame(ref writer);
-                WriteStartOfScan(ref writer);
-                WriteScanData(ref writer);
+                if (writeQuantizationTables)
+                {
+                    WriteQuantizationTables(ref writer);
+                }
+                JpegFrameHeader frameHeader = WriteStartOfFrame(ref writer);
+                JpegBlockAllocator? allocator = optimizeCoding ? new JpegBlockAllocator(MemoryPool) : null;
+                try
+                {
+                    if (!(allocator is null))
+                    {
+                        allocator.Allocate(frameHeader);
+                        TransformBlocks(allocator);
+                        BuildHuffmanTables(frameHeader, allocator, false);
+                        WriteHuffmanTables(ref writer);
+                        WriteStartOfScan(ref writer);
+                        WritePreparedScanData(frameHeader, allocator, ref writer);
+                    }
+                    else
+                    {
+                        if (writeHuffmanTables)
+                        {
+                            WriteHuffmanTables(ref writer);
+                        }
+                        WriteStartOfScan(ref writer);
+                        WriteScanData(ref writer);
+                    }
+                }
+                finally
+                {
+                    allocator?.Dispose();
+                }
                 WriteEndOfImage(ref writer);
 
                 writer.Flush();

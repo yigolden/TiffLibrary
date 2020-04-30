@@ -1,4 +1,5 @@
-﻿namespace TiffLibrary.Utils
+﻿#if NO_HASHCODE
+namespace TiffLibrary.Utils
 {
     internal static class HashHelpers
     {
@@ -9,3 +10,4 @@
         }
     }
 }
+#endif

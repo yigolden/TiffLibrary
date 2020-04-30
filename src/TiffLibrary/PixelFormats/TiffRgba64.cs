@@ -74,7 +74,11 @@ namespace TiffLibrary.PixelFormats
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
+#if NO_HASHCODE
             return HashHelpers.Combine((R << 16 | G).GetHashCode(), (B << 16 | A).GetHashCode());
+#else
+            return HashCode.Combine(R, G, B, A);
+#endif
         }
 
         /// <summary>

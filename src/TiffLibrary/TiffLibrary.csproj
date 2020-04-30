@@ -20,7 +20,7 @@
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP;NO_MATHF_ROUND</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3'">
-    <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_INTERFACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_INTERFACE;NO_HASHCODE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp2.1'">
     <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_ON_STREAM</DefineConstants>
@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodePackageVersion)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />

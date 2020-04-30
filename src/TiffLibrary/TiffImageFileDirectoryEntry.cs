@@ -342,8 +342,12 @@ namespace TiffLibrary
         /// <inheritdoc />
         public override int GetHashCode()
         {
+#if NO_HASHCODE
             int hashCode = (((ushort)Tag) << 16 | (ushort)Type).GetHashCode();
             return HashHelpers.Combine(HashHelpers.Combine(hashCode, ValueCount.GetHashCode()), ValueOffset.GetHashCode());
+#else
+            return HashCode.Combine(Tag, Type, ValueCount, ValueOffset);
+#endif
         }
     }
 

@@ -78,7 +78,11 @@ namespace TiffLibrary
         /// <inheritdoc />
         public override int GetHashCode()
         {
+#if NO_HASHCODE
             return HashHelpers.Combine(_offset.GetHashCode(), _length.GetHashCode());
+#else
+            return HashCode.Combine(_offset, _length);
+#endif
         }
     }
 }

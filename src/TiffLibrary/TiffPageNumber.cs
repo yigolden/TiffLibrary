@@ -60,7 +60,11 @@ namespace TiffLibrary
         /// <inheritdoc />
         public override int GetHashCode()
         {
+#if NO_HASHCODE
             return HashHelpers.Combine(PageNumber.GetHashCode(), TotalPages.GetHashCode());
+#else
+            return HashCode.Combine(PageNumber, TotalPages);
+#endif
         }
 
         /// <inheritdoc />

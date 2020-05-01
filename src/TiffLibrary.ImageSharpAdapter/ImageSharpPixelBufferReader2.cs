@@ -5,13 +5,12 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using TiffLibrary.PixelBuffer;
 
 namespace TiffLibrary.ImageSharpAdapter
 {
-    internal sealed class ImageSharpPixelBufferReader<TImageSharpPixel, TTiffPixel> : ITiffPixelBufferReader<TTiffPixel> where TImageSharpPixel : struct, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
+    internal sealed class ImageSharpPixelBufferReader<TImageSharpPixel, TTiffPixel> : ITiffPixelBufferReader<TTiffPixel> where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
     {
         private readonly Image<TImageSharpPixel> _image;
         private readonly TiffPoint _offset;

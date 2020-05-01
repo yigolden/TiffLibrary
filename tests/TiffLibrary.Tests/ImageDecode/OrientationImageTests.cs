@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using TiffLibrary.PixelFormats;
 using Xunit;
@@ -89,7 +88,7 @@ namespace TiffLibrary.Tests.ImageDecode
             }
         }
 
-        private static void AssertEqual<T1, T2>(Image<T1> refImage, T2[] testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged
+        private static void AssertEqual<T1, T2>(Image<T1> refImage, T2[] testImage) where T1 : unmanaged, IPixel<T1> where T2 : unmanaged
         {
             Assert.Equal(Unsafe.SizeOf<T1>(), Unsafe.SizeOf<T2>());
             int width = refImage.Width;
@@ -101,7 +100,7 @@ namespace TiffLibrary.Tests.ImageDecode
             }
         }
 
-        private static void AssertEqual<T1, T2>(Image<T1> refImage, Image<T2> testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged, IPixel<T2>
+        private static void AssertEqual<T1, T2>(Image<T1> refImage, Image<T2> testImage) where T1 : unmanaged, IPixel<T1> where T2 : unmanaged, IPixel<T2>
         {
             Assert.Equal(Unsafe.SizeOf<T1>(), Unsafe.SizeOf<T2>());
             Assert.Equal(refImage.Width, testImage.Width);

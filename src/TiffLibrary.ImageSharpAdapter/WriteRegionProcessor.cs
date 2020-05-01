@@ -1,15 +1,12 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace TiffLibrary.ImageSharpAdapter
 {
-    internal class WriteRegionProcessor<TSource> : IImageProcessor where TSource : struct, IPixel<TSource>
+    internal class WriteRegionProcessor<TSource> : IImageProcessor where TSource : unmanaged, IPixel<TSource>
     {
         private readonly Image<TSource> _image;
 
@@ -18,13 +15,13 @@ namespace TiffLibrary.ImageSharpAdapter
             _image = image;
         }
 
-        public IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle) where TPixel : struct, IPixel<TPixel>
+        public IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Configuration configuration, Image<TPixel> source, Rectangle sourceRectangle) where TPixel : unmanaged, IPixel<TPixel>
         {
             return new WriteRegionProcessor<TSource, TPixel>(_image, source, sourceRectangle);
         }
     }
 
-    internal class WriteRegionProcessor<TSource, TDest> : IImageProcessor<TDest> where TSource : struct, IPixel<TSource> where TDest : struct, IPixel<TDest>
+    internal class WriteRegionProcessor<TSource, TDest> : IImageProcessor<TDest> where TSource : unmanaged, IPixel<TSource> where TDest : unmanaged, IPixel<TDest>
     {
         private readonly Image<TSource> _source;
         private readonly Image<TDest> _destination;
@@ -38,7 +35,7 @@ namespace TiffLibrary.ImageSharpAdapter
             _copyRectange = copyRectange;
         }
 
-        public void Apply()
+        public void Execute()
         {
             Image<TSource> source = _source;
             Image<TDest> destination = _destination;
@@ -84,5 +81,6 @@ namespace TiffLibrary.ImageSharpAdapter
         }
 
         public void Dispose() { }
+
     }
 }

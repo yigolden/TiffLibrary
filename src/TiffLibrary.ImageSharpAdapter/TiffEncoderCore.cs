@@ -22,12 +22,12 @@ namespace TiffLibrary.ImageSharpAdapter
             _memoryPool = new ImageSharpMemoryPool(configuration.MemoryAllocator);
         }
 
-        public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : struct, IPixel<TPixel>
+        public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             EncodeCoreAsync(image, stream).GetAwaiter().GetResult();
         }
 
-        private async Task EncodeCoreAsync<TPixel>(Image<TPixel> image, Stream stream) where TPixel : struct, IPixel<TPixel>
+        private async Task EncodeCoreAsync<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             using (TiffFileWriter writer = await TiffFileWriter.OpenAsync(stream, leaveOpen: true).ConfigureAwait(false))
             {
@@ -46,7 +46,7 @@ namespace TiffLibrary.ImageSharpAdapter
             }
         }
 
-        private Task EncodeImageAsync<TPixel>(Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TPixel : struct, IPixel<TPixel>
+        private Task EncodeImageAsync<TPixel>(Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TPixel : unmanaged, IPixel<TPixel>
         {
             ITiffEncoderOptions options = _options;
 
@@ -66,13 +66,13 @@ namespace TiffLibrary.ImageSharpAdapter
             builder.VerticalChromaSubSampling = options.VerticalChromaSubSampling;
 
             // Fast path for TiffLibrary-supported pixel formats
-            if (typeof(TPixel) == typeof(Gray8))
+            if (typeof(TPixel) == typeof(L8))
             {
-                return BuildAndEncodeAsync<Gray8, TiffGray8>(builder, Unsafe.As<Image<Gray8>>(image), ifdWriter);
+                return BuildAndEncodeAsync<L8, TiffGray8>(builder, Unsafe.As<Image<L8>>(image), ifdWriter);
             }
-            if (typeof(TPixel) == typeof(Gray16))
+            if (typeof(TPixel) == typeof(L16))
             {
-                return BuildAndEncodeAsync<Gray16, TiffGray16>(builder, Unsafe.As<Image<Gray16>>(image), ifdWriter);
+                return BuildAndEncodeAsync<L16, TiffGray16>(builder, Unsafe.As<Image<L16>>(image), ifdWriter);
             }
             if (typeof(TPixel) == typeof(Rgb24))
             {
@@ -99,13 +99,13 @@ namespace TiffLibrary.ImageSharpAdapter
             return EncodeImageSlowAsync(builder, image, ifdWriter);
         }
 
-        private async Task BuildAndEncodeAsync<TImageSharpPixel, TTiffPixel>(TiffImageEncoderBuilder builder, Image<TImageSharpPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TImageSharpPixel : struct, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
+        private async Task BuildAndEncodeAsync<TImageSharpPixel, TTiffPixel>(TiffImageEncoderBuilder builder, Image<TImageSharpPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
         {
             TiffImageEncoder<TTiffPixel> encoder = builder.Build<TTiffPixel>();
             await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBufferReader<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);
         }
 
-        private async Task EncodeImageSlowAsync<TPixel>(TiffImageEncoderBuilder builder, Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TPixel : struct, IPixel<TPixel>
+        private async Task EncodeImageSlowAsync<TPixel>(TiffImageEncoderBuilder builder, Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TPixel : unmanaged, IPixel<TPixel>
         {
             using Image<Rgba32> img = image.CloneAs<Rgba32>(_configuration);
             TiffImageEncoder<TiffRgba32> encoder = builder.Build<TiffRgba32>();

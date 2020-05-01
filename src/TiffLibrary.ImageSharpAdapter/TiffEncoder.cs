@@ -3,7 +3,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
 using TiffLibrary.Compression;
 
 namespace TiffLibrary.ImageSharpAdapter
@@ -85,7 +84,7 @@ namespace TiffLibrary.ImageSharpAdapter
         /// <typeparam name="TPixel">The pixel format.</typeparam>
         /// <param name="image">The <see cref="Image{TPixel}"/> to encode from.</param>
         /// <param name="stream">The <see cref="Stream"/> to encode the image data to.</param>
-        public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : struct, IPixel<TPixel>
+        public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             var encoder = new TiffEncoderCore(image.GetConfiguration(), this);
             encoder.Encode(image, stream);

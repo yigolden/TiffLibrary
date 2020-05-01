@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TiffLibrary.Exif
+﻿namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the image sensor type on the camera or input device.

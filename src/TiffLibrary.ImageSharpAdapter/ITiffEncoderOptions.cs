@@ -1,4 +1,4 @@
-﻿using SixLabors.Primitives;
+﻿using SixLabors.ImageSharp;
 using TiffLibrary.Compression;
 
 namespace TiffLibrary.ImageSharpAdapter

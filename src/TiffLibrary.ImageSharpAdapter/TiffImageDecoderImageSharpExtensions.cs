@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 using TiffLibrary.ImageSharpAdapter;
 using TiffLibrary.PixelFormats;
 
@@ -71,17 +70,17 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(destinationImage));
             }
 
-            if (destinationImage is Image<Gray8> imageOfGray8)
+            if (destinationImage is Image<L8> imageOfGray8)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray8, TiffGray8>(imageOfGray8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8));
             }
-            else if (destinationImage is Image<Gray16> imageOfGray16)
+            else if (destinationImage is Image<L16> imageOfGray16)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray16, TiffGray16>(imageOfGray16));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16));
             }
-            else if (destinationImage is Image<Alpha8> imageOfAlpha8)
+            else if (destinationImage is Image<A8> imageOfAlpha8)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Alpha8, TiffMask>(imageOfAlpha8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8));
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {
@@ -185,17 +184,17 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(destinationImage));
             }
 
-            if (destinationImage is Image<Gray8> imageOfGray8)
+            if (destinationImage is Image<L8> imageOfGray8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray8, TiffGray8>(imageOfGray8));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8));
             }
-            else if (destinationImage is Image<Gray16> imageOfGray16)
+            else if (destinationImage is Image<L16> imageOfGray16)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Gray16, TiffGray16>(imageOfGray16));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16));
             }
-            else if (destinationImage is Image<Alpha8> imageOfAlpha8)
+            else if (destinationImage is Image<A8> imageOfAlpha8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Alpha8, TiffMask>(imageOfAlpha8));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8));
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {

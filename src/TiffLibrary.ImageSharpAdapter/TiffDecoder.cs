@@ -24,7 +24,7 @@ namespace TiffLibrary.ImageSharpAdapter
         /// <param name="configuration">The configuration for the image.</param>
         /// <param name="stream">The <see cref="Stream"/> containing image data.</param>
         /// <returns>The decoded image.</returns>
-        public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream) where TPixel : struct, IPixel<TPixel>
+        public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             if (configuration is null)
             {

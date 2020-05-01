@@ -37,26 +37,26 @@ namespace TiffLibrary.ImageSharpAdapter
             };
         }
 
-        public Image<TPixel> Decode<TPixel>(Stream stream) where TPixel : struct, IPixel<TPixel>
+        public Image<TPixel> Decode<TPixel>(Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             return DecodeCoreAsync<TPixel>(new ImageSharpContentSource(stream)).GetAwaiter().GetResult();
         }
 
         private async Task<Image<TPixel>> DecodeCoreAsync<TPixel>(TiffFileContentSource contentSource)
-           where TPixel : struct, IPixel<TPixel>
+           where TPixel : unmanaged, IPixel<TPixel>
         {
             using TiffFileReader tiff = await TiffFileReader.OpenAsync(contentSource).ConfigureAwait(false);
             TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync().ConfigureAwait(false);
             TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync(ifd, _options).ConfigureAwait(false);
 
             // Fast path for TiffLibrary-supported pixel formats
-            if (typeof(TPixel) == typeof(Gray8))
+            if (typeof(TPixel) == typeof(L8))
             {
-                return Unsafe.As<Image<TPixel>>(await DecodeImageAsync<Gray8, TiffGray8>(decoder).ConfigureAwait(false));
+                return Unsafe.As<Image<TPixel>>(await DecodeImageAsync<L8, TiffGray8>(decoder).ConfigureAwait(false));
             }
-            if (typeof(TPixel) == typeof(Gray16))
+            if (typeof(TPixel) == typeof(L16))
             {
-                return Unsafe.As<Image<TPixel>>(await DecodeImageAsync<Gray16, TiffGray16>(decoder).ConfigureAwait(false));
+                return Unsafe.As<Image<TPixel>>(await DecodeImageAsync<L16, TiffGray16>(decoder).ConfigureAwait(false));
             }
             if (typeof(TPixel) == typeof(Rgb24))
             {
@@ -83,7 +83,7 @@ namespace TiffLibrary.ImageSharpAdapter
             return await DecodeImageSlowAsync<TPixel>(decoder).ConfigureAwait(false);
         }
 
-        private async Task<Image<TImageSharpPixel>> DecodeImageAsync<TImageSharpPixel, TTiffPixel>(TiffImageDecoder decoder) where TImageSharpPixel : struct, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
+        private async Task<Image<TImageSharpPixel>> DecodeImageAsync<TImageSharpPixel, TTiffPixel>(TiffImageDecoder decoder) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
         {
             Image<TImageSharpPixel>? image = new Image<TImageSharpPixel>(_configuration, decoder.Width, decoder.Height);
             try
@@ -97,7 +97,7 @@ namespace TiffLibrary.ImageSharpAdapter
             }
         }
 
-        private async Task<Image<TImageSharpPixel>> DecodeImageSlowAsync<TImageSharpPixel>(TiffImageDecoder decoder) where TImageSharpPixel : struct, IPixel<TImageSharpPixel>
+        private async Task<Image<TImageSharpPixel>> DecodeImageSlowAsync<TImageSharpPixel>(TiffImageDecoder decoder) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel>
         {
             using var image = new Image<Rgba32>(_configuration, decoder.Width, decoder.Height);
             await decoder.DecodeAsync(new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(image)).ConfigureAwait(false);

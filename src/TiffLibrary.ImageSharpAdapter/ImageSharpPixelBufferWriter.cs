@@ -6,12 +6,13 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using TiffLibrary.PixelBuffer;
 
 namespace TiffLibrary.ImageSharpAdapter
 {
-    internal sealed class ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> : ITiffPixelBufferWriter<TTiffPixel> where TImageSharpPixel : struct, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
+    internal sealed class ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> : ITiffPixelBufferWriter<TTiffPixel> where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
     {
         private readonly Image<TImageSharpPixel> _image;
 
@@ -192,8 +193,11 @@ namespace TiffLibrary.ImageSharpAdapter
                 {
                     return;
                 }
+                IMemoryGroup<TImageSharpPixel> memoryGroup = image.GetPixelMemoryGroup();
+                long totalLength = memoryGroup.TotalLength;
 
                 // Copy pixels into this column
+                int width = image.Width;
                 int start = _start;
                 int end = start + _length;
                 int colIndex = _colIndex;
@@ -201,7 +205,7 @@ namespace TiffLibrary.ImageSharpAdapter
                 Span<TImageSharpPixel> sourceSpan = MemoryMarshal.Cast<byte, TImageSharpPixel>(_buffer.AsSpan(0, _length * Unsafe.SizeOf<TTiffPixel>()));
                 for (int rowIndex = start; rowIndex < end; rowIndex++)
                 {
-                    image.GetPixelRowSpan(rowIndex)[colIndex] = sourceSpan[index++];
+                    GetBoundedSlice(memoryGroup, totalLength, rowIndex * (long)width, width)[colIndex] = sourceSpan[index++];
                 }
 
                 _image = null;
@@ -216,7 +220,31 @@ namespace TiffLibrary.ImageSharpAdapter
                 }
             }
 
+            internal static Span<T> GetBoundedSlice<T>(IMemoryGroup<T> group, long totalLength, long start, int length) where T : struct
+            {
+                Debug.Assert(!(group is null));
+                Debug.Assert(group!.IsValid);
+                Debug.Assert(length >= 0);
+                Debug.Assert(start <= group.TotalLength);
+                Debug.Assert(totalLength == group.TotalLength);
 
+                int bufferIdx = (int)(start / totalLength);
+                if (bufferIdx >= group.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(start));
+                }
+
+                int bufferStart = (int)(start % totalLength);
+                int bufferEnd = bufferStart + length;
+                Memory<T> memory = group[bufferIdx];
+
+                if (bufferEnd > memory.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(length));
+                }
+
+                return memory.Span.Slice(bufferStart, length);
+            }
         }
 
         #endregion

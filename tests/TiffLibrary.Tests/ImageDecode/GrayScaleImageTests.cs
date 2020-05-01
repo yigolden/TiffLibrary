@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using TiffLibrary.PixelFormats;
 using Xunit;
@@ -28,7 +27,7 @@ namespace TiffLibrary.Tests.ImageDecode
         [MemberData(nameof(GetImagePairs))]
         public void Test(string reference, string test)
         {
-            using var refImage = Image.Load<Gray8>(reference);
+            using var refImage = Image.Load<L8>(reference);
 
             using var tiff = TiffFileReader.Open(test);
 
@@ -46,7 +45,7 @@ namespace TiffLibrary.Tests.ImageDecode
 
                 AssertEqual(refImage, pixels);
 
-                using (var image = new Image<Gray8>(decoder.Width, decoder.Height))
+                using (var image = new Image<L8>(decoder.Width, decoder.Height))
                 {
                     decoder.Decode(image);
                     AssertEqual(refImage, image);
@@ -60,7 +59,7 @@ namespace TiffLibrary.Tests.ImageDecode
         [MemberData(nameof(GetImagePairs))]
         public async Task TestAsync(string reference, string test)
         {
-            using var refImage = Image.Load<Gray8>(reference);
+            using var refImage = Image.Load<L8>(reference);
 
             await using TiffFileReader tiff = await TiffFileReader.OpenAsync(test);
 
@@ -78,7 +77,7 @@ namespace TiffLibrary.Tests.ImageDecode
 
                 AssertEqual(refImage, pixels);
 
-                using (var image = new Image<Gray8>(decoder.Width, decoder.Height))
+                using (var image = new Image<L8>(decoder.Width, decoder.Height))
                 {
                     decoder.Decode(image);
                     AssertEqual(refImage, image);
@@ -88,7 +87,7 @@ namespace TiffLibrary.Tests.ImageDecode
             }
         }
 
-        private static void AssertEqual<T1, T2>(Image<T1> refImage, T2[] testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged
+        private static void AssertEqual<T1, T2>(Image<T1> refImage, T2[] testImage) where T1 : unmanaged, IPixel<T1> where T2 : unmanaged
         {
             Assert.Equal(Unsafe.SizeOf<T1>(), Unsafe.SizeOf<T2>());
             int width = refImage.Width;
@@ -100,7 +99,7 @@ namespace TiffLibrary.Tests.ImageDecode
             }
         }
 
-        private static void AssertEqual<T1, T2>(Image<T1> refImage, Image<T2> testImage) where T1 : struct, IPixel<T1> where T2 : unmanaged, IPixel<T2>
+        private static void AssertEqual<T1, T2>(Image<T1> refImage, Image<T2> testImage) where T1 : unmanaged, IPixel<T1> where T2 : unmanaged, IPixel<T2>
         {
             Assert.Equal(Unsafe.SizeOf<T1>(), Unsafe.SizeOf<T2>());
             Assert.Equal(refImage.Width, testImage.Width);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Buffers;
-using SixLabors.Memory;
+using SixLabors.ImageSharp.Memory;
 
 namespace TiffLibrary.ImageSharpAdapter
 {

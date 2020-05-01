@@ -25,17 +25,17 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            if (typeof(TPixel) == typeof(Gray8))
+            if (typeof(TPixel) == typeof(L8))
             {
-                return new TiffImageSharpEncoder<TPixel, Gray8, TiffGray8>(builder.Build<TiffGray8>());
+                return new TiffImageSharpEncoder<TPixel, L8, TiffGray8>(builder.Build<TiffGray8>());
             }
-            else if (typeof(TPixel) == typeof(Gray16))
+            else if (typeof(TPixel) == typeof(L16))
             {
-                return new TiffImageSharpEncoder<TPixel, Gray16, TiffGray16>(builder.Build<TiffGray16>());
+                return new TiffImageSharpEncoder<TPixel, L16, TiffGray16>(builder.Build<TiffGray16>());
             }
-            else if (typeof(TPixel) == typeof(Alpha8))
+            else if (typeof(TPixel) == typeof(A8))
             {
-                return new TiffImageSharpEncoder<TPixel, Alpha8, TiffMask>(builder.Build<TiffMask>());
+                return new TiffImageSharpEncoder<TPixel, A8, TiffMask>(builder.Build<TiffMask>());
             }
             else if (typeof(TPixel) == typeof(Rgb24))
             {

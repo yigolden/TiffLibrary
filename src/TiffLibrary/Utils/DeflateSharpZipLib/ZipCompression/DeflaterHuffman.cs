@@ -12,6 +12,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
     ///
     /// author of the original java version : Jochen Hoenicke
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class DeflaterHuffman
     {
         private const int BUFSIZE = 1 << (DeflaterConstants.DEFAULT_MEM_LEVEL + 6);

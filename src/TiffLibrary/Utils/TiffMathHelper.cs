@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace TiffLibrary.Utils
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class TiffMathHelper
     {
         public static int DivRem64(int a, out int result)

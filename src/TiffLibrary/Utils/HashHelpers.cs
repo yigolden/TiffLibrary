@@ -1,6 +1,7 @@
 ﻿#if NO_HASHCODE
 namespace TiffLibrary.Utils
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class HashHelpers
     {
         public static int Combine(int h1, int h2)

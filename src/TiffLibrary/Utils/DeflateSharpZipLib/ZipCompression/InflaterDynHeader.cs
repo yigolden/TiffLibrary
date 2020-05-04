@@ -5,6 +5,7 @@ using System.IO;
 
 namespace ICSharpCode.SharpZipLib.Zip.Compression
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class InflaterDynHeader
     {
         #region Constants

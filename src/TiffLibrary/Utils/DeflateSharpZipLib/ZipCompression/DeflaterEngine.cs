@@ -44,6 +44,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
     /// Low level compression engine for deflate algorithm which uses a 32K sliding window
     /// with secondary compression from Huffman/Shannon-Fano codes.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class DeflaterEngine
     {
         #region Constants

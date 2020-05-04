@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace System.IO
 {
 #if NO_FAST_SPAN
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class StreamExtensions
     {
         public static ValueTask WriteAsync(this Stream stream, ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)

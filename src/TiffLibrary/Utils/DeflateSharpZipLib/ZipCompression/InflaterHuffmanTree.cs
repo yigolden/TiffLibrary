@@ -7,6 +7,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
     /// <summary>
     /// Huffman tree used for inflation
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class InflaterHuffmanTree
     {
         #region Constants

@@ -8,6 +8,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
     /// to repeat stuff.<br/>
     /// Author of the original java version : John Leuner
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class OutputWindow
     {
         #region Constants

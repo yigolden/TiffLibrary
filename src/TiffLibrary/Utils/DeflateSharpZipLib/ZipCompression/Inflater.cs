@@ -31,6 +31,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
     ///
     /// author of the original java version : John Leuner, Jochen Hoenicke
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class Inflater
     {
         #region Constants/Readonly

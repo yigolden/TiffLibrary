@@ -5,6 +5,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
     /// <summary>
     /// This class contains constants used for deflation.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class DeflaterConstants
     {
         /// <summary>

@@ -5,6 +5,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
     ///
     /// author of the original java version : Jochen Hoenicke
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class DeflaterPending : PendingBuffer
     {
         /// <summary>

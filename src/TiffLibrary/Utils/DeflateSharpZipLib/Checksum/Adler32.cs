@@ -46,6 +46,7 @@ namespace ICSharpCode.SharpZipLib.Checksum
     ///    checked separately. (Any sequence of zeroes has a Fletcher
     ///    checksum of zero.)"
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal sealed class Adler32 // : IChecksum
     {
         #region Instance Fields

@@ -17,6 +17,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
     ///
     /// authors of the original java version : John Leuner, Jochen Hoenicke
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class StreamManipulator
     {
         /// <summary>

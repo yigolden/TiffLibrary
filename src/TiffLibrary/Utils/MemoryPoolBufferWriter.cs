@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 namespace TiffLibrary
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal sealed class MemoryPoolBufferWriter : IBufferWriter<byte>, IDisposable
     {
         private sealed class BufferSegment : ReadOnlySequenceSegment<byte>

@@ -76,5 +76,5 @@ steps:
   displayName: Publish Code Coverage
   inputs:
     codeCoverageTool: 'cobertura'
-    summaryFileLocation: $(Build.SourcesDirectory)/tests/*Tests/TestResults/*/coverage.cobertura.xml
+    summaryFileLocation: 'tests/TiffLibrary.Tests/TestResults/*/coverage.cobertura.xml'
     failIfCoverageEmpty: false

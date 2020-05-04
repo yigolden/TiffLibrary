@@ -71,3 +71,10 @@ steps:
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: 'Packages'
+
+- task: PublishCodeCoverageResults@1
+  displayName: Publish Code Coverage
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: $(Build.SourcesDirectory)/tests/**/coverage.cobertura.xml
+    failIfCoverageEmpty: false

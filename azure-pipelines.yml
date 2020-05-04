@@ -76,5 +76,5 @@ steps:
   displayName: Publish Code Coverage
   inputs:
     codeCoverageTool: 'cobertura'
-    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+    summaryFileLocation: '$(Agent.TempDirectory)/*/coverage.cobertura.xml'
     failIfCoverageEmpty: false

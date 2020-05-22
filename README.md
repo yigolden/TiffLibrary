@@ -142,7 +142,7 @@ TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync();
 // Create the decoder for the specified IFD.
 TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync(ifd);
 
-// Create an array to hold the pixels
+// Create an array to store the pixels
 TiffRgba32[] pixels = new TiffRgba32[decoder.Width * decoder.Height];
 TiffMemoryPixelBuffer<TiffRgba32> pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, decoder.Width, decoder.Height, writable: true);
 
@@ -190,7 +190,7 @@ builder.ApplyPredictor = TiffPredictor.HorizontalDifferencing;
 TiffImageEncoder<TiffRgba32> encoder = builder.Build<TiffRgba32>(); // The encoder instance can be reused.
 
 // The pixel buffer to read from.
-var pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, 1024, 1024, writable: true);
+var pixelBuffer = new TiffMemoryPixelBuffer<TiffRgba32>(pixels, 1024, 1024, writable: false);
 
 // Opens the file for writing.
 using var writer = await TiffFileWriter.OpenAsync(@"C:\Data\test2.tif", useBigTiff: false);

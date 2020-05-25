@@ -98,7 +98,7 @@ namespace TiffLibrary
                 try
                 {
                     await fs.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
-                    return new TiffFileWriter(Interlocked.Exchange(ref fs, null!), false, useBigTiff);
+                    return new TiffFileWriter(Interlocked.Exchange(ref fs, null!)!, false, useBigTiff);
                 }
                 finally
                 {

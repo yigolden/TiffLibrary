@@ -385,7 +385,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
                 inputBuf.Span.Slice(inputOff, more).CopyTo(window.AsSpan(strstart + lookahead, more));
                 adler?.Update(inputBuf.Span.Slice(inputOff, more));
-                
+
                 inputOff += more;
                 totalIn += more;
                 lookahead += more;

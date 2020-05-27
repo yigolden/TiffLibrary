@@ -115,7 +115,7 @@ namespace TiffLibrary.Tests
                 TiffFileContentReader reader = await contentSource.OpenReaderAsync();
 
                 Task[] tasks = new Task[Math.Clamp(Environment.ProcessorCount * 2, 4, 32)];
-                
+
                 // ArraySegment API
                 for (int t = 0; t < tasks.Length; t++)
                 {

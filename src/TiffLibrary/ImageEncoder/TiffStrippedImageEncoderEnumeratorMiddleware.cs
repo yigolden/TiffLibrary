@@ -43,7 +43,7 @@ namespace TiffLibrary.ImageEncoder
             int width = context.ImageSize.Width, height = context.ImageSize.Height;
             int rowsPerStrip = _rowsPerStrip <= 0 ? height : _rowsPerStrip;
             int stripCount = (height + rowsPerStrip - 1) / rowsPerStrip;
-            
+
             ulong[] stripOffsets = new ulong[stripCount];
             ulong[] stripByteCounts = new ulong[stripCount];
 

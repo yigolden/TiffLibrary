@@ -27,7 +27,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
                 context.UncompressedData = default;
             }
-            
+
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {

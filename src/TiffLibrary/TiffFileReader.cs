@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.ImageDecoder;
@@ -180,6 +181,29 @@ namespace TiffLibrary
         {
             var contentSource = TiffFileContentSource.Create(buffer, offset, count);
             return Open(contentSource, leaveOpen: false);
+        }
+
+        /// <summary>
+        /// Opens a TIFF using memory-mapped file and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="fileName">The TIFF file.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader OpenMemoryMappedFile(string fileName)
+        {
+            var contentSource = TiffFileContentSource.Create(MemoryMappedFile.CreateFromFile(fileName, FileMode.Open, null, 0, MemoryMappedFileAccess.Read), leaveOpen: false);
+            return OpenAsync(contentSource, leaveOpen: false).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Wraps the specified memory-mapped file and creates <see cref="TiffFileReader"/>.
+        /// </summary>
+        /// <param name="memoryMappedFile">The memory-mapped file to wrap.</param>
+        /// <param name="leaveOpen">Whether the memory-mapped file should be left open when the <see cref="TiffFileReader"/> is disposed or we failed to create <see cref="TiffFileReader"/>.</param>
+        /// <returns>The reader instance.</returns>
+        public static TiffFileReader OpenMemoryMappedFile(MemoryMappedFile memoryMappedFile, bool leaveOpen = false)
+        {
+            var contentSource = TiffFileContentSource.Create(memoryMappedFile, leaveOpen);
+            return OpenAsync(contentSource, leaveOpen: false).GetAwaiter().GetResult();
         }
 
         /// <summary>

@@ -9,6 +9,7 @@
 
     <MicrosoftBclAsyncInterfacesPackageVersion>1.1.0</MicrosoftBclAsyncInterfacesPackageVersion>
     <MicrosoftBclHashCodePackageVersion>1.1.0</MicrosoftBclHashCodePackageVersion>
+    <SystemIOMemoryMappedFilesPackageVersion>4.3.0</SystemIOMemoryMappedFilesPackageVersion>
     <SystemMemoryPackageVersion>4.5.4</SystemMemoryPackageVersion>
     <SystemRuntimeCompilerServicesUnsafePackageVersion>4.7.1</SystemRuntimeCompilerServicesUnsafePackageVersion>
     <SystemThreadingTasksExtensionsPackageVersion>4.5.4</SystemThreadingTasksExtensionsPackageVersion>

@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -22,7 +23,7 @@ namespace TiffLibrary.Tests
             yield return new object[]
             {
                 referenceContent,
-                TiffFileContentSource.Create(file, true)
+                TiffFileContentSource.Create(file, preferAsync: true)
             };
 
             // Stream source
@@ -44,6 +45,21 @@ namespace TiffLibrary.Tests
             {
                 referenceContent,
                 TiffFileContentSource.Create(clonedContent, 1000, referenceContent.Length)
+            };
+
+            var mmf = MemoryMappedFile.CreateFromFile(file, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
+            byte[] mmfContent;
+            using (MemoryMappedViewStream mmfStream = mmf.CreateViewStream(0, 0, MemoryMappedFileAccess.Read))
+            {
+                mmfContent = new byte[mmfStream.Length];
+                mmfStream.Read(mmfContent, 0, mmfContent.Length);
+            }
+
+            // Memory-mapped file source
+            yield return new object[]
+            {
+                mmfContent,
+                TiffFileContentSource.Create(mmf, leaveOpen: false)
             };
         }
 

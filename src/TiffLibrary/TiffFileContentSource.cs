@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -60,7 +61,7 @@ namespace TiffLibrary
         }
 
         /// <summary>
-        /// Wraps <paramref name="stream"/> as <see cref="TiffFileContentSource"/>. <see cref="TiffFileReader"/> created from this instance must be accessed concurrently.
+        /// Wraps <paramref name="stream"/> as <see cref="TiffFileContentSource"/>. <see cref="TiffFileReader"/> created from this instance must not be accessed concurrently.
         /// </summary>
         /// <param name="stream">The stream to wrap.</param>
         /// <param name="leaveOpen">True to dispose the stream when <see cref="TiffFileContentSource"/> instance is disposed; otherwise, false.</param>
@@ -85,7 +86,6 @@ namespace TiffLibrary
             return new TiffMemoryContentSource(memory);
         }
 
-
         /// <summary>
         /// Create a <see cref="TiffFileContentSource"/> instance from the specified buffer.
         /// </summary>
@@ -108,6 +108,22 @@ namespace TiffLibrary
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
             return new TiffMemoryContentSource(buffer.AsMemory(offset, count));
+        }
+
+        /// <summary>
+        /// Wraps <paramref name="memoryMappedFile"/> as <see cref="TiffFileContentSource"/>.
+        /// </summary>
+        /// <param name="memoryMappedFile">The memory-mapped file to wrap.</param>
+        /// <param name="leaveOpen">True to dispose the memory-mapped file when <see cref="TiffFileContentSource"/> instance is disposed; otherwise, false.</param>
+        /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the <see cref="MemoryMappedFile"/> instance specified.</returns>
+        public static TiffFileContentSource Create(MemoryMappedFile memoryMappedFile, bool leaveOpen)
+        {
+            if (memoryMappedFile is null)
+            {
+                throw new ArgumentNullException(nameof(memoryMappedFile));
+            }
+
+            return new TiffMemoryMappedFileContentSource(memoryMappedFile, leaveOpen);
         }
 
         #region IDisposable Support

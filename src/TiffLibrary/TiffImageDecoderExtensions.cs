@@ -344,7 +344,7 @@ namespace TiffLibrary
                 destinationOffset = new TiffPoint(destinationOffset.X, 0);
             }
 
-            ITiffPixelBufferWriter<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint writerDestinationOffset, out var writerSize);
+            ITiffPixelBufferWriter<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint writerDestinationOffset, out TiffSize writerSize);
             readSize = new TiffSize(Math.Min(readSize.Width, writerSize.Width), Math.Min(readSize.Height, writerSize.Height));
             return decoder.DecodeAsync(offset, readSize, new TiffPoint(destinationOffset.X + writerDestinationOffset.X, destinationOffset.Y + writerDestinationOffset.Y), innerBuffer, cancellationToken);
         }

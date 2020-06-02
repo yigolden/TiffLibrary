@@ -62,12 +62,6 @@ namespace TiffLibrary
         public TiffDeflateCompressionLevel DeflateCompressionLevel { get; set; }
 
         /// <summary>
-        /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
-        /// </summary>
-        [Obsolete("This property is ignored and will be removed in future versions. Use JpegOptions property instead.")]
-        public int JpegQuality { get; set; } = 75;
-
-        /// <summary>
         /// Gets or sets the options to use when encoding with JPEG compression. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.
         /// </summary>
         public TiffJpegEncodingOptions? JpegOptions { get; set; }

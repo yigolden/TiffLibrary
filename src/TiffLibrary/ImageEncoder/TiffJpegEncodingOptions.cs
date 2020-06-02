@@ -15,13 +15,6 @@ namespace TiffLibrary.ImageEncoder
         public int Quality { get; set; } = 75;
 
         /// <summary>
-        /// When <see cref="UseSharedJpegTables"/> is set, JPEG tables (quantization tables and huffman tables) are written into the JPEGTables tag in the IFD. This flag enables sharing table definitions across strips or tiles.
-        /// This options is ignored when <see cref="OptimizeCoding"/> is set.
-        /// </summary>
-        [Obsolete("This property is ignored and will be removed in future versions. Use UseSharedHuffmanTables and UseSharedQuantizationTables properties instead.")]
-        public bool UseSharedJpegTables { get; set; } = true;
-
-        /// <summary>
         /// When <see cref="UseSharedHuffmanTables"/> is set, JPEG huffman tables are written into the JPEGTables tag in the IFD. This option enables sharing huffman table definitions across strips or tiles.
         /// It is ignored and assumed to be false when <see cref="OptimizeCoding"/> is set.
         /// </summary>

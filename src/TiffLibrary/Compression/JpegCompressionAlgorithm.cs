@@ -50,52 +50,6 @@ namespace TiffLibrary.Compression
         /// Initialize the object.
         /// </summary>
         /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
-        /// <param name="quality">The quality factor to use when generating quantization table.</param>
-        /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
-        [Obsolete("This method will be removed in future versions. Use the overload with the TiffJpegEncodingOptions parameter.")]
-        public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality, bool useSharedJpegTables)
-        {
-            if ((uint)quality > 100)
-            {
-                throw new ArgumentOutOfRangeException(nameof(quality));
-            }
-            _photometricInterpretation = photometricInterpretation;
-            _horizontalSubsampling = 1;
-            _verticalSubsampling = 1;
-            _useSharedHuffmanTables = useSharedJpegTables;
-            _useSharedQuantizationTables = useSharedJpegTables;
-            _optimizeCoding = false;
-            Initialize(quality, false);
-        }
-
-        /// <summary>
-        /// Initialize the object.
-        /// </summary>
-        /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
-        /// <param name="horizontalSubsampling">The horizontal subsampling factor for YCbCr image.</param>
-        /// <param name="verticalSubsampling">The vertical subsampling factor for YCbCr image.</param>
-        /// <param name="quality">The quality factor to use when generating quantization table.</param>
-        /// <param name="useSharedJpegTables">Whether JPEG tables should be written to shared JPEGTables field or to the individual strips/tiles.</param>
-        [Obsolete("This method will be removed in future versions. Use the overload with the TiffJpegEncodingOptions parameter.")]
-        public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int horizontalSubsampling, int verticalSubsampling, int quality, bool useSharedJpegTables)
-        {
-            if ((uint)quality > 100)
-            {
-                throw new ArgumentOutOfRangeException(nameof(quality));
-            }
-            _photometricInterpretation = photometricInterpretation;
-            _horizontalSubsampling = horizontalSubsampling;
-            _verticalSubsampling = verticalSubsampling;
-            _useSharedHuffmanTables = useSharedJpegTables;
-            _useSharedQuantizationTables = useSharedJpegTables;
-            _optimizeCoding = false;
-            Initialize(quality, false);
-        }
-
-        /// <summary>
-        /// Initialize the object.
-        /// </summary>
-        /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
         /// <param name="horizontalSubsampling">The horizontal subsampling factor for YCbCr image.</param>
         /// <param name="verticalSubsampling">The vertical subsampling factor for YCbCr image.</param>
         /// <param name="options">Options to use when encoding with JPEG compression.</param>

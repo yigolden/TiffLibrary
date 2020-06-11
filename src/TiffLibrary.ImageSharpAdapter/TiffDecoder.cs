@@ -31,6 +31,11 @@ namespace TiffLibrary.ImageSharpAdapter
                 throw new ArgumentNullException(nameof(configuration));
             }
 
+            if (stream is null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             var decoder = new TiffDecoderCore(configuration, this);
             return decoder.Decode<TPixel>(stream);
         }
@@ -45,6 +50,11 @@ namespace TiffLibrary.ImageSharpAdapter
             if (configuration is null)
             {
                 throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (stream is null)
+            {
+                throw new ArgumentNullException(nameof(stream));
             }
 
             var decoder = new TiffDecoderCore(configuration, this);

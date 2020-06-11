@@ -108,9 +108,21 @@ namespace TiffLibrary.ImageSharpAdapter
 
         private async Task<Image<TImageSharpPixel>> DecodeImageSlowAsync<TImageSharpPixel>(TiffImageDecoder decoder) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel>
         {
-            using var image = new Image<Rgba32>(_configuration, decoder.Width, decoder.Height);
-            await decoder.DecodeAsync(new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(image)).ConfigureAwait(false);
-            return image.CloneAs<TImageSharpPixel>();
+            var image = new Image<TImageSharpPixel>(_configuration, decoder.Width, decoder.Height);
+            try
+            {
+                var writer = new ImageSharpPixelBufferWriter<TImageSharpPixel, TImageSharpPixel>(image);
+                await decoder.DecodeAsync(new ImageSharpConversionPixelBufferWriter2<TiffRgba32, Rgba32, TImageSharpPixel>(writer)).ConfigureAwait(false);
+                return Interlocked.Exchange(ref image, null)!;
+            }
+            finally
+            {
+                if (!(image is null))
+                {
+                    image.Dispose();
+                }
+            }
+            
         }
     }
 }

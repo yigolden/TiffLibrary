@@ -89,7 +89,11 @@ namespace TiffLibrary.ImageSharpAdapter
             }
 
             // Slow path
-            return await DecodeImageSlowAsync<TPixel>(decoder).ConfigureAwait(false);
+            if (typeof(TPixel) == typeof(Rgb48))
+            {
+                return await DecodeImageSlowAsync<TiffRgba64, Rgba64, TPixel>(decoder).ConfigureAwait(false);
+            }
+            return await DecodeImageSlowAsync<TiffRgba32, Rgba32, TPixel>(decoder).ConfigureAwait(false);
         }
 
         private async Task<Image<TImageSharpPixel>> DecodeImageAsync<TImageSharpPixel, TTiffPixel>(TiffImageDecoder decoder) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
@@ -106,7 +110,10 @@ namespace TiffLibrary.ImageSharpAdapter
             }
         }
 
-        private async Task<Image<TImageSharpPixel>> DecodeImageSlowAsync<TImageSharpPixel>(TiffImageDecoder decoder) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel>
+        private async Task<Image<TImageSharpPixel>> DecodeImageSlowAsync<TTiffPixel, TIntermediate, TImageSharpPixel>(TiffImageDecoder decoder)
+            where TTiffPixel : unmanaged
+            where TIntermediate : unmanaged, IPixel<TIntermediate>
+            where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel>
         {
             var image = new Image<TImageSharpPixel>(_configuration, decoder.Width, decoder.Height);
             try
@@ -122,7 +129,7 @@ namespace TiffLibrary.ImageSharpAdapter
                     image.Dispose();
                 }
             }
-            
+
         }
     }
 }

@@ -102,6 +102,11 @@ namespace TiffLibrary
             {
                 decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32));
             }
+            else if (destinationImage is Image<Rgb48> imageOfRgb48)
+            {
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(imageOfRgb48);
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer));
+            }
             else
             {
                 readSize = new TiffSize(Math.Max(0, Math.Min(destinationImage.Width - destinationOffset.X, readSize.Width)), Math.Max(0, Math.Min(destinationImage.Height - destinationOffset.Y, readSize.Height)));

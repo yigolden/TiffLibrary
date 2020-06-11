@@ -5,8 +5,9 @@
     <Title>TiffLibrary.ImageSharpAdapter</Title>
     <Description>An adapter that enables SixLabors.ImageSharp to decode and encode TIFF files using TiffLibrary package.</Description>
     <TargetFrameworks>netstandard1.3;netstandard2.0;net472;netcoreapp2.1;netstandard2.1</TargetFrameworks>
-    <NoWarn>$(NoWarn);CA1001;CA2000;CA2213</NoWarn>
+    <NoWarn>$(NoWarn);CA1001;CA1303;CA2000;CA2213</NoWarn>
     <!-- CA1001: Types that own disposable fields should be disposable -->
+    <!-- CA1303: Do not pass literals as localized parameters -->
     <!-- CA2000: Dispose objects before losing scope -->
     <!-- CA2213: Disposable fields should be disposed -->
   </PropertyGroup>

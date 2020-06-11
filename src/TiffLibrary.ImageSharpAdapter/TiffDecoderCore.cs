@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,10 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public IImageInfo Identify(Stream stream)
         {
+            if (!stream.CanSeek)
+            {
+                throw new InvalidOperationException("TIFF stream must be seekable.");
+            }
             return IdentifyCoreAsync(new ImageSharpContentSource(stream)).GetAwaiter().GetResult();
         }
 
@@ -39,6 +44,10 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public Image<TPixel> Decode<TPixel>(Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
+            if (!stream.CanSeek)
+            {
+                throw new InvalidOperationException("TIFF stream must be seekable.");
+            }
             return DecodeCoreAsync<TPixel>(new ImageSharpContentSource(stream)).GetAwaiter().GetResult();
         }
 

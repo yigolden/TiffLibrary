@@ -63,8 +63,9 @@ namespace TiffLibrary
             if (!(_stream is null) && !_leaveOpen)
             {
                 await _stream.DisposeAsync().ConfigureAwait(false);
+                _stream = null;
             }
-            _stream = null;
+            await base.DisposeAsync().ConfigureAwait(false);
             _reader = null;
         }
 #endif
@@ -90,7 +91,7 @@ namespace TiffLibrary
                     _stream.Dispose();
                     _stream = null;
                 }
-                return default;
+                return base.DisposeAsync();
             }
 #else
             public override async ValueTask DisposeAsync()
@@ -100,6 +101,7 @@ namespace TiffLibrary
                     await _stream.DisposeAsync().ConfigureAwait(false);
                     _stream = null;
                 }
+                await base.DisposeAsync().ConfigureAwait(false);
             }
 #endif
 

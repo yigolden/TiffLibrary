@@ -99,7 +99,7 @@ namespace TiffLibrary.ImageSharpAdapter
             return EncodeImageSlowAsync(builder, image, ifdWriter);
         }
 
-        private async Task BuildAndEncodeAsync<TImageSharpPixel, TTiffPixel>(TiffImageEncoderBuilder builder, Image<TImageSharpPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
+        private static async Task BuildAndEncodeAsync<TImageSharpPixel, TTiffPixel>(TiffImageEncoderBuilder builder, Image<TImageSharpPixel> image, TiffImageFileDirectoryWriter ifdWriter) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
         {
             TiffImageEncoder<TTiffPixel> encoder = builder.Build<TTiffPixel>();
             await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBufferReader<TImageSharpPixel, TTiffPixel>(image)).ConfigureAwait(false);

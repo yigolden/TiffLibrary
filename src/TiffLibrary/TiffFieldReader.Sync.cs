@@ -2,6 +2,7 @@
 
 namespace TiffLibrary
 {
+#pragma warning disable CA2012
     public partial class TiffFieldReader
     {
 
@@ -150,4 +151,5 @@ namespace TiffLibrary
             => ReadIFD8FieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
 
     }
+#pragma warning restore CA2012
 }

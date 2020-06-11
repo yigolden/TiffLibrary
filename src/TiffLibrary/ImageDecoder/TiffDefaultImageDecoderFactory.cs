@@ -152,7 +152,7 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // Middleware: ReversePredictor
-            TiffPredictor prediction = await tagReader.ReadPredictorAsync(cancellationToken);
+            TiffPredictor prediction = await tagReader.ReadPredictorAsync(cancellationToken).ConfigureAwait(false);
             if (prediction != TiffPredictor.None)
             {
                 builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
@@ -269,7 +269,7 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // Middleware: ReversePredictor
-            TiffPredictor prediction = await tagReader.ReadPredictorAsync(cancellationToken);
+            TiffPredictor prediction = await tagReader.ReadPredictorAsync(cancellationToken).ConfigureAwait(false);
             if (prediction != TiffPredictor.None)
             {
                 builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
@@ -298,7 +298,7 @@ namespace TiffLibrary.ImageDecoder
         public static async Task<TiffImageDecoder> CreateLegacyJpegImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffFileContentReader contentReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
         {
             TiffImageFileDirectory ifd = tagReader.ImageFileDirectory;
-            TiffPhotometricInterpretation? photometricInterpretation = await tagReader.ReadPhotometricInterpretationAsync(cancellationToken);
+            TiffPhotometricInterpretation? photometricInterpretation = await tagReader.ReadPhotometricInterpretationAsync(cancellationToken).ConfigureAwait(false);
             int width = (int)await tagReader.ReadImageWidthAsync(cancellationToken).ConfigureAwait(false);
             int height = (int)await tagReader.ReadImageLengthAsync(cancellationToken).ConfigureAwait(false);
             TiffPlanarConfiguration planarConfiguration = await tagReader.ReadPlanarConfigurationAsync(cancellationToken).ConfigureAwait(false);

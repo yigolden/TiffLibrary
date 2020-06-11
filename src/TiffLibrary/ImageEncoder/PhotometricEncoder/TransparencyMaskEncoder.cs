@@ -43,11 +43,11 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             {
                 await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.FillOrder, TiffValueCollection.Single((ushort)TiffFillOrder.HigherOrderBitsFirst));
+                await ifdWriter.WriteTagAsync(TiffTag.FillOrder, TiffValueCollection.Single((ushort)TiffFillOrder.HigherOrderBitsFirst)).ConfigureAwait(false);
             }
         }
 
-        private int PackBytesIntoBits(Span<byte> pixelData, TiffSize imageSize, int threshold)
+        private static int PackBytesIntoBits(Span<byte> pixelData, TiffSize imageSize, int threshold)
         {
             // Calculate bytes per scanline
             int width = imageSize.Width;

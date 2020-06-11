@@ -44,7 +44,7 @@ namespace TiffLibrary.ImageSharpAdapter
 
             public override ValueTask DisposeAsync()
             {
-                return default;
+                return base.DisposeAsync();
             }
 
             protected override void Dispose(bool disposing)

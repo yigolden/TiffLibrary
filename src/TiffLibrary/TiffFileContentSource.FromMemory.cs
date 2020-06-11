@@ -47,12 +47,6 @@ namespace TiffLibrary
                 _memory = memory;
             }
 
-            public override ValueTask DisposeAsync()
-            {
-                // Noop
-                return default;
-            }
-
             protected override void Dispose(bool disposing)
             {
                 // Noop

@@ -62,7 +62,7 @@ namespace TiffLibrary.PixelFormats.Converters
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private int Descale(int x, int n)
+            private static int Descale(int x, int n)
             {
                 return (((x) + (1 << ((n) - 1))) >> (n));
             }

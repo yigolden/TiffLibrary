@@ -526,7 +526,7 @@ namespace TiffLibrary
             }
             finally
             {
-                reader.DisposeAsync().ConfigureAwait(false);
+                reader.Dispose();
             }
         }
 
@@ -560,7 +560,7 @@ namespace TiffLibrary
             }
             finally
             {
-                reader.DisposeAsync().ConfigureAwait(false);
+                reader.Dispose();
             }
         }
 

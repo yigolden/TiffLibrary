@@ -120,7 +120,7 @@ namespace TiffLibrary
             fs?.Dispose();
         }
 
-        public override ValueTask DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
             Stream? fs = null;
             lock (_lock)
@@ -132,9 +132,9 @@ namespace TiffLibrary
 
             if (!(fs is null))
             {
-                return fs.DisposeAsync();
+                await fs.DisposeAsync().ConfigureAwait(false);
             }
-            return default;
+            await base.DisposeAsync().ConfigureAwait(false);
         }
 
 
@@ -151,14 +151,14 @@ namespace TiffLibrary
                 _streamInUse = 0;
             }
 
-            public override ValueTask DisposeAsync()
+            public override async ValueTask DisposeAsync()
             {
                 FileStream? fs = Interlocked.Exchange(ref _stream, null);
                 if (!(fs is null))
                 {
-                    return _parent.ReturnStreamAsync(fs);
+                    await _parent.ReturnStreamAsync(fs).ConfigureAwait(false);
                 }
-                return default;
+                await base.DisposeAsync().ConfigureAwait(false);
             }
 
             protected override void Dispose(bool disposing)

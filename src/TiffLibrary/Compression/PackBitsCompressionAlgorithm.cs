@@ -40,7 +40,7 @@ namespace TiffLibrary.Compression
 
         }
 
-        private void PackBits(ReadOnlySpan<byte> inputSpan, IBufferWriter<byte> outputWriter)
+        private static void PackBits(ReadOnlySpan<byte> inputSpan, IBufferWriter<byte> outputWriter)
         {
             Span<byte> buffer;
 
@@ -53,8 +53,6 @@ namespace TiffLibrary.Compression
                     if (inputSpan[i] != inputSpan[i - 1] || i == 1)
                     {
                         // Noop
-                        //literalRunLength++;
-                        //continue;
                     }
                     else if (inputSpan[i] == inputSpan[i - 2])
                     {

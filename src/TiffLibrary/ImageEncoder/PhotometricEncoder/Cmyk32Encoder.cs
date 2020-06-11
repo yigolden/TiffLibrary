@@ -35,8 +35,8 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             {
                 await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
                 await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(4));
-                await ifdWriter.WriteTagAsync(TiffTag.InkSet, TiffValueCollection.Single((ushort)TiffInkSet.CMYK));
+                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(4)).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.InkSet, TiffValueCollection.Single((ushort)TiffInkSet.CMYK)).ConfigureAwait(false);
             }
         }
     }

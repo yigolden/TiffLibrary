@@ -91,7 +91,7 @@ namespace TiffLibrary.ImageDecoder
                 DestinationWriter = new TiffPixelBufferWriter<TPixel>(TiffNoopDisposablePixelBufferWriter.Wrap(writer)).Crop(destinationOffset, readSize)
             };
 
-            _pipeline.RunAsync(context).GetAwaiter().GetResult();
+            _pipeline.RunAsync(context).AsTask().GetAwaiter().GetResult();
         }
 
         /// <inheritdoc />

@@ -3,11 +3,11 @@
   <PropertyGroup Label="Package Versions">
     <JpegLibraryPackageVersion>0.3.15</JpegLibraryPackageVersion>
 
-    <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>2.9.7</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
+    <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>3.0.0</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
 
-    <MicrosoftBclAsyncInterfacesPackageVersion>1.1.0</MicrosoftBclAsyncInterfacesPackageVersion>
+    <MicrosoftBclAsyncInterfacesPackageVersion>1.1.1</MicrosoftBclAsyncInterfacesPackageVersion>
     <MicrosoftBclHashCodePackageVersion>1.1.0</MicrosoftBclHashCodePackageVersion>
     <SystemIOMemoryMappedFilesPackageVersion>4.3.0</SystemIOMemoryMappedFilesPackageVersion>
     <SystemMemoryPackageVersion>4.5.4</SystemMemoryPackageVersion>

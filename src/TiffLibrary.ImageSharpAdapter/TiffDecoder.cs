@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
@@ -17,13 +18,7 @@ namespace TiffLibrary.ImageSharpAdapter
         /// </summary>
         public bool IgnoreOrientation { get; set; } = false;
 
-        /// <summary>
-        /// Decode the image from the specified stream to the <see cref="ImageFrame{TPixel}"/>.
-        /// </summary>
-        /// <typeparam name="TPixel">The pixel format.</typeparam>
-        /// <param name="configuration">The configuration for the image.</param>
-        /// <param name="stream">The <see cref="Stream"/> containing image data.</param>
-        /// <returns>The decoded image.</returns>
+        /// <inheritdoc />
         public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             if (configuration is null)
@@ -45,6 +40,27 @@ namespace TiffLibrary.ImageSharpAdapter
             => Decode<Rgba32>(configuration, stream);
 
         /// <inheritdoc />
+        public Task<Image<TPixel>> DecodeAsync<TPixel>(Configuration configuration, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (stream is null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            var decoder = new TiffDecoderCore(configuration, this);
+            return decoder.DecodeAsync<TPixel>(stream);
+        }
+
+        /// <inheritdoc />
+        public async Task<Image> DecodeAsync(Configuration configuration, Stream stream)
+            => await DecodeAsync<Rgba32>(configuration, stream).ConfigureAwait(false);
+
+        /// <inheritdoc />
         public IImageInfo Identify(Configuration configuration, Stream stream)
         {
             if (configuration is null)
@@ -59,6 +75,23 @@ namespace TiffLibrary.ImageSharpAdapter
 
             var decoder = new TiffDecoderCore(configuration, this);
             return decoder.Identify(stream);
+        }
+
+        /// <inheritdoc />
+        public Task<IImageInfo> IdentifyAsync(Configuration configuration, Stream stream)
+        {
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (stream is null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            var decoder = new TiffDecoderCore(configuration, this);
+            return decoder.IdentifyAsync(stream);
         }
     }
 }

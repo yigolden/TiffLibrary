@@ -29,6 +29,15 @@ namespace TiffLibrary.ImageSharpAdapter
             return IdentifyCoreAsync(new ImageSharpContentSource(stream)).GetAwaiter().GetResult();
         }
 
+        public Task<IImageInfo> IdentifyAsync(Stream stream)
+        {
+            if (!stream.CanSeek)
+            {
+                throw new InvalidOperationException("TIFF stream must be seekable.");
+            }
+            return IdentifyCoreAsync(TiffFileContentSource.Create(stream, true));
+        }
+
         private async Task<IImageInfo> IdentifyCoreAsync(TiffFileContentSource contentSource)
         {
             using TiffFileReader tiff = await TiffFileReader.OpenAsync(contentSource).ConfigureAwait(false);
@@ -49,6 +58,15 @@ namespace TiffLibrary.ImageSharpAdapter
                 throw new InvalidOperationException("TIFF stream must be seekable.");
             }
             return DecodeCoreAsync<TPixel>(new ImageSharpContentSource(stream)).GetAwaiter().GetResult();
+        }
+
+        public Task<Image<TPixel>> DecodeAsync<TPixel>(Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (!stream.CanSeek)
+            {
+                throw new InvalidOperationException("TIFF stream must be seekable.");
+            }
+            return DecodeCoreAsync<TPixel>(TiffFileContentSource.Create(stream, true));
         }
 
         private async Task<Image<TPixel>> DecodeCoreAsync<TPixel>(TiffFileContentSource contentSource)

@@ -24,8 +24,14 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
-            EncodeCoreAsync(image, stream).GetAwaiter().GetResult();
+            EncodeCoreAsync(image, new SyncStreamWrapper(stream)).GetAwaiter().GetResult();
         }
+
+        public Task EncodeAsync<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            return EncodeCoreAsync(image, stream);
+        }
+
 
         private async Task EncodeCoreAsync<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {

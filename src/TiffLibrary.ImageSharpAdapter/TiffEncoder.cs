@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
@@ -78,16 +79,18 @@ namespace TiffLibrary.ImageSharpAdapter
         /// </summary>
         public int VerticalChromaSubSampling { get; set; } = 1;
 
-        /// <summary>
-        /// Encodes the image to the specified stream from the <see cref="Image{TPixel}"/>.
-        /// </summary>
-        /// <typeparam name="TPixel">The pixel format.</typeparam>
-        /// <param name="image">The <see cref="Image{TPixel}"/> to encode from.</param>
-        /// <param name="stream">The <see cref="Stream"/> to encode the image data to.</param>
+        /// <inheritdoc />
         public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
         {
             var encoder = new TiffEncoderCore(image.GetConfiguration(), this);
             encoder.Encode(image, stream);
+        }
+
+        /// <inheritdoc />
+        public Task EncodeAsync<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            var encoder = new TiffEncoderCore(image.GetConfiguration(), this);
+            return encoder.EncodeAsync(image, stream);
         }
     }
 }

@@ -14,7 +14,15 @@
     <!-- CA2000: Dispose objects before losing scope -->
     <!-- CA2119: Seal methods that satisfy private interfaces (This should be removed when we drop net46/net472/netstandard1.3 support) -->
     <!-- CA2213: Disposable fields should be disposed -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP;NO_MATHF_ROUND</DefineConstants>

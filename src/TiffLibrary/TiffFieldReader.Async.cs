@@ -23,7 +23,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadByteFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadByteFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified IFD entry.
@@ -37,7 +37,7 @@ namespace TiffLibrary
         public ValueTask ReadByteFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<byte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadByteFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -46,12 +46,18 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             if (skipTypeValidation || entry.IsKnownSingleByte())
             {
                 // is inlined ?
                 long valueCount = entry.ValueCount;
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     Span<byte> rawOffset = stackalloc byte[8];
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
@@ -63,7 +69,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<byte>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<byte>>(SlowReadByteFieldAsync<byte>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<byte>>(SlowReadByteFieldAsync<byte>(reader, entry, sizeLimit, null, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -118,9 +124,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private static async Task<TiffValueCollection<TDest>> SlowReadByteFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<byte, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private static async Task<TiffValueCollection<TDest>> SlowReadByteFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<byte, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadByteFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -182,7 +189,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadSByteFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadSByteFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified IFD entry.
@@ -196,7 +203,7 @@ namespace TiffLibrary
         public ValueTask ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<sbyte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSByteFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -205,6 +212,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.IsKnownSingleByte())
@@ -212,6 +224,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -222,7 +235,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<sbyte>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<sbyte>>(SlowReadSByteFieldAsync(reader, entry, cancellationToken));
+                return new ValueTask<TiffValueCollection<sbyte>>(SlowReadByteFieldAsync<sbyte>(reader, entry, sizeLimit, null, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -277,15 +290,6 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private static Task<TiffValueCollection<sbyte>> SlowReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, CancellationToken cancellationToken)
-            => SlowReadSByteFieldAsync<sbyte>(reader, entry, null, cancellationToken);
-
-        private static async Task<TiffValueCollection<TDest>> SlowReadSByteFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<byte, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
-        {
-            TDest[] values = new TDest[entry.ValueCount];
-            await SlowReadByteFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
-            return TiffValueCollection.UnsafeWrap(values);
-        }
 
         #endregion
 
@@ -427,7 +431,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadShortFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadShortFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Short"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadShortFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Short"/> from the specified IFD entry.
@@ -441,7 +456,7 @@ namespace TiffLibrary
         public ValueTask ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<ushort> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadShortFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -449,6 +464,11 @@ namespace TiffLibrary
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
 
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
@@ -458,6 +478,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -471,13 +492,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<ushort>>(SlowReadShortFieldAsync<ushort>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<ushort>>(SlowReadShortFieldAsync<ushort>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -488,7 +510,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<ushort>>(SlowReadByteFieldAsync<ushort>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<ushort>>(SlowReadByteFieldAsync<ushort>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -568,9 +590,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadShortFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<short, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadShortFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<short, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadShortFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -621,7 +644,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadSShortFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadSShortFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadSShortFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified IFD entry.
@@ -635,7 +669,7 @@ namespace TiffLibrary
         public ValueTask ReadSShortFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<short> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSShortFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -643,6 +677,11 @@ namespace TiffLibrary
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
 
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
@@ -652,6 +691,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(short) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -665,13 +705,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<short>>(SlowReadShortFieldAsync<short>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<short>>(SlowReadShortFieldAsync<short>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -682,13 +723,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<short>>(SlowReadByteFieldAsync<short>(reader, entry, v => (sbyte)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<short>>(SlowReadByteFieldAsync<short>(reader, entry, sizeLimit, v => (sbyte)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -699,7 +741,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<short>>(SlowReadByteFieldAsync<short>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<short>>(SlowReadByteFieldAsync<short>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -812,7 +854,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadLongFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadLongFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadLongFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long"/> from the specified IFD entry.
@@ -826,7 +879,7 @@ namespace TiffLibrary
         public ValueTask ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<uint> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLongFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -835,6 +888,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
@@ -842,6 +900,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -855,13 +914,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<uint>>(SlowReadLongFieldAsync<uint>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<uint>>(SlowReadLongFieldAsync<uint>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -875,13 +935,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<uint>>(SlowReadShortFieldAsync<uint>(reader, entry, v => (ushort)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<uint>>(SlowReadShortFieldAsync<uint>(reader, entry, sizeLimit, v => (ushort)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -892,7 +953,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<uint>>(SlowReadByteFieldAsync<uint>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<uint>>(SlowReadByteFieldAsync<uint>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -994,9 +1055,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadLongFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<int, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadLongFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<int, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadLongFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -1047,7 +1109,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadSLongFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadSLongFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadSLongFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified IFD entry.
@@ -1061,7 +1134,7 @@ namespace TiffLibrary
         public ValueTask ReadSLongFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<int> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSLongFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -1070,6 +1143,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
@@ -1077,6 +1155,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(int) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1090,13 +1169,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<int>>(SlowReadLongFieldAsync<int>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<int>>(SlowReadLongFieldAsync<int>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SShort)
             {
                 // is inlined ?
                 if (sizeof(short) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1110,13 +1190,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<int>>(SlowReadShortFieldAsync<int>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<int>>(SlowReadShortFieldAsync<int>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1130,11 +1211,12 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<int>>(SlowReadShortFieldAsync<int>(reader, entry, v => (ushort)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<int>>(SlowReadShortFieldAsync<int>(reader, entry, sizeLimit, v => (ushort)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
                 // is inlined ?
+                valueCount = Math.Min(sizeLimit, valueCount);
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
@@ -1147,13 +1229,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(reader, entry, v => (sbyte)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(reader, entry, sizeLimit, v => (sbyte)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1164,7 +1247,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -1322,7 +1405,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadLong8FieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadLong8FieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadLong8FieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified IFD entry.
@@ -1336,7 +1430,7 @@ namespace TiffLibrary
         public ValueTask ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<ulong> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLong8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -1345,6 +1439,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.IFD8)
@@ -1352,6 +1451,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(ulong) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1365,13 +1465,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<ulong>>(SlowReadLong8FieldAsync<ulong>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<ulong>>(SlowReadLong8FieldAsync<ulong>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Long)
             {
                 // is inlined ?
                 if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1385,13 +1486,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<ulong>>(SlowReadLongFieldAsync<ulong>(reader, entry, v => (uint)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<ulong>>(SlowReadLongFieldAsync<ulong>(reader, entry, sizeLimit, v => (uint)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1405,13 +1507,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<ulong>>(SlowReadShortFieldAsync<ulong>(reader, entry, v => (ushort)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<ulong>>(SlowReadShortFieldAsync<ulong>(reader, entry, sizeLimit, v => (ushort)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1422,7 +1525,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<ulong>>(SlowReadByteFieldAsync<ulong>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<ulong>>(SlowReadByteFieldAsync<ulong>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -1547,9 +1650,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadLong8FieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<long, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadLong8FieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<long, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadLong8FieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -1600,7 +1704,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadSLong8FieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadSLong8FieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadSLong8FieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified IFD entry.
@@ -1614,7 +1729,7 @@ namespace TiffLibrary
         public ValueTask ReadSLong8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<long> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSLong8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -1623,6 +1738,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.IFD8)
@@ -1630,6 +1750,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(long) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1643,13 +1764,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadLong8FieldAsync<long>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadLong8FieldAsync<long>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SLong)
             {
                 // is inlined ?
                 if (sizeof(int) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1663,13 +1785,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadLongFieldAsync<long>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadLongFieldAsync<long>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Long)
             {
                 // is inlined ?
                 if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1683,13 +1806,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadLongFieldAsync<long>(reader, entry, v => (uint)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadLongFieldAsync<long>(reader, entry, sizeLimit, v => (uint)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SShort)
             {
                 // is inlined ?
                 if (sizeof(short) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1703,13 +1827,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadShortFieldAsync<long>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadShortFieldAsync<long>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1723,13 +1848,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadShortFieldAsync<long>(reader, entry, v => (ushort)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadShortFieldAsync<long>(reader, entry, sizeLimit, v => (ushort)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1740,13 +1866,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadByteFieldAsync<long>(reader, entry, v => (sbyte)v, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadByteFieldAsync<long>(reader, entry, sizeLimit, v => (sbyte)v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1757,7 +1884,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<long>>(SlowReadByteFieldAsync<long>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<long>>(SlowReadByteFieldAsync<long>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -1961,7 +2088,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<float>> ReadFloatFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadFloatFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadFloatFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Float"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<float>> ReadFloatFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadFloatFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Float"/> from the specified IFD entry.
@@ -1975,7 +2113,7 @@ namespace TiffLibrary
         public ValueTask ReadFloatFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<float> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadFloatFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<float>> ReadFloatFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<float>> ReadFloatFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -1984,6 +2122,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Float)
@@ -1991,6 +2134,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(float) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2006,7 +2150,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<float>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<float>>(SlowReadFloatFieldAsync<float>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<float>>(SlowReadFloatFieldAsync<float>(reader, entry, sizeLimit, null, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -2067,9 +2211,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadFloatFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<float, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadFloatFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<float, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadFloatFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -2120,7 +2265,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<double>> ReadDoubleFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadDoubleFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadDoubleFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Double"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<double>> ReadDoubleFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadDoubleFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Double"/> from the specified IFD entry.
@@ -2134,7 +2290,7 @@ namespace TiffLibrary
         public ValueTask ReadDoubleFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<double> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadDoubleFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<double>> ReadDoubleFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<double>> ReadDoubleFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -2143,6 +2299,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Double)
@@ -2150,6 +2311,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(double) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2165,13 +2327,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<double>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<double>>(SlowReadDoubleFieldAsync<double>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<double>>(SlowReadDoubleFieldAsync<double>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Float)
             {
                 // is inlined ?
                 if (sizeof(float) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2187,7 +2350,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<double>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<double>>(SlowReadFloatFieldAsync<double>(reader, entry, v => v, cancellationToken));
+                return new ValueTask<TiffValueCollection<double>>(SlowReadFloatFieldAsync<double>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -2270,9 +2433,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadDoubleFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<double, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadDoubleFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<double, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadDoubleFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -2323,7 +2487,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadRationalFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadRationalFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadRationalFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified IFD entry.
@@ -2337,7 +2512,7 @@ namespace TiffLibrary
         public ValueTask ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadRationalFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -2345,6 +2520,11 @@ namespace TiffLibrary
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
 
             // is inlined ?
             long valueCount = entry.ValueCount;
@@ -2354,6 +2534,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2366,13 +2547,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadRationalFieldAsync<TiffRational>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadRationalFieldAsync<TiffRational>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Long)
             {
                 // is inlined ?
                 if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2386,13 +2568,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadLongFieldAsync(reader, entry, v => new TiffRational((uint)v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadLongFieldAsync(reader, entry, sizeLimit, v => new TiffRational((uint)v, 1), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2406,13 +2589,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadShortFieldAsync(reader, entry, v => new TiffRational((ushort)v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadShortFieldAsync(reader, entry, sizeLimit, v => new TiffRational((ushort)v, 1), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2423,7 +2607,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadByteFieldAsync(reader, entry, v => new TiffRational(v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadByteFieldAsync(reader, entry, sizeLimit, v => new TiffRational(v, 1), cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -2543,9 +2727,10 @@ namespace TiffLibrary
             throw new InvalidOperationException();
         }
 
-        private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, Func<TiffRational, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
+        private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<TiffRational, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
         {
-            TDest[] values = new TDest[entry.ValueCount];
+            Debug.Assert(sizeLimit >= 0);
+            TDest[] values = new TDest[Math.Min(sizeLimit, entry.ValueCount)];
             await SlowReadRationalFieldAsync(reader, entry, 0, values, convertFunc, cancellationToken).ConfigureAwait(false);
             return TiffValueCollection.UnsafeWrap(values);
         }
@@ -2596,7 +2781,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadSRationalFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadSRationalFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadSRationalFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified IFD entry.
@@ -2610,7 +2806,7 @@ namespace TiffLibrary
         public ValueTask ReadSRationalFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffSRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSRationalFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -2619,13 +2815,19 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            // is inlined ?
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Rational)
             {
+                // is inlined ?
                 if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2638,13 +2840,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadRationalFieldAsync<TiffSRational>(reader, entry, null, cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadRationalFieldAsync<TiffSRational>(reader, entry, sizeLimit, null, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.Long)
             {
                 // is inlined ?
                 if (sizeof(int) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2658,13 +2861,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadLongFieldAsync(reader, entry, v => new TiffSRational(v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadLongFieldAsync(reader, entry, sizeLimit, v => new TiffSRational(v, 1), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SShort)
             {
                 // is inlined ?
                 if (sizeof(short) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2678,13 +2882,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadShortFieldAsync(reader, entry, v => new TiffSRational(v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadShortFieldAsync(reader, entry, sizeLimit, v => new TiffSRational(v, 1), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
                 // is inlined ?
                 if (sizeof(ushort) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2698,13 +2903,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadShortFieldAsync(reader, entry, v => new TiffSRational((ushort)v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadShortFieldAsync(reader, entry, sizeLimit, v => new TiffSRational((ushort)v, 1), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2715,13 +2921,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadByteFieldAsync(reader, entry, v => new TiffSRational((sbyte)v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadByteFieldAsync(reader, entry, sizeLimit, v => new TiffSRational((sbyte)v, 1), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2732,7 +2939,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadByteFieldAsync(reader, entry, v => new TiffSRational(v, 1), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadByteFieldAsync(reader, entry, sizeLimit, v => new TiffSRational(v, 1), cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -2909,7 +3116,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadIFDFieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadIFDFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadIFDFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified IFD entry.
@@ -2923,7 +3141,7 @@ namespace TiffLibrary
         public ValueTask ReadIFDFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadIFDFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -2932,6 +3150,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
@@ -2939,6 +3162,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(int) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -2954,7 +3178,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, offset => new TiffStreamOffset(offset), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, sizeLimit, offset => new TiffStreamOffset(offset), cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -3026,7 +3250,18 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
-            => ReadIFD8FieldAsync(GetAsyncReader(), entry, skipTypeValidation, cancellationToken);
+            => ReadIFD8FieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadIFD8FieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified IFD entry.
@@ -3040,7 +3275,7 @@ namespace TiffLibrary
         public ValueTask ReadIFD8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadIFD8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
-        private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+        private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
@@ -3049,6 +3284,11 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (sizeLimit < 0)
+            {
+                sizeLimit = int.MaxValue;
+            }
+
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.IFD8)
@@ -3056,6 +3296,7 @@ namespace TiffLibrary
                 // is inlined ?
                 if (sizeof(long) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -3071,13 +3312,14 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLong8FieldAsync(reader, entry, offset => new TiffStreamOffset(offset), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLong8FieldAsync(reader, entry, sizeLimit, offset => new TiffStreamOffset(offset), cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.IFD)
             {
                 // is inlined ?
                 if (sizeof(uint) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -3091,7 +3333,7 @@ namespace TiffLibrary
                     return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.UnsafeWrap(values));
                 }
 
-                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, v => new TiffStreamOffset((uint)v), cancellationToken));
+                return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, sizeLimit, v => new TiffStreamOffset((uint)v), cancellationToken));
             }
 
             throw new InvalidOperationException();

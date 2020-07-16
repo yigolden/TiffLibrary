@@ -12,7 +12,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<byte> ReadByteField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadByteFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadByteFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified IFD entry.
@@ -32,7 +32,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<sbyte> ReadSByteField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadSByteFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadSByteFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified IFD entry.
@@ -71,7 +71,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<ushort> ReadShortField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadShortFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadShortFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Short"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<ushort> ReadShortField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadShortFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Short"/> from the specified IFD entry.
@@ -91,7 +101,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<short> ReadSShortField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadSShortFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadSShortFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<short> ReadSShortField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadSShortFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified IFD entry.
@@ -111,7 +131,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<uint> ReadLongField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadLongFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadLongFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<uint> ReadLongField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadLongFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long"/> from the specified IFD entry.
@@ -131,7 +161,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<int> ReadSLongField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadSLongFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadSLongFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<int> ReadSLongField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadSLongFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified IFD entry.
@@ -151,7 +191,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<ulong> ReadLong8Field(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadLong8FieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadLong8FieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<ulong> ReadLong8Field(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadLong8FieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified IFD entry.
@@ -171,7 +221,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<long> ReadSLong8Field(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadSLong8FieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadSLong8FieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<long> ReadSLong8Field(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadSLong8FieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified IFD entry.
@@ -191,7 +251,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<float> ReadFloatField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadFloatFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadFloatFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Float"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<float> ReadFloatField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadFloatFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Float"/> from the specified IFD entry.
@@ -211,7 +281,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<double> ReadDoubleField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadDoubleFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadDoubleFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Double"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<double> ReadDoubleField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadDoubleFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Double"/> from the specified IFD entry.
@@ -231,7 +311,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffRational> ReadRationalField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadRationalFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadRationalFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffRational> ReadRationalField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadRationalFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified IFD entry.
@@ -251,7 +341,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffSRational> ReadSRationalField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadSRationalFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadSRationalFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffSRational> ReadSRationalField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadSRationalFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified IFD entry.
@@ -271,7 +371,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffStreamOffset> ReadIFDField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadIFDFieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadIFDFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffStreamOffset> ReadIFDField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadIFDFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified IFD entry.
@@ -291,7 +401,17 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffStreamOffset> ReadIFD8Field(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
-            => ReadIFD8FieldAsync(GetSyncReader(), entry, skipTypeValidation).GetAwaiter().GetResult();
+            => ReadIFD8FieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffStreamOffset> ReadIFD8Field(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadIFD8FieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified IFD entry.

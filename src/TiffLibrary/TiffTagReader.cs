@@ -32,6 +32,8 @@ namespace TiffLibrary
         /// </summary>
         public TiffImageFileDirectory ImageFileDirectory { get; }
 
+        #region Byte
+
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified tag.
         /// </summary>
@@ -84,6 +86,10 @@ namespace TiffLibrary
 
             return Reader.ReadByteField(entry);
         }
+
+        #endregion
+
+        #region SByte
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified tag.
@@ -138,6 +144,10 @@ namespace TiffLibrary
             return Reader.ReadSByteField(entry);
         }
 
+        #endregion
+
+        #region ASCII
+
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.ASCII"/> from the specified tag.
         /// </summary>
@@ -191,6 +201,10 @@ namespace TiffLibrary
             return Reader.ReadASCIIField(entry);
         }
 
+        #endregion
+
+        #region Short
+
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Short"/> from the specified tag.
         /// </summary>
@@ -198,6 +212,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadShortFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Short"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -215,7 +239,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<ushort>>(TiffValueCollection.Empty<ushort>());
             }
 
-            return Reader.ReadShortFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadShortFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -224,6 +248,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<ushort> ReadShortField(TiffTag tag)
+            => ReadShortField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Short"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<ushort> ReadShortField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -241,8 +274,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<ushort>();
             }
 
-            return Reader.ReadShortField(entry);
+            return Reader.ReadShortField(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region SShort
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified tag.
@@ -251,6 +288,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadSShortFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -268,7 +315,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<short>>(TiffValueCollection.Empty<short>());
             }
 
-            return Reader.ReadSShortFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadSShortFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -277,6 +324,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<short> ReadSShortField(TiffTag tag)
+            => ReadSShortField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SShort"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<short> ReadSShortField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -294,8 +350,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<short>();
             }
 
-            return Reader.ReadSShortField(entry);
+            return Reader.ReadSShortField(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region Long
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long"/> from the specified tag.
@@ -304,6 +364,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadLongFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -321,7 +391,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<uint>>(TiffValueCollection.Empty<uint>());
             }
 
-            return Reader.ReadLongFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadLongFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -330,6 +400,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<uint> ReadLongField(TiffTag tag)
+            => ReadLongField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<uint> ReadLongField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -347,8 +426,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<uint>();
             }
 
-            return Reader.ReadLongField(entry);
+            return Reader.ReadLongField(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region SLong
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified tag.
@@ -357,6 +440,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadSLongFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -374,7 +467,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<int>>(TiffValueCollection.Empty<int>());
             }
 
-            return Reader.ReadSLongFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadSLongFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -404,12 +497,53 @@ namespace TiffLibrary
         }
 
         /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<int> ReadSLongField(TiffTag tag, int sizeLimit)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return TiffValueCollection.Empty<int>();
+            }
+
+            return Reader.ReadSLongField(entry, sizeLimit);
+        }
+
+        #endregion
+
+        #region Long8
+
+        /// <summary>
         /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified tag.
         /// </summary>
         /// <param name="tag">The tag to read.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadLong8FieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -427,7 +561,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<ulong>>(TiffValueCollection.Empty<ulong>());
             }
 
-            return Reader.ReadLong8FieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadLong8FieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -436,6 +570,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<ulong> ReadLong8Field(TiffTag tag)
+            => ReadLong8Field(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Long8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<ulong> ReadLong8Field(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -453,8 +596,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<ulong>();
             }
 
-            return Reader.ReadLong8Field(entry);
+            return Reader.ReadLong8Field(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region SLong8
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified tag.
@@ -463,6 +610,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadSLong8FieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -480,7 +637,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<long>>(TiffValueCollection.Empty<long>());
             }
 
-            return Reader.ReadSLong8FieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadSLong8FieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -489,6 +646,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<long> ReadSLong8Field(TiffTag tag)
+            => ReadSLong8Field(tag);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SLong8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<long> ReadSLong8Field(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -506,8 +672,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<long>();
             }
 
-            return Reader.ReadSLong8Field(entry);
+            return Reader.ReadSLong8Field(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region Rational
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified tag.
@@ -516,6 +686,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadRationalFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -533,7 +713,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffRational>>(TiffValueCollection.Empty<TiffRational>());
             }
 
-            return Reader.ReadRationalFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadRationalFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -542,6 +722,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffRational> ReadRationalField(TiffTag tag)
+            => ReadRationalField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Rational"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffRational> ReadRationalField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -559,8 +748,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<TiffRational>();
             }
 
-            return Reader.ReadRationalField(entry);
+            return Reader.ReadRationalField(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region SRational
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified tag.
@@ -569,6 +762,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadSRationalFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -586,7 +789,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffSRational>>(TiffValueCollection.Empty<TiffSRational>());
             }
 
-            return Reader.ReadSRationalFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadSRationalFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -595,6 +798,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffSRational> ReadSRationalField(TiffTag tag)
+            => ReadSRationalField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SRational"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffSRational> ReadSRationalField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -612,8 +824,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<TiffSRational>();
             }
 
-            return Reader.ReadSRationalField(entry);
+            return Reader.ReadSRationalField(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region IFD
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified tag.
@@ -622,6 +838,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadIFDFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -639,7 +865,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.Empty<TiffStreamOffset>());
             }
 
-            return Reader.ReadIFDFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadIFDFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -648,6 +874,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffStreamOffset> ReadIFDField(TiffTag tag)
+            => ReadIFDField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffStreamOffset> ReadIFDField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -665,8 +900,12 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<TiffStreamOffset>();
             }
 
-            return Reader.ReadIFDField(entry);
+            return Reader.ReadIFDField(entry, sizeLimit);
         }
+
+        #endregion
+
+        #region IFD8
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified tag.
@@ -675,6 +914,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadIFD8FieldAsync(tag, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -692,7 +941,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(TiffValueCollection.Empty<TiffStreamOffset>());
             }
 
-            return Reader.ReadIFD8FieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadIFD8FieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -701,6 +950,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<TiffStreamOffset> ReadIFD8Field(TiffTag tag)
+            => ReadIFD8Field(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.IFD8"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of values to read.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<TiffStreamOffset> ReadIFD8Field(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -718,8 +976,10 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<TiffStreamOffset>();
             }
 
-            return Reader.ReadIFD8Field(entry);
+            return Reader.ReadIFD8Field(entry, sizeLimit);
         }
+
+        #endregion
     }
 
     /// <summary>

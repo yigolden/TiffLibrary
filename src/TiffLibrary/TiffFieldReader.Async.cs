@@ -29,6 +29,17 @@ namespace TiffLibrary
         /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified IFD entry.
         /// </summary>
         /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadByteFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
         /// <param name="offset">The number of elements to skip reading.</param>
         /// <param name="destination">The destination buffer to store the values.</param>
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
@@ -190,6 +201,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSByteFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
+            => ReadSByteFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified IFD entry.

@@ -18,6 +18,17 @@ namespace TiffLibrary
         /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified IFD entry.
         /// </summary>
         /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<byte> ReadByteField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadByteFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
+
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
         /// <param name="offset">The number of elements to skip reading.</param>
         /// <param name="destination">The destination buffer to store the values.</param>
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
@@ -33,6 +44,16 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public TiffValueCollection<sbyte> ReadSByteField(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false)
             => ReadSByteFieldAsync(GetSyncReader(), entry, int.MaxValue, skipTypeValidation).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified IFD entry.
+        /// </summary>
+        /// <param name="entry">The IFD entry.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<sbyte> ReadSByteField(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false)
+            => ReadSByteFieldAsync(GetSyncReader(), entry, sizeLimit, skipTypeValidation).GetAwaiter().GetResult();
 
         /// <summary>
         /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified IFD entry.

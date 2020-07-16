@@ -41,6 +41,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadByteFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -58,7 +68,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<byte>>(TiffValueCollection.Empty<byte>());
             }
 
-            return Reader.ReadByteFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadByteFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -67,6 +77,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<byte> ReadByteField(TiffTag tag)
+            => ReadByteField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.Byte"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<byte> ReadByteField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -84,7 +103,7 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<byte>();
             }
 
-            return Reader.ReadByteField(entry);
+            return Reader.ReadByteField(entry, sizeLimit);
         }
 
         #endregion
@@ -98,6 +117,16 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
         public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffTag tag, CancellationToken cancellationToken = default)
+            => ReadSByteFieldAsync(tag, int.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffTag tag, int sizeLimit, CancellationToken cancellationToken = default)
         {
             if (Reader is null)
             {
@@ -115,7 +144,7 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<sbyte>>(TiffValueCollection.Empty<sbyte>());
             }
 
-            return Reader.ReadSByteFieldAsync(entry, cancellationToken: cancellationToken);
+            return Reader.ReadSByteFieldAsync(entry, sizeLimit, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -124,6 +153,15 @@ namespace TiffLibrary
         /// <param name="tag">The tag to read.</param>
         /// <returns>The values read.</returns>
         public TiffValueCollection<sbyte> ReadSByteField(TiffTag tag)
+            => ReadSByteField(tag, int.MaxValue);
+
+        /// <summary>
+        /// Read values of type <see cref="TiffFieldType.SByte"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <returns>The values read.</returns>
+        public TiffValueCollection<sbyte> ReadSByteField(TiffTag tag, int sizeLimit)
         {
             if (Reader is null)
             {
@@ -141,7 +179,7 @@ namespace TiffLibrary
                 return TiffValueCollection.Empty<sbyte>();
             }
 
-            return Reader.ReadSByteField(entry);
+            return Reader.ReadSByteField(entry, sizeLimit);
         }
 
         #endregion
@@ -199,6 +237,61 @@ namespace TiffLibrary
             }
 
             return Reader.ReadASCIIField(entry);
+        }
+
+        /// <summary>
+        /// Read the first string value of type <see cref="TiffFieldType.ASCII"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
+        /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the string value.</returns>
+        public async ValueTask<string?> ReadASCIIFieldFirstStringAsync(TiffTag tag, int sizeLimit = int.MaxValue, CancellationToken cancellationToken = default)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return null;
+            }
+
+            return await Reader.ReadASCIIFieldFirstStringAsync(entry, sizeLimit, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Read the first string value of type <see cref="TiffFieldType.ASCII"/> from the specified tag.
+        /// </summary>
+        /// <param name="tag">The tag to read.</param>
+        /// <param name="sizeLimit">The maximum number of bytes to read from the IFD</param>
+        /// <returns>The string value.</returns>
+        public string? ReadASCIIFieldFirstString(TiffTag tag, int sizeLimit = -1)
+        {
+            if (Reader is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (ImageFileDirectory is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
+            if (entry.Tag == TiffTag.None)
+            {
+                return null;
+            }
+
+            return Reader.ReadASCIIFieldFirstString(entry, sizeLimit);
         }
 
         #endregion

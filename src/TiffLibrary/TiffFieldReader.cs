@@ -387,6 +387,20 @@ namespace TiffLibrary
 
         #region ASCII Parsing
 
+        private static string ParseASCIIString(ReadOnlySpan<byte> buffer)
+        {
+            int pos = buffer.IndexOf((byte)0);
+            if (pos == 0)
+            {
+                return string.Empty;
+            }
+            else if (pos > 0)
+            {
+                buffer = buffer.Slice(0, pos);
+            }
+            return EncodingASCIIGetString(buffer);
+        }
+
         private static TiffValueCollection<string> ParseASCIIArray(ReadOnlySpan<byte> buffer)
         {
             int startIndex = 0;

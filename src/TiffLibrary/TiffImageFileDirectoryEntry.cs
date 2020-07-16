@@ -198,7 +198,7 @@ namespace TiffLibrary
         }
 
         /// <summary>
-        /// Try to determine the length of the length of value.
+        /// Try to determine the total byte count of the values.
         /// </summary>
         /// <param name="bytesLength"></param>
         /// <returns></returns>

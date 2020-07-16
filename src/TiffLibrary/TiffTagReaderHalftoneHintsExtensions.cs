@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort[]> ReadHalftoneHintsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.HalftoneHints, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.HalftoneHints, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.HalftoneHints"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort[] ReadHalftoneHints(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.HalftoneHints);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.HalftoneHints, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 

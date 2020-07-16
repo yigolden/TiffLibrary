@@ -16,19 +16,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadArtistAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.Artist, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.Artist, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -39,8 +37,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadArtist(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Artist);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.Artist, sizeLimit: -1);
         }
 
         #endregion
@@ -55,7 +52,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ushort>> ReadBitsPerSampleAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.BitsPerSample, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.BitsPerSample, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -78,7 +75,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ushort> ReadBitsPerSample(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.BitsPerSample);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.BitsPerSample, sizeLimit: -1);
             return result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result;
         }
 
@@ -94,7 +91,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort?> ReadCellLengthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.CellLength, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.CellLength, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -117,7 +114,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort? ReadCellLength(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CellLength);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CellLength, sizeLimit: 1);
             return result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault();
         }
 
@@ -133,7 +130,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort?> ReadCellWidthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.CellWidth, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.CellWidth, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -156,7 +153,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort? ReadCellWidth(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CellWidth);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CellWidth, sizeLimit: 1);
             return result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault();
         }
 
@@ -172,7 +169,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort[]> ReadColorMapAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.ColorMap, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.ColorMap, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -195,7 +192,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort[] ReadColorMap(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ColorMap);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ColorMap, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -211,7 +208,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffCompression> ReadCompressionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Compression, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Compression, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -234,7 +231,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffCompression ReadCompression(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Compression);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Compression, sizeLimit: 1);
             return result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.GetFirstOrDefault();
         }
 
@@ -250,19 +247,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadCopyrightAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.Copyright, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.Copyright, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -273,8 +268,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadCopyright(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Copyright);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.Copyright, sizeLimit: -1);
         }
 
         #endregion
@@ -289,19 +283,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadDateTimeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.DateTime, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.DateTime, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -312,8 +304,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadDateTime(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.DateTime);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.DateTime, sizeLimit: -1);
         }
 
         #endregion
@@ -328,7 +319,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<TiffExtraSample>> ReadExtraSamplesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.ExtraSamples, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.ExtraSamples, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -351,7 +342,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<TiffExtraSample> ReadExtraSamples(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ExtraSamples);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ExtraSamples, sizeLimit: -1);
             return result.ConvertAll(i => (TiffExtraSample)i);
         }
 
@@ -367,7 +358,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffFillOrder> ReadFillOrderAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.FillOrder, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.FillOrder, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -390,7 +381,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffFillOrder ReadFillOrder(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.FillOrder);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.FillOrder, sizeLimit: 1);
             return result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.GetFirstOrDefault();
         }
 
@@ -406,7 +397,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint?> ReadFreeByteCountsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.FreeByteCounts, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.FreeByteCounts, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -429,7 +420,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint? ReadFreeByteCounts(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.FreeByteCounts);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.FreeByteCounts, sizeLimit: 1);
             return result.IsEmpty ? default(uint?) : result.GetFirstOrDefault();
         }
 
@@ -445,7 +436,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint?> ReadFreeOffsetsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.FreeOffsets, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.FreeOffsets, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -468,7 +459,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint? ReadFreeOffsets(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.FreeOffsets);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.FreeOffsets, sizeLimit: 1);
             return result.IsEmpty ? default(uint?) : result.GetFirstOrDefault();
         }
 
@@ -484,7 +475,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ushort>> ReadGrayResponseCurveAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.GrayResponseCurve, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.GrayResponseCurve, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -507,7 +498,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ushort> ReadGrayResponseCurve(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.GrayResponseCurve);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.GrayResponseCurve, sizeLimit: -1);
             return result;
         }
 
@@ -523,7 +514,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffGrayResponseUnit> ReadGrayResponseUnitAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.GrayResponseUnit, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.GrayResponseUnit, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -546,7 +537,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffGrayResponseUnit ReadGrayResponseUnit(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.GrayResponseUnit);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.GrayResponseUnit, sizeLimit: 1);
             return result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.GetFirstOrDefault();
         }
 
@@ -562,19 +553,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadHostComputerAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.HostComputer, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.HostComputer, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -585,8 +574,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadHostComputer(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.HostComputer);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.HostComputer, sizeLimit: -1);
         }
 
         #endregion
@@ -601,19 +589,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadImageDescriptionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.ImageDescription, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.ImageDescription, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -624,8 +610,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadImageDescription(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.ImageDescription);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.ImageDescription, sizeLimit: -1);
         }
 
         #endregion
@@ -640,7 +625,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ulong> ReadImageLengthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.ImageLength, cancellationToken);
+            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.ImageLength, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ulong> result = valueTask.GetAwaiter().GetResult();
@@ -663,7 +648,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ulong ReadImageLength(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.ImageLength);
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.ImageLength, sizeLimit: -1);
             return result.GetFirstOrDefault();
         }
 
@@ -679,7 +664,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ulong> ReadImageWidthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.ImageWidth, cancellationToken);
+            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.ImageWidth, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ulong> result = valueTask.GetAwaiter().GetResult();
@@ -702,7 +687,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ulong ReadImageWidth(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.ImageWidth);
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.ImageWidth, sizeLimit: -1);
             return result.GetFirstOrDefault();
         }
 
@@ -718,19 +703,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadMakeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.Make, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.Make, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -741,8 +724,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadMake(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Make);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.Make, sizeLimit: -1);
         }
 
         #endregion
@@ -757,7 +739,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ushort>> ReadMaxSampleValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.MaxSampleValue, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.MaxSampleValue, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -780,7 +762,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ushort> ReadMaxSampleValue(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.MaxSampleValue);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.MaxSampleValue, sizeLimit: -1);
             return result;
         }
 
@@ -796,7 +778,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ushort>> ReadMinSampleValueAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.MinSampleValue, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.MinSampleValue, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -819,7 +801,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ushort> ReadMinSampleValue(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.MinSampleValue);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.MinSampleValue, sizeLimit: -1);
             return result;
         }
 
@@ -835,19 +817,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadModelAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.Model, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.Model, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -858,8 +838,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadModel(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Model);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.Model, sizeLimit: -1);
         }
 
         #endregion
@@ -874,7 +853,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffNewSubfileType> ReadNewSubfileTypeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.NewSubfileType, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.NewSubfileType, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -897,7 +876,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffNewSubfileType ReadNewSubfileType(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.NewSubfileType);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.NewSubfileType, sizeLimit: 1);
             return (TiffNewSubfileType)result.GetFirstOrDefault();
         }
 
@@ -913,7 +892,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffOrientation> ReadOrientationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Orientation, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Orientation, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -936,7 +915,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffOrientation ReadOrientation(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Orientation);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Orientation, sizeLimit: 1);
             return result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.GetFirstOrDefault();
         }
 
@@ -952,7 +931,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffPhotometricInterpretation?> ReadPhotometricInterpretationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.PhotometricInterpretation, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.PhotometricInterpretation, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -975,7 +954,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffPhotometricInterpretation? ReadPhotometricInterpretation(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PhotometricInterpretation);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PhotometricInterpretation, sizeLimit: 1);
             return result.IsEmpty ? default(TiffPhotometricInterpretation?) : (TiffPhotometricInterpretation)result.GetFirstOrDefault();
         }
 
@@ -991,7 +970,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffPlanarConfiguration> ReadPlanarConfigurationAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.PlanarConfiguration, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.PlanarConfiguration, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1014,7 +993,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffPlanarConfiguration ReadPlanarConfiguration(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PlanarConfiguration);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.PlanarConfiguration, sizeLimit: 1);
             return result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.GetFirstOrDefault();
         }
 
@@ -1030,7 +1009,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffResolutionUnit> ReadResolutionUnitAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.ResolutionUnit, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.ResolutionUnit, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1053,7 +1032,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffResolutionUnit ReadResolutionUnit(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ResolutionUnit);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.ResolutionUnit, sizeLimit: 1);
             return result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.GetFirstOrDefault();
         }
 
@@ -1069,7 +1048,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint> ReadRowsPerStripAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.RowsPerStrip, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.RowsPerStrip, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -1092,7 +1071,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint ReadRowsPerStrip(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.RowsPerStrip);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.RowsPerStrip, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 
@@ -1108,7 +1087,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort> ReadSamplesPerPixelAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.SamplesPerPixel, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.SamplesPerPixel, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1131,7 +1110,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort ReadSamplesPerPixel(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.SamplesPerPixel);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.SamplesPerPixel, sizeLimit: 1);
             return result.IsEmpty ? (ushort)1 : result.GetFirstOrDefault();
         }
 
@@ -1147,19 +1126,17 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<string?> ReadSoftwareAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<string>> valueTask = tagReader.ReadASCIIFieldAsync(TiffTag.Software, cancellationToken);
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.Software, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
-                TiffValueCollection<string> result = valueTask.GetAwaiter().GetResult();
-                return new ValueTask<string?>(result.GetFirstOrDefault());
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
             }
 
             return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
 
-            static async Task<string?> TransformValueTaskAsync(ValueTask<TiffValueCollection<string>> valueTask)
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
             {
-                TiffValueCollection<string> result = await valueTask.ConfigureAwait(false);
-                return result.GetFirstOrDefault();
+                return await valueTask.ConfigureAwait(false);
             }
         }
 
@@ -1170,8 +1147,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static string? ReadSoftware(this TiffTagReader tagReader)
         {
-            TiffValueCollection<string> result = tagReader.ReadASCIIField(TiffTag.Software);
-            return result.GetFirstOrDefault();
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.Software, sizeLimit: -1);
         }
 
         #endregion
@@ -1186,7 +1162,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ulong>> ReadStripByteCountsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.StripByteCounts, cancellationToken);
+            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.StripByteCounts, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ulong> result = valueTask.GetAwaiter().GetResult();
@@ -1209,7 +1185,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ulong> ReadStripByteCounts(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.StripByteCounts);
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.StripByteCounts, sizeLimit: -1);
             return result;
         }
 
@@ -1225,7 +1201,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ulong>> ReadStripOffsetsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.StripOffsets, cancellationToken);
+            ValueTask<TiffValueCollection<ulong>> valueTask = tagReader.ReadLong8FieldAsync(TiffTag.StripOffsets, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ulong> result = valueTask.GetAwaiter().GetResult();
@@ -1248,7 +1224,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ulong> ReadStripOffsets(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.StripOffsets);
+            TiffValueCollection<ulong> result = tagReader.ReadLong8Field(TiffTag.StripOffsets, sizeLimit: -1);
             return result;
         }
 
@@ -1264,7 +1240,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffSubfileType?> ReadSubFileTypeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.SubFileType, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.SubFileType, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1287,7 +1263,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffSubfileType? ReadSubFileType(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.SubFileType);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.SubFileType, sizeLimit: 1);
             return result.IsEmpty ? default(TiffSubfileType?) : (TiffSubfileType)result.GetFirstOrDefault();
         }
 
@@ -1303,7 +1279,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffThreshholding> ReadThreshholdingAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Threshholding, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Threshholding, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -1326,7 +1302,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffThreshholding ReadThreshholding(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Threshholding);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Threshholding, sizeLimit: 1);
             return result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.GetFirstOrDefault();
         }
 
@@ -1342,7 +1318,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffRational?> ReadXResolutionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.XResolution, cancellationToken);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.XResolution, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1365,7 +1341,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffRational? ReadXResolution(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.XResolution);
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.XResolution, sizeLimit: 1);
             return result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault();
         }
 
@@ -1381,7 +1357,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffRational?> ReadYResolutionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.YResolution, cancellationToken);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.YResolution, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -1404,7 +1380,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffRational? ReadYResolution(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YResolution);
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YResolution, sizeLimit: 1);
             return result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault();
         }
 

@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<byte[]> ReadJPEGTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync(TiffTag.JPEGTables, cancellationToken);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync(TiffTag.JPEGTables, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGTables"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static byte[] ReadJPEGTables(this TiffTagReader tagReader)
         {
-            TiffValueCollection<byte> result = tagReader.ReadByteField(TiffTag.JPEGTables);
+            TiffValueCollection<byte> result = tagReader.ReadByteField(TiffTag.JPEGTables, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort> ReadJPEGProcAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGProc, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGProc, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? (ushort)1 : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGProc"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort ReadJPEGProc(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.JPEGProc);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.JPEGProc, sizeLimit: 1);
             return result.IsEmpty ? (ushort)1 : result.GetFirstOrDefault();
         }
 
@@ -94,7 +94,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint> ReadJPEGInterchangeFormatAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormat, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormat, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? 0 : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGInterchangeFormat"/>.
         /// </summary>
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint ReadJPEGInterchangeFormat(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGInterchangeFormat);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGInterchangeFormat, sizeLimit: 1);
             return result.IsEmpty ? 0 : result.GetFirstOrDefault();
         }
 
@@ -133,7 +133,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint> ReadJPEGInterchangeFormatLengthAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormatLength, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGInterchangeFormatLength, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -148,7 +148,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? 0 : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGInterchangeFormatLength"/>.
         /// </summary>
@@ -156,7 +156,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint ReadJPEGInterchangeFormatLength(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGInterchangeFormatLength);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGInterchangeFormatLength, sizeLimit: 1);
             return result.IsEmpty ? 0 : result.GetFirstOrDefault();
         }
 
@@ -172,7 +172,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort> ReadJPEGRestartIntervalAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGRestartInterval, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.JPEGRestartInterval, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -187,7 +187,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? (ushort)0 : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGRestartInterval"/>.
         /// </summary>
@@ -195,7 +195,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort ReadJPEGRestartInterval(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.JPEGRestartInterval);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.JPEGRestartInterval, sizeLimit: 1);
             return result.IsEmpty ? (ushort)0 : result.GetFirstOrDefault();
         }
 
@@ -211,7 +211,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint[]> ReadJPEGQTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGQTables, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGQTables, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -226,7 +226,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGQTables"/>.
         /// </summary>
@@ -234,7 +234,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint[] ReadJPEGQTables(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGQTables);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGQTables, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -250,7 +250,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint[]> ReadJPEGDCTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGDCTables, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGDCTables, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -265,7 +265,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGDCTables"/>.
         /// </summary>
@@ -273,7 +273,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint[] ReadJPEGDCTables(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGDCTables);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGDCTables, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -289,7 +289,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint[]> ReadJPEGACTablesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGACTables, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.JPEGACTables, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -304,7 +304,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.JPEGACTables"/>.
         /// </summary>
@@ -312,7 +312,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint[] ReadJPEGACTables(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGACTables);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.JPEGACTables, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 

@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffRational[]> ReadYCbCrCoefficientsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.YCbCrCoefficients, cancellationToken);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.YCbCrCoefficients, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.YCbCrCoefficients"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffRational[] ReadYCbCrCoefficients(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YCbCrCoefficients);
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.YCbCrCoefficients, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort[]> ReadYCbCrSubSamplingAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.YCbCrSubSampling, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.YCbCrSubSampling, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.YCbCrSubSampling"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort[] ReadYCbCrSubSampling(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrSubSampling);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrSubSampling, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -94,7 +94,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffYCbCrPositioning> ReadYCbCrPositioningAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.YCbCrPositioning, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.YCbCrPositioning, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.YCbCrPositioning"/>.
         /// </summary>
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffYCbCrPositioning ReadYCbCrPositioning(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrPositioning);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.YCbCrPositioning, sizeLimit: 1);
             return result.IsEmpty ? TiffYCbCrPositioning.Unspecified : (TiffYCbCrPositioning)result.GetFirstOrDefault();
         }
 

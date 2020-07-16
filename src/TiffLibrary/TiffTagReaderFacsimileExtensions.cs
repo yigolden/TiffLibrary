@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint> ReadBadFaxLinesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.BadFaxLines, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.BadFaxLines, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.BadFaxLines"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint ReadBadFaxLines(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.BadFaxLines);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.BadFaxLines, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffCleanFaxData> ReadCleanFaxDataAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.CleanFaxData, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.CleanFaxData, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return (TiffCleanFaxData)result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.CleanFaxData"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffCleanFaxData ReadCleanFaxData(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CleanFaxData);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.CleanFaxData, sizeLimit: 1);
             return (TiffCleanFaxData)result.GetFirstOrDefault();
         }
 
@@ -94,7 +94,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<uint> ReadConsecutiveBadFaxLinesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.ConsecutiveBadFaxLines, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.ConsecutiveBadFaxLines, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.ConsecutiveBadFaxLines"/>.
         /// </summary>
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static uint ReadConsecutiveBadFaxLines(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.ConsecutiveBadFaxLines);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.ConsecutiveBadFaxLines, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 

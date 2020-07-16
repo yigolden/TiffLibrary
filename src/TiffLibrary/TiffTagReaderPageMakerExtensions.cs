@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<TiffStreamOffset>> ReadSubIFDsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.SubIFDs, cancellationToken);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.SubIFDs, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result;
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.SubIFDs"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<TiffStreamOffset> ReadSubIFDs(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.SubIFDs);
+            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.SubIFDs, sizeLimit: -1);
             return result;
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<byte[]> ReadClipPathAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync(TiffTag.ClipPath, cancellationToken);
+            ValueTask<TiffValueCollection<byte>> valueTask = tagReader.ReadByteFieldAsync(TiffTag.ClipPath, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<byte> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.ClipPath"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static byte[] ReadClipPath(this TiffTagReader tagReader)
         {
-            TiffValueCollection<byte> result = tagReader.ReadByteField(TiffTag.ClipPath);
+            TiffValueCollection<byte> result = tagReader.ReadByteField(TiffTag.ClipPath, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -94,7 +94,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<int?> ReadXClipPathUnitsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<int>> valueTask = tagReader.ReadSLongFieldAsync(TiffTag.XClipPathUnits, cancellationToken);
+            ValueTask<TiffValueCollection<int>> valueTask = tagReader.ReadSLongFieldAsync(TiffTag.XClipPathUnits, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<int> result = valueTask.GetAwaiter().GetResult();
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? default(int?) : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.XClipPathUnits"/>.
         /// </summary>
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static int? ReadXClipPathUnits(this TiffTagReader tagReader)
         {
-            TiffValueCollection<int> result = tagReader.ReadSLongField(TiffTag.XClipPathUnits);
+            TiffValueCollection<int> result = tagReader.ReadSLongField(TiffTag.XClipPathUnits, sizeLimit: 1);
             return result.IsEmpty ? default(int?) : result.GetFirstOrDefault();
         }
 
@@ -133,7 +133,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<int?> ReadYClipPathUnitsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<int>> valueTask = tagReader.ReadSLongFieldAsync(TiffTag.YClipPathUnits, cancellationToken);
+            ValueTask<TiffValueCollection<int>> valueTask = tagReader.ReadSLongFieldAsync(TiffTag.YClipPathUnits, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<int> result = valueTask.GetAwaiter().GetResult();
@@ -148,7 +148,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? default(int?) : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.YClipPathUnits"/>.
         /// </summary>
@@ -156,7 +156,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static int? ReadYClipPathUnits(this TiffTagReader tagReader)
         {
-            TiffValueCollection<int> result = tagReader.ReadSLongField(TiffTag.YClipPathUnits);
+            TiffValueCollection<int> result = tagReader.ReadSLongField(TiffTag.YClipPathUnits, sizeLimit: 1);
             return result.IsEmpty ? default(int?) : result.GetFirstOrDefault();
         }
 
@@ -172,7 +172,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort> ReadIndexedAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Indexed, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.Indexed, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -187,7 +187,7 @@ namespace TiffLibrary
                 return result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.Indexed"/>.
         /// </summary>
@@ -195,7 +195,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort ReadIndexed(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Indexed);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.Indexed, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 

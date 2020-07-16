@@ -1,12 +1,14 @@
 ﻿<#@ template language="C#" #><#@ import namespace="System.Collections.Generic" #>
 <#
-    var Fields = new[]
+    var fields = new[]
     {
         new
         {
             Name = "T4Options",
             Type = "uint",
             TypeName = "Long",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffT4Options",
             ResultHandling = "result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault()"
         },
@@ -15,6 +17,8 @@
             Name = "T6Options",
             Type = "uint",
             TypeName = "Long",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffT6Options",
             ResultHandling = "result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault()"
         }
@@ -29,7 +33,7 @@ namespace TiffLibrary
     public static partial class TiffTagReaderExtensions
     {
     <#
-    foreach (var field in Fields)
+    foreach (var field in fields)
     {
     #>
 
@@ -43,7 +47,25 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<<#= field.ReturnType #>> Read<#= field.Name #>Async(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
+<# if (field.TypeName == "ASCII" && field.IsFirstString) { #>
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>, cancellationToken);
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
+            }
+
+            return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
+
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
+            {
+                return await valueTask.ConfigureAwait(false);
+            }
+<# } else {#>
+<# if (field.TypeName == "ASCII") { #>
             ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync(TiffTag.<#= field.Name #>, cancellationToken);
+<# } else {#>
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>, cancellationToken);
+<# } #>
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();
@@ -57,8 +79,9 @@ namespace TiffLibrary
                 TiffValueCollection<<#= field.Type #>> result = await valueTask.ConfigureAwait(false);
                 return <#= field.ResultHandling #>;
             }
+<# } #>
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.<#= field.Name #>"/>.
         /// </summary>
@@ -66,8 +89,16 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static <#= field.ReturnType #> Read<#= field.Name #>(this TiffTagReader tagReader)
         {
+<# if (field.TypeName == "ASCII" && field.IsFirstString) { #>
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>);
+<# } else {#>
+<# if (field.TypeName == "ASCII") { #>
             TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field(TiffTag.<#= field.Name #>);
+<# } else {#>
+            TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>);
+<# } #>
             return <#= field.ResultHandling #>;
+<# } #>
         }
 
         #endregion

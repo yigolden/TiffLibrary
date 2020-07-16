@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffInkSet> ReadInkSetAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.InkSet, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.InkSet, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.InkSet"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffInkSet ReadInkSet(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.InkSet);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.InkSet, sizeLimit: 1);
             return result.IsEmpty ? TiffInkSet.CMYK : (TiffInkSet)result.GetFirstOrDefault();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort> ReadNumberOfInksAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.NumberOfInks, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.NumberOfInks, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? (ushort)4 : result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.NumberOfInks"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort ReadNumberOfInks(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.NumberOfInks);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.NumberOfInks, sizeLimit: 1);
             return result.IsEmpty ? (ushort)4 : result.GetFirstOrDefault();
         }
 
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.InkNames"/>.
         /// </summary>
@@ -133,7 +133,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort[]> ReadDotRangeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.DotRange, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.DotRange, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -148,7 +148,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.DotRange"/>.
         /// </summary>
@@ -156,7 +156,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort[] ReadDotRange(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.DotRange);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.DotRange, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -172,7 +172,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffValueCollection<ushort>> ReadTargetPrinterAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TargetPrinter, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TargetPrinter, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -187,7 +187,7 @@ namespace TiffLibrary
                 return result;
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.TargetPrinter"/>.
         /// </summary>
@@ -195,7 +195,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffValueCollection<ushort> ReadTargetPrinter(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TargetPrinter);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TargetPrinter, sizeLimit: -1);
             return result;
         }
 

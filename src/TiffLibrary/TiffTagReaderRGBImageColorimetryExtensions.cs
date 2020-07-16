@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffRational[]> ReadWhitePointAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.WhitePoint, cancellationToken);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.WhitePoint, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.WhitePoint"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffRational[] ReadWhitePoint(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.WhitePoint);
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.WhitePoint, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffRational[]> ReadPrimaryChromaticitiesAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.PrimaryChromaticities, cancellationToken);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.PrimaryChromaticities, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.PrimaryChromaticities"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffRational[] ReadPrimaryChromaticities(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.PrimaryChromaticities);
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.PrimaryChromaticities, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -94,7 +94,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort[]> ReadTransferFunctionAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferFunction, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferFunction, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.TransferFunction"/>.
         /// </summary>
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort[] ReadTransferFunction(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TransferFunction);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TransferFunction, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -133,7 +133,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<ushort[]> ReadTransferRangeAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferRange, cancellationToken);
+            ValueTask<TiffValueCollection<ushort>> valueTask = tagReader.ReadShortFieldAsync(TiffTag.TransferRange, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<ushort> result = valueTask.GetAwaiter().GetResult();
@@ -148,7 +148,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.TransferRange"/>.
         /// </summary>
@@ -156,7 +156,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static ushort[] ReadTransferRange(this TiffTagReader tagReader)
         {
-            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TransferRange);
+            TiffValueCollection<ushort> result = tagReader.ReadShortField(TiffTag.TransferRange, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 
@@ -172,7 +172,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffRational[]> ReadReferenceBlackWhiteAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.ReferenceBlackWhite, cancellationToken);
+            ValueTask<TiffValueCollection<TiffRational>> valueTask = tagReader.ReadRationalFieldAsync(TiffTag.ReferenceBlackWhite, sizeLimit: -1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffRational> result = valueTask.GetAwaiter().GetResult();
@@ -187,7 +187,7 @@ namespace TiffLibrary
                 return result.GetOrCreateArray();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.ReferenceBlackWhite"/>.
         /// </summary>
@@ -195,7 +195,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffRational[] ReadReferenceBlackWhite(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.ReferenceBlackWhite);
+            TiffValueCollection<TiffRational> result = tagReader.ReadRationalField(TiffTag.ReferenceBlackWhite, sizeLimit: -1);
             return result.GetOrCreateArray();
         }
 

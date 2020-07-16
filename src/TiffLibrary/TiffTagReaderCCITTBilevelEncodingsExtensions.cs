@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffT4Options> ReadT4OptionsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T4Options, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T4Options, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.T4Options"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffT4Options ReadT4Options(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T4Options);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T4Options, sizeLimit: 1);
             return result.IsEmpty ? TiffT4Options.None : (TiffT4Options)result.GetFirstOrDefault();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffT6Options> ReadT6OptionsAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T6Options, cancellationToken);
+            ValueTask<TiffValueCollection<uint>> valueTask = tagReader.ReadLongFieldAsync(TiffTag.T6Options, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<uint> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.T6Options"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffT6Options ReadT6Options(this TiffTagReader tagReader)
         {
-            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T6Options);
+            TiffValueCollection<uint> result = tagReader.ReadLongField(TiffTag.T6Options, sizeLimit: 1);
             return result.IsEmpty ? TiffT6Options.None : (TiffT6Options)result.GetFirstOrDefault();
         }
 

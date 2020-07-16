@@ -1,12 +1,14 @@
 ﻿<#@ template language="C#" #><#@ import namespace="System.Collections.Generic" #>
 <#
-    var Fields = new[]
+    var fields = new[]
     {
         new
         {
             Name = "Artist",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -15,6 +17,8 @@
             Name = "BitsPerSample",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<ushort>",
             ResultHandling = "result.IsEmpty ? TiffValueCollection.Single<ushort>(1) : result"
         },
@@ -23,6 +27,8 @@
             Name = "CellLength",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "ushort?",
             ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
         },
@@ -31,6 +37,8 @@
             Name = "CellWidth",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "ushort?",
             ResultHandling = "result.IsEmpty ? default(ushort?) : result.GetFirstOrDefault()"
         },
@@ -39,6 +47,8 @@
             Name = "ColorMap",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "ushort[]",
             ResultHandling = "result.GetOrCreateArray()"
         },
@@ -47,6 +57,8 @@
             Name = "Compression",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffCompression",
             ResultHandling = "result.IsEmpty ? TiffCompression.Unspecified : (TiffCompression)result.GetFirstOrDefault()"
         },
@@ -55,6 +67,8 @@
             Name = "Copyright",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -63,6 +77,8 @@
             Name = "DateTime",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -71,6 +87,8 @@
             Name = "ExtraSamples",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<TiffExtraSample>",
             ResultHandling = "result.ConvertAll(i => (TiffExtraSample)i)"
         },
@@ -79,6 +97,8 @@
             Name = "FillOrder",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffFillOrder",
             ResultHandling = "result.IsEmpty ? TiffFillOrder.HigherOrderBitsFirst : (TiffFillOrder)result.GetFirstOrDefault()"
         },
@@ -87,6 +107,8 @@
             Name = "FreeByteCounts",
             Type = "uint",
             TypeName = "Long",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "uint?",
             ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
         },
@@ -95,6 +117,8 @@
             Name = "FreeOffsets",
             Type = "uint",
             TypeName = "Long",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "uint?",
             ResultHandling = "result.IsEmpty ? default(uint?) : result.GetFirstOrDefault()"
         },
@@ -103,6 +127,8 @@
             Name = "GrayResponseCurve",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<ushort>",
             ResultHandling = "result"
         },
@@ -111,6 +137,8 @@
             Name = "GrayResponseUnit",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffGrayResponseUnit",
             ResultHandling = "result.IsEmpty ? TiffGrayResponseUnit.Hundredths : (TiffGrayResponseUnit)result.GetFirstOrDefault()"
         },
@@ -119,6 +147,8 @@
             Name = "HostComputer",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -127,6 +157,8 @@
             Name = "ImageDescription",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -135,6 +167,8 @@
             Name = "ImageLength",
             Type = "ulong",
             TypeName = "Long8",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "ulong",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -143,6 +177,8 @@
             Name = "ImageWidth",
             Type = "ulong",
             TypeName = "Long8",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "ulong",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -151,6 +187,8 @@
             Name = "Make",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -159,6 +197,8 @@
             Name = "MaxSampleValue",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<ushort>",
             ResultHandling = "result"
         },
@@ -167,6 +207,8 @@
             Name = "MinSampleValue",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<ushort>",
             ResultHandling = "result"
         },
@@ -175,6 +217,8 @@
             Name = "Model",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -183,6 +227,8 @@
             Name = "NewSubfileType",
             Type = "uint",
             TypeName = "Long",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffNewSubfileType",
             ResultHandling = "(TiffNewSubfileType)result.GetFirstOrDefault()"
         },
@@ -191,6 +237,8 @@
             Name = "Orientation",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffOrientation",
             ResultHandling = "result.IsEmpty ? TiffOrientation.TopLeft : (TiffOrientation)result.GetFirstOrDefault()"
         },
@@ -199,6 +247,8 @@
             Name = "PhotometricInterpretation",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffPhotometricInterpretation?",
             ResultHandling = "result.IsEmpty ? default(TiffPhotometricInterpretation?) : (TiffPhotometricInterpretation)result.GetFirstOrDefault()"
         },
@@ -207,6 +257,8 @@
             Name = "PlanarConfiguration",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffPlanarConfiguration",
             ResultHandling = "result.IsEmpty ? TiffPlanarConfiguration.Chunky : (TiffPlanarConfiguration)result.GetFirstOrDefault()"
         },
@@ -215,6 +267,8 @@
             Name = "ResolutionUnit",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffResolutionUnit",
             ResultHandling = "result.IsEmpty ? TiffResolutionUnit.Inch : (TiffResolutionUnit)result.GetFirstOrDefault()"
         },
@@ -223,6 +277,8 @@
             Name = "RowsPerStrip",
             Type = "uint",
             TypeName = "Long",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "uint",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -231,6 +287,8 @@
             Name = "SamplesPerPixel",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "ushort",
             ResultHandling = "result.IsEmpty ? (ushort)1 : result.GetFirstOrDefault()"
         },
@@ -239,6 +297,8 @@
             Name = "Software",
             Type = "string",
             TypeName = "ASCII",
+            IsFirstString = true,
+            SizeLimit = -1,
             ReturnType = "string?",
             ResultHandling = "result.GetFirstOrDefault()"
         },
@@ -247,6 +307,8 @@
             Name = "StripByteCounts",
             Type = "ulong",
             TypeName = "Long8",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<ulong>",
             ResultHandling = "result"
         },
@@ -255,6 +317,8 @@
             Name = "StripOffsets",
             Type = "ulong",
             TypeName = "Long8",
+            IsFirstString = false,
+            SizeLimit = -1,
             ReturnType = "TiffValueCollection<ulong>",
             ResultHandling = "result"
         },
@@ -263,6 +327,8 @@
             Name = "SubFileType",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffSubfileType?",
             ResultHandling = "result.IsEmpty ? default(TiffSubfileType?) : (TiffSubfileType)result.GetFirstOrDefault()"
         },
@@ -271,6 +337,8 @@
             Name = "Threshholding",
             Type = "ushort",
             TypeName = "Short",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffThreshholding",
             ResultHandling = "result.IsEmpty ? TiffThreshholding.NoThreshholding : (TiffThreshholding)result.GetFirstOrDefault()"
         },
@@ -279,6 +347,8 @@
             Name = "XResolution",
             Type = "TiffRational",
             TypeName = "Rational",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffRational?",
             ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
         },
@@ -287,6 +357,8 @@
             Name = "YResolution",
             Type = "TiffRational",
             TypeName = "Rational",
+            IsFirstString = false,
+            SizeLimit = 1,
             ReturnType = "TiffRational?",
             ResultHandling = "result.IsEmpty ? default(TiffRational?) : result.GetFirstOrDefault()"
         }
@@ -303,7 +375,7 @@ namespace TiffLibrary
     public static partial class TiffTagReaderExtensions
     {
     <#
-    foreach (var field in Fields)
+    foreach (var field in fields)
     {
     #>
 
@@ -317,7 +389,25 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<<#= field.ReturnType #>> Read<#= field.Name #>Async(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
+<# if (field.TypeName == "ASCII" && field.IsFirstString) { #>
+            ValueTask<string?> valueTask = tagReader.ReadASCIIFieldFirstStringAsync(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>, cancellationToken);
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                return new ValueTask<string?>(valueTask.GetAwaiter().GetResult());
+            }
+
+            return new ValueTask<string?>(TransformValueTaskAsync(valueTask));
+
+            static async Task<string?> TransformValueTaskAsync(ValueTask<string?> valueTask)
+            {
+                return await valueTask.ConfigureAwait(false);
+            }
+<# } else {#>
+<# if (field.TypeName == "ASCII") { #>
             ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync(TiffTag.<#= field.Name #>, cancellationToken);
+<# } else {#>
+            ValueTask<TiffValueCollection<<#= field.Type #>>> valueTask = tagReader.Read<#= field.TypeName #>FieldAsync(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>, cancellationToken);
+<# } #>
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<<#= field.Type #>> result = valueTask.GetAwaiter().GetResult();
@@ -331,6 +421,7 @@ namespace TiffLibrary
                 TiffValueCollection<<#= field.Type #>> result = await valueTask.ConfigureAwait(false);
                 return <#= field.ResultHandling #>;
             }
+<# } #>
         }
 
         /// <summary>
@@ -340,8 +431,16 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static <#= field.ReturnType #> Read<#= field.Name #>(this TiffTagReader tagReader)
         {
+<# if (field.TypeName == "ASCII" && field.IsFirstString) { #>
+            return tagReader.ReadASCIIFieldFirstString(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>);
+<# } else {#>
+<# if (field.TypeName == "ASCII") { #>
             TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field(TiffTag.<#= field.Name #>);
+<# } else {#>
+            TiffValueCollection<<#= field.Type #>> result = tagReader.Read<#= field.TypeName #>Field(TiffTag.<#= field.Name #>, sizeLimit: <#= field.SizeLimit #>);
+<# } #>
             return <#= field.ResultHandling #>;
+<# } #>
         }
 
         #endregion

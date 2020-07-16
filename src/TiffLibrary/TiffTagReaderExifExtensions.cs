@@ -16,7 +16,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffStreamOffset> ReadExifIfdAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.ExifIfd, cancellationToken);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.ExifIfd, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ namespace TiffLibrary
                 return result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.ExifIfd"/>.
         /// </summary>
@@ -39,7 +39,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffStreamOffset ReadExifIfd(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.ExifIfd);
+            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.ExifIfd, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 
@@ -55,7 +55,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffStreamOffset> ReadGpsIfdAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.GpsIfd, cancellationToken);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.GpsIfd, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();
@@ -70,7 +70,7 @@ namespace TiffLibrary
                 return result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.GpsIfd"/>.
         /// </summary>
@@ -78,7 +78,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffStreamOffset ReadGpsIfd(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.GpsIfd);
+            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.GpsIfd, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 
@@ -94,7 +94,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the value of the tag is read and return the read values.</returns>
         public static ValueTask<TiffStreamOffset> ReadInteroperabilityIfdAsync(this TiffTagReader tagReader, CancellationToken cancellationToken = default)
         {
-            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.InteroperabilityIfd, cancellationToken);
+            ValueTask<TiffValueCollection<TiffStreamOffset>> valueTask = tagReader.ReadIFD8FieldAsync(TiffTag.InteroperabilityIfd, sizeLimit: 1, cancellationToken);
             if (valueTask.IsCompletedSuccessfully)
             {
                 TiffValueCollection<TiffStreamOffset> result = valueTask.GetAwaiter().GetResult();
@@ -109,7 +109,7 @@ namespace TiffLibrary
                 return result.GetFirstOrDefault();
             }
         }
-        
+
         /// <summary>
         /// Read the values of <see cref="TiffTag.InteroperabilityIfd"/>.
         /// </summary>
@@ -117,7 +117,7 @@ namespace TiffLibrary
         /// <returns>The values read.</returns>
         public static TiffStreamOffset ReadInteroperabilityIfd(this TiffTagReader tagReader)
         {
-            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.InteroperabilityIfd);
+            TiffValueCollection<TiffStreamOffset> result = tagReader.ReadIFD8Field(TiffTag.InteroperabilityIfd, sizeLimit: 1);
             return result.GetFirstOrDefault();
         }
 

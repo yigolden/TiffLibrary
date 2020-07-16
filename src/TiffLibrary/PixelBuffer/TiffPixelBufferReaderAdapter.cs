@@ -40,7 +40,7 @@ namespace TiffLibrary.PixelBuffer
             int width = Math.Min(_size.Width - offset.X, destination.Width);
             int height = Math.Min(_size.Height - offset.Y, destination.Height);
 
-            ReadOnlySpan<TPixel> buffer = _buffer.GetSpan();
+            ReadOnlySpan<TPixel> buffer = _buffer.GetReadOnlySpan();
             int bufferWidth = _size.Width;
 
             for (int row = 0; row < height; row++)

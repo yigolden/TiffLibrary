@@ -323,7 +323,7 @@ namespace TiffLibrary.ImageDecoder
 
             if (ifd.Contains(TiffTag.JPEGInterchangeFormat) && ifd.Contains(TiffTag.JPEGInterchangeFormatLength))
             {
-                jpegStream = new TiffStreamRegion(await tagReader.ReadJPEGInterchangeFormatAsync(cancellationToken).ConfigureAwait(false), (int)(await tagReader.ReadJPEGInterchangeFormatLengthAsync(cancellationToken).ConfigureAwait(false)));
+                jpegStream = new TiffStreamRegion(await tagReader.ReadJPEGInterchangeFormatAsync(cancellationToken).ConfigureAwait(false), (int)await tagReader.ReadJPEGInterchangeFormatLengthAsync(cancellationToken).ConfigureAwait(false));
             }
             else if (!ifd.Contains(TiffTag.JPEGProc))
             {
@@ -496,39 +496,53 @@ namespace TiffLibrary.ImageDecoder
         private static async Task BuildStrippedImageEnumerator(TiffImageDecoderPipelineBuilder builder, TiffTagReader tagReader, TiffCompression compression, int height, TiffValueCollection<int> bytesPerScanline, CancellationToken cancellationToken)
         {
             // Strip data
-            int rowsPerStrip = (int)(await tagReader.ReadRowsPerStripAsync(cancellationToken).ConfigureAwait(false));
-            TiffValueCollection<ulong> stripOffsets = await tagReader.ReadStripOffsetsAsync(cancellationToken).ConfigureAwait(false);
-            TiffValueCollection<ulong> stripsByteCount = await tagReader.ReadStripByteCountsAsync(cancellationToken).ConfigureAwait(false);
-            int stripCount = stripOffsets.Count;
+            int rowsPerStrip = (int)await tagReader.ReadRowsPerStripAsync(cancellationToken).ConfigureAwait(false);
+            TiffImageFileDirectoryEntry stripOffsetsEntry = tagReader.ImageFileDirectory.FindEntry(TiffTag.StripOffsets);
+            TiffImageFileDirectoryEntry stripByteCountsEntry = tagReader.ImageFileDirectory.FindEntry(TiffTag.StripByteCounts);
+
+            if (stripOffsetsEntry.ValueCount == 0)
+            {
+                throw new InvalidDataException("No strips are found.");
+            }
+
+            TiffValueCollection<ulong> inferredStripByteCounts = default;
+
+            long stripCount = stripOffsetsEntry.ValueCount;
             if (stripCount == 0)
             {
                 throw new InvalidDataException();
             }
 
-            TiffValueCollection<int> convertedStripsByteCount;
-
             // Special case for mailformed file.
-            if (stripCount == 1 && rowsPerStrip == 0)
+            if (stripCount == 1 && rowsPerStrip <= 0)
             {
                 rowsPerStrip = height;
             }
-            if (stripCount != stripsByteCount.Count)
+            if (stripCount != stripByteCountsEntry.ValueCount)
             {
                 // Special case for mailformed file.
-                convertedStripsByteCount = InferStripsByteCount();
-                if (stripCount != convertedStripsByteCount.Count)
+                inferredStripByteCounts = InferStripsByteCount();
+                if (stripCount != inferredStripByteCounts.Count)
                 {
                     throw new InvalidDataException();
                 }
             }
+
+            if (inferredStripByteCounts.IsEmpty && stripOffsetsEntry.ValueCount >= 256)
+            {
+                builder.Add(new TiffStrippedImageDecoderEnumeratorMiddleware(rowsPerStrip, stripOffsetsEntry, stripByteCountsEntry, bytesPerScanline.Count));
+            }
             else
             {
-                convertedStripsByteCount = stripsByteCount.ConvertAll(v => (int)v);
+                TiffValueCollection<ulong> stripOffsets = await tagReader.Reader.ReadLong8FieldAsync(stripOffsetsEntry, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (inferredStripByteCounts.IsEmpty)
+                {
+                    inferredStripByteCounts = await tagReader.Reader.ReadLong8FieldAsync(stripByteCountsEntry, cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
+                builder.Add(new TiffStrippedImageDecoderEnumeratorMiddleware(rowsPerStrip, stripOffsets, inferredStripByteCounts, bytesPerScanline.Count));
             }
 
-            builder.Add(new TiffStrippedImageDecoderEnumeratorMiddleware(rowsPerStrip, stripOffsets.ConvertAll(v => (long)v), convertedStripsByteCount, bytesPerScanline.Count));
-
-            TiffValueCollection<int> InferStripsByteCount()
+            TiffValueCollection<ulong> InferStripsByteCount()
             {
                 if (compression != TiffCompression.NoCompression)
                 {
@@ -536,10 +550,10 @@ namespace TiffLibrary.ImageDecoder
                 }
 
                 int substripCount = bytesPerScanline.Count;
-                int actualStripCount = stripOffsets.Count / substripCount;
+                int actualStripCount = (int)stripCount / substripCount;
 
                 // Infer strips byte count
-                int[] stripsByteCount = new int[stripOffsets.Count];
+                ulong[] stripsByteCount = new ulong[stripCount];
                 for (int substripIndex = 0; substripIndex < substripCount; substripIndex++)
                 {
                     int bytes = bytesPerScanline[substripIndex];
@@ -547,7 +561,7 @@ namespace TiffLibrary.ImageDecoder
                     {
                         int accessIndex = substripIndex * actualStripCount + stripIndex;
                         int imageHeight = Math.Min(rowsPerStrip, height - stripIndex * rowsPerStrip);
-                        stripsByteCount[accessIndex] = imageHeight * bytes;
+                        stripsByteCount[accessIndex] = (ulong)(imageHeight * bytes);
                     }
                 }
 
@@ -564,17 +578,17 @@ namespace TiffLibrary.ImageDecoder
             Debug.Assert(tileWidth != null && tileHeight != null);
 
             // Read Tile Offsets
-            TiffValueCollection<ulong> tileOffsets = await tagReader.ReadTileOffsetsAsync(cancellationToken).ConfigureAwait(false);
-            TiffValueCollection<ulong> tileByteCounts = await tagReader.ReadTileByteCountsAsync(cancellationToken).ConfigureAwait(false);
-            if (tileOffsets.IsEmpty || tileByteCounts.IsEmpty)
+            TiffImageFileDirectoryEntry tileOffsetsEntry = tagReader.ImageFileDirectory.FindEntry(TiffTag.TileOffsets);
+            TiffImageFileDirectoryEntry tileByteCountsEntry = tagReader.ImageFileDirectory.FindEntry(TiffTag.TileByteCounts);
+            if (tileOffsetsEntry.ValueCount == 0 || tileByteCountsEntry.ValueCount == 0)
             {
                 // Fallback to using StripOffsets and StripByteCounts
-                tileOffsets = await tagReader.ReadStripOffsetsAsync(cancellationToken).ConfigureAwait(false);
-                tileByteCounts = await tagReader.ReadStripByteCountsAsync(cancellationToken).ConfigureAwait(false);
+                tileOffsetsEntry = tagReader.ImageFileDirectory.FindEntry(TiffTag.StripOffsets);
+                tileByteCountsEntry = tagReader.ImageFileDirectory.FindEntry(TiffTag.StripByteCounts);
             }
 
             // Validate
-            if (tileOffsets.Count == 0 || tileOffsets.Count != tileByteCounts.Count)
+            if (tileOffsetsEntry.ValueCount == 0 || tileOffsetsEntry.ValueCount != tileByteCountsEntry.ValueCount)
             {
                 throw new InvalidDataException();
             }
@@ -583,7 +597,16 @@ namespace TiffLibrary.ImageDecoder
                 throw new InvalidDataException();
             }
 
-            builder.Add(new TiffTiledImageDecoderEnumeratorMiddleware((int)tileWidth.GetValueOrDefault(), (int)tileHeight.GetValueOrDefault(), tileOffsets.ConvertAll(v => (long)v), tileByteCounts.ConvertAll(v => (int)v), planeCount));
+            if (tileOffsetsEntry.ValueCount > 256)
+            {
+                builder.Add(new TiffTiledImageDecoderEnumeratorMiddleware((int)tileWidth.GetValueOrDefault(), (int)tileHeight.GetValueOrDefault(), tileOffsetsEntry, tileByteCountsEntry, planeCount));
+            }
+            else
+            {
+                TiffValueCollection<ulong> tileOffsets = await tagReader.Reader.ReadLong8FieldAsync(tileOffsetsEntry, cancellationToken: cancellationToken).ConfigureAwait(false);
+                TiffValueCollection<ulong> tileByteCounts = await tagReader.Reader.ReadLong8FieldAsync(tileByteCountsEntry, cancellationToken: cancellationToken).ConfigureAwait(false);
+                builder.Add(new TiffTiledImageDecoderEnumeratorMiddleware((int)tileWidth.GetValueOrDefault(), (int)tileHeight.GetValueOrDefault(), tileOffsets, tileByteCounts, planeCount));
+            }
         }
 
         private static void BuildApplyOrientationMiddleware(TiffImageDecoderPipelineBuilder builder, TiffOrientation orientation)

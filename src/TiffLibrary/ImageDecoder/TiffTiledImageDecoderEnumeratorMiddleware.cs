@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using TiffLibrary.Utils;
 
 namespace TiffLibrary.ImageDecoder
 {
@@ -8,11 +9,18 @@ namespace TiffLibrary.ImageDecoder
     /// </summary>
     public sealed class TiffTiledImageDecoderEnumeratorMiddleware : ITiffImageDecoderMiddleware
     {
+        private const int CacheSize = 256; // 4K
+
         private readonly int _tileWidth;
         private readonly int _tileHeight;
-        private readonly TiffValueCollection<long> _tileOffsets;
-        private readonly TiffValueCollection<int> _tileByteCounts;
-        private readonly int _planarCount;
+        private readonly int _planaCount;
+        private readonly bool _lazyLoad;
+
+        private readonly TiffValueCollection<ulong> _tileOffsets;
+        private readonly TiffValueCollection<ulong> _tileByteCounts;
+
+        private readonly TiffImageFileDirectoryEntry _tileOffsetsEntry;
+        private readonly TiffImageFileDirectoryEntry _tileByteCountsEntry;
 
         /// <summary>
         /// Initialize the middleware.
@@ -22,13 +30,36 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="tileOffsets">The TileOffsets tag.</param>
         /// <param name="tileByteCounts">The TileByteCounts tag.</param>
         /// <param name="planeCount">The plane count.</param>
-        public TiffTiledImageDecoderEnumeratorMiddleware(int tileWidth, int tileHeight, TiffValueCollection<long> tileOffsets, TiffValueCollection<int> tileByteCounts, int planeCount)
+        public TiffTiledImageDecoderEnumeratorMiddleware(int tileWidth, int tileHeight, TiffValueCollection<ulong> tileOffsets, TiffValueCollection<ulong> tileByteCounts, int planeCount)
         {
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
+            _planaCount = planeCount;
+            _lazyLoad = false;
+
             _tileOffsets = tileOffsets;
             _tileByteCounts = tileByteCounts;
-            _planarCount = planeCount;
+
+            if (tileOffsets.Count != tileByteCounts.Count)
+            {
+                throw new ArgumentException("tileOffsets does not have the same element count as tileByteCounts.", nameof(tileByteCounts));
+            }
+        }
+
+        internal TiffTiledImageDecoderEnumeratorMiddleware(int tileWidth, int tileHeight, TiffImageFileDirectoryEntry tileOffsetsEntry, TiffImageFileDirectoryEntry tileByteCountsEntry, int planeCount)
+        {
+            _tileWidth = tileWidth;
+            _tileHeight = tileHeight;
+            _planaCount = planeCount;
+            _lazyLoad = true;
+
+            _tileOffsetsEntry = tileOffsetsEntry;
+            _tileByteCountsEntry = tileByteCountsEntry;
+
+            if (tileOffsetsEntry.ValueCount != tileByteCountsEntry.ValueCount)
+            {
+                throw new ArgumentException("tileOffsetsEntry does not have the same element count as tileByteCountsEntry.", nameof(tileByteCountsEntry));
+            }
         }
 
         /// <inheritdoc />
@@ -44,75 +75,103 @@ namespace TiffLibrary.ImageDecoder
                 throw new ArgumentNullException(nameof(next));
             }
 
-            int tileAcross = (context.SourceImageSize.Width + _tileWidth - 1) / _tileWidth;
-            int tileDown = (context.SourceImageSize.Height + _tileHeight - 1) / _tileHeight;
-            int tileCount = tileAcross * tileDown;
-
-            // Make sure the region to read is in the image boundary.
-            if (context.SourceReadOffset.X >= context.SourceImageSize.Width || context.SourceReadOffset.Y >= context.SourceImageSize.Height)
+            if (context.ContentReader is null)
             {
-                return;
+                throw new ArgumentException("ContentReader is not provided in the TiffImageDecoderContext instance.");
             }
-            context.ReadSize = new TiffSize(Math.Min(context.ReadSize.Width, context.SourceImageSize.Width - context.SourceReadOffset.X), Math.Min(context.ReadSize.Height, context.SourceImageSize.Height - context.SourceReadOffset.Y));
-            if (context.ReadSize.IsAreaEmpty)
+            if (context.OperationContext is null)
             {
-                return;
+                throw new ArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
             }
 
-            // Create a wrapped context
-            var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
-            var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planarCount);
-            wrapperContext.SourceImageSize = new TiffSize(_tileWidth, _tileHeight);
-
-            // loop through all the tiles overlapping with the region to read.
-            int colStart = context.SourceReadOffset.X / _tileWidth;
-            int colEnd = (context.SourceReadOffset.X + context.ReadSize.Width + _tileWidth - 1) / _tileWidth;
-            int rowStart = context.SourceReadOffset.Y / _tileHeight;
-            int rowEnd = (context.SourceReadOffset.Y + context.ReadSize.Height + _tileHeight - 1) / _tileHeight;
-
-            for (int row = rowStart; row < rowEnd; row++)
+            // Initialize the cache
+            TiffFieldReader? reader = null;
+            TiffStrileOffsetCache cache;
+            if (_lazyLoad)
             {
-                // Calculate coordinates on the y direction for the tiles on this row.
-                int currentYOffset = row * _tileHeight;
-                int skippedScanlines = Math.Max(0, context.SourceReadOffset.Y - currentYOffset);
-                int requestedScanlines = Math.Min(_tileHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
+                reader = new TiffFieldReader(context.ContentReader, context.OperationContext, leaveOpen: true);
+                cache = new TiffStrileOffsetCache(reader, _tileOffsetsEntry, _tileByteCountsEntry, CacheSize);
+            }
+            else
+            {
+                cache = new TiffStrileOffsetCache(_tileOffsets, _tileByteCounts);
+            }
 
-                for (int col = colStart; col < colEnd; col++)
+            try
+            {
+                int tileAcross = (context.SourceImageSize.Width + _tileWidth - 1) / _tileWidth;
+                int tileDown = (context.SourceImageSize.Height + _tileHeight - 1) / _tileHeight;
+                int tileCount = tileAcross * tileDown;
+                System.Threading.CancellationToken cancellationToken = context.CancellationToken;
+
+                // Make sure the region to read is in the image boundary.
+                if (context.SourceReadOffset.X >= context.SourceImageSize.Width || context.SourceReadOffset.Y >= context.SourceImageSize.Height)
                 {
-                    // Calculate coordinates on the y direction for this tile.
-                    int currentXOffset = col * _tileWidth;
-                    int skippedXOffset = Math.Max(0, context.SourceReadOffset.X - currentXOffset);
-                    int requestedWidth = Math.Min(_tileWidth - skippedXOffset, context.SourceReadOffset.X + context.ReadSize.Width - currentXOffset - skippedXOffset);
-
-                    // Update size info of this tile
-                    wrapperContext.SourceReadOffset = new TiffPoint(skippedXOffset, skippedScanlines);
-                    wrapperContext.ReadSize = new TiffSize(requestedWidth, requestedScanlines);
-
-                    // Update size info of the destination buffer
-                    wrapperContext.SetCropSize(new TiffPoint(Math.Max(0, currentXOffset - context.SourceReadOffset.X), Math.Max(0, currentYOffset - context.SourceReadOffset.Y)), context.ReadSize);
-
-                    // Check to see if there is any region area to be read
-                    if (wrapperContext.ReadSize.IsAreaEmpty)
-                    {
-                        continue;
-                    }
-
-                    // Prepare stream regions of this tile
-                    for (int planarIndex = 0; planarIndex < _planarCount; planarIndex++)
-                    {
-                        int tileIndex = planarIndex * tileCount + row * tileAcross + col;
-                        long tileOffset = _tileOffsets[tileIndex];
-                        int tileByteCount = _tileByteCounts[tileIndex];
-
-                        planarRegions[planarIndex] = new TiffStreamRegion(tileOffset, tileByteCount);
-                    }
-                    wrapperContext.PlanarRegions = planarRegions.GetReadOnlyView();
-
-                    context.CancellationToken.ThrowIfCancellationRequested();
-
-                    // Pass down the data
-                    await next.RunAsync(wrapperContext).ConfigureAwait(false);
+                    return;
                 }
+                context.ReadSize = new TiffSize(Math.Min(context.ReadSize.Width, context.SourceImageSize.Width - context.SourceReadOffset.X), Math.Min(context.ReadSize.Height, context.SourceImageSize.Height - context.SourceReadOffset.Y));
+                if (context.ReadSize.IsAreaEmpty)
+                {
+                    return;
+                }
+
+                // Create a wrapped context
+                var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
+                var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planaCount);
+                wrapperContext.SourceImageSize = new TiffSize(_tileWidth, _tileHeight);
+
+                // loop through all the tiles overlapping with the region to read.
+                int colStart = context.SourceReadOffset.X / _tileWidth;
+                int colEnd = (context.SourceReadOffset.X + context.ReadSize.Width + _tileWidth - 1) / _tileWidth;
+                int rowStart = context.SourceReadOffset.Y / _tileHeight;
+                int rowEnd = (context.SourceReadOffset.Y + context.ReadSize.Height + _tileHeight - 1) / _tileHeight;
+
+                for (int row = rowStart; row < rowEnd; row++)
+                {
+                    // Calculate coordinates on the y direction for the tiles on this row.
+                    int currentYOffset = row * _tileHeight;
+                    int skippedScanlines = Math.Max(0, context.SourceReadOffset.Y - currentYOffset);
+                    int requestedScanlines = Math.Min(_tileHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
+
+                    for (int col = colStart; col < colEnd; col++)
+                    {
+                        // Calculate coordinates on the y direction for this tile.
+                        int currentXOffset = col * _tileWidth;
+                        int skippedXOffset = Math.Max(0, context.SourceReadOffset.X - currentXOffset);
+                        int requestedWidth = Math.Min(_tileWidth - skippedXOffset, context.SourceReadOffset.X + context.ReadSize.Width - currentXOffset - skippedXOffset);
+
+                        // Update size info of this tile
+                        wrapperContext.SourceReadOffset = new TiffPoint(skippedXOffset, skippedScanlines);
+                        wrapperContext.ReadSize = new TiffSize(requestedWidth, requestedScanlines);
+
+                        // Update size info of the destination buffer
+                        wrapperContext.SetCropSize(new TiffPoint(Math.Max(0, currentXOffset - context.SourceReadOffset.X), Math.Max(0, currentYOffset - context.SourceReadOffset.Y)), context.ReadSize);
+
+                        // Check to see if there is any region area to be read
+                        if (wrapperContext.ReadSize.IsAreaEmpty)
+                        {
+                            continue;
+                        }
+
+                        // Prepare stream regions of this tile
+                        for (int planarIndex = 0; planarIndex < _planaCount; planarIndex++)
+                        {
+                            int tileIndex = planarIndex * tileCount + row * tileAcross + col;
+                            planarRegions[planarIndex] = await cache.GetOffsetAndCountAsync(tileIndex, cancellationToken).ConfigureAwait(false);
+                        }
+                        wrapperContext.PlanarRegions = planarRegions.GetReadOnlyView();
+
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // Pass down the data
+                        await next.RunAsync(wrapperContext).ConfigureAwait(false);
+                    }
+                }
+            }
+            finally
+            {
+                ((IDisposable)cache).Dispose();
+                reader?.Dispose();
             }
 
         }

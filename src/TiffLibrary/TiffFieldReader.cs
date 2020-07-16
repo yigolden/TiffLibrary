@@ -15,12 +15,14 @@ namespace TiffLibrary
     {
         private TiffFileContentReader? _reader;
         private TiffOperationContext? _context;
+        private bool _leaveOpen;
         private readonly bool _reverseEndianNeeded;
 
-        internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context)
+        internal TiffFieldReader(TiffFileContentReader reader, TiffOperationContext context, bool leaveOpen = false)
         {
             _reader = reader;
             _context = context;
+            _leaveOpen = leaveOpen;
             _reverseEndianNeeded = BitConverter.IsLittleEndian != context.IsLittleEndian;
         }
 
@@ -54,7 +56,10 @@ namespace TiffLibrary
         public void Dispose()
         {
             _context = null;
-            _reader?.Dispose();
+            if (!(_reader is null) && !_leaveOpen)
+            {
+                _reader.Dispose();
+            }
             _reader = null;
         }
 
@@ -62,11 +67,11 @@ namespace TiffLibrary
         public async ValueTask DisposeAsync()
         {
             _context = null;
-            if (!(_reader is null))
+            if (!(_reader is null) && !_leaveOpen)
             {
                 await _reader.DisposeAsync().ConfigureAwait(false);
-                _reader = null;
             }
+            _reader = null;
         }
 
         #region Copy values

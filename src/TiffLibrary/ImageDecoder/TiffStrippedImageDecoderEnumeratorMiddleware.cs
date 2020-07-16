@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using TiffLibrary.Utils;
 
 namespace TiffLibrary.ImageDecoder
 {
@@ -8,10 +10,18 @@ namespace TiffLibrary.ImageDecoder
     /// </summary>
     public sealed class TiffStrippedImageDecoderEnumeratorMiddleware : ITiffImageDecoderMiddleware
     {
+        private const int CacheSize = 256; // 4K
+
         private readonly int _rowsPerStrip;
-        private readonly TiffValueCollection<long> _stripOffsets;
-        private readonly TiffValueCollection<int> _stripsByteCount;
-        private readonly int _planarCount;
+        private readonly int _planeCount;
+        private readonly bool _lazyLoad;
+        private readonly int _stripCount;
+
+        private readonly TiffValueCollection<ulong> _stripOffsets;
+        private readonly TiffValueCollection<ulong> _stripsByteCount;
+
+        private readonly TiffImageFileDirectoryEntry _stripOffsetsEntry;
+        private readonly TiffImageFileDirectoryEntry _stripsByteCountEntry;
 
         /// <summary>
         /// Initialize the middleware.
@@ -20,12 +30,36 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="stripOffsets">The StripOffsets tag.</param>
         /// <param name="stripsByteCount">The StripsByteCount tag.</param>
         /// <param name="planeCount">The number of planes.</param>
-        public TiffStrippedImageDecoderEnumeratorMiddleware(int rowsPerStrip, TiffValueCollection<long> stripOffsets, TiffValueCollection<int> stripsByteCount, int planeCount)
+        public TiffStrippedImageDecoderEnumeratorMiddleware(int rowsPerStrip, TiffValueCollection<ulong> stripOffsets, TiffValueCollection<ulong> stripsByteCount, int planeCount)
         {
             _rowsPerStrip = rowsPerStrip;
+            _planeCount = planeCount;
+            _lazyLoad = false;
+
             _stripOffsets = stripOffsets;
             _stripsByteCount = stripsByteCount;
-            _planarCount = planeCount;
+
+            if (stripOffsets.Count != stripsByteCount.Count)
+            {
+                throw new ArgumentException("stripsByteCount does not have the same element count as stripsOffsets.", nameof(stripsByteCount));
+            }
+            _stripCount = stripOffsets.Count;
+        }
+
+        internal TiffStrippedImageDecoderEnumeratorMiddleware(int rowsPerStrip, TiffImageFileDirectoryEntry stripOffsetsEntry, TiffImageFileDirectoryEntry stripsByteCountEntry, int planeCount)
+        {
+            _rowsPerStrip = rowsPerStrip;
+            _planeCount = planeCount;
+            _lazyLoad = true;
+
+            _stripOffsetsEntry = stripOffsetsEntry;
+            _stripsByteCountEntry = stripsByteCountEntry;
+
+            if (stripOffsetsEntry.ValueCount != stripsByteCountEntry.ValueCount)
+            {
+                throw new ArgumentException("stripOffsetsEntry does not have the same element count as stripsByteCountEntry.", nameof(stripsByteCountEntry));
+            }
+            _stripCount = (int)_stripOffsetsEntry.ValueCount;
         }
 
         /// <inheritdoc />
@@ -41,69 +75,99 @@ namespace TiffLibrary.ImageDecoder
                 throw new ArgumentNullException(nameof(next));
             }
 
-            int rowsPerStrip = _rowsPerStrip;
-
-            // Special case for mailformed file.
-            if (rowsPerStrip <= 0 && _stripOffsets.Count == 1)
+            if (context.ContentReader is null)
             {
-                rowsPerStrip = context.SourceImageSize.Height;
+                throw new ArgumentException("ContentReader is not provided in the TiffImageDecoderContext instance.");
+            }
+            if (context.OperationContext is null)
+            {
+                throw new ArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
             }
 
-            // Make sure the region to read is in the image boundary.
-            if (context.SourceReadOffset.X >= context.SourceImageSize.Width || context.SourceReadOffset.Y >= context.SourceImageSize.Height)
+            // Initialize the cache
+            TiffFieldReader? reader = null;
+            TiffStrileOffsetCache cache;
+            if (_lazyLoad)
             {
-                return;
+                reader = new TiffFieldReader(context.ContentReader, context.OperationContext, leaveOpen: true);
+                cache = new TiffStrileOffsetCache(reader, _stripOffsetsEntry, _stripsByteCountEntry, CacheSize);
             }
-            context.ReadSize = new TiffSize(Math.Min(context.ReadSize.Width, context.SourceImageSize.Width - context.SourceReadOffset.X), Math.Min(context.ReadSize.Height, context.SourceImageSize.Height - context.SourceReadOffset.Y));
-            if (context.ReadSize.IsAreaEmpty)
+            else
             {
-                return;
+                cache = new TiffStrileOffsetCache(_stripOffsets, _stripsByteCount);
             }
 
-            // Create a wrapped context
-            var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
-            var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planarCount);
-
-            // loop through all the strips overlapping with the region to read
-            int stripStart = context.SourceReadOffset.Y / rowsPerStrip;
-            int stripEnd = (context.SourceReadOffset.Y + context.ReadSize.Height + rowsPerStrip - 1) / rowsPerStrip;
-            int actualStripCount = _stripOffsets.Count / _planarCount;
-            for (int stripIndex = stripStart; stripIndex < stripEnd; stripIndex++)
+            try
             {
-                // Calculate size info of this strip
-                int currentYOffset = stripIndex * rowsPerStrip;
-                int stripImageHeight = Math.Min(rowsPerStrip, context.SourceImageSize.Height - currentYOffset);
-                int skippedScanlines = Math.Max(0, context.SourceReadOffset.Y - currentYOffset);
-                int requestedScanlines = Math.Min(stripImageHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
-                wrapperContext.SourceImageSize = new TiffSize(context.SourceImageSize.Width, stripImageHeight);
-                wrapperContext.SourceReadOffset = new TiffPoint(context.SourceReadOffset.X, skippedScanlines);
-                wrapperContext.ReadSize = new TiffSize(context.ReadSize.Width, requestedScanlines);
+                int rowsPerStrip = _rowsPerStrip;
+                CancellationToken cancellationToken = context.CancellationToken;
 
-                // Update size info of the destination buffer
-                wrapperContext.SetCropSize(new TiffPoint(0, Math.Max(0, currentYOffset - context.SourceReadOffset.Y)), context.ReadSize);
-
-                // Check to see if there is any region area to be read
-                if (wrapperContext.ReadSize.IsAreaEmpty)
+                // Special case for mailformed file.
+                if (rowsPerStrip <= 0 && _stripCount == 1)
                 {
-                    continue;
+                    rowsPerStrip = context.SourceImageSize.Height;
                 }
 
-                // Prepare stream regions of this strip
-                for (int planarIndex = 0; planarIndex < _planarCount; planarIndex++)
+                // Make sure the region to read is in the image boundary.
+                if (context.SourceReadOffset.X >= context.SourceImageSize.Width || context.SourceReadOffset.Y >= context.SourceImageSize.Height)
                 {
-                    int accessIndex = planarIndex * actualStripCount + stripIndex;
-                    long substripOffset = _stripOffsets[accessIndex];
-                    int substripByteCount = _stripsByteCount[accessIndex];
-
-                    planarRegions[planarIndex] = new TiffStreamRegion(substripOffset, substripByteCount);
+                    return;
                 }
-                wrapperContext.PlanarRegions = planarRegions.GetReadOnlyView();
+                context.ReadSize = new TiffSize(Math.Min(context.ReadSize.Width, context.SourceImageSize.Width - context.SourceReadOffset.X), Math.Min(context.ReadSize.Height, context.SourceImageSize.Height - context.SourceReadOffset.Y));
+                if (context.ReadSize.IsAreaEmpty)
+                {
+                    return;
+                }
 
-                context.CancellationToken.ThrowIfCancellationRequested();
+                // Create a wrapped context
+                var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
+                var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planeCount);
 
-                // Pass down the data
-                await next.RunAsync(wrapperContext).ConfigureAwait(false);
+                // loop through all the strips overlapping with the region to read
+                int stripStart = context.SourceReadOffset.Y / rowsPerStrip;
+                int stripEnd = (context.SourceReadOffset.Y + context.ReadSize.Height + rowsPerStrip - 1) / rowsPerStrip;
+                int actualStripCount = _stripCount / _planeCount;
+                for (int stripIndex = stripStart; stripIndex < stripEnd; stripIndex++)
+                {
+                    // Calculate size info of this strip
+                    int currentYOffset = stripIndex * rowsPerStrip;
+                    int stripImageHeight = Math.Min(rowsPerStrip, context.SourceImageSize.Height - currentYOffset);
+                    int skippedScanlines = Math.Max(0, context.SourceReadOffset.Y - currentYOffset);
+                    int requestedScanlines = Math.Min(stripImageHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
+                    wrapperContext.SourceImageSize = new TiffSize(context.SourceImageSize.Width, stripImageHeight);
+                    wrapperContext.SourceReadOffset = new TiffPoint(context.SourceReadOffset.X, skippedScanlines);
+                    wrapperContext.ReadSize = new TiffSize(context.ReadSize.Width, requestedScanlines);
+
+                    // Update size info of the destination buffer
+                    wrapperContext.SetCropSize(new TiffPoint(0, Math.Max(0, currentYOffset - context.SourceReadOffset.Y)), context.ReadSize);
+
+                    // Check to see if there is any region area to be read
+                    if (wrapperContext.ReadSize.IsAreaEmpty)
+                    {
+                        continue;
+                    }
+
+                    // Prepare stream regions of this strip
+                    for (int planarIndex = 0; planarIndex < _planeCount; planarIndex++)
+                    {
+                        int accessIndex = planarIndex * actualStripCount + stripIndex;
+                        planarRegions[planarIndex] = await cache.GetOffsetAndCountAsync(accessIndex, cancellationToken).ConfigureAwait(false);
+                    }
+                    wrapperContext.PlanarRegions = planarRegions.GetReadOnlyView();
+
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    // Pass down the data
+                    await next.RunAsync(wrapperContext).ConfigureAwait(false);
+                }
             }
+            finally
+            {
+                ((IDisposable)cache).Dispose();
+                reader?.Dispose();
+            }
+
+
         }
     }
 

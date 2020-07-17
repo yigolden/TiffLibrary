@@ -13,6 +13,12 @@ namespace TiffLibrary.Benchmarks
 
         private TiffPixelBuffer<TiffGray8> _scratchSpace;
 
+        private TiffFileReader _stripReader;
+        private TiffFileReader _tileReader;
+
+        private TiffImageDecoder _stripDecoder;
+        private TiffImageDecoder _tileDecoder;
+
         [GlobalSetup]
         public async Task Setup()
         {
@@ -37,6 +43,14 @@ namespace TiffLibrary.Benchmarks
             builder.TileSize = new TiffSize(16, 16); // the minimum tile size
             await GenerateImageAsync(ms, builder, _scratchSpace);
             _tileTestTiff = ms.ToArray();
+
+            _stripReader = await TiffFileReader.OpenAsync(_stripTestTiff);
+            _stripDecoder = await _stripReader.CreateImageDecoderAsync();
+            await _stripDecoder.DecodeAsync(_scratchSpace);
+
+            _tileReader = await TiffFileReader.OpenAsync(_tileTestTiff);
+            _tileDecoder = await _tileReader.CreateImageDecoderAsync();
+            await _tileDecoder.DecodeAsync(_scratchSpace);
         }
 
         private static async Task GenerateImageAsync(Stream stream, TiffImageEncoderBuilder builder, TiffPixelBuffer<TiffGray8> image)
@@ -61,17 +75,13 @@ namespace TiffLibrary.Benchmarks
         [Benchmark]
         public async Task DecodeStripImage()
         {
-            await using TiffFileReader tiff = await TiffFileReader.OpenAsync(_stripTestTiff);
-            TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync();
-            await decoder.DecodeAsync(_scratchSpace);
+            await _stripDecoder.DecodeAsync(_scratchSpace);
         }
 
         [Benchmark]
         public async Task DecodeTileImage()
         {
-            await using TiffFileReader tiff = await TiffFileReader.OpenAsync(_tileTestTiff);
-            TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync();
-            await decoder.DecodeAsync(_scratchSpace);
+            await _tileDecoder.DecodeAsync(_scratchSpace);
         }
     }
 }

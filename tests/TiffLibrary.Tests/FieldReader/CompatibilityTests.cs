@@ -76,6 +76,45 @@ namespace TiffLibrary.Tests.FieldReader
             Assert.Throws<ArgumentOutOfRangeException>("offset", () => delegate3(entry, -1, new T[entry.ValueCount], false, default));
             Assert.Throws<ArgumentOutOfRangeException>("offset", () => delegate3(entry, (int)(entry.ValueCount + 1), new T[1], false, default));
             Assert.Throws<ArgumentOutOfRangeException>("destination", () => delegate3(entry, 0, new T[entry.ValueCount + 1], false, default));
+
+            // Now do it again with the sync version
+            if (methodName.EndsWith("Async", StringComparison.Ordinal))
+            {
+                methodName = methodName.Substring(0, methodName.Length - 5);
+
+                MethodInfo method4 = typeof(TiffFieldReader).GetMethod(methodName, new Type[] { typeof(TiffImageFileDirectoryEntry), typeof(bool) });
+                MethodInfo method5 = typeof(TiffFieldReader).GetMethod(methodName, new Type[] { typeof(TiffImageFileDirectoryEntry), typeof(int), typeof(bool) });
+                MethodInfo method6 = typeof(TiffFieldReader).GetMethod(methodName, new Type[] { typeof(TiffImageFileDirectoryEntry), typeof(int), typeof(Memory<T>), typeof(bool) });
+                Assert.NotNull(method4);
+                Assert.NotNull(method5);
+                Assert.NotNull(method6);
+                var delegate4 = (Func<TiffImageFileDirectoryEntry, bool, TiffValueCollection<T>>)method4.CreateDelegate(typeof(Func<TiffImageFileDirectoryEntry, bool, TiffValueCollection<T>>), fieldReader);
+                var delegate5 = (Func<TiffImageFileDirectoryEntry, int, bool, TiffValueCollection<T>>)method5.CreateDelegate(typeof(Func<TiffImageFileDirectoryEntry, int, bool, TiffValueCollection<T>>), fieldReader);
+                var delegate6 = (Action<TiffImageFileDirectoryEntry, int, Memory<T>, bool>)method6.CreateDelegate(typeof(Action<TiffImageFileDirectoryEntry, int, Memory<T>, bool>), fieldReader);
+
+                // Test basic overload
+                testData = delegate4(entry, false);
+                Assert.True(MemoryMarshal.AsBytes(refData.AsSpan()).SequenceEqual(MemoryMarshal.AsBytes(testData.ToArray().AsSpan())));
+
+                // Test overload with sizeLimit argument
+                sizeLimit = refData.Length / 2;
+                testData = delegate5(entry, sizeLimit, false);
+                Assert.Equal(sizeLimit, testData.Count);
+                Assert.True(MemoryMarshal.AsBytes(refData.AsSpan(0, sizeLimit)).SequenceEqual(MemoryMarshal.AsBytes(testData.ToArray().AsSpan())));
+
+                // Test overload with external buffer
+                offset = refData.Length / 4;
+                testArray = new T[sizeLimit];
+                delegate6(entry, offset, testArray, false);
+                Assert.True(MemoryMarshal.AsBytes(refData.AsSpan(offset, sizeLimit)).SequenceEqual(MemoryMarshal.AsBytes(testArray.AsSpan())));
+
+                // Test invalid parameter
+                Assert.Throws<ArgumentOutOfRangeException>("offset", () => delegate6(entry, -1, new T[entry.ValueCount], false));
+                Assert.Throws<ArgumentOutOfRangeException>("offset", () => delegate6(entry, (int)(entry.ValueCount + 1), new T[1], false));
+                Assert.Throws<ArgumentOutOfRangeException>("destination", () => delegate6(entry, 0, new T[entry.ValueCount + 1], false));
+
+            }
+
         }
 
         private static async Task TestInvalidConversionAsync<T>(TiffFieldReader fieldReader, TiffImageFileDirectoryEntry entry, string methodName, int length) where T : unmanaged

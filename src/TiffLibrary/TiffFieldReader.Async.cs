@@ -104,15 +104,16 @@ namespace TiffLibrary
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
 
             Span<byte> rawOffset = stackalloc byte[8];
 
             if (skipTypeValidation || entry.IsKnownSingleByte())
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
@@ -281,15 +282,16 @@ namespace TiffLibrary
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
 
             Span<byte> rawOffset = stackalloc byte[8];
 
             if (skipTypeValidation || entry.IsKnownSingleByte())
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 // is inlined ?
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
@@ -557,15 +559,15 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
 
             if (skipTypeValidation || entry.Type == TiffFieldType.Short || entry.Type == TiffFieldType.SShort)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -589,6 +591,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -788,15 +795,15 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
 
             if (skipTypeValidation || entry.Type == TiffFieldType.Short || entry.Type == TiffFieldType.SShort)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -820,6 +827,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -841,6 +853,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1000,14 +1017,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(uint);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1031,6 +1048,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Short)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1045,7 +1067,7 @@ namespace TiffLibrary
                     }
                     else
                     {
-                        InternalCopyInt16Values(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, null);
+                        InternalCopyInt16Values(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => (ushort)v);
                     }
                     return default;
                 }
@@ -1054,6 +1076,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1238,9 +1265,9 @@ namespace TiffLibrary
             else if (entry.Type == TiffFieldType.SByte)
             {
                 // is inlined ?
-                valueCount = Math.Min(sizeLimit, valueCount);
                 if (valueCount <= _context.ByteCountOfValueOffsetField)
                 {
+                    valueCount = Math.Min(sizeLimit, valueCount);
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
                     if (valueCount == 1)
                     {
@@ -1294,14 +1321,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(uint);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1325,6 +1352,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SShort)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1339,15 +1371,20 @@ namespace TiffLibrary
                     }
                     else
                     {
-                        InternalCopyInt16Values(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => (short)v);
+                        InternalCopyInt16Values(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => v);
                     }
                     return default;
                 }
 
-                return new ValueTask(SlowReadShortFieldAsync(reader, entry, offset, destination, v => (short)v, cancellationToken));
+                return new ValueTask(SlowReadShortFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
             else if (entry.Type == TiffFieldType.Short)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1371,6 +1408,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1392,6 +1434,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1572,14 +1619,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.IFD8)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ulong);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1603,6 +1650,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Long)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(uint);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1626,6 +1678,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Short)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1649,6 +1706,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1931,14 +1993,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.IFD8)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(long);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1962,6 +2024,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SLong)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(int);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -1985,6 +2052,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Long)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(uint);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -2008,6 +2080,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SShort)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(short);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -2031,6 +2108,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Short)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -2054,6 +2136,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(sbyte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -2075,6 +2162,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
                 // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -2087,12 +2179,12 @@ namespace TiffLibrary
                     }
                     else
                     {
-                        InternalCopyByteValues(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => (byte)v);
+                        InternalCopyByteValues(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => v);
                     }
                     return default;
                 }
 
-                return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => (byte)v, cancellationToken));
+                return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -2197,14 +2289,15 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Float)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
+                // is inlined ?
                 if (sizeof(float) * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
                     const int sizeOfElement = sizeof(float);
@@ -2397,17 +2490,17 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
 
             if (skipTypeValidation || entry.Type == TiffFieldType.Double)
             {
-                const int sizeOfElement = sizeof(double);
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
 
+                const int sizeOfElement = sizeof(double);
+                // is inlined ?
                 if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
                     entry.RestoreRawOffsetBytes(_context, rawOffset);
@@ -2432,24 +2525,34 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Float)
             {
-                const int sizeOfElement = sizeof(float);
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
 
-                entry.RestoreRawOffsetBytes(_context, rawOffset);
-                if (valueCount == 1)
+                const int sizeOfElement = sizeof(float);
+                // is inlined ?
+                if (sizeOfElement * valueCount <= _context.ByteCountOfValueOffsetField)
                 {
-                    Debug.Assert(destination.Length == 1);
-                    int value = MemoryMarshal.Read<int>(rawOffset);
-                    if (_context.IsLittleEndian != BitConverter.IsLittleEndian)
+                    entry.RestoreRawOffsetBytes(_context, rawOffset);
+                    if (valueCount == 1)
                     {
-                        value = BinaryPrimitives.ReverseEndianness(value);
+                        Debug.Assert(destination.Length == 1);
+                        int value = MemoryMarshal.Read<int>(rawOffset);
+                        if (_context.IsLittleEndian != BitConverter.IsLittleEndian)
+                        {
+                            value = BinaryPrimitives.ReverseEndianness(value);
+                        }
+                        destination.Span[0] = Int32BitsToSingle(value);
                     }
-                    destination.Span[0] = Int32BitsToSingle(value);
+                    else
+                    {
+                        InternalCopyFloatValues(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => v);
+                    }
+                    return default;
                 }
-                else
-                {
-                    InternalCopyFloatValues(rawOffset.Slice(sizeOfElement * offset, sizeOfElement * destination.Length), destination.Span, v => v);
-                }
-                return default;
+
+                return new ValueTask(SlowReadFloatFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
             throw new InvalidOperationException();
@@ -2654,15 +2757,15 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
 
             if (skipTypeValidation || entry.Type == TiffFieldType.Rational)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = 8;
 
                 // is inlined ?
@@ -2677,6 +2780,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Long)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(uint);
 
                 // is inlined ?
@@ -2701,6 +2809,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Short)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
 
                 // is inlined ?
@@ -2725,6 +2838,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
 
                 // is inlined ?
@@ -2844,7 +2962,7 @@ namespace TiffLibrary
 
             long valueCount = entry.ValueCount;
             Span<byte> rawOffset = stackalloc byte[8];
-            if (skipTypeValidation || entry.Type == TiffFieldType.Rational)
+            if (skipTypeValidation || entry.Type == TiffFieldType.SRational)
             {
                 // is inlined ?
                 if (8 * valueCount <= _context.ByteCountOfValueOffsetField)
@@ -2986,14 +3104,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
-            if (skipTypeValidation || entry.Type == TiffFieldType.Rational)
+            if (skipTypeValidation || entry.Type == TiffFieldType.SRational)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = 8;
 
                 // is inlined ?
@@ -3008,6 +3126,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.Long)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(int);
 
                 // is inlined ?
@@ -3032,6 +3155,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SShort)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(short);
 
                 // is inlined ?
@@ -3056,6 +3184,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Short)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(ushort);
 
                 // is inlined ?
@@ -3080,6 +3213,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.SByte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(sbyte);
 
                 // is inlined ?
@@ -3102,6 +3240,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Byte)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(byte);
 
                 // is inlined ?
@@ -3225,14 +3368,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.SLong || entry.Type == TiffFieldType.IFD)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(int);
 
                 // is inlined ?
@@ -3381,14 +3524,14 @@ namespace TiffLibrary
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destination.IsEmpty)
-            {
-                return default;
-            }
-
             Span<byte> rawOffset = stackalloc byte[8];
             if (skipTypeValidation || entry.Type == TiffFieldType.Long8 || entry.Type == TiffFieldType.SLong8 || entry.Type == TiffFieldType.IFD8)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(long);
 
                 // is inlined ?
@@ -3414,6 +3557,11 @@ namespace TiffLibrary
             }
             else if (entry.Type == TiffFieldType.Long || entry.Type == TiffFieldType.IFD)
             {
+                if (destination.IsEmpty)
+                {
+                    return default;
+                }
+
                 const int sizeOfElement = sizeof(uint);
 
                 // is inlined ?

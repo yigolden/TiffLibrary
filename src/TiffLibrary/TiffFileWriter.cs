@@ -627,7 +627,7 @@ namespace TiffLibrary
             Debug.Assert(_stream != null);
             long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
 
-            const int ElementSize = sizeof(float);
+            const int ElementSize = sizeof(double);
             int byteCount = ElementSize * values.Count;
             byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
             try

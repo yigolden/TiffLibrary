@@ -101,6 +101,8 @@ namespace TiffLibrary.ImageDecoder
 
             using (IMemoryOwner<byte> rawBuffer = memoryPool.Rent(readCount))
             {
+                TiffDecompressionContext decompressionContext = new TiffDecompressionContext();
+
                 // decompress each plane
                 for (int i = 0; i < planeCount; i++)
                 {
@@ -115,16 +117,13 @@ namespace TiffLibrary.ImageDecoder
 
                     // Decompress this plane
                     int bytesPerScanline = _bytesPerScanlines[i];
-                    var decompressionContext = new TiffDecompressionContext
-                    {
-                        MemoryPool = memoryPool,
-                        PhotometricInterpretation = _photometricInterpretation,
-                        BitsPerSample = _bitsPerSample,
-                        ImageSize = context.SourceImageSize,
-                        BytesPerScanline = bytesPerScanline,
-                        SkippedScanlines = context.SourceReadOffset.Y,
-                        RequestedScanlines = context.ReadSize.Height
-                    };
+                    decompressionContext.MemoryPool = memoryPool;
+                    decompressionContext.PhotometricInterpretation = _photometricInterpretation;
+                    decompressionContext.BitsPerSample = _bitsPerSample;
+                    decompressionContext.ImageSize = context.SourceImageSize;
+                    decompressionContext.BytesPerScanline = bytesPerScanline;
+                    decompressionContext.SkippedScanlines = context.SourceReadOffset.Y;
+                    decompressionContext.RequestedScanlines = context.ReadSize.Height;
                     _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(planarUncompressedByteCount, bytesPerScanline * imageHeight));
                     planarUncompressedByteCount += bytesPerScanline * imageHeight;
                 }

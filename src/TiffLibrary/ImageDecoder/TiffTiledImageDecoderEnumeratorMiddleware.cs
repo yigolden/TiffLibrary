@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using TiffLibrary.PixelFormats;
 using TiffLibrary.Utils;
 
 namespace TiffLibrary.ImageDecoder
@@ -97,12 +99,15 @@ namespace TiffLibrary.ImageDecoder
                 cache = new TiffStrileOffsetCache(_tileOffsets, _tileByteCounts);
             }
 
+            int tileWidth = _tileWidth;
+            int tileHeight = _tileHeight;
+
             try
             {
-                int tileAcross = (context.SourceImageSize.Width + _tileWidth - 1) / _tileWidth;
-                int tileDown = (context.SourceImageSize.Height + _tileHeight - 1) / _tileHeight;
+                int tileAcross = (context.SourceImageSize.Width + tileWidth - 1) / tileWidth;
+                int tileDown = (context.SourceImageSize.Height + tileHeight - 1) / tileHeight;
                 int tileCount = tileAcross * tileDown;
-                System.Threading.CancellationToken cancellationToken = context.CancellationToken;
+                CancellationToken cancellationToken = context.CancellationToken;
 
                 // Make sure the region to read is in the image boundary.
                 if (context.SourceReadOffset.X >= context.SourceImageSize.Width || context.SourceReadOffset.Y >= context.SourceImageSize.Height)
@@ -118,27 +123,27 @@ namespace TiffLibrary.ImageDecoder
                 // Create a wrapped context
                 var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
                 var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planaCount);
-                wrapperContext.SourceImageSize = new TiffSize(_tileWidth, _tileHeight);
+                wrapperContext.SourceImageSize = new TiffSize(tileWidth, tileHeight);
 
                 // loop through all the tiles overlapping with the region to read.
-                int colStart = context.SourceReadOffset.X / _tileWidth;
-                int colEnd = (context.SourceReadOffset.X + context.ReadSize.Width + _tileWidth - 1) / _tileWidth;
-                int rowStart = context.SourceReadOffset.Y / _tileHeight;
-                int rowEnd = (context.SourceReadOffset.Y + context.ReadSize.Height + _tileHeight - 1) / _tileHeight;
+                int colStart = context.SourceReadOffset.X / tileWidth;
+                int colEnd = (context.SourceReadOffset.X + context.ReadSize.Width + tileWidth - 1) / tileWidth;
+                int rowStart = context.SourceReadOffset.Y / tileHeight;
+                int rowEnd = (context.SourceReadOffset.Y + context.ReadSize.Height + tileHeight - 1) / tileHeight;
 
                 for (int row = rowStart; row < rowEnd; row++)
                 {
                     // Calculate coordinates on the y direction for the tiles on this row.
-                    int currentYOffset = row * _tileHeight;
+                    int currentYOffset = row * tileHeight;
                     int skippedScanlines = Math.Max(0, context.SourceReadOffset.Y - currentYOffset);
-                    int requestedScanlines = Math.Min(_tileHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
+                    int requestedScanlines = Math.Min(tileHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
 
                     for (int col = colStart; col < colEnd; col++)
                     {
                         // Calculate coordinates on the y direction for this tile.
-                        int currentXOffset = col * _tileWidth;
+                        int currentXOffset = col * tileWidth;
                         int skippedXOffset = Math.Max(0, context.SourceReadOffset.X - currentXOffset);
-                        int requestedWidth = Math.Min(_tileWidth - skippedXOffset, context.SourceReadOffset.X + context.ReadSize.Width - currentXOffset - skippedXOffset);
+                        int requestedWidth = Math.Min(tileWidth - skippedXOffset, context.SourceReadOffset.X + context.ReadSize.Width - currentXOffset - skippedXOffset);
 
                         // Update size info of this tile
                         wrapperContext.SourceReadOffset = new TiffPoint(skippedXOffset, skippedScanlines);

@@ -386,7 +386,6 @@ namespace TiffLibrary.ImageDecoder
                     // Reconstruct BitsPerSample tag.
                     if (bitsPerSample.IsEmpty)
                     {
-                        //decoder.NumberOfComponents
                         ushort[] bitsPerSampleArray = new ushort[decoder.NumberOfComponents];
                         for (int i = 0; i < bitsPerSampleArray.Length; i++)
                         {

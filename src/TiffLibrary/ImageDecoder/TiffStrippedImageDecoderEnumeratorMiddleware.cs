@@ -120,8 +120,9 @@ namespace TiffLibrary.ImageDecoder
                 }
 
                 // Create a wrapped context
+                int planeCount = _planeCount;
                 var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
-                var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planeCount);
+                var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(planeCount);
 
                 // loop through all the strips overlapping with the region to read
                 int stripStart = context.SourceReadOffset.Y / rowsPerStrip;
@@ -148,7 +149,7 @@ namespace TiffLibrary.ImageDecoder
                     }
 
                     // Prepare stream regions of this strip
-                    for (int planarIndex = 0; planarIndex < _planeCount; planarIndex++)
+                    for (int planarIndex = 0; planarIndex < planeCount; planarIndex++)
                     {
                         int accessIndex = planarIndex * actualStripCount + stripIndex;
                         planarRegions[planarIndex] = await cache.GetOffsetAndCountAsync(accessIndex, cancellationToken).ConfigureAwait(false);

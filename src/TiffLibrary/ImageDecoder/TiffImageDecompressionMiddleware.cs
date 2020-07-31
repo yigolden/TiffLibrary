@@ -3,6 +3,7 @@ using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
 using TiffLibrary.Compression;
+using TiffLibrary.PixelFormats;
 
 namespace TiffLibrary.ImageDecoder
 {
@@ -64,14 +65,28 @@ namespace TiffLibrary.ImageDecoder
                 uncompressedDataLength += bytesPerScanline * imageHeight;
             }
 
+            TiffEmptyStrileWriter? emptyWriter = null;
+
             // calculate the maximum buffer needed to read from stream
-            int readCount = context.PlanarRegions[0].Length;
+            int readCount = 0;
             foreach (TiffStreamRegion planarRegion in context.PlanarRegions)
             {
-                if (planarRegion.Length > readCount)
+                int length = planarRegion.Length;
+                if (length == 0)
+                {
+                    emptyWriter = new TiffEmptyStrileWriter(new TiffRgba32(255, 255, 255, 0));
+                    break;
+                }
+                if (length > readCount)
                 {
                     readCount = planarRegion.Length;
                 }
+            }
+
+            if (!(emptyWriter is null))
+            {
+                emptyWriter.Write(context);
+                return;
             }
 
             // allocate the raw data buffer and the uncompressed data buffer

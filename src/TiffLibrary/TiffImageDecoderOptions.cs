@@ -31,7 +31,7 @@ namespace TiffLibrary
         public bool IgnoreOrientation { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the maximum number of concurrent tasks enabled by this <see cref="TiffImageDecoderOptions"/> instance.
+        /// Gets or sets the maximum number of concurrent decoding pipelines enabled by this <see cref="TiffImageDecoderOptions"/> instance.
         /// </summary>
         public int MaxDegreeOfParallelism { get; set; } = 1;
     }

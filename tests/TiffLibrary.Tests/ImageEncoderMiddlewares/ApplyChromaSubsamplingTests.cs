@@ -124,7 +124,6 @@ namespace TiffLibrary.Tests.ImageEncoderMiddlewares
             public override TiffImageFileDirectoryWriter IfdWriter { get; set; }
             public override TiffPhotometricInterpretation PhotometricInterpretation { get; set; }
             public override TiffValueCollection<ushort> BitsPerSample { get; set; }
-            public override TiffCompression Compression { get; set; }
             public override TiffSize ImageSize { get; set; }
             public override Memory<byte> UncompressedData { get; set; }
             public override TiffStreamRegion OutputRegion { get; set; }
@@ -135,6 +134,16 @@ namespace TiffLibrary.Tests.ImageEncoderMiddlewares
             }
 
             public override TiffPixelBufferReader<TPixel> GetReader()
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void RegisterService(Type serviceType, object service)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override object GetService(Type serviceType)
             {
                 throw new NotSupportedException();
             }

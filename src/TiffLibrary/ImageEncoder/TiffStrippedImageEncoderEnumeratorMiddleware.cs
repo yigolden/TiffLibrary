@@ -38,7 +38,8 @@ namespace TiffLibrary.ImageEncoder
                 throw new ArgumentNullException(nameof(next));
             }
 
-            var wrappedContext = new TiffCroppedImageEncoderContext<TPixel>(context);
+            var state = context.GetService(typeof(TiffParallelEncodingState)) as TiffParallelEncodingState;
+            TiffCroppedImageEncoderContext<TPixel>? wrappedContext = null;
 
             int width = context.ImageSize.Width, height = context.ImageSize.Height;
             int rowsPerStrip = _rowsPerStrip <= 0 ? height : _rowsPerStrip;
@@ -52,13 +53,36 @@ namespace TiffLibrary.ImageEncoder
                 int offsetY = i * rowsPerStrip;
                 int stripHeight = Math.Min(height - offsetY, rowsPerStrip);
 
+                wrappedContext ??= new TiffCroppedImageEncoderContext<TPixel>(context);
+
                 wrappedContext.ExposeIfdWriter = i == 0;
                 wrappedContext.OutputRegion = default;
                 wrappedContext.Crop(new TiffPoint(0, offsetY), new TiffSize(width, stripHeight));
-                await next.RunAsync(wrappedContext).ConfigureAwait(false);
 
-                stripOffsets[i] = (ulong)(long)wrappedContext.OutputRegion.Offset;
-                stripByteCounts[i] = (ulong)wrappedContext.OutputRegion.Length;
+                if (state is null)
+                {
+                    await next.RunAsync(wrappedContext).ConfigureAwait(false);
+                    stripOffsets[i] = (ulong)(long)wrappedContext.OutputRegion.Offset;
+                    stripByteCounts[i] = (ulong)wrappedContext.OutputRegion.Length;
+                }
+                else
+                {
+                    TiffCroppedImageEncoderContext<TPixel>? wContext = wrappedContext;
+                    wrappedContext = null;
+                    int currentIndex = i;
+                    await state.DispatchAsync(async () =>
+                    {
+                        await next.RunAsync(wContext).ConfigureAwait(false);
+                        stripOffsets[currentIndex] = (ulong)(long)wContext.OutputRegion.Offset;
+                        stripByteCounts[currentIndex] = (ulong)wContext.OutputRegion.Length;
+                    }, context.CancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            // Wait until all strips are written.
+            if (!(state is null))
+            {
+                await state.Complete.Task.ConfigureAwait(false);
             }
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;

@@ -33,10 +33,13 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(4)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.ExtraSamples, TiffValueCollection.Single((ushort)TiffExtraSample.UnassociatedAlphaData)).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.SamplesPerPixel, TiffValueCollection.Single<ushort>(4)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.ExtraSamples, TiffValueCollection.Single((ushort)TiffExtraSample.UnassociatedAlphaData)).ConfigureAwait(false);
+                }
             }
         }
     }

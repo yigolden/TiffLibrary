@@ -33,8 +33,11 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    await ifdWriter.WriteTagAsync(TiffTag.PhotometricInterpretation, TiffValueCollection.Single((ushort)context.PhotometricInterpretation)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.BitsPerSample, context.BitsPerSample).ConfigureAwait(false);
+                }
             }
         }
     }

@@ -53,7 +53,10 @@ namespace TiffLibrary.ImageEncoder
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.Orientation, TiffValueCollection.Single((ushort)_orientation)).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    await ifdWriter.WriteTagAsync(TiffTag.Orientation, TiffValueCollection.Single((ushort)_orientation)).ConfigureAwait(false);
+                }
             }
         }
     }

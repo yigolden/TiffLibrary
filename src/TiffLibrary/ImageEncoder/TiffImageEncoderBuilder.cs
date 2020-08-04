@@ -77,6 +77,11 @@ namespace TiffLibrary
         public int VerticalChromaSubSampling { get; set; } = 1;
 
         /// <summary>
+        /// Gets or sets the maximum number of concurrent encoding pipelines enabled by this <see cref="TiffImageEncoderBuilder"/> instance.
+        /// </summary>
+        public int MaxDegreeOfParallelism { get; set; }
+
+        /// <summary>
         /// Build the <see cref="TiffImageEncoder{TPixel}"/> instance with the specified pixel format of input image.
         /// </summary>
         /// <typeparam name="TPixel">The pixel type of the input image.</typeparam>
@@ -204,6 +209,11 @@ namespace TiffLibrary
             else
             {
                 pipelineBuilder.InsertFirst(new TiffStrippedImageEncoderEnumeratorMiddleware<TPixel>(RowsPerStrip));
+            }
+
+            if (MaxDegreeOfParallelism > 1)
+            {
+                pipelineBuilder.InsertFirst(new TiffParallelStarterMiddleware<TPixel>(MaxDegreeOfParallelism));
             }
 
             ITiffImageEncoderPipelineNode<TPixel> ifdEncoder = pipelineBuilder.Build();

@@ -41,11 +41,6 @@ namespace TiffLibrary.ImageEncoder
         public abstract TiffValueCollection<ushort> BitsPerSample { get; set; }
 
         /// <summary>
-        /// The compression method used for this image.
-        /// </summary>
-        public abstract TiffCompression Compression { get; set; }
-
-        /// <summary>
         /// The size of the current image.
         /// </summary>
         public abstract TiffSize ImageSize { get; set; }
@@ -73,5 +68,19 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="writer">The writer to be converted.</param>
         /// <returns>The converted writer.</returns>
         public abstract TiffPixelBufferWriter<TPixel> ConvertWriter<TBuffer>(TiffPixelBufferWriter<TBuffer> writer) where TBuffer : unmanaged;
+
+        /// <summary>
+        /// Register a service with the current context.
+        /// </summary>
+        /// <param name="serviceType">The type of the service.</param>
+        /// <param name="service">The service instance.</param>
+        public abstract void RegisterService(Type serviceType, object? service);
+
+        /// <summary>
+        /// Get the service of the specified type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service.</param>
+        /// <returns>The service instance.</returns>
+        public abstract object? GetService(Type serviceType);
     }
 }

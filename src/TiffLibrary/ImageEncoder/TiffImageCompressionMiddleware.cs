@@ -68,17 +68,22 @@ namespace TiffLibrary.ImageEncoder
             {
                 _compressionAlgorithm.Compress(compressionContext, context.UncompressedData, bufferWriter);
                 int length = bufferWriter.Length;
-                TiffStreamOffset offset = await context.FileWriter!.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
 
-                context.BitsPerSample = compressionContext.BitsPerSample;
-                context.Compression = _compression;
-                context.OutputRegion = new TiffStreamRegion(offset, length);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    TiffStreamOffset offset = await context.FileWriter!.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
+                    context.BitsPerSample = compressionContext.BitsPerSample;
+                    context.OutputRegion = new TiffStreamRegion(offset, length);
+                }
             }
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.Compression, TiffValueCollection.Single((ushort)_compression)).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    await ifdWriter.WriteTagAsync(TiffTag.Compression, TiffValueCollection.Single((ushort)_compression)).ConfigureAwait(false);
+                }
             }
 
             await next.RunAsync(context).ConfigureAwait(false);

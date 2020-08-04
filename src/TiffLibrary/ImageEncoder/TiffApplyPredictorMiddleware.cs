@@ -75,7 +75,10 @@ namespace TiffLibrary.ImageEncoder
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.Predictor, TiffValueCollection.Single((ushort)_predictor)).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    await ifdWriter.WriteTagAsync(TiffTag.Predictor, TiffValueCollection.Single((ushort)_predictor)).ConfigureAwait(false);
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Threading;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelConverter;
@@ -12,6 +13,9 @@ namespace TiffLibrary.ImageEncoder
     /// <typeparam name="TPixel">The pixel type.</typeparam>
     public class TiffDefaultImageEncoderContext<TPixel> : TiffImageEncoderContext<TPixel> where TPixel : unmanaged
     {
+        private Dictionary<Type, object?>? _services;
+        private SpinLock _servicesLock;
+
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
@@ -41,11 +45,6 @@ namespace TiffLibrary.ImageEncoder
         /// Bits per sample of the current image.
         /// </summary>
         public override TiffValueCollection<ushort> BitsPerSample { get; set; }
-
-        /// <summary>
-        /// The compression method used for this image.
-        /// </summary>
-        public override TiffCompression Compression { get; set; }
 
         /// <summary>
         /// The size of the current image.
@@ -99,5 +98,65 @@ namespace TiffLibrary.ImageEncoder
             ITiffPixelBufferWriter<TPixel> converted = pixelConverterFactory.CreateConverter<TPixel, TBuffer>(innerWriter);
             return converted.Crop(offset, size);
         }
+
+        /// <inheritdoc />
+        public override void RegisterService(Type serviceType, object? service)
+        {
+            if (serviceType is null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
+            bool lockTaken = false;
+            try
+            {
+                _servicesLock.Enter(ref lockTaken);
+
+                if (_services is null)
+                {
+                    _services = new Dictionary<Type, object?>();
+                }
+
+                _services[serviceType] = service;
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    _servicesLock.Exit();
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public override object? GetService(Type serviceType)
+        {
+            if (serviceType is null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
+            bool lockTaken = false;
+            try
+            {
+                _servicesLock.Enter(ref lockTaken);
+
+                if (_services is null)
+                {
+                    return null;
+                }
+
+                _services.TryGetValue(serviceType, out object? service);
+                return service;
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    _servicesLock.Exit();
+                }
+            }
+        }
+
     }
 }

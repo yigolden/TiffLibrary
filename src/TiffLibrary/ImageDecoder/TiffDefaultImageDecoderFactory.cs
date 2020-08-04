@@ -136,7 +136,7 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: Parallel Blocker
             if (options.MaxDegreeOfParallelism > 1)
             {
-                builder.Add(new TiffParallelBlockerMiddleware(options.MaxDegreeOfParallelism));
+                builder.Add(new TiffParallelStarterMiddleware(options.MaxDegreeOfParallelism));
             }
 
             // Middleware: ImageEnumerator
@@ -271,7 +271,7 @@ namespace TiffLibrary.ImageDecoder
             // Middleware: Parallel Blocker
             if (options.MaxDegreeOfParallelism > 1)
             {
-                builder.Add(new TiffParallelBlockerMiddleware(options.MaxDegreeOfParallelism));
+                builder.Add(new TiffParallelStarterMiddleware(options.MaxDegreeOfParallelism));
             }
 
             // Middleware: ImageEnumerator

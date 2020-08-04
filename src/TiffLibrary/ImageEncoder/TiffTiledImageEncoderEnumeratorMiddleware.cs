@@ -46,7 +46,8 @@ namespace TiffLibrary.ImageEncoder
                 throw new ArgumentNullException(nameof(next));
             }
 
-            var wrappedContext = new TiffCroppedImageEncoderContext<TPixel>(context);
+            var state = context.GetService(typeof(TiffParallelEncodingState)) as TiffParallelEncodingState;
+            TiffCroppedImageEncoderContext<TPixel>? wrappedContext = null;
 
             int width = context.ImageSize.Width, height = context.ImageSize.Height;
             int tileWidth = _tileSize.Width, tileHeight = _tileSize.Height;
@@ -69,43 +70,70 @@ namespace TiffLibrary.ImageEncoder
                     int offsetX = col * tileWidth;
                     int imageWidth = Math.Min(width - offsetX, tileWidth);
 
+                    wrappedContext ??= new TiffCroppedImageEncoderContext<TPixel>(context);
+
                     wrappedContext.ExposeIfdWriter = row == 0 && col == 0;
                     wrappedContext.OutputRegion = default;
                     wrappedContext.Crop(new TiffPoint(offsetX, offsetY), new TiffSize(imageWidth, imageHeight));
-                    await next.RunAsync(wrappedContext).ConfigureAwait(false);
 
-                    tileOffsets[index] = (ulong)(long)wrappedContext.OutputRegion.Offset;
-                    tileByteCounts[index] = (ulong)wrappedContext.OutputRegion.Length;
+                    if (state is null)
+                    {
+                        await next.RunAsync(wrappedContext).ConfigureAwait(false);
+                        tileOffsets[index] = (ulong)(long)wrappedContext.OutputRegion.Offset;
+                        tileByteCounts[index] = (ulong)wrappedContext.OutputRegion.Length;
+                    }
+                    else
+                    {
+                        TiffCroppedImageEncoderContext<TPixel>? wContext = wrappedContext;
+                        wrappedContext = null;
+                        int currentIndex = index;
+                        await state.DispatchAsync(async () =>
+                        {
+                            await next.RunAsync(wContext).ConfigureAwait(false);
+                            tileOffsets[currentIndex] = (ulong)(long)wContext.OutputRegion.Offset;
+                            tileByteCounts[currentIndex] = (ulong)wContext.OutputRegion.Length;
+                        }, context.CancellationToken).ConfigureAwait(false);
+                    }
+
                     index++;
                 }
+            }
+
+            // Wait until all tiles are written.
+            if (!(state is null))
+            {
+                await state.Complete.Task.ConfigureAwait(false);
             }
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.TileWidth, TiffValueCollection.Single((ushort)tileWidth)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.TileLength, TiffValueCollection.Single((ushort)tileHeight)).ConfigureAwait(false);
-
-                if (context.FileWriter?.UseBigTiff ?? false)
+                using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts)).ConfigureAwait(false);
-                }
-                else
-                {
-                    uint[] tileOffsets32 = new uint[tileCount];
-                    uint[] tileByteCounts32 = new uint[tileCount];
+                    await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileWidth, TiffValueCollection.Single((ushort)tileWidth)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileLength, TiffValueCollection.Single((ushort)tileHeight)).ConfigureAwait(false);
 
-                    for (int i = 0; i < tileCount; i++)
+                    if (context.FileWriter?.UseBigTiff ?? false)
                     {
-                        tileOffsets32[i] = (uint)tileOffsets[i];
-                        tileByteCounts32[i] = (uint)tileByteCounts[i];
+                        await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets)).ConfigureAwait(false);
+                        await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts)).ConfigureAwait(false);
                     }
+                    else
+                    {
+                        uint[] tileOffsets32 = new uint[tileCount];
+                        uint[] tileByteCounts32 = new uint[tileCount];
 
-                    await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets32)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts32)).ConfigureAwait(false);
+                        for (int i = 0; i < tileCount; i++)
+                        {
+                            tileOffsets32[i] = (uint)tileOffsets[i];
+                            tileByteCounts32[i] = (uint)tileByteCounts[i];
+                        }
+
+                        await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets32)).ConfigureAwait(false);
+                        await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts32)).ConfigureAwait(false);
+                    }
                 }
             }
         }

@@ -183,8 +183,11 @@ namespace TiffLibrary.ImageEncoder
 
                 TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
                 Debug.Assert(ifdWriter != null);
-                await ifdWriter!.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(_subsampling)).ConfigureAwait(false);
-                await ifdWriter!.WriteTagAsync(TiffTag.YCbCrPositioning, TiffValueCollection.Single((ushort)TiffYCbCrPositioning.Centered)).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    await ifdWriter!.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(_subsampling)).ConfigureAwait(false);
+                    await ifdWriter!.WriteTagAsync(TiffTag.YCbCrPositioning, TiffValueCollection.Single((ushort)TiffYCbCrPositioning.Centered)).ConfigureAwait(false);
+                }
             }
         }
     }

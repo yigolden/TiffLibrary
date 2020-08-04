@@ -6,11 +6,20 @@ namespace TiffLibrary.ImageDecoder
 {
     internal class TiffParallelBlockerMiddleware : ITiffImageDecoderMiddleware
     {
+        private readonly int _maxDegreeOfParallelism;
+
+        public TiffParallelBlockerMiddleware(int maxDegreeOfParallelism)
+        {
+            if (maxDegreeOfParallelism <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxDegreeOfParallelism));
+            }
+            _maxDegreeOfParallelism = maxDegreeOfParallelism;
+        }
+
         public async ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            var state = new TiffParallelDecodingState();
-            var tcs = new TaskCompletionSource<object?>();
-            state.Complete = tcs;
+            using var state = new TiffParallelDecodingState(_maxDegreeOfParallelism);
 
             using var mutexService = new ParallelMutexService();
 
@@ -19,8 +28,9 @@ namespace TiffLibrary.ImageDecoder
 
             await next.RunAsync(context).ConfigureAwait(false);
 
-            await tcs.Task.ConfigureAwait(false);
+            await state.Complete!.Task.ConfigureAwait(false);
 
+            context.RegisterService(typeof(TiffParallelDecodingState), null);
             context.RegisterService(typeof(ITiffParallelMutexService), null);
 
             state.ThrowAggregateException();

@@ -322,6 +322,16 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
             {
                 throw new NotSupportedException();
             }
+
+            public override void RegisterService(Type serviceType, object service)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override object GetService(Type serviceType)
+            {
+                throw new NotSupportedException();
+            }
         }
 
         internal class EmptyPipelineNode : ITiffImageDecoderPipelineNode

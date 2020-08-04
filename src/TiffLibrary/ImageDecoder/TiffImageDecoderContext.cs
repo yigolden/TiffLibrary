@@ -63,5 +63,19 @@ namespace TiffLibrary.ImageDecoder
         /// A function to get destination buffer in the specified pixel format.
         /// </summary>
         public abstract TiffPixelBufferWriter<TPixel> GetWriter<TPixel>() where TPixel : unmanaged;
+
+        /// <summary>
+        /// Register a service with the current context.
+        /// </summary>
+        /// <param name="serviceType">The type of the service.</param>
+        /// <param name="service">The service instance.</param>
+        public abstract void RegisterService(Type serviceType, object? service);
+
+        /// <summary>
+        /// Get the service of the specified type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service.</param>
+        /// <returns>The service instance.</returns>
+        public abstract object? GetService(Type serviceType);
     }
 }

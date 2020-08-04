@@ -12,6 +12,10 @@ namespace TiffLibrary.ImageDecoder
         public override TiffSize ReadSize { get; set; }
         public TiffPoint CropOffset { get; set; }
 
+        // Don't delegate UncompressedData into the underlying context.
+        // We don't want it to be shared across differten strips/tiles when decoding in parallel.
+        public override Memory<byte> UncompressedData { get; set; }
+
         public void SetCropSize(TiffPoint offset, TiffSize originalReadSize)
         {
             CropOffset = offset;

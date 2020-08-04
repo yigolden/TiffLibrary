@@ -28,8 +28,12 @@ namespace TiffLibrary.ImageDecoder
         public override TiffSize ReadSize { get => _innerContext.ReadSize; set => _innerContext.ReadSize = value; }
 
         public override TiffPixelBufferWriter<TPixel> GetWriter<TPixel>()
-        {
-            return _innerContext.GetWriter<TPixel>();
-        }
+            => _innerContext.GetWriter<TPixel>();
+
+        public override void RegisterService(Type serviceType, object? service)
+            => _innerContext.RegisterService(serviceType, service);
+
+        public override object? GetService(Type serviceType)
+            => _innerContext.GetService(serviceType);
     }
 }

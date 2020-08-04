@@ -29,5 +29,10 @@ namespace TiffLibrary
         /// When this flag is set, the Orientation tag in the IFD is ignored. Image will not be flipped or oriented according to the tag.
         /// </summary>
         public bool IgnoreOrientation { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the maximum number of concurrent tasks enabled by this <see cref="TiffImageDecoderOptions"/> instance.
+        /// </summary>
+        public int MaxDegreeOfParallelism { get; set; } = 1;
     }
 }

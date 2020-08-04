@@ -85,6 +85,8 @@ namespace TiffLibrary.ImageDecoder
                 throw new ArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
             }
 
+            bool isParallel = !(context.GetService(typeof(TiffParallelDecodingState)) is null);
+
             // Initialize the cache
             TiffFieldReader? reader = null;
             TiffStrileOffsetCache cache;
@@ -119,10 +121,14 @@ namespace TiffLibrary.ImageDecoder
                     return;
                 }
 
-                // Create a wrapped context
-                var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
-                var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(_planaCount);
-                wrapperContext.SourceImageSize = new TiffSize(tileWidth, tileHeight);
+                int planeCount = _planaCount;
+                TiffImageEnumeratorDecoderContext? wrapperContext = null;
+                TiffMutableValueCollection<TiffStreamRegion> planarRegions = default;
+                if (!isParallel)
+                {
+                    wrapperContext = new TiffImageEnumeratorDecoderContext(context);
+                    planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(planeCount);
+                }
 
                 // loop through all the tiles overlapping with the region to read.
                 int colStart = context.SourceReadOffset.X / tileWidth;
@@ -139,6 +145,14 @@ namespace TiffLibrary.ImageDecoder
 
                     for (int col = colStart; col < colEnd; col++)
                     {
+                        if (isParallel)
+                        {
+                            wrapperContext = new TiffImageEnumeratorDecoderContext(context);
+                            planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(planeCount);
+                        }
+
+                        wrapperContext!.SourceImageSize = new TiffSize(tileWidth, tileHeight);
+
                         // Calculate coordinates on the y direction for this tile.
                         int currentXOffset = col * tileWidth;
                         int skippedXOffset = Math.Max(0, context.SourceReadOffset.X - currentXOffset);
@@ -158,7 +172,7 @@ namespace TiffLibrary.ImageDecoder
                         }
 
                         // Prepare stream regions of this tile
-                        for (int planarIndex = 0; planarIndex < _planaCount; planarIndex++)
+                        for (int planarIndex = 0; planarIndex < planeCount; planarIndex++)
                         {
                             int tileIndex = planarIndex * tileCount + row * tileAcross + col;
                             planarRegions[planarIndex] = await cache.GetOffsetAndCountAsync(tileIndex, cancellationToken).ConfigureAwait(false);

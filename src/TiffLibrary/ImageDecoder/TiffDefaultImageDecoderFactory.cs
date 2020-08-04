@@ -133,8 +133,20 @@ namespace TiffLibrary.ImageDecoder
                 BuildApplyOrientationMiddleware(builder, orientation);
             }
 
+            // Middleware: Parallel Blocker
+            if (options.MaxDegreeOfParallelism > 1)
+            {
+                builder.Add(new TiffParallelBlockerMiddleware());
+            }
+
             // Middleware: ImageEnumerator
             await BuildStrippedImageEnumerator(builder, tagReader, compression, height, bytesPerScanline, cancellationToken).ConfigureAwait(false);
+
+            // Middleware: Parallel Dispatcher
+            if (options.MaxDegreeOfParallelism > 1)
+            {
+                builder.Add(new TiffParallelDispatcherMiddleware(options.MaxDegreeOfParallelism));
+            }
 
             // Middleware: Decompression
             builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
@@ -156,6 +168,12 @@ namespace TiffLibrary.ImageDecoder
             if (prediction != TiffPredictor.None)
             {
                 builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
+            }
+
+            // Middleware: Parallel Mutex
+            if (options.MaxDegreeOfParallelism > 1)
+            {
+                builder.Add(new TiffParallelMutexMiddleware());
             }
 
             // Middleware: Photometric Interpretation
@@ -250,8 +268,20 @@ namespace TiffLibrary.ImageDecoder
                 BuildApplyOrientationMiddleware(builder, orientation);
             }
 
+            // Middleware: Parallel Blocker
+            if (options.MaxDegreeOfParallelism > 1)
+            {
+                builder.Add(new TiffParallelBlockerMiddleware());
+            }
+
             // Middleware: ImageEnumerator
             await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count, cancellationToken).ConfigureAwait(false);
+
+            // Middleware: Parallel Dispatcher
+            if (options.MaxDegreeOfParallelism > 1)
+            {
+                builder.Add(new TiffParallelDispatcherMiddleware(options.MaxDegreeOfParallelism));
+            }
 
             // Middleware: Decompression
             builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
@@ -273,6 +303,12 @@ namespace TiffLibrary.ImageDecoder
             if (prediction != TiffPredictor.None)
             {
                 builder.Add(new TiffReversePredictorMiddleware(bytesPerScanline, bitsPerSample, prediction));
+            }
+
+            // Middleware: Parallel Mutex
+            if (options.MaxDegreeOfParallelism > 1)
+            {
+                builder.Add(new TiffParallelMutexMiddleware());
             }
 
             // Middleware: Photometric Interpretation

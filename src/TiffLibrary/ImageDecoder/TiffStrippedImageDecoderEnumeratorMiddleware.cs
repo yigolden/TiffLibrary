@@ -84,6 +84,8 @@ namespace TiffLibrary.ImageDecoder
                 throw new ArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
             }
 
+            bool isParallel = !(context.GetService(typeof(TiffParallelDecodingState)) is null);
+
             // Initialize the cache
             TiffFieldReader? reader = null;
             TiffStrileOffsetCache cache;
@@ -121,8 +123,13 @@ namespace TiffLibrary.ImageDecoder
 
                 // Create a wrapped context
                 int planeCount = _planeCount;
-                var wrapperContext = new TiffImageEnumeratorDecoderContext(context);
-                var planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(planeCount);
+                TiffImageEnumeratorDecoderContext? wrapperContext = null;
+                TiffMutableValueCollection<TiffStreamRegion> planarRegions = default;
+                if (!isParallel)
+                {
+                    wrapperContext = new TiffImageEnumeratorDecoderContext(context);
+                    planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(planeCount);
+                }
 
                 // loop through all the strips overlapping with the region to read
                 int stripStart = context.SourceReadOffset.Y / rowsPerStrip;
@@ -130,12 +137,18 @@ namespace TiffLibrary.ImageDecoder
                 int actualStripCount = _stripCount / _planeCount;
                 for (int stripIndex = stripStart; stripIndex < stripEnd; stripIndex++)
                 {
+                    if (isParallel)
+                    {
+                        wrapperContext = new TiffImageEnumeratorDecoderContext(context);
+                        planarRegions = new TiffMutableValueCollection<TiffStreamRegion>(planeCount);
+                    }
+
                     // Calculate size info of this strip
                     int currentYOffset = stripIndex * rowsPerStrip;
                     int stripImageHeight = Math.Min(rowsPerStrip, context.SourceImageSize.Height - currentYOffset);
                     int skippedScanlines = Math.Max(0, context.SourceReadOffset.Y - currentYOffset);
                     int requestedScanlines = Math.Min(stripImageHeight - skippedScanlines, context.SourceReadOffset.Y + context.ReadSize.Height - currentYOffset - skippedScanlines);
-                    wrapperContext.SourceImageSize = new TiffSize(context.SourceImageSize.Width, stripImageHeight);
+                    wrapperContext!.SourceImageSize = new TiffSize(context.SourceImageSize.Width, stripImageHeight);
                     wrapperContext.SourceReadOffset = new TiffPoint(context.SourceReadOffset.X, skippedScanlines);
                     wrapperContext.ReadSize = new TiffSize(context.ReadSize.Width, requestedScanlines);
 

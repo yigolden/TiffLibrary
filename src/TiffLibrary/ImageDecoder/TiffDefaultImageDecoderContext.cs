@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Threading;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelConverter;
@@ -12,6 +13,9 @@ namespace TiffLibrary.ImageDecoder
     /// <typeparam name="TDestinationPixel">The pixel type of the destination writer.</typeparam>
     public class TiffDefaultImageDecoderContext<TDestinationPixel> : TiffImageDecoderContext where TDestinationPixel : unmanaged
     {
+        private Dictionary<Type, object?>? _services;
+        private SpinLock _servicesLock;
+
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
@@ -81,5 +85,65 @@ namespace TiffLibrary.ImageDecoder
             ITiffPixelBufferWriter<TDestinationPixel> buffer = TiffPixelBufferUnsafeMarshal.GetBuffer(DestinationWriter, out TiffPoint offset, out TiffSize size);
             return pixelConverterFactory.CreateConverter<TPixel, TDestinationPixel>(buffer).Crop(offset, size);
         }
+
+        /// <inheritdoc />
+        public override void RegisterService(Type serviceType, object? service)
+        {
+            if (serviceType is null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
+            bool lockTaken = false;
+            try
+            {
+                _servicesLock.Enter(ref lockTaken);
+
+                if (_services is null)
+                {
+                    _services = new Dictionary<Type, object?>();
+                }
+
+                _services[serviceType] = service;
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    _servicesLock.Exit();
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public override object? GetService(Type serviceType)
+        {
+            if (serviceType is null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
+            bool lockTaken = false;
+            try
+            {
+                _servicesLock.Enter(ref lockTaken);
+
+                if (_services is null)
+                {
+                    return null;
+                }
+
+                _services.TryGetValue(serviceType, out object? service);
+                return service;
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    _servicesLock.Exit();
+                }
+            }
+        }
+
     }
 }

@@ -142,13 +142,13 @@ namespace TiffLibrary
         {
             private readonly TiffFileStreamContentSource _parent;
             private FileStream? _stream;
-            private int _streamInUse;
+            private SemaphoreSlim? _semaphore;
 
             public ContentReader(TiffFileStreamContentSource parent, FileStream stream)
             {
                 _parent = parent;
                 _stream = stream;
-                _streamInUse = 0;
+                _semaphore = new SemaphoreSlim(1);
             }
 
             public override async ValueTask DisposeAsync()
@@ -157,6 +157,11 @@ namespace TiffLibrary
                 if (!(fs is null))
                 {
                     await _parent.ReturnStreamAsync(fs).ConfigureAwait(false);
+                }
+                if (!(_semaphore is null))
+                {
+                    _semaphore.Dispose();
+                    _semaphore = null;
                 }
                 await base.DisposeAsync().ConfigureAwait(false);
             }
@@ -168,8 +173,12 @@ namespace TiffLibrary
                     FileStream? fs = Interlocked.Exchange(ref _stream, null);
                     if (!(fs is null))
                     {
-
                         _parent.ReturnStream(fs);
+                    }
+                    if (!(_semaphore is null))
+                    {
+                        _semaphore.Dispose();
+                        _semaphore = null;
                     }
                 }
             }
@@ -189,10 +198,8 @@ namespace TiffLibrary
                 {
                     return 0;
                 }
-                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
-                {
-                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
-                }
+
+                _semaphore!.Wait();
                 try
                 {
                     stream.Seek(offset.Offset, SeekOrigin.Begin);
@@ -200,7 +207,7 @@ namespace TiffLibrary
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref _streamInUse, 0);
+                    _semaphore.Release();
                 }
             }
 
@@ -216,10 +223,7 @@ namespace TiffLibrary
                     return 0;
                 }
 
-                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
-                {
-                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
-                }
+                _semaphore!.Wait();
                 try
                 {
                     stream.Seek(offset.Offset, SeekOrigin.Begin);
@@ -253,7 +257,7 @@ namespace TiffLibrary
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref _streamInUse, 0);
+                    _semaphore.Release();
                 }
             }
 
@@ -273,10 +277,7 @@ namespace TiffLibrary
                     return 0;
                 }
 
-                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
-                {
-                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
-                }
+                await _semaphore!.WaitAsync(cancellationToken).ConfigureAwait(false);
                 try
                 {
                     stream.Seek(offset.Offset, SeekOrigin.Begin);
@@ -284,7 +285,7 @@ namespace TiffLibrary
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref _streamInUse, 0);
+                    _semaphore.Release();
                 }
             }
 
@@ -300,13 +301,10 @@ namespace TiffLibrary
                     return 0;
                 }
 
-                if (Interlocked.Exchange(ref _streamInUse, 1) == 1)
-                {
-                    throw new InvalidOperationException("Concurrent reads on stream source is not supported. Please check that you are not reading the TIFF file from multiple threads at the same time.");
-                }
+
+                await _semaphore!.WaitAsync(cancellationToken).ConfigureAwait(false);
                 try
                 {
-
 #if !NO_FAST_SPAN
                     stream.Seek(offset.Offset, SeekOrigin.Begin);
                     return await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
@@ -338,7 +336,7 @@ namespace TiffLibrary
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref _streamInUse, 0);
+                    _semaphore.Release();
                 }
             }
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TiffLibrary.ImageEncoder
+﻿namespace TiffLibrary.ImageEncoder
 {
     /// <summary>
     /// Options to use when encoding with JPEG compression.

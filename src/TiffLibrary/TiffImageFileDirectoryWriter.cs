@@ -3,8 +3,8 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -80,7 +80,8 @@ namespace TiffLibrary
             byte[] buffer = ArrayPool<byte>.Shared.Rent(32);
             try
             {
-                Stream stream = _writer!.InnerStream;
+                TiffFileContentReaderWriter writer = _writer!.InnerWriter;
+                long position = _writer.Position;
 
                 if (_writer.UseBigTiff)
                 {
@@ -90,19 +91,19 @@ namespace TiffLibrary
                 {
                     Unsafe.WriteUnaligned(ref buffer[0], checked((ushort)_entries.Count));
                 }
-                await stream.WriteAsync(buffer, 0, _writer.OperationContext.ByteCountOfImageFileDirectoryCountField).ConfigureAwait(false);
-                _writer.AdvancePosition(_writer.OperationContext.ByteCountOfImageFileDirectoryCountField);
+                await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, _writer.OperationContext.ByteCountOfImageFileDirectoryCountField), CancellationToken.None).ConfigureAwait(false);
+                position = _writer.AdvancePosition(_writer.OperationContext.ByteCountOfImageFileDirectoryCountField);
 
                 foreach (TiffImageFileDirectoryEntry entry in _entries)
                 {
                     int bytesWritten = entry.Write(_writer.OperationContext, buffer);
-                    await stream.WriteAsync(buffer, 0, bytesWritten).ConfigureAwait(false);
-                    _writer.AdvancePosition(bytesWritten);
+                    await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, bytesWritten), CancellationToken.None).ConfigureAwait(false);
+                    position = _writer.AdvancePosition(bytesWritten);
                 }
 
                 Unsafe.WriteUnaligned(ref buffer[0], (long)0);
 
-                await stream.WriteAsync(buffer, 0, _writer.OperationContext.ByteCountOfValueOffsetField).ConfigureAwait(false);
+                await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, _writer.OperationContext.ByteCountOfValueOffsetField), CancellationToken.None).ConfigureAwait(false);
                 _writer.AdvancePosition(_writer.OperationContext.ByteCountOfValueOffsetField);
             }
             finally

@@ -7,7 +7,7 @@ namespace TiffLibrary
     /// <summary>
     /// Provides methods to read bytes from TIFF file source.
     /// </summary>
-    public abstract class TiffFileContentReader : IDisposable
+    public abstract class TiffFileContentReader : IAsyncDisposable, IDisposable
     {
         /// <summary>
         /// Read bytes from TIFF file source.

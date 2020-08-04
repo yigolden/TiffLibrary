@@ -18,10 +18,12 @@ namespace TiffLibrary.Tests.Roundtrip
         [InlineData(false, 2)]
         [InlineData(true, 4)]
         [InlineData(false, 4)]
+        [InlineData(true, 16)]
+        [InlineData(false, 16)]
         public async Task TestRoundtrip(bool isTile, int maxDegreeOfParallelism)
         {
-            TiffGray8[] refImage = new TiffGray8[2048 * 2048];
-            TiffGray8[] testImage = new TiffGray8[2048 * 2048];
+            TiffGray8[] refImage = new TiffGray8[4096 * 4096];
+            TiffGray8[] testImage = new TiffGray8[4096 * 4096];
 
             var rand = new Random(42);
             rand.NextBytes(MemoryMarshal.AsBytes(refImage.AsSpan()));
@@ -30,18 +32,18 @@ namespace TiffLibrary.Tests.Roundtrip
             builder.PhotometricInterpretation = TiffPhotometricInterpretation.WhiteIsZero;
             builder.Compression = TiffCompression.Lzw;
             builder.IsTiled = isTile;
-            builder.RowsPerStrip = 256;
-            builder.TileSize = new TiffSize(256, 256);
+            builder.RowsPerStrip = 64;
+            builder.TileSize = new TiffSize(64, 64);
             builder.MaxDegreeOfParallelism = maxDegreeOfParallelism;
 
             var ms = new MemoryStream();
-            await GenerateImageAsync(ms, builder, TiffPixelBuffer.WrapReadOnly(refImage, 2048, 2048));
+            await GenerateImageAsync(ms, builder, TiffPixelBuffer.WrapReadOnly(refImage, 4096, 4096));
 
             ms.Seek(0, SeekOrigin.Begin);
 
             await using TiffFileReader tiff = await TiffFileReader.OpenAsync(ms, leaveOpen: true);
             TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync();
-            await decoder.DecodeAsync(TiffPixelBuffer.Wrap(testImage, 2048, 2048));
+            await decoder.DecodeAsync(TiffPixelBuffer.Wrap(testImage, 4096, 4096));
 
             Assert.True(refImage.AsSpan().SequenceEqual(testImage.AsSpan()));
         }

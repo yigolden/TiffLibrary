@@ -60,6 +60,8 @@ namespace TiffLibrary.ImageEncoder
             ulong[] tileByteCounts = new ulong[tileCount];
             int index = 0;
 
+            state?.LockTaskCompletion();
+
             for (int row = 0; row < tileDown; row++)
             {
                 int offsetY = row * tileHeight;
@@ -102,6 +104,7 @@ namespace TiffLibrary.ImageEncoder
             // Wait until all tiles are written.
             if (!(state is null))
             {
+                state.ReleaseTaskCompletion();
                 await state.Complete.Task.ConfigureAwait(false);
             }
 

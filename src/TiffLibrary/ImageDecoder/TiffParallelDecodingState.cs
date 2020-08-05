@@ -28,6 +28,20 @@ namespace TiffLibrary.ImageDecoder
         public TaskCompletionSource<object?> Complete => _tcs;
         public SemaphoreSlim? Semaphore { get; set; }
 
+        public void LockTaskCompletion()
+        {
+            Interlocked.Increment(ref _workItemCount);
+        }
+
+        public void ReleaseTaskCompletion()
+        {
+            int count = Interlocked.Decrement(ref _workItemCount);
+            if (count == 0)
+            {
+                _tcs.TrySetResult(null);
+            }
+        }
+
         public async Task DispatchAsync(Func<ValueTask> action, CancellationToken cancellationToken)
         {
             // Add current task to the work item

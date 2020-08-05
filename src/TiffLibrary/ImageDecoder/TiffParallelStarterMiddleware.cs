@@ -26,7 +26,11 @@ namespace TiffLibrary.ImageDecoder
             context.RegisterService(typeof(TiffParallelDecodingState), state);
             context.RegisterService(typeof(ITiffParallelMutexService), mutexService);
 
+            state.LockTaskCompletion();
+
             await next.RunAsync(context).ConfigureAwait(false);
+
+            state.ReleaseTaskCompletion();
 
             await state.Complete!.Task.ConfigureAwait(false);
 
@@ -38,8 +42,8 @@ namespace TiffLibrary.ImageDecoder
 
         internal class ParallelMutexService : ITiffParallelMutexService, IDisposable
         {
-            private readonly SemaphoreSlim _semaphore ;
-            private readonly ParallelMutexLock _lock ;
+            private readonly SemaphoreSlim _semaphore;
+            private readonly ParallelMutexLock _lock;
 
             public ParallelMutexService()
             {

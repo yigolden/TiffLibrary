@@ -48,6 +48,8 @@ namespace TiffLibrary.ImageEncoder
             ulong[] stripOffsets = new ulong[stripCount];
             ulong[] stripByteCounts = new ulong[stripCount];
 
+            state?.LockTaskCompletion();
+
             for (int i = 0; i < stripCount; i++)
             {
                 int offsetY = i * rowsPerStrip;
@@ -82,6 +84,7 @@ namespace TiffLibrary.ImageEncoder
             // Wait until all strips are written.
             if (!(state is null))
             {
+                state.ReleaseTaskCompletion();
                 await state.Complete.Task.ConfigureAwait(false);
             }
 

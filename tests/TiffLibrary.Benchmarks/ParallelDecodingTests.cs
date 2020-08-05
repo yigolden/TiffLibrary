@@ -46,7 +46,7 @@ namespace TiffLibrary.Benchmarks
 
             // Generate a image with many tiles
             builder.IsTiled = true;
-            builder.TileSize = new TiffSize(512, 512); // the minimum tile size
+            builder.TileSize = new TiffSize(512, 512);
             await GenerateImageAsync(ms, builder, _scratchSpace);
             _tileTestTiff = ms.ToArray();
 

@@ -26,23 +26,6 @@ namespace TiffLibrary
 
         private const int SmallBufferSize = 32;
 
-        internal TiffFileWriter(Stream stream, bool leaveOpen, bool useBigTiff)
-        {
-            if (stream is null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
-
-            _writer = new TiffStreamContentReaderWriter(stream, leaveOpen);
-            _leaveOpen = false;
-
-            _position = useBigTiff ? 16 : 8;
-            _useBigTiff = useBigTiff;
-            _requireBigTiff = false;
-            _completed = false;
-            _operationContext = useBigTiff ? TiffOperationContext.BigTIFF : TiffOperationContext.StandardTIFF;
-        }
-
         internal TiffFileWriter(TiffFileContentReaderWriter writer, bool leaveOpen, bool useBigTiff)
         {
             _writer = writer ?? throw new ArgumentNullException(nameof(writer));
@@ -75,7 +58,7 @@ namespace TiffLibrary
         /// <param name="leaveOpen">Whether to leave the stream open when <see cref="TiffFileWriter"/> is dispsoed.</param>
         /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
-        public static async Task<TiffFileWriter> OpenAsync(Stream stream, bool leaveOpen, bool useBigTiff = false)
+        public static Task<TiffFileWriter> OpenAsync(Stream stream, bool leaveOpen, bool useBigTiff = false)
         {
             if (stream is null)
             {
@@ -86,19 +69,12 @@ namespace TiffLibrary
             {
                 throw new ArgumentException("Stream must be seekable.", nameof(stream));
             }
-
-            stream.Seek(0, SeekOrigin.Begin);
-            byte[] smallBuffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
-            try
+            if (!stream.CanWrite)
             {
+                throw new ArgumentException("Stream must be writable.", nameof(stream));
+            }
 
-                await stream.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
-                return new TiffFileWriter(stream, leaveOpen, useBigTiff);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(smallBuffer);
-            }
+            return OpenAsync(new TiffStreamContentReaderWriter(stream, leaveOpen), false, useBigTiff);
         }
 
         /// <summary>
@@ -107,25 +83,46 @@ namespace TiffLibrary
         /// <param name="fileName">The file to write to.</param>
         /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
-        public static async Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false)
+        public static Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false)
         {
+            if (fileName is null)
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+
             var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
+            return OpenAsync(new TiffStreamContentReaderWriter(fs, false), false, useBigTiff);
+        }
+
+        /// <summary>
+        /// Uses the specified content writer to create <see cref="TiffFileWriter"/>.
+        /// </summary>
+        /// <param name="writer">The content writer to use.</param>
+        /// <param name="leaveOpen">Whether to leave the content writer open when <see cref="TiffFileWriter"/> is dispsoed.</param>
+        /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
+        /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
+        public static async Task<TiffFileWriter> OpenAsync(TiffFileContentReaderWriter writer, bool leaveOpen, bool useBigTiff = false)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            TiffFileContentReaderWriter? disposeInstance = writer;
+            byte[] smallBuffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
             try
             {
-                byte[] smallBuffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
-                try
-                {
-                    await fs.WriteAsync(smallBuffer, 0, useBigTiff ? 16 : 8).ConfigureAwait(false);
-                    return new TiffFileWriter(Interlocked.Exchange(ref fs, null!)!, false, useBigTiff);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(smallBuffer);
-                }
+                smallBuffer.AsSpan().Clear();
+                await writer.WriteAsync(0, new ArraySegment<byte>(smallBuffer, 0, useBigTiff ? 16 : 8), CancellationToken.None).ConfigureAwait(false);
+                disposeInstance = null;
+                return new TiffFileWriter(writer, leaveOpen, useBigTiff);
             }
             finally
             {
-                fs?.Dispose();
+                if (!leaveOpen && !(disposeInstance is null))
+                {
+                    await disposeInstance.DisposeAsync().ConfigureAwait(false);
+                }
             }
 
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -40,7 +41,7 @@ namespace TiffLibrary.ImageSharpAdapter
             => Decode<Rgba32>(configuration, stream);
 
         /// <inheritdoc />
-        public Task<Image<TPixel>> DecodeAsync<TPixel>(Configuration configuration, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+        public Task<Image<TPixel>> DecodeAsync<TPixel>(Configuration configuration, Stream stream, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel>
         {
             if (configuration is null)
             {
@@ -53,12 +54,12 @@ namespace TiffLibrary.ImageSharpAdapter
             }
 
             var decoder = new TiffDecoderCore(configuration, this);
-            return decoder.DecodeAsync<TPixel>(stream);
+            return decoder.DecodeAsync<TPixel>(stream, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<Image> DecodeAsync(Configuration configuration, Stream stream)
-            => await DecodeAsync<Rgba32>(configuration, stream).ConfigureAwait(false);
+        public async Task<Image> DecodeAsync(Configuration configuration, Stream stream, CancellationToken cancellationToken)
+            => await DecodeAsync<Rgba32>(configuration, stream, cancellationToken).ConfigureAwait(false);
 
         /// <inheritdoc />
         public IImageInfo Identify(Configuration configuration, Stream stream)
@@ -78,7 +79,7 @@ namespace TiffLibrary.ImageSharpAdapter
         }
 
         /// <inheritdoc />
-        public Task<IImageInfo> IdentifyAsync(Configuration configuration, Stream stream)
+        public Task<IImageInfo> IdentifyAsync(Configuration configuration, Stream stream, CancellationToken cancellationToken)
         {
             if (configuration is null)
             {
@@ -91,7 +92,7 @@ namespace TiffLibrary.ImageSharpAdapter
             }
 
             var decoder = new TiffDecoderCore(configuration, this);
-            return decoder.IdentifyAsync(stream);
+            return decoder.IdentifyAsync(stream, cancellationToken);
         }
     }
 }

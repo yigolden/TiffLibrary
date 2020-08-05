@@ -93,11 +93,12 @@ namespace TiffLibrary
         /// Opens a TIFF file and creates <see cref="TiffFileReader"/>.
         /// </summary>
         /// <param name="fileName">The TIFF file.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static Task<TiffFileReader> OpenAsync(string fileName)
+        public static Task<TiffFileReader> OpenAsync(string fileName, CancellationToken cancellationToken = default)
         {
             var contentSource = TiffFileContentSource.Create(fileName, preferAsync: true);
-            return OpenAsync(contentSource, leaveOpen: false);
+            return OpenAsync(contentSource, leaveOpen: false, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -105,22 +106,24 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="stream">The stream to wrap.</param>
         /// <param name="leaveOpen">Whether the stream should be left open when the <see cref="TiffFileReader"/> is disposed or we failed to create <see cref="TiffFileReader"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static Task<TiffFileReader> OpenAsync(Stream stream, bool leaveOpen = false)
+        public static Task<TiffFileReader> OpenAsync(Stream stream, bool leaveOpen = false, CancellationToken cancellationToken = default)
         {
             var contentSource = TiffFileContentSource.Create(stream, leaveOpen);
-            return OpenAsync(contentSource, leaveOpen: false);
+            return OpenAsync(contentSource, leaveOpen: false, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Opens a TIFF file in memory and creates <see cref="TiffFileReader"/>.
         /// </summary>
         /// <param name="memory">The in-memory TIFF file.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static Task<TiffFileReader> OpenAsync(ReadOnlyMemory<byte> memory)
+        public static Task<TiffFileReader> OpenAsync(ReadOnlyMemory<byte> memory, CancellationToken cancellationToken = default)
         {
             var contentSource = TiffFileContentSource.Create(memory);
-            return OpenAsync(contentSource, leaveOpen: false);
+            return OpenAsync(contentSource, leaveOpen: false, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -129,11 +132,12 @@ namespace TiffLibrary
         /// <param name="buffer">The buffer for in-memory TIFF file.</param>
         /// <param name="offset">The offset in the buffer.</param>
         /// <param name="count">The byte count of the TIFF file.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="Task"/> that completes when the TIFF header is read and returns <see cref="TiffFileReader"/>.</returns>
-        public static Task<TiffFileReader> OpenAsync(byte[] buffer, int offset, int count)
+        public static Task<TiffFileReader> OpenAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             var contentSource = TiffFileContentSource.Create(buffer, offset, count);
-            return OpenAsync(contentSource, leaveOpen: false);
+            return OpenAsync(contentSource, leaveOpen: false, cancellationToken: cancellationToken);
         }
 
         /// <summary>

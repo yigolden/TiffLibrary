@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -87,10 +88,10 @@ namespace TiffLibrary.ImageSharpAdapter
         }
 
         /// <inheritdoc />
-        public Task EncodeAsync<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+        public Task EncodeAsync<TPixel>(Image<TPixel> image, Stream stream, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel>
         {
             var encoder = new TiffEncoderCore(image.GetConfiguration(), this);
-            return encoder.EncodeAsync(image, stream);
+            return encoder.EncodeAsync(image, stream, cancellationToken);
         }
     }
 }

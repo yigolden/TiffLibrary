@@ -31,16 +31,18 @@ namespace TiffLibrary
         /// <summary>
         /// Writes the IFD into the TIFF stream.
         /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>The offset of the IFD in the stream.</returns>
-        public async Task<TiffStreamOffset> FlushAsync()
+        public async Task<TiffStreamOffset> FlushAsync(CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            await _writer!.AlignToWordBoundaryAsync().ConfigureAwait(false);
+            await _writer!.AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
             TiffStreamOffset position = _writer.Position;
 
-            await WriteEntries().ConfigureAwait(false);
+            await WriteEntriesAsync(cancellationToken).ConfigureAwait(false);
 
             return position;
         }
@@ -49,16 +51,18 @@ namespace TiffLibrary
         /// Writes the IFD into the TIFF stream. Update the specified IFD to point its "Next IFD Offset" field to the IFD just written.
         /// </summary>
         /// <param name="previousIfdOffset">The specified IFD to update.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>The offset of the IFD in the stream.</returns>
-        public async Task<TiffStreamOffset> FlushAsync(TiffStreamOffset previousIfdOffset)
+        public async Task<TiffStreamOffset> FlushAsync(TiffStreamOffset previousIfdOffset, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            await _writer!.AlignToWordBoundaryAsync().ConfigureAwait(false);
+            await _writer!.AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
             TiffStreamOffset position = _writer.Position;
 
-            await WriteEntries().ConfigureAwait(false);
+            await WriteEntriesAsync(cancellationToken).ConfigureAwait(false);
 
             if (previousIfdOffset.IsZero)
             {
@@ -66,13 +70,13 @@ namespace TiffLibrary
             }
             else
             {
-                await _writer.UpdateImageFileDirectoryNextOffsetFieldAsync(previousIfdOffset, position).ConfigureAwait(false);
+                await _writer.UpdateImageFileDirectoryNextOffsetFieldAsync(previousIfdOffset, position, cancellationToken).ConfigureAwait(false);
             }
 
             return position;
         }
 
-        private async Task WriteEntries()
+        private async Task WriteEntriesAsync(CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
             _entries.Sort(TiffImageFileDirectoryEntryComparer.Instance);
@@ -91,19 +95,19 @@ namespace TiffLibrary
                 {
                     Unsafe.WriteUnaligned(ref buffer[0], checked((ushort)_entries.Count));
                 }
-                await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, _writer.OperationContext.ByteCountOfImageFileDirectoryCountField), CancellationToken.None).ConfigureAwait(false);
+                await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, _writer.OperationContext.ByteCountOfImageFileDirectoryCountField), cancellationToken).ConfigureAwait(false);
                 position = _writer.AdvancePosition(_writer.OperationContext.ByteCountOfImageFileDirectoryCountField);
 
                 foreach (TiffImageFileDirectoryEntry entry in _entries)
                 {
                     int bytesWritten = entry.Write(_writer.OperationContext, buffer);
-                    await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, bytesWritten), CancellationToken.None).ConfigureAwait(false);
+                    await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, bytesWritten), cancellationToken).ConfigureAwait(false);
                     position = _writer.AdvancePosition(bytesWritten);
                 }
 
                 Unsafe.WriteUnaligned(ref buffer[0], (long)0);
 
-                await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, _writer.OperationContext.ByteCountOfValueOffsetField), CancellationToken.None).ConfigureAwait(false);
+                await writer.WriteAsync(position, new ArraySegment<byte>(buffer, 0, _writer.OperationContext.ByteCountOfValueOffsetField), cancellationToken).ConfigureAwait(false);
                 _writer.AdvancePosition(_writer.OperationContext.ByteCountOfValueOffsetField);
             }
             finally

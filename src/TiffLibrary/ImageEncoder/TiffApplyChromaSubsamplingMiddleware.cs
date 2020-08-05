@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
@@ -185,8 +186,9 @@ namespace TiffLibrary.ImageEncoder
                 Debug.Assert(ifdWriter != null);
                 using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    await ifdWriter!.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(_subsampling)).ConfigureAwait(false);
-                    await ifdWriter!.WriteTagAsync(TiffTag.YCbCrPositioning, TiffValueCollection.Single((ushort)TiffYCbCrPositioning.Centered)).ConfigureAwait(false);
+                    CancellationToken cancellationToken = context.CancellationToken;
+                    await ifdWriter!.WriteTagAsync(TiffTag.YCbCrSubSampling, TiffValueCollection.UnsafeWrap(_subsampling), cancellationToken).ConfigureAwait(false);
+                    await ifdWriter!.WriteTagAsync(TiffTag.YCbCrPositioning, TiffValueCollection.Single((ushort)TiffYCbCrPositioning.Centered), cancellationToken).ConfigureAwait(false);
                 }
             }
         }

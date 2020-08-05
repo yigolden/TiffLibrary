@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
@@ -91,14 +92,16 @@ namespace TiffLibrary.ImageEncoder
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
             if (!(ifdWriter is null))
             {
-                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
-                await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)rowsPerStrip)).ConfigureAwait(false);
+                CancellationToken cancellationToken = context.CancellationToken;
+
+                await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width), cancellationToken).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height), cancellationToken).ConfigureAwait(false);
+                await ifdWriter.WriteTagAsync(TiffTag.RowsPerStrip, TiffValueCollection.Single((ushort)rowsPerStrip), cancellationToken).ConfigureAwait(false);
 
                 if (context.FileWriter?.UseBigTiff ?? false)
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets), cancellationToken).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts), cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -111,8 +114,8 @@ namespace TiffLibrary.ImageEncoder
                         stripByteCounts32[i] = (uint)stripByteCounts[i];
                     }
 
-                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets32)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts32)).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripOffsets, TiffValueCollection.UnsafeWrap(stripOffsets32), cancellationToken).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.StripByteCounts, TiffValueCollection.UnsafeWrap(stripByteCounts32), cancellationToken).ConfigureAwait(false);
                 }
             }
         }

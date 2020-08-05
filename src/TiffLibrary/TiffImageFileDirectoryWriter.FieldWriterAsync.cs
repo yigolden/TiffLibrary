@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary
@@ -89,10 +90,12 @@ namespace TiffLibrary
         /// <param name="type">The specified type.</param>
         /// <param name="valueCount">The value count.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             if (values.Count <= _writer!.OperationContext.ByteCountOfValueOffsetField)
@@ -106,14 +109,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, type, valueCount, values));
+                return new ValueTask(WriteTagSlowAsync(tag, type, valueCount, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamOffset offset = await _writer!.WriteAlignedBytesAsync(values.GetOrCreateArray()).ConfigureAwait(false);
+            TiffStreamOffset offset = await _writer!.WriteAlignedBytesAsync(values.GetOrCreateArray(), cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, type, valueCount, offset);
         }
 
@@ -126,9 +129,10 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<byte> values)
-            => WriteTagAsync(tag, TiffFieldType.Byte, values);
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
+            => WriteTagAsync(tag, TiffFieldType.Byte, values, cancellationToken);
 
         /// <summary>
         /// Write values of the specified type to the specified tag in this IFD.
@@ -136,10 +140,12 @@ namespace TiffLibrary
         /// <param name="tag">The specified tag.</param>
         /// <param name="type">The specified type.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(byte);
@@ -161,14 +167,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, type, values));
+                return new ValueTask(WriteTagSlowAsync(tag, type, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamOffset offset = await _writer!.WriteAlignedBytesAsync(values.GetOrCreateArray()).ConfigureAwait(false);
+            TiffStreamOffset offset = await _writer!.WriteAlignedBytesAsync(values.GetOrCreateArray(), cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, type, values.Count, offset);
         }
 
@@ -181,10 +187,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<string> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<string> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             int estimatedLength = 0;
@@ -218,14 +226,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<string> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<string> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.ASCII, region.Length, region.Offset);
         }
 
@@ -259,10 +267,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ushort> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ushort> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(ushort);
@@ -284,14 +294,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<ushort> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<ushort> values, CancellationToken cancellationToken = default)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Short, values.Count, region.Offset);
         }
 
@@ -312,10 +322,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<short> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<short> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(short);
@@ -337,14 +349,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<short> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<short> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SShort, values.Count, region.Offset);
         }
 
@@ -365,10 +377,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<uint> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<uint> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(uint);
@@ -390,14 +404,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<uint> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<uint> values, CancellationToken cancellationToken = default)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Long, values.Count, region.Offset);
         }
 
@@ -418,10 +432,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<int> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<int> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
 
@@ -444,14 +460,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<int> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<int> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SLong, values.Count, region.Offset);
         }
 
@@ -464,10 +480,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ulong> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ulong> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(ulong);
@@ -489,14 +507,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<ulong> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<ulong> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Long8, values.Count, region.Offset);
         }
 
@@ -509,10 +527,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<long> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<long> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(long);
@@ -534,14 +554,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<long> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<long> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SLong8, values.Count, region.Offset);
         }
 
@@ -554,10 +574,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<float> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<float> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(float);
@@ -579,14 +601,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<float> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<float> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Float, values.Count, region.Offset);
         }
 
@@ -599,10 +621,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<double> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<double> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = sizeof(double);
@@ -624,14 +648,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<double> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<double> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Double, values.Count, region.Offset);
         }
 
@@ -644,10 +668,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffRational> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffRational> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = 2 * sizeof(uint);
@@ -669,14 +695,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<TiffRational> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<TiffRational> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.Rational, values.Count, region.Offset);
         }
 
@@ -689,10 +715,12 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <param name="values">The values to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
-        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffSRational> values)
+        public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffSRational> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             Debug.Assert(_writer != null);
 
             const int ElementSize = 2 * sizeof(int);
@@ -714,14 +742,14 @@ namespace TiffLibrary
             }
             else
             {
-                return new ValueTask(WriteTagSlowAsync(tag, values));
+                return new ValueTask(WriteTagSlowAsync(tag, values, cancellationToken));
             }
         }
 
-        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<TiffSRational> values)
+        internal async Task WriteTagSlowAsync(TiffTag tag, TiffValueCollection<TiffSRational> values, CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
-            TiffStreamRegion region = await _writer!.WriteAlignedValues(values).ConfigureAwait(false);
+            TiffStreamRegion region = await _writer!.WriteAlignedValues(values, cancellationToken).ConfigureAwait(false);
             AddOrUpdateEntry(tag, TiffFieldType.SRational, values.Count, region.Offset);
         }
 

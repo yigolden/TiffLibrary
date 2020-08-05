@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TiffLibrary.Compression;
 
@@ -71,7 +72,7 @@ namespace TiffLibrary.ImageEncoder
 
                 using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    TiffStreamOffset offset = await context.FileWriter!.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence()).ConfigureAwait(false);
+                    TiffStreamOffset offset = await context.FileWriter!.WriteAlignedBytesAsync(bufferWriter.GetReadOnlySequence(), context.CancellationToken).ConfigureAwait(false);
                     context.BitsPerSample = compressionContext.BitsPerSample;
                     context.OutputRegion = new TiffStreamRegion(offset, length);
                 }
@@ -82,7 +83,8 @@ namespace TiffLibrary.ImageEncoder
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.Compression, TiffValueCollection.Single((ushort)_compression)).ConfigureAwait(false);
+                    CancellationToken cancellationToken = context.CancellationToken;
+                    await ifdWriter.WriteTagAsync(TiffTag.Compression, TiffValueCollection.Single((ushort)_compression), cancellationToken).ConfigureAwait(false);
                 }
             }
 

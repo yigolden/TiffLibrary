@@ -57,8 +57,9 @@ namespace TiffLibrary
         /// <param name="stream">A seekable and writable stream to use.</param>
         /// <param name="leaveOpen">Whether to leave the stream open when <see cref="TiffFileWriter"/> is dispsoed.</param>
         /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
-        public static Task<TiffFileWriter> OpenAsync(Stream stream, bool leaveOpen, bool useBigTiff = false)
+        public static Task<TiffFileWriter> OpenAsync(Stream stream, bool leaveOpen, bool useBigTiff = false, CancellationToken cancellationToken = default)
         {
             if (stream is null)
             {
@@ -74,7 +75,7 @@ namespace TiffLibrary
                 throw new ArgumentException("Stream must be writable.", nameof(stream));
             }
 
-            return OpenAsync(new TiffStreamContentReaderWriter(stream, leaveOpen), false, useBigTiff);
+            return OpenAsync(new TiffStreamContentReaderWriter(stream, leaveOpen), false, useBigTiff, cancellationToken);
         }
 
         /// <summary>
@@ -82,8 +83,9 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="fileName">The file to write to.</param>
         /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
-        public static Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false)
+        public static Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false, CancellationToken cancellationToken = default)
         {
             if (fileName is null)
             {
@@ -91,7 +93,7 @@ namespace TiffLibrary
             }
 
             var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
-            return OpenAsync(new TiffStreamContentReaderWriter(fs, false), false, useBigTiff);
+            return OpenAsync(new TiffStreamContentReaderWriter(fs, false), false, useBigTiff, cancellationToken);
         }
 
         /// <summary>
@@ -100,8 +102,9 @@ namespace TiffLibrary
         /// <param name="writer">The content writer to use.</param>
         /// <param name="leaveOpen">Whether to leave the content writer open when <see cref="TiffFileWriter"/> is dispsoed.</param>
         /// <param name="useBigTiff">Whether to use BigTIFF format.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
-        public static async Task<TiffFileWriter> OpenAsync(TiffFileContentReaderWriter writer, bool leaveOpen, bool useBigTiff = false)
+        public static async Task<TiffFileWriter> OpenAsync(TiffFileContentReaderWriter writer, bool leaveOpen, bool useBigTiff = false, CancellationToken cancellationToken = default)
         {
             if (writer is null)
             {
@@ -113,7 +116,7 @@ namespace TiffLibrary
             try
             {
                 smallBuffer.AsSpan().Clear();
-                await writer.WriteAsync(0, new ArraySegment<byte>(smallBuffer, 0, useBigTiff ? 16 : 8), CancellationToken.None).ConfigureAwait(false);
+                await writer.WriteAsync(0, new ArraySegment<byte>(smallBuffer, 0, useBigTiff ? 16 : 8), cancellationToken).ConfigureAwait(false);
                 disposeInstance = null;
                 return new TiffFileWriter(writer, leaveOpen, useBigTiff);
             }
@@ -132,20 +135,22 @@ namespace TiffLibrary
         /// <summary>
         /// Align the current position to word boundary.
         /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask{TiffStreamOffset}"/> that completes when the align operation is completed. Returns the current position.</returns>
-        public ValueTask<TiffStreamOffset> AlignToWordBoundaryAsync()
+        public ValueTask<TiffStreamOffset> AlignToWordBoundaryAsync(CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
 
             long position = _position;
             if ((position & 0b1) != 0)
             {
-                return new ValueTask<TiffStreamOffset>(InternalAlignToWordBoundaryAsync());
+                return new ValueTask<TiffStreamOffset>(InternalAlignToWordBoundaryAsync(cancellationToken));
             }
             return new ValueTask<TiffStreamOffset>(new TiffStreamOffset(position));
         }
 
-        private async Task<TiffStreamOffset> InternalAlignToWordBoundaryAsync()
+        private async Task<TiffStreamOffset> InternalAlignToWordBoundaryAsync(CancellationToken cancellationToken)
         {
             Debug.Assert(_writer != null);
 
@@ -154,7 +159,7 @@ namespace TiffLibrary
             try
             {
                 buffer[0] = 0;
-                await _writer!.WriteAsync(_position, new ArraySegment<byte>(buffer, 0, length), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(_position, new ArraySegment<byte>(buffer, 0, length), cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -224,7 +229,7 @@ namespace TiffLibrary
             return new TiffImageFileDirectoryWriter(this);
         }
 
-        internal async Task UpdateImageFileDirectoryNextOffsetFieldAsync(TiffStreamOffset target, TiffStreamOffset ifdOffset)
+        internal async Task UpdateImageFileDirectoryNextOffsetFieldAsync(TiffStreamOffset target, TiffStreamOffset ifdOffset, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
 
@@ -235,7 +240,7 @@ namespace TiffLibrary
             byte[] buffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
             try
             {
-                int rwCount = await _writer!.ReadAsync(target, new ArraySegment<byte>(buffer, 0, 8), CancellationToken.None).ConfigureAwait(false);
+                int rwCount = await _writer!.ReadAsync(target, new ArraySegment<byte>(buffer, 0, 8), cancellationToken).ConfigureAwait(false);
                 if (!(_useBigTiff && rwCount == 8) && !(!_useBigTiff && rwCount >= 4))
                 {
                     throw new InvalidDataException();
@@ -258,7 +263,7 @@ namespace TiffLibrary
 
                 // Skip over IFD entries.
                 int entryFieldLength = _useBigTiff ? 20 : 12;
-                await _writer.WriteAsync(target + _operationContext!.ByteCountOfImageFileDirectoryCountField + count * entryFieldLength, new ArraySegment<byte>(buffer, 0, rwCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer.WriteAsync(target + _operationContext!.ByteCountOfImageFileDirectoryCountField + count * entryFieldLength, new ArraySegment<byte>(buffer, 0, rwCount), cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -285,8 +290,9 @@ namespace TiffLibrary
         /// <param name="buffer">The bytes buffer.</param>
         /// <param name="index">The number of bytes to skip in the buffer.</param>
         /// <param name="count">The number of bytes to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
-        public async Task<TiffStreamOffset> WriteBytesAsync(byte[] buffer, int index, int count)
+        public async Task<TiffStreamOffset> WriteBytesAsync(byte[] buffer, int index, int count, CancellationToken cancellationToken = default)
         {
             if (buffer is null)
             {
@@ -303,10 +309,11 @@ namespace TiffLibrary
 
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
             long position = _position;
-            await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, index, count), CancellationToken.None).ConfigureAwait(false);
+            await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, index, count), cancellationToken).ConfigureAwait(false);
             AdvancePosition(count);
 
             return new TiffStreamOffset(position);
@@ -316,15 +323,17 @@ namespace TiffLibrary
         /// Writes a series of bytes into the TIFF stream.
         /// </summary>
         /// <param name="buffer">The bytes buffer.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
-        public async Task<TiffStreamOffset> WriteBytesAsync(ReadOnlyMemory<byte> buffer)
+        public async Task<TiffStreamOffset> WriteBytesAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
             long position = _position;
-            await _writer!.WriteAsync(position, buffer, CancellationToken.None).ConfigureAwait(false);
+            await _writer!.WriteAsync(position, buffer, cancellationToken).ConfigureAwait(false);
             AdvancePosition(buffer.Length);
 
             return new TiffStreamOffset(position);
@@ -334,15 +343,16 @@ namespace TiffLibrary
         /// Align to word boundary and writes a series of bytes into the TIFF stream.
         /// </summary>
         /// <param name="buffer">The bytes buffer.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
-        public Task<TiffStreamOffset> WriteAlignedBytesAsync(byte[] buffer)
+        public Task<TiffStreamOffset> WriteAlignedBytesAsync(byte[] buffer, CancellationToken cancellationToken = default)
         {
             if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
 
-            return WriteAlignedBytesAsync(buffer, 0, buffer.Length);
+            return WriteAlignedBytesAsync(buffer, 0, buffer.Length, cancellationToken);
         }
 
         /// <summary>
@@ -351,8 +361,9 @@ namespace TiffLibrary
         /// <param name="buffer">The bytes buffer.</param>
         /// <param name="index">The number of bytes to skip in the buffer.</param>
         /// <param name="count">The number of bytes to write.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
-        public async Task<TiffStreamOffset> WriteAlignedBytesAsync(byte[] buffer, int index, int count)
+        public async Task<TiffStreamOffset> WriteAlignedBytesAsync(byte[] buffer, int index, int count, CancellationToken cancellationToken = default)
         {
             if (buffer is null)
             {
@@ -369,10 +380,11 @@ namespace TiffLibrary
 
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
-            await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, index, count), CancellationToken.None).ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
+            await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, index, count), cancellationToken).ConfigureAwait(false);
             AdvancePosition(count);
 
             return new TiffStreamOffset(position);
@@ -382,33 +394,36 @@ namespace TiffLibrary
         /// Align to word boundary and writes a series of bytes into the TIFF stream.
         /// </summary>
         /// <param name="buffer">The bytes buffer.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
-        public async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlyMemory<byte> buffer)
+        public async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
             long length = buffer.Length;
-            await _writer!.WriteAsync(position, buffer, CancellationToken.None).ConfigureAwait(false);
+            await _writer!.WriteAsync(position, buffer, cancellationToken).ConfigureAwait(false);
             AdvancePosition(length);
 
             return new TiffStreamOffset(position);
         }
 
-        internal async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlySequence<byte> buffer)
+        internal async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
             long length = buffer.Length;
             long offset = position;
             foreach (ReadOnlyMemory<byte> segment in buffer)
             {
-                await _writer!.WriteAsync(offset, segment, CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(offset, segment, cancellationToken).ConfigureAwait(false);
                 offset += segment.Length;
             }
             AdvancePosition(length);
@@ -417,13 +432,14 @@ namespace TiffLibrary
         }
 
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<string> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<string> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             int maxByteCount = 0;
             foreach (string item in values)
@@ -440,7 +456,7 @@ namespace TiffLibrary
                 {
                     int length = Encoding.ASCII.GetBytes(item, 0, item.Length, buffer, 0);
                     buffer[length] = 0;
-                    await _writer!.WriteAsync(offset, new ArraySegment<byte>(buffer, 0, length + 1), CancellationToken.None).ConfigureAwait(false);
+                    await _writer!.WriteAsync(offset, new ArraySegment<byte>(buffer, 0, length + 1), cancellationToken).ConfigureAwait(false);
                     offset += length + 1;
                     AdvancePosition(length + 1);
                     bytesWritten += length + 1;
@@ -454,13 +470,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, bytesWritten);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<ushort> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<ushort> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(ushort);
             int byteCount = ElementSize * values.Count;
@@ -468,7 +485,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -479,13 +496,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<short> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<short> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(short);
             int byteCount = ElementSize * values.Count;
@@ -493,7 +511,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -504,13 +522,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<uint> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<uint> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(uint);
             int byteCount = ElementSize * values.Count;
@@ -518,7 +537,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -529,13 +548,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<int> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<int> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(int);
             int byteCount = ElementSize * values.Count;
@@ -543,7 +563,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -554,13 +574,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<ulong> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<ulong> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(ulong);
             int byteCount = ElementSize * values.Count;
@@ -568,7 +589,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -579,13 +600,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<long> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<long> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(long);
             int byteCount = ElementSize * values.Count;
@@ -593,7 +615,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -604,13 +626,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<float> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<float> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(float);
             int byteCount = ElementSize * values.Count;
@@ -618,7 +641,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -629,13 +652,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<double> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<double> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = sizeof(double);
             int byteCount = ElementSize * values.Count;
@@ -643,7 +667,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -654,13 +678,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffRational> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffRational> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = 2 * sizeof(uint);
             int byteCount = ElementSize * values.Count;
@@ -668,7 +693,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -679,13 +704,14 @@ namespace TiffLibrary
             return new TiffStreamRegion(position, byteCount);
         }
 
-        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffSRational> values)
+        internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffSRational> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
-            long position = await AlignToWordBoundaryAsync().ConfigureAwait(false);
+            long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
 
             const int ElementSize = 2 * sizeof(int);
             int byteCount = ElementSize * values.Count;
@@ -693,7 +719,7 @@ namespace TiffLibrary
             try
             {
                 MemoryMarshal.AsBytes(values.GetOrCreateArray().AsSpan()).CopyTo(buffer);
-                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(position, new ArraySegment<byte>(buffer, 0, byteCount), cancellationToken).ConfigureAwait(false);
                 AdvancePosition(byteCount);
             }
             finally
@@ -711,11 +737,13 @@ namespace TiffLibrary
         /// <summary>
         /// Flush the TIFF file header into the stream.
         /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns></returns>
-        public async Task FlushAsync()
+        public async Task FlushAsync(CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
             EnsureNotCompleted();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
             if (_requireBigTiff && !_useBigTiff)
@@ -728,8 +756,8 @@ namespace TiffLibrary
             {
                 Array.Clear(buffer, 0, 16);
                 TiffFileHeader.Write(buffer, _imageFileDirectoryOffset, BitConverter.IsLittleEndian, _useBigTiff);
-                await _writer!.WriteAsync(0, new ArraySegment<byte>(buffer, 0, _useBigTiff ? 16 : 8), CancellationToken.None).ConfigureAwait(false);
-                await _writer.FlushAsync(CancellationToken.None).ConfigureAwait(false);
+                await _writer!.WriteAsync(0, new ArraySegment<byte>(buffer, 0, _useBigTiff ? 16 : 8), cancellationToken).ConfigureAwait(false);
+                await _writer.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {

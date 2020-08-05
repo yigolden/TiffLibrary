@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
@@ -55,7 +56,8 @@ namespace TiffLibrary.ImageEncoder
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.Orientation, TiffValueCollection.Single((ushort)_orientation)).ConfigureAwait(false);
+                    CancellationToken cancellationToken = context.CancellationToken;
+                    await ifdWriter.WriteTagAsync(TiffTag.Orientation, TiffValueCollection.Single((ushort)_orientation), cancellationToken).ConfigureAwait(false);
                 }
             }
         }

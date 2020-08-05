@@ -19,7 +19,7 @@ namespace TiffLibrary.Benchmarks
         private TiffImageEncoder<TiffGray8> _tileEncoder;
 
         [GlobalSetup]
-        public async Task Setup()
+        public void Setup()
         {
             TiffGray8[] image = new TiffGray8[8192 * 8192];
             _image = TiffPixelBuffer.WrapReadOnly(image, 8192, 8192);

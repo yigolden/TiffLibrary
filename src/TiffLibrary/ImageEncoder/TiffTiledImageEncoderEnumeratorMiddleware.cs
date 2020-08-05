@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
@@ -113,15 +114,17 @@ namespace TiffLibrary.ImageEncoder
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.TileWidth, TiffValueCollection.Single((ushort)tileWidth)).ConfigureAwait(false);
-                    await ifdWriter.WriteTagAsync(TiffTag.TileLength, TiffValueCollection.Single((ushort)tileHeight)).ConfigureAwait(false);
+                    CancellationToken cancellationToken = context.CancellationToken;
+
+                    await ifdWriter.WriteTagAsync(TiffTag.ImageWidth, TiffValueCollection.Single((uint)width), cancellationToken).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.ImageLength, TiffValueCollection.Single((uint)height), cancellationToken).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileWidth, TiffValueCollection.Single((ushort)tileWidth), cancellationToken).ConfigureAwait(false);
+                    await ifdWriter.WriteTagAsync(TiffTag.TileLength, TiffValueCollection.Single((ushort)tileHeight), cancellationToken).ConfigureAwait(false);
 
                     if (context.FileWriter?.UseBigTiff ?? false)
                     {
-                        await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets)).ConfigureAwait(false);
-                        await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts)).ConfigureAwait(false);
+                        await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets), cancellationToken).ConfigureAwait(false);
+                        await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts), cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
@@ -134,8 +137,8 @@ namespace TiffLibrary.ImageEncoder
                             tileByteCounts32[i] = (uint)tileByteCounts[i];
                         }
 
-                        await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets32)).ConfigureAwait(false);
-                        await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts32)).ConfigureAwait(false);
+                        await ifdWriter.WriteTagAsync(TiffTag.TileOffsets, TiffValueCollection.UnsafeWrap(tileOffsets32), cancellationToken).ConfigureAwait(false);
+                        await ifdWriter.WriteTagAsync(TiffTag.TileByteCounts, TiffValueCollection.UnsafeWrap(tileByteCounts32), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
@@ -77,7 +78,8 @@ namespace TiffLibrary.ImageEncoder
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {
-                    await ifdWriter.WriteTagAsync(TiffTag.Predictor, TiffValueCollection.Single((ushort)_predictor)).ConfigureAwait(false);
+                    CancellationToken cancellationToken = context.CancellationToken;
+                    await ifdWriter.WriteTagAsync(TiffTag.Predictor, TiffValueCollection.Single((ushort)_predictor), cancellationToken).ConfigureAwait(false);
                 }
             }
         }

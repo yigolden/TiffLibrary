@@ -10,17 +10,19 @@ namespace TiffLibrary.Tests.Roundtrip
     public class ParallelDecodeTests
     {
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(false, 0)]
-        [InlineData(true, 1)]
-        [InlineData(false, 1)]
-        [InlineData(true, 2)]
-        [InlineData(false, 2)]
-        [InlineData(true, 4)]
-        [InlineData(false, 4)]
-        [InlineData(true, 16)]
-        [InlineData(false, 16)]
-        public async Task TestRoundtrip(bool isTile, int maxDegreeOfParallelism)
+        [InlineData(true, 0, false)]
+        [InlineData(false, 0, false)]
+        [InlineData(true, 1, false)]
+        [InlineData(false, 1, false)]
+        [InlineData(true, 2, false)]
+        [InlineData(false, 2, false)]
+        [InlineData(true, 4, false)]
+        [InlineData(false, 4, false)]
+        [InlineData(true, 16, false)]
+        [InlineData(false, 16, false)]
+        [InlineData(true, 16, true)]
+        [InlineData(false, 16, true)]
+        public async Task TestRoundtrip(bool isTile, int maxDegreeOfParallelism, bool isYCbCr)
         {
             TiffGray8[] refImage = new TiffGray8[4096 * 4096];
             TiffGray8[] testImage = new TiffGray8[4096 * 4096];
@@ -29,7 +31,18 @@ namespace TiffLibrary.Tests.Roundtrip
             rand.NextBytes(MemoryMarshal.AsBytes(refImage.AsSpan()));
 
             var builder = new TiffImageEncoderBuilder();
-            builder.PhotometricInterpretation = TiffPhotometricInterpretation.WhiteIsZero;
+            if (isYCbCr)
+            {
+                builder.PhotometricInterpretation = TiffPhotometricInterpretation.YCbCr;
+                builder.HorizontalChromaSubSampling = 2;
+                builder.VerticalChromaSubSampling = 2;
+            }
+            else
+            {
+                builder.PhotometricInterpretation = TiffPhotometricInterpretation.BlackIsZero;
+                builder.Predictor = TiffPredictor.HorizontalDifferencing;
+            }
+
             builder.Compression = TiffCompression.Lzw;
             builder.IsTiled = isTile;
             builder.RowsPerStrip = 64;

@@ -254,10 +254,6 @@ namespace TiffLibrary.Compression
                 TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
                 if (!(ifdWriter is null) && (_useSharedHuffmanTables || _useSharedQuantizationTables))
                 {
-                    if (_jpegTables is null)
-                    {
-                        InitializeTables();
-                    }
                     return new ValueTask(WriteTablesAndContinueAsync(context, next));
                 }
 
@@ -267,11 +263,19 @@ namespace TiffLibrary.Compression
             private async Task WriteTablesAndContinueAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
                 TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-                byte[]? jpegTables = _jpegTables;
 
-                Debug.Assert(ifdWriter != null);
-                Debug.Assert(jpegTables != null);
-                await ifdWriter!.WriteTagAsync(TiffTag.JPEGTables, TiffFieldType.Undefined, TiffValueCollection.UnsafeWrap(jpegTables!)).ConfigureAwait(false);
+                using (await context.LockAsync().ConfigureAwait(false))
+                {
+                    if (_jpegTables is null)
+                    {
+                        InitializeTables();
+                    }
+                    byte[]? jpegTables = _jpegTables;
+
+                    Debug.Assert(ifdWriter != null);
+                    Debug.Assert(jpegTables != null);
+                    await ifdWriter!.WriteTagAsync(TiffTag.JPEGTables, TiffFieldType.Undefined, TiffValueCollection.UnsafeWrap(jpegTables!)).ConfigureAwait(false);
+                }
 
                 await next.RunAsync(context).ConfigureAwait(false);
             }

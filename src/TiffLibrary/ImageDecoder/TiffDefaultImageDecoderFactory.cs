@@ -860,7 +860,8 @@ namespace TiffLibrary.ImageDecoder
             static async ValueTask<ITiffDecompressionAlgorithm> ResolveJpegDecompressionAlgorithmAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
                 byte[] jpegTables = await tagReader.ReadJPEGTablesAsync(cancellationToken).ConfigureAwait(false);
-                return new JpegDecompressionAlgorithm(jpegTables, 3);
+                long componentCount = tagReader.ImageFileDirectory.FindEntry(TiffTag.BitsPerSample).ValueCount;
+                return new JpegDecompressionAlgorithm(jpegTables, checked((int)componentCount));
             }
         }
 

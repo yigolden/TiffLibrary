@@ -32,8 +32,6 @@ namespace TiffLibrary.ImageEncoder
 
             context.RegisterService(typeof(TiffParallelEncodingState), null);
             context.RegisterService(typeof(ITiffParallelMutexService), null);
-
-            state.ThrowAggregateException();
         }
 
         internal class ParallelMutexService : ITiffParallelMutexService, IDisposable

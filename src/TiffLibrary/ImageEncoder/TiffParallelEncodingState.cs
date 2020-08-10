@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,8 +10,7 @@ namespace TiffLibrary.ImageEncoder
         private readonly TaskCompletionSource<object?> _tcs;
 
         private int _workItemCount;
-        private List<Exception>? _exceptions;
-        private SpinLock _lock;
+        private bool _forceExit;
 
         public TiffParallelEncodingState(int maxDegreeOfParallelism)
         {
@@ -44,6 +42,11 @@ namespace TiffLibrary.ImageEncoder
 
         public async Task DispatchAsync(Func<ValueTask> action, CancellationToken cancellationToken)
         {
+            if (_forceExit)
+            {
+                return;
+            }
+
             // Add current task to the work item
             Interlocked.Increment(ref _workItemCount);
 
@@ -68,7 +71,8 @@ namespace TiffLibrary.ImageEncoder
             catch (Exception e)
 #pragma warning restore CA1031 // CA1031: Do not catch general exception types
             {
-                AddException(e);
+                _tcs.TrySetException(e);
+                _forceExit = true;
             }
             finally
             {
@@ -77,54 +81,6 @@ namespace TiffLibrary.ImageEncoder
                 if (count == 0)
                 {
                     _tcs.TrySetResult(null);
-                }
-            }
-        }
-
-        private void AddException(Exception e)
-        {
-            bool lockTaken = false;
-            try
-            {
-                _lock.Enter(ref lockTaken);
-
-                List<Exception>? exceptions = _exceptions;
-                if (exceptions is null)
-                {
-                    exceptions = _exceptions = new List<Exception>();
-                }
-
-                exceptions.Add(e);
-            }
-            finally
-            {
-                if (lockTaken)
-                {
-                    _lock.Exit();
-                }
-            }
-        }
-
-        public void ThrowAggregateException()
-        {
-            bool lockTaken = false;
-            try
-            {
-                _lock.Enter(ref lockTaken);
-
-                List<Exception>? exceptions = _exceptions;
-                if (exceptions is null || exceptions.Count == 0)
-                {
-                    return;
-                }
-
-                throw new AggregateException(exceptions);
-            }
-            finally
-            {
-                if (lockTaken)
-                {
-                    _lock.Exit();
                 }
             }
         }

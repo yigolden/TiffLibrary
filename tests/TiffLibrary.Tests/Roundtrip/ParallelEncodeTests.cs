@@ -33,7 +33,7 @@ namespace TiffLibrary.Tests.Roundtrip
             var builder = new TiffImageEncoderBuilder();
             if (isYCbCr)
             {
-                builder.PhotometricInterpretation = TiffPhotometricInterpretation.BlackIsZero;
+                builder.PhotometricInterpretation = TiffPhotometricInterpretation.YCbCr;
                 builder.HorizontalChromaSubSampling = 2;
                 builder.VerticalChromaSubSampling = 2;
             }

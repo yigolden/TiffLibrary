@@ -158,8 +158,8 @@ namespace TiffLibrary.PhotometricInterpreters
                 _cr2r = 2 - 2 * lumaRed.ToSingle();
                 _cb2b = 2 - 2 * lumaBlue.ToSingle();
                 _y2g = (1 - lumaBlue.ToSingle() - lumaRed.ToSingle()) / lumaGreen.ToSingle();
-                _cr2g = -(lumaRed.ToSingle() / lumaGreen.ToSingle());
-                _cb2g = -(lumaBlue.ToSingle() / lumaGreen.ToSingle());
+                _cr2g = 2 * lumaRed.ToSingle() * (lumaRed.ToSingle() - 1) / lumaGreen.ToSingle();
+                _cb2g = 2 * lumaBlue.ToSingle() * (lumaBlue.ToSingle() - 1) / lumaGreen.ToSingle();
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

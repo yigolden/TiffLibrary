@@ -5,6 +5,10 @@
 
 trigger:
 - master
+- release/*
+
+pr:
+- master
 
 pool:
   vmImage: 'Ubuntu-18.04'

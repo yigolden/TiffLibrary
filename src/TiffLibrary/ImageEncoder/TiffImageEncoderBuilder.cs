@@ -34,7 +34,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the number of rows when the output TIFF file is a stripped TIFF file.
         /// </summary>
-        public int RowsPerStrip { get; set; } = 0;
+        public int RowsPerStrip { get; set; }
 
         /// <summary>
         /// Gets or sets the tile size when the output TIFF file is a tiled TIFF file. Both with and height should be multiples of 16.

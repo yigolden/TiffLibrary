@@ -281,7 +281,11 @@ namespace TiffLibrary
                 try
                 {
                     stream.Seek(offset.Offset, SeekOrigin.Begin);
+#if !NO_FAST_SPAN
+                    return await stream.ReadAsync(buffer.AsMemory(), cancellationToken).ConfigureAwait(false);
+#else
                     return await stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
+#endif
                 }
                 finally
                 {

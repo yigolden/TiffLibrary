@@ -12,7 +12,7 @@ namespace TiffLibrary
         internal readonly T[] _values;
         internal T _firstValue;
 
-        public static readonly TiffValueCollection<T> Empty = default;
+        public static readonly TiffValueCollection<T> Empty;
 
         public TiffMutableValueCollection(int count)
         {

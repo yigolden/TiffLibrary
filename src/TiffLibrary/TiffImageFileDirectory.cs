@@ -100,6 +100,11 @@ namespace TiffLibrary
         /// <returns>The entry found. Returns default(TiffImageFileDirectoryEntry) is the entry is not found.</returns>
         public TiffImageFileDirectoryEntry FindEntry(Func<TiffImageFileDirectoryEntry, bool> predicate)
         {
+            if (predicate is null)
+            {
+                throw new ArgumentNullException(nameof(predicate));
+            }
+
             foreach (TiffImageFileDirectoryEntry entry in _entries)
             {
                 if (predicate(entry))

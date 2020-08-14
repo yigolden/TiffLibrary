@@ -23,7 +23,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets a empty list.
         /// </summary>
-        internal static readonly TiffValueCollection<T> s_empty = default;
+        internal static readonly TiffValueCollection<T> s_empty;
 
         /// <summary>
         /// Create the list with a single element.

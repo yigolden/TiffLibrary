@@ -95,6 +95,9 @@ namespace TiffLibrary
 
             stream.Seek(offset.Offset, SeekOrigin.Begin);
 
+#if !NO_FAST_SPAN
+            return await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+#else
             if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
             {
                 if (arraySegment.Array is null)
@@ -105,9 +108,6 @@ namespace TiffLibrary
                 return await stream.ReadAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count, cancellationToken).ConfigureAwait(false);
             }
 
-#if !NO_FAST_SPAN
-            return await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-#else
             // Slow path
             byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
             try
@@ -140,7 +140,11 @@ namespace TiffLibrary
             }
 
             stream.Seek(offset.Offset, SeekOrigin.Begin);
+#if !NO_FAST_SPAN
+            return await stream.ReadAsync(buffer.AsMemory(), cancellationToken).ConfigureAwait(false);
+#else
             return await stream.ReadAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
+#endif
         }
 
         public override void Write(TiffStreamOffset offset, ArraySegment<byte> buffer)
@@ -210,7 +214,11 @@ namespace TiffLibrary
             }
 
             stream.Seek(offset, SeekOrigin.Begin);
+#if !NO_FAST_SPAN
+            await stream.WriteAsync(buffer.AsMemory(), cancellationToken).ConfigureAwait(false);
+#else
             await stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
+#endif
         }
 
 
@@ -224,6 +232,9 @@ namespace TiffLibrary
 
             stream.Seek(offset, SeekOrigin.Begin);
 
+#if !NO_FAST_SPAN
+            await stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+#else
             if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> arraySegment))
             {
                 if (arraySegment.Array is null)
@@ -235,9 +246,6 @@ namespace TiffLibrary
                 return;
             }
 
-#if !NO_FAST_SPAN
-            await stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-#else
             // Slow path
             byte[] temp = ArrayPool<byte>.Shared.Rent(buffer.Length);
             try

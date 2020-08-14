@@ -54,7 +54,7 @@ namespace TiffLibrary.ImageEncoder
             await _semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             // Dispatch the remaining pipeline to another thread.
-            _ = Task.Run(() => RunAsync(action));
+            _ = Task.Run(() => RunAsync(action), CancellationToken.None);
         }
 
         private async Task RunAsync(Func<ValueTask> action)

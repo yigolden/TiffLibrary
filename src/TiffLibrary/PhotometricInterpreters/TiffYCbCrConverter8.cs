@@ -107,6 +107,25 @@ namespace TiffLibrary.PhotometricInterpreters
             return pixel;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TiffRgb24 ConvertToRgb24(byte y, byte cb, byte cr)
+        {
+            CodingRangeExpander expanderY = _expanderY;
+            CodingRangeExpander expanderCb = _expanderCb;
+            CodingRangeExpander expanderCr = _expanderCr;
+            YCbCrToRgbConverter converter = _converterFrom;
+
+            float y64 = expanderY.Expand(y);
+            float cb64 = expanderCb.Expand(cb);
+            float cr64 = expanderCr.Expand(cr);
+
+            TiffRgb24 pixel = default; // TODO: SkipInit
+
+            converter.Convert(y64, cb64, cr64, ref pixel);
+
+            return pixel;
+        }
+
         public void ConvertToRgba32(ReadOnlySpan<byte> ycbcr, Span<TiffRgba32> destination, int count)
         {
             CodingRangeExpander expanderY = _expanderY;
@@ -133,6 +152,49 @@ namespace TiffLibrary.PhotometricInterpreters
 
                 sourceRef = ref Unsafe.Add(ref sourceRef, 3);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ConvertToRgb24(ReadOnlySpan<byte> ycbcr, Span<TiffRgb24> destination, int count)
+        {
+            CodingRangeExpander expanderY = _expanderY;
+            CodingRangeExpander expanderCb = _expanderCb;
+            CodingRangeExpander expanderCr = _expanderCr;
+            YCbCrToRgbConverter converter = _converterFrom;
+
+            ref byte sourceRef = ref MemoryMarshal.GetReference(ycbcr);
+            ref TiffRgb24 destinationRef = ref MemoryMarshal.GetReference(destination);
+
+            for (int i = 0; i < count; i++)
+            {
+                ref TiffRgb24 pixelRef = ref Unsafe.Add(ref destinationRef, i);
+
+                float y = sourceRef;
+                float cb = Unsafe.Add(ref sourceRef, 1);
+                float cr = Unsafe.Add(ref sourceRef, 2);
+
+                y = expanderY.Expand(y);
+                cb = expanderCb.Expand(cb);
+                cr = expanderCr.Expand(cr);
+
+                converter.Convert(y, cb, cr, ref pixelRef);
+
+                sourceRef = ref Unsafe.Add(ref sourceRef, 3);
+            }
+        }
+
+        public void ConvertFromRgb24(TiffRgb24 rgb, out byte y, out byte cb, out byte cr)
+        {
+            CodingRangeShrinker shrinkerY = _shrinkerY;
+            CodingRangeShrinker shrinkerCb = _shrinkerCb;
+            CodingRangeShrinker shrinkerCr = _shrinkerCr;
+            RgbToYCbCrConverter converter = _converterTo;
+
+            converter.Convert(rgb, out long ly, out long lcb, out long lcr);
+
+            y = TiffMathHelper.ClampTo8Bit(shrinkerY.Shrink(ly));
+            cb = TiffMathHelper.ClampTo8Bit(shrinkerCb.Shrink(lcb));
+            cr = TiffMathHelper.ClampTo8Bit(shrinkerCr.Shrink(lcr));
         }
 
         public void ConvertFromRgb24(ReadOnlySpan<TiffRgb24> rgb, Span<byte> destination, int count)
@@ -224,6 +286,15 @@ namespace TiffLibrary.PhotometricInterpreters
                 pixel.B = TiffMathHelper.RoundAndClampTo8Bit(cb * _cb2b + y);
                 pixel.A = byte.MaxValue;
             }
+
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Convert(float y, float cb, float cr, ref TiffRgb24 pixel)
+            {
+                pixel.R = TiffMathHelper.RoundAndClampTo8Bit(cr * _cr2r + y);
+                pixel.G = TiffMathHelper.RoundAndClampTo8Bit(_y2g * y + _cr2g * cr + _cb2g * cb);
+                pixel.B = TiffMathHelper.RoundAndClampTo8Bit(cb * _cb2b + y);
+            }
         }
 
         readonly struct RgbToYCbCrConverter
@@ -250,8 +321,8 @@ namespace TiffLibrary.PhotometricInterpreters
                 float lB = rgb.B;
 
                 float fY = _r2y * lR + _g2y * rgb.G + _b2y * lB;
-                float fCr = lR * _r2cr - fY * _r2cr;
-                float fCb = lB * _b2cb - fY * _b2cb;
+                float fCr = (lR - fY) * _r2cr;
+                float fCb = (lB - fY) * _b2cb;
 
                 y = TiffMathHelper.RoundToInt64(fY);
                 cb = TiffMathHelper.RoundToInt64(fCb);

@@ -26,6 +26,6 @@
         /// <summary>
         /// When this flag is set, optimal Huffman tables are generated for each strip or tile.
         /// </summary>
-        public bool OptimizeCoding { get; set; } = false;
+        public bool OptimizeCoding { get; set; }
     }
 }

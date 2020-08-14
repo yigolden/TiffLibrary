@@ -191,35 +191,35 @@ namespace TiffLibrary
 
             if (destinationImage is Image<L8> imageOfGray8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8), cancellationToken);
             }
             else if (destinationImage is Image<L16> imageOfGray16)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16), cancellationToken);
             }
             else if (destinationImage is Image<A8> imageOfAlpha8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8), cancellationToken);
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24), cancellationToken);
             }
             else if (destinationImage is Image<Rgba32> imageOfRgba32)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32), cancellationToken);
             }
             else if (destinationImage is Image<Rgba64> imageOfRgba64)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64), cancellationToken);
             }
             else if (destinationImage is Image<Bgr24> imageOfBgr24)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24), cancellationToken);
             }
             else if (destinationImage is Image<Bgra32> imageOfBgra32)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32));
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32), cancellationToken);
             }
             else
             {

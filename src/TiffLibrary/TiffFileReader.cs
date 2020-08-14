@@ -244,7 +244,7 @@ namespace TiffLibrary
                     try
                     {
                         // Read tiff header
-                        int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buffer, 0, 16)).ConfigureAwait(false);
+                        int readCount = await reader.ReadAsync(0, new ArraySegment<byte>(buffer, 0, 16), cancellationToken).ConfigureAwait(false);
                         if (!TiffFileHeader.TryParse(new ReadOnlySpan<byte>(buffer, 0, readCount), out TiffFileHeader header))
                         {
                             throw new InvalidDataException();

@@ -17,7 +17,7 @@ namespace TiffLibrary.ImageSharpAdapter
         /// <summary>
         /// When this flag is set, the Orientation tag in the IFD is ignored. Image will not be flipped or oriented according to the tag.
         /// </summary>
-        public bool IgnoreOrientation { get; set; } = false;
+        public bool IgnoreOrientation { get; set; }
 
         /// <inheritdoc />
         public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream) where TPixel : unmanaged, IPixel<TPixel>

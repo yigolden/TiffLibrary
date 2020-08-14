@@ -12,7 +12,7 @@ namespace TiffLibrary.PhotometricInterpreters
     /// </summary>
     public sealed class TiffTransparencyMask1Interpreter : ITiffImageDecoderMiddleware
     {
-        private bool _shouldReverseBits = false;
+        private bool _shouldReverseBits;
 
         /// <summary>
         /// Initialize the middleware with the specified fill order.

@@ -376,13 +376,14 @@ namespace TiffLibrary.ImageDecoder
             if (jpegStream.Length > 0)
             {
                 // Read JPEG stream.
-                const int BufferSize = 81920;
+                const int BufferSize = 65536;
                 using var bufferWriter = new MemoryPoolBufferWriter(memoryPool);
                 TiffStreamRegion streamRegion = jpegStream;
                 do
                 {
                     int readSize = Math.Min(streamRegion.Length, BufferSize);
                     Memory<byte> memory = bufferWriter.GetMemory(readSize);
+                    memory = memory.Slice(0, Math.Min(streamRegion.Length, memory.Length));
                     readSize = await contentReader.ReadAsync(streamRegion.Offset, memory, cancellationToken).ConfigureAwait(false);
                     bufferWriter.Advance(readSize);
                     streamRegion = new TiffStreamRegion(streamRegion.Offset + readSize, streamRegion.Length - readSize);

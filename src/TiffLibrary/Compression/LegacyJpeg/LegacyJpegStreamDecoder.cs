@@ -24,7 +24,7 @@ namespace TiffLibrary.Compression
             Memory<byte> data;
             try
             {
-                const int BufferSize = 81920;
+                const int BufferSize = 65536;
                 using (var bufferWriter = new MemoryPoolBufferWriter(memoryPool))
                 {
                     // Read JPEG stream
@@ -33,6 +33,7 @@ namespace TiffLibrary.Compression
                     {
                         int readSize = Math.Min(streamRegion.Length, BufferSize);
                         Memory<byte> memory = bufferWriter.GetMemory(readSize);
+                        memory = memory.Slice(0, Math.Min(streamRegion.Length, memory.Length));
                         readSize = await contentReader.ReadAsync(streamRegion.Offset, memory, context.CancellationToken).ConfigureAwait(false);
                         bufferWriter.Advance(readSize);
                         streamRegion = new TiffStreamRegion(streamRegion.Offset + readSize, streamRegion.Length - readSize);

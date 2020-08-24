@@ -20,7 +20,6 @@ namespace TiffLibrary
         private long _position;
         private readonly bool _useBigTiff;
         private bool _requireBigTiff;
-        private bool _completed;
         private TiffOperationContext? _operationContext;
         private long _imageFileDirectoryOffset;
 
@@ -34,7 +33,6 @@ namespace TiffLibrary
             _position = useBigTiff ? 16 : 8;
             _useBigTiff = useBigTiff;
             _requireBigTiff = false;
-            _completed = false;
             _operationContext = useBigTiff ? TiffOperationContext.BigTIFF : TiffOperationContext.StandardTIFF;
         }
 
@@ -308,7 +306,6 @@ namespace TiffLibrary
             }
 
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -328,7 +325,6 @@ namespace TiffLibrary
         public async Task<TiffStreamOffset> WriteBytesAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -379,7 +375,6 @@ namespace TiffLibrary
             }
 
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -399,7 +394,6 @@ namespace TiffLibrary
         public async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -414,7 +408,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -435,7 +428,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<string> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -473,7 +465,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<ushort> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -499,7 +490,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<short> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -525,7 +515,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<uint> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -551,7 +540,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<int> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -577,7 +565,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<ulong> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -603,7 +590,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<long> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -629,7 +615,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<float> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -655,7 +640,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<double> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -681,7 +665,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffRational> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -707,7 +690,6 @@ namespace TiffLibrary
         internal async Task<TiffStreamRegion> WriteAlignedValues(TiffValueCollection<TiffSRational> values, CancellationToken cancellationToken)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -742,7 +724,6 @@ namespace TiffLibrary
         public async Task FlushAsync(CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
-            EnsureNotCompleted();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
@@ -764,19 +745,6 @@ namespace TiffLibrary
                 ArrayPool<byte>.Shared.Return(buffer);
             }
 
-        }
-
-        private void EnsureNotCompleted()
-        {
-            if (_completed)
-            {
-                ThrowWriterCompleted();
-            }
-        }
-
-        private static void ThrowWriterCompleted()
-        {
-            throw new InvalidOperationException("Writer is completed.");
         }
 
         #endregion

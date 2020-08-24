@@ -282,6 +282,32 @@ namespace TiffLibrary
 
         #region Primitives
 
+
+        /// <summary>
+        /// Writes a series of bytes into the TIFF stream.
+        /// </summary>
+        /// <param name="buffer">The bytes buffer.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
+        /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
+        public async Task<TiffStreamOffset> WriteBytesAsync(byte[] buffer, CancellationToken cancellationToken = default)
+        {
+            if (buffer is null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Debug.Assert(_writer != null);
+            long position = _position;
+            await _writer!.WriteAsync(position, buffer, cancellationToken).ConfigureAwait(false);
+            AdvancePosition(buffer.Length);
+
+            return new TiffStreamOffset(position);
+        }
+
+
         /// <summary>
         /// Writes a series of bytes into the TIFF stream.
         /// </summary>
@@ -332,6 +358,28 @@ namespace TiffLibrary
             await _writer!.WriteAsync(position, buffer, cancellationToken).ConfigureAwait(false);
             AdvancePosition(buffer.Length);
 
+            return new TiffStreamOffset(position);
+        }
+
+        /// <summary>
+        /// Writes a series of bytes into the TIFF stream.
+        /// </summary>
+        /// <param name="buffer">The bytes buffer.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
+        /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
+        public async Task<TiffStreamOffset> WriteBytesAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            EnsureNotDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Debug.Assert(_writer == null);
+            long offset = _position;
+            long position = offset;
+            foreach (ReadOnlyMemory<byte> segment in buffer)
+            {
+                await _writer!.WriteAsync(offset, segment, cancellationToken).ConfigureAwait(false);
+                offset = AdvancePosition(segment.Length);
+            }
             return new TiffStreamOffset(position);
         }
 
@@ -405,21 +453,25 @@ namespace TiffLibrary
             return new TiffStreamOffset(position);
         }
 
-        internal async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Align to word boundary and writes a series of bytes into the TIFF stream.
+        /// </summary>
+        /// <param name="buffer">The bytes buffer.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
+        /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
+        public async Task<TiffStreamOffset> WriteAlignedBytesAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
             Debug.Assert(_writer != null);
             long position = await AlignToWordBoundaryAsync(cancellationToken).ConfigureAwait(false);
-            long length = buffer.Length;
             long offset = position;
             foreach (ReadOnlyMemory<byte> segment in buffer)
             {
                 await _writer!.WriteAsync(offset, segment, cancellationToken).ConfigureAwait(false);
-                offset += segment.Length;
+                offset = AdvancePosition(segment.Length);
             }
-            AdvancePosition(length);
 
             return new TiffStreamOffset(position);
         }

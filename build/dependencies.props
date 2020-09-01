@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup Label="Package Versions">
-    <JpegLibraryPackageVersion>0.3.26</JpegLibraryPackageVersion>
+    <JpegLibraryPackageVersion>0.3.28</JpegLibraryPackageVersion>
 
     <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>3.3.0</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>

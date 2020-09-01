@@ -58,7 +58,7 @@ namespace TiffLibrary.ImageSharpAdapter
         /// <summary>
         /// Gets or sets the compression level used in Deflate algorithm. A value of 9 is best, and 1 is least compression. The default is 6.
         /// </summary>
-        public TiffDeflateCompressionLevel DeflateCompressionLevel { get; set; }
+        public TiffDeflateCompressionLevel DeflateCompressionLevel { get; set; } = TiffDeflateCompressionLevel.Default;
 
         /// <summary>
         /// Gets or sets the JPEG encoding quality factor when compressing using JPEG. Only used when <see cref="Compression"/> is set to <see cref="TiffCompression.Jpeg"/>.

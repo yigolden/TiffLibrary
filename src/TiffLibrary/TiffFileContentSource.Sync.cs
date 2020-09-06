@@ -88,7 +88,11 @@ namespace TiffLibrary
 
             protected override void Dispose(bool disposing)
             {
-                Interlocked.Exchange(ref _reader, null)?.Dispose();
+                if (disposing)
+                {
+                    Interlocked.Exchange(ref _reader, null)?.Dispose();
+                }
+                _reader = null;
             }
         }
     }

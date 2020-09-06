@@ -1,15 +1,10 @@
 ﻿using System.Buffers;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using TiffLibrary.ImageEncoder;
-using TiffLibrary.PixelFormats;
-using TiffLibrary;
 
 namespace TiffLibrary.ImageSharpAdapter
 {

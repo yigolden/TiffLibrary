@@ -57,6 +57,10 @@ namespace TiffLibrary
             {
                 return new TiffImageSharpEncoder<TPixel, Bgra32, TiffBgra32>(builder.Build<TiffBgra32>());
             }
+            else if (typeof(TPixel) == typeof(Rgb48))
+            {
+                return new TiffImageSharpEncoder<TPixel, Rgba64, TiffRgba64>(builder.Build<TiffRgba64>());
+            }
             else
             {
                 return new TiffImageSharpEncoder<TPixel, Rgba32, TiffRgba32>(builder.Build<TiffRgba32>());
@@ -87,7 +91,7 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(image));
             }
 
-            return encoder.EncodeAsync(writer, default, new TiffSize(image.Width, image.Height), new ImageSharpPixelBufferReader<TPixel>(image), cancellationToken);
+            return encoder.EncodeAsync(writer, default, new TiffSize(image.Width, image.Height), new ImageSharpPixelBufferReader<TPixel>(image.Frames.RootFrame), cancellationToken);
         }
 
         /// <summary>
@@ -114,7 +118,7 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(image));
             }
 
-            return encoder.EncodeAsync(writer, default, new TiffSize(image.Width, image.Height), new ImageSharpPixelBufferReader<TPixel>(image), cancellationToken);
+            return encoder.EncodeAsync(writer, default, new TiffSize(image.Width, image.Height), new ImageSharpPixelBufferReader<TPixel>(image.Frames.RootFrame), cancellationToken);
         }
 
         /// <summary>
@@ -143,7 +147,7 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(image));
             }
 
-            return encoder.EncodeAsync(writer, offset, size, new ImageSharpPixelBufferReader<TPixel>(image), cancellationToken);
+            return encoder.EncodeAsync(writer, offset, size, new ImageSharpPixelBufferReader<TPixel>(image.Frames.RootFrame), cancellationToken);
         }
 
         /// <summary>
@@ -172,7 +176,120 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(image));
             }
 
-            return encoder.EncodeAsync(writer, offset, size, new ImageSharpPixelBufferReader<TPixel>(image), cancellationToken);
+            return encoder.EncodeAsync(writer, offset, size, new ImageSharpPixelBufferReader<TPixel>(image.Frames.RootFrame), cancellationToken);
+        }
+
+
+        /// <summary>
+        /// Encode a single image frame without writing any IFD tag fields.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel type.</typeparam>
+        /// <param name="encoder">The image encoder.</param>
+        /// <param name="writer">The <see cref="TiffFileWriter"/> object to write encoded image data to.</param>
+        /// <param name="frame">The image frame to read from.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
+        /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
+        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, ImageFrame<TPixel> frame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (encoder is null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (frame is null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            return encoder.EncodeAsync(writer, default, new TiffSize(frame.Width, frame.Height), new ImageSharpPixelBufferReader<TPixel>(frame), cancellationToken);
+        }
+
+        /// <summary>
+        /// Encode an image frame as well as associated tag fields into TIFF stream.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel type.</typeparam>
+        /// <param name="encoder">The image encoder.</param>
+        /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
+        /// <param name="frame">The image frame to read from.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
+        /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
+        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, ImageFrame<TPixel> frame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (encoder is null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (frame is null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            return encoder.EncodeAsync(writer, default, new TiffSize(frame.Width, frame.Height), new ImageSharpPixelBufferReader<TPixel>(frame), cancellationToken);
+        }
+
+        /// <summary>
+        /// Encode a single image frame without writing any IFD tag fields.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel type.</typeparam>
+        /// <param name="encoder">The image encoder.</param>
+        /// <param name="writer">The <see cref="TiffFileWriter"/> object to write encoded image data to.</param>
+        /// <param name="offset">The number of columns and rows to skip in <paramref name="frame"/>.</param>
+        /// <param name="size">The number of columns and rows to encode in <paramref name="frame"/>.</param>
+        /// <param name="frame">The image frame to read from.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
+        /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
+        public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPoint offset, TiffSize size, ImageFrame<TPixel> frame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (encoder is null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (frame is null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            return encoder.EncodeAsync(writer, offset, size, new ImageSharpPixelBufferReader<TPixel>(frame), cancellationToken);
+        }
+
+        /// <summary>
+        /// Encode an image frame as well as associated tag fields into TIFF stream.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel type.</typeparam>
+        /// <param name="encoder">The image encoder.</param>
+        /// <param name="writer">The <see cref="TiffImageFileDirectoryWriter"/> object to write encoded image data and fields to.</param>
+        /// <param name="offset">The number of columns and rows to skip in <paramref name="frame"/>.</param>
+        /// <param name="size">The number of columns and rows to encode in <paramref name="frame"/>.</param>
+        /// <param name="frame">The image frame to read from.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the encoding pipeline.</param>
+        /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
+        public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ImageFrame<TPixel> frame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (encoder is null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (frame is null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            return encoder.EncodeAsync(writer, offset, size, new ImageSharpPixelBufferReader<TPixel>(frame), cancellationToken);
         }
 
     }

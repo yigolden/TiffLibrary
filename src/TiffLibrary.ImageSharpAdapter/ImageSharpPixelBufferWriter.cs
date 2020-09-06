@@ -14,12 +14,12 @@ namespace TiffLibrary.ImageSharpAdapter
 {
     internal sealed class ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> : ITiffPixelBufferWriter<TTiffPixel> where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
     {
-        private readonly Image<TImageSharpPixel> _image;
+        private readonly ImageFrame<TImageSharpPixel> _image;
 
         private RowSpanHandle? _cachedRowHandle;
         private ColumnSpanHandle? _cachedColHandle;
 
-        public ImageSharpPixelBufferWriter(Image<TImageSharpPixel> image)
+        public ImageSharpPixelBufferWriter(ImageFrame<TImageSharpPixel> image)
         {
             Debug.Assert(Unsafe.SizeOf<TImageSharpPixel>() == Unsafe.SizeOf<TTiffPixel>());
             _image = image;
@@ -95,12 +95,12 @@ namespace TiffLibrary.ImageSharpAdapter
         private class RowSpanHandle : TiffPixelSpanHandle<TTiffPixel>
         {
             private ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel>? _parent;
-            private Image<TImageSharpPixel>? _image;
+            private ImageFrame<TImageSharpPixel>? _image;
             private int _rowIndex;
             private int _start;
             private int _length;
 
-            internal void SetHandle(ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> parent, Image<TImageSharpPixel> image, int rowIndex, int start, int length)
+            internal void SetHandle(ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> parent, ImageFrame<TImageSharpPixel> image, int rowIndex, int start, int length)
             {
                 _parent = parent;
                 _image = image;
@@ -137,13 +137,13 @@ namespace TiffLibrary.ImageSharpAdapter
         private class ColumnSpanHandle : TiffPixelSpanHandle<TTiffPixel>
         {
             private ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel>? _parent;
-            private Image<TImageSharpPixel>? _image;
+            private ImageFrame<TImageSharpPixel>? _image;
             private byte[]? _buffer;
             private int _colIndex;
             private int _start;
             private int _length;
 
-            internal void SetHandle(ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> parent, Image<TImageSharpPixel> image, int colIndex, int start, int length)
+            internal void SetHandle(ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel> parent, ImageFrame<TImageSharpPixel> image, int colIndex, int start, int length)
             {
                 _parent = parent;
                 _image = image;
@@ -188,7 +188,7 @@ namespace TiffLibrary.ImageSharpAdapter
 
             public override void Dispose()
             {
-                Image<TImageSharpPixel>? image = _image;
+                ImageFrame<TImageSharpPixel>? image = _image;
                 if (image is null)
                 {
                     return;

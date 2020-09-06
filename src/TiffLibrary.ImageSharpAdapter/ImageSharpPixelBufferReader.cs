@@ -9,11 +9,11 @@ namespace TiffLibrary.ImageSharpAdapter
 {
     internal sealed class ImageSharpPixelBufferReader<TPixel> : ITiffPixelBufferReader<TPixel> where TPixel : unmanaged, IPixel<TPixel>
     {
-        private readonly Image<TPixel> _image;
+        private readonly ImageFrame<TPixel> _image;
         private readonly TiffPoint _offset;
         private readonly TiffSize _size;
 
-        public ImageSharpPixelBufferReader(Image<TPixel> image)
+        public ImageSharpPixelBufferReader(ImageFrame<TPixel> image)
         {
             if (image is null)
             {
@@ -25,7 +25,7 @@ namespace TiffLibrary.ImageSharpAdapter
             _size = new TiffSize(image.Width, image.Height);
         }
 
-        public ImageSharpPixelBufferReader(Image<TPixel> image, TiffPoint offset, TiffSize size)
+        public ImageSharpPixelBufferReader(ImageFrame<TPixel> image, TiffPoint offset, TiffSize size)
         {
             if (image is null)
             {
@@ -59,7 +59,7 @@ namespace TiffLibrary.ImageSharpAdapter
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
-            Image<TPixel> image = _image;
+            ImageFrame<TPixel> image = _image;
             int offsetX = _offset.X + offset.X;
             int offsetY = _offset.Y + offset.Y;
             int width = Math.Min(_size.Width - offset.X, destination.Width);

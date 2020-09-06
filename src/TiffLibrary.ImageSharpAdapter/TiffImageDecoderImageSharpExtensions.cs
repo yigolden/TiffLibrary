@@ -15,7 +15,7 @@ namespace TiffLibrary
     public static class TiffImageDecoderImageSharpExtensions
     {
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="destinationImage">The destination image to write pixels into.</param>
@@ -23,7 +23,7 @@ namespace TiffLibrary
             => Decode(decoder, default, destinationImage);
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
@@ -42,7 +42,7 @@ namespace TiffLibrary
         }
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
@@ -52,7 +52,7 @@ namespace TiffLibrary
             => Decode(decoder, offset, readSize, default, destinationImage);
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
@@ -72,39 +72,39 @@ namespace TiffLibrary
 
             if (destinationImage is Image<L8> imageOfGray8)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8.Frames.RootFrame));
             }
             else if (destinationImage is Image<L16> imageOfGray16)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16.Frames.RootFrame));
             }
             else if (destinationImage is Image<A8> imageOfAlpha8)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8.Frames.RootFrame));
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24.Frames.RootFrame));
             }
             else if (destinationImage is Image<Rgba32> imageOfRgba32)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32.Frames.RootFrame));
             }
             else if (destinationImage is Image<Rgba64> imageOfRgba64)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64.Frames.RootFrame));
             }
             else if (destinationImage is Image<Bgr24> imageOfBgr24)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24.Frames.RootFrame));
             }
             else if (destinationImage is Image<Bgra32> imageOfBgra32)
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32.Frames.RootFrame));
             }
             else if (destinationImage is Image<Rgb48> imageOfRgb48)
             {
-                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(imageOfRgb48);
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(imageOfRgb48.Frames.RootFrame);
                 decoder.Decode(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer));
             }
             else
@@ -118,14 +118,14 @@ namespace TiffLibrary
 
                 using (var temp = new Image<Rgba32>(readSize.Width, readSize.Height))
                 {
-                    decoder.Decode(offset, readSize, default, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(temp));
+                    decoder.Decode(offset, readSize, default, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(temp.Frames.RootFrame));
                     destinationImage.Mutate(ctx => ctx.ApplyProcessor(new WriteRegionProcessor<Rgba32>(temp), new Rectangle(destinationOffset.X, destinationOffset.Y, readSize.Width, readSize.Height)));
                 }
             }
         }
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="destinationImage">The destination image to write pixels into.</param>
@@ -135,7 +135,7 @@ namespace TiffLibrary
             => DecodeAsync(decoder, default, destinationImage, cancellationToken);
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
@@ -157,7 +157,7 @@ namespace TiffLibrary
         }
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
@@ -169,7 +169,7 @@ namespace TiffLibrary
             => DecodeAsync(decoder, offset, readSize, default, destinationImage, cancellationToken);
 
         /// <summary>
-        /// Decode the image into the specified pixel buffer writer.
+        /// Decode the image into the specified SixLabors.ImageSharp image buffer.
         /// </summary>
         /// <param name="decoder">The decoder instance.</param>
         /// <param name="offset">Number of columns and rows to skip in the source image.</param>
@@ -191,35 +191,40 @@ namespace TiffLibrary
 
             if (destinationImage is Image<L8> imageOfGray8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(imageOfGray8.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<L16> imageOfGray16)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(imageOfGray16.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<A8> imageOfAlpha8)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(imageOfAlpha8.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<Rgb24> imageOfRgb24)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(imageOfRgb24.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<Rgba32> imageOfRgba32)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(imageOfRgba32.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<Rgba64> imageOfRgba64)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(imageOfRgba64.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<Bgr24> imageOfBgr24)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(imageOfBgr24.Frames.RootFrame), cancellationToken);
             }
             else if (destinationImage is Image<Bgra32> imageOfBgra32)
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(imageOfBgra32.Frames.RootFrame), cancellationToken);
+            }
+            else if (destinationImage is Image<Rgb48> imageOfRgb48)
+            {
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(imageOfRgb48.Frames.RootFrame);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer), cancellationToken);
             }
             else
             {
@@ -237,10 +242,224 @@ namespace TiffLibrary
 
                 using (var temp = new Image<Rgba32>(readSize.Width, readSize.Height))
                 {
-                    await decoder.DecodeAsync(offset, readSize, default, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(temp), cancellationToken).ConfigureAwait(false);
+                    await decoder.DecodeAsync(offset, readSize, default, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(temp.Frames.RootFrame), cancellationToken).ConfigureAwait(false);
                     destinationImage.Mutate(ctx => ctx.ApplyProcessor(new WriteRegionProcessor<Rgba32>(temp), new Rectangle(destinationOffset.X, destinationOffset.Y, readSize.Width, readSize.Height)));
                 }
             }
         }
+
+
+        #region Frames
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, ImageFrame<TPixel> destinationFrame) where TPixel : unmanaged, IPixel<TPixel>
+            => Decode(decoder, default, destinationFrame);
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ImageFrame<TPixel> destinationFrame) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (decoder is null)
+            {
+                throw new ArgumentNullException(nameof(decoder));
+            }
+            if (destinationFrame is null)
+            {
+                throw new ArgumentNullException(nameof(destinationFrame));
+            }
+            Decode(decoder, offset, new TiffSize(destinationFrame.Width, destinationFrame.Height), default, destinationFrame);
+        }
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ImageFrame<TPixel> destinationFrame) where TPixel : unmanaged, IPixel<TPixel>
+            => Decode(decoder, offset, readSize, default, destinationFrame);
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
+        /// <param name="destinationOffset">Number of columns and rows to skip in the destination frame.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ImageFrame<TPixel> destinationFrame) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (decoder is null)
+            {
+                throw new ArgumentNullException(nameof(decoder));
+            }
+            if (destinationFrame is null)
+            {
+                throw new ArgumentNullException(nameof(destinationFrame));
+            }
+
+            if (destinationFrame is ImageFrame<L8> frameOfGray8)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(frameOfGray8));
+            }
+            else if (destinationFrame is ImageFrame<L16> frameOfGray16)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(frameOfGray16));
+            }
+            else if (destinationFrame is ImageFrame<A8> frameOfAlpha8)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(frameOfAlpha8));
+            }
+            else if (destinationFrame is ImageFrame<Rgb24> frameOfRgb24)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(frameOfRgb24));
+            }
+            else if (destinationFrame is ImageFrame<Rgba32> frameOfRgba32)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(frameOfRgba32));
+            }
+            else if (destinationFrame is ImageFrame<Rgba64> frameOfRgba64)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(frameOfRgba64));
+            }
+            else if (destinationFrame is ImageFrame<Bgr24> frameOfBgr24)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(frameOfBgr24));
+            }
+            else if (destinationFrame is ImageFrame<Bgra32> frameOfBgra32)
+            {
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(frameOfBgra32));
+            }
+            else if (destinationFrame is ImageFrame<Rgb48> frameOfRgb48)
+            {
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(frameOfRgb48);
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer));
+            }
+            else
+            {
+                var writer = new ImageSharpPixelBufferWriter<TPixel, TPixel>(destinationFrame);
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba32, Rgba32, TPixel>(writer));
+            }
+        }
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
+        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
+        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ImageFrame<TPixel> destinationFrame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+            => DecodeAsync(decoder, default, destinationFrame, cancellationToken);
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
+        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
+        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ImageFrame<TPixel> destinationFrame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (decoder is null)
+            {
+                throw new ArgumentNullException(nameof(decoder));
+            }
+            if (destinationFrame is null)
+            {
+                throw new ArgumentNullException(nameof(destinationFrame));
+            }
+
+            return DecodeAsync(decoder, offset, new TiffSize(destinationFrame.Width, destinationFrame.Height), default, destinationFrame, cancellationToken);
+        }
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
+        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
+        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ImageFrame<TPixel> destinationFrame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+            => DecodeAsync(decoder, offset, readSize, default, destinationFrame, cancellationToken);
+
+        /// <summary>
+        /// Decode the image into the specified SixLabors.ImageSharp frame buffer.
+        /// </summary>
+        /// <param name="decoder">The decoder instance.</param>
+        /// <param name="offset">Number of columns and rows to skip in the source image.</param>
+        /// <param name="readSize">Number of columns and rows to read from the source image.</param>
+        /// <param name="destinationOffset">Number of columns and rows to skip in the destination frame.</param>
+        /// <param name="destinationFrame">The destination frame to write pixels into.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort the decoding pipeline.</param>
+        /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
+        public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ImageFrame<TPixel> destinationFrame, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (decoder is null)
+            {
+                throw new ArgumentNullException(nameof(decoder));
+            }
+            if (destinationFrame is null)
+            {
+                throw new ArgumentNullException(nameof(destinationFrame));
+            }
+
+            if (destinationFrame is ImageFrame<L8> frameOfGray8)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(frameOfGray8), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<L16> frameOfGray16)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(frameOfGray16), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<A8> frameOfAlpha8)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(frameOfAlpha8), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<Rgb24> frameOfRgb24)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(frameOfRgb24), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<Rgba32> frameOfRgba32)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(frameOfRgba32), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<Rgba64> frameOfRgba64)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(frameOfRgba64), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<Bgr24> frameOfBgr24)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(frameOfBgr24), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<Bgra32> frameOfBgra32)
+            {
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(frameOfBgra32), cancellationToken);
+            }
+            else if (destinationFrame is ImageFrame<Rgb48> frameOfRgb48)
+            {
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(frameOfRgb48);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer), cancellationToken);
+            }
+            else
+            {
+                var writer = new ImageSharpPixelBufferWriter<TPixel, TPixel>(destinationFrame);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba32, Rgba32, TPixel>(writer), cancellationToken);
+            }
+        }
+
+        #endregion
     }
 }

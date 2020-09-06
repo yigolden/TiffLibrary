@@ -1,12 +1,15 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using TiffLibrary.ImageEncoder;
 using TiffLibrary.PixelFormats;
+using TiffLibrary;
 
 namespace TiffLibrary.ImageSharpAdapter
 {
@@ -49,7 +52,7 @@ namespace TiffLibrary.ImageSharpAdapter
             {
                 using (TiffImageFileDirectoryWriter ifdWriter = writer.CreateImageFileDirectory())
                 {
-                    await EncodeImageAsync(image, ifdWriter, cancellationToken).ConfigureAwait(false);
+                    await EncodeImageAsync(image.Frames.RootFrame, ifdWriter, cancellationToken).ConfigureAwait(false);
 
                     writer.SetFirstImageFileDirectoryOffset(await ifdWriter.FlushAsync(cancellationToken).ConfigureAwait(false));
                 }
@@ -62,7 +65,7 @@ namespace TiffLibrary.ImageSharpAdapter
             }
         }
 
-        private Task EncodeImageAsync<TPixel>(Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel>
+        private Task EncodeImageAsync<TPixel>(ImageFrame<TPixel> image, TiffImageFileDirectoryWriter ifdWriter, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel>
         {
             ITiffEncoderOptions options = _options;
 
@@ -81,51 +84,9 @@ namespace TiffLibrary.ImageSharpAdapter
             builder.HorizontalChromaSubSampling = options.HorizontalChromaSubSampling;
             builder.VerticalChromaSubSampling = options.VerticalChromaSubSampling;
 
-            // Fast path for TiffLibrary-supported pixel formats
-            if (typeof(TPixel) == typeof(L8))
-            {
-                return BuildAndEncodeAsync<L8, TiffGray8>(builder, Unsafe.As<Image<L8>>(image), ifdWriter, cancellationToken);
-            }
-            if (typeof(TPixel) == typeof(L16))
-            {
-                return BuildAndEncodeAsync<L16, TiffGray16>(builder, Unsafe.As<Image<L16>>(image), ifdWriter, cancellationToken);
-            }
-            if (typeof(TPixel) == typeof(Rgb24))
-            {
-                return BuildAndEncodeAsync<Rgb24, TiffRgb24>(builder, Unsafe.As<Image<Rgb24>>(image), ifdWriter, cancellationToken);
-            }
-            if (typeof(TPixel) == typeof(Rgba32))
-            {
-                return BuildAndEncodeAsync<Rgba32, TiffRgba32>(builder, Unsafe.As<Image<Rgba32>>(image), ifdWriter, cancellationToken);
-            }
-            if (typeof(TPixel) == typeof(Bgr24))
-            {
-                return BuildAndEncodeAsync<Bgr24, TiffBgr24>(builder, Unsafe.As<Image<Bgr24>>(image), ifdWriter, cancellationToken);
-            }
-            if (typeof(TPixel) == typeof(Bgra32))
-            {
-                return BuildAndEncodeAsync<Bgra32, TiffBgra32>(builder, Unsafe.As<Image<Bgra32>>(image), ifdWriter, cancellationToken);
-            }
-            if (typeof(TPixel) == typeof(Rgba64))
-            {
-                return BuildAndEncodeAsync<Rgba64, TiffRgba64>(builder, Unsafe.As<Image<Rgba64>>(image), ifdWriter, cancellationToken);
-            }
-
-            // Slow path
-            return EncodeImageSlowAsync(builder, image, ifdWriter, cancellationToken);
+            TiffImageEncoder<TPixel> encoder = builder.BuildForImageSharp<TPixel>();
+            return encoder.EncodeAsync(ifdWriter, image, cancellationToken);
         }
 
-        private static async Task BuildAndEncodeAsync<TImageSharpPixel, TTiffPixel>(TiffImageEncoderBuilder builder, Image<TImageSharpPixel> image, TiffImageFileDirectoryWriter ifdWriter, CancellationToken cancellationToken) where TImageSharpPixel : unmanaged, IPixel<TImageSharpPixel> where TTiffPixel : unmanaged
-        {
-            TiffImageEncoder<TTiffPixel> encoder = builder.Build<TTiffPixel>();
-            await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBufferReader<TImageSharpPixel, TTiffPixel>(image), cancellationToken: cancellationToken).ConfigureAwait(false);
-        }
-
-        private async Task EncodeImageSlowAsync<TPixel>(TiffImageEncoderBuilder builder, Image<TPixel> image, TiffImageFileDirectoryWriter ifdWriter, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel>
-        {
-            using Image<Rgba32> img = image.CloneAs<Rgba32>(_configuration);
-            TiffImageEncoder<TiffRgba32> encoder = builder.Build<TiffRgba32>();
-            await encoder.EncodeAsync(ifdWriter, new ImageSharpPixelBufferReader<Rgba32, TiffRgba32>(img), cancellationToken: cancellationToken).ConfigureAwait(false);
-        }
     }
 }

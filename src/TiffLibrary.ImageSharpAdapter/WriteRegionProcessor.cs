@@ -23,12 +23,29 @@ namespace TiffLibrary.ImageSharpAdapter
 
     internal class WriteRegionProcessor<TSource, TDest> : IImageProcessor<TDest> where TSource : unmanaged, IPixel<TSource> where TDest : unmanaged, IPixel<TDest>
     {
-        private readonly Image<TSource> _source;
-        private readonly Image<TDest> _destination;
-        private readonly Rectangle _copyRectange;
+        private readonly WriteRegionProcessorCore<TSource, TDest> _core;
 
 
         public WriteRegionProcessor(Image<TSource> source, Image<TDest> destination, Rectangle copyRectange)
+        {
+            _core = new WriteRegionProcessorCore<TSource, TDest>(source.Frames.RootFrame, destination.Frames.RootFrame, copyRectange);
+        }
+
+        public void Execute()
+        {
+            _core.Execute();
+        }
+
+        public void Dispose() { }
+    }
+
+    internal readonly struct WriteRegionProcessorCore<TSource, TDest> where TSource : unmanaged, IPixel<TSource> where TDest : unmanaged, IPixel<TDest>
+    {
+        private readonly ImageFrame<TSource> _source;
+        private readonly ImageFrame<TDest> _destination;
+        private readonly Rectangle _copyRectange;
+
+        public WriteRegionProcessorCore(ImageFrame<TSource> source, ImageFrame<TDest> destination, Rectangle copyRectange)
         {
             _source = source;
             _destination = destination;
@@ -37,8 +54,8 @@ namespace TiffLibrary.ImageSharpAdapter
 
         public void Execute()
         {
-            Image<TSource> source = _source;
-            Image<TDest> destination = _destination;
+            ImageFrame<TSource> source = _source;
+            ImageFrame<TDest> destination = _destination;
             Point sourceOffset = default;
             Point destinationOffset = new Point(_copyRectange.X, _copyRectange.Y);
             Size copySize = new Size(_copyRectange.Width, _copyRectange.Height);
@@ -67,9 +84,9 @@ namespace TiffLibrary.ImageSharpAdapter
                 return;
             }
 
+            int width = copySize.Width;
             for (int row = 0; row < copySize.Height; row++)
             {
-                int width = copySize.Width;
                 ref TSource sourceSpan = ref Unsafe.Add(ref MemoryMarshal.GetReference(source.GetPixelRowSpan(sourceOffset.Y + row)), sourceOffset.X);
                 ref TDest destinationSpan = ref Unsafe.Add(ref MemoryMarshal.GetReference(destination.GetPixelRowSpan(destinationOffset.Y + row)), destinationOffset.X);
 
@@ -79,8 +96,5 @@ namespace TiffLibrary.ImageSharpAdapter
                 }
             }
         }
-
-        public void Dispose() { }
-
     }
 }

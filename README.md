@@ -235,6 +235,7 @@ using (Image<Rgba32> image = Image.Load<Rgba32>(@"C:\Data\test.tif"))
         PhotometricInterpretation = TiffPhotometricInterpretation.RGB,
         EnableTransparencyForRgb = true,
         Compression = TiffCompression.Deflate,
+        DeflateCompressionLevel = TiffDeflateCompressionLevel.Default,
         Predictor = TiffPredictor.HorizontalDifferencing
     });
 }

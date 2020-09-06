@@ -138,11 +138,14 @@ namespace TiffLibrary.Utils
 
         protected override void Dispose(bool disposing)
         {
-            if (!(_cache is null))
+            if (disposing)
             {
-                ArrayPool<byte>.Shared.Return(_cache);
-                _cache = null;
+                if (!(_cache is null))
+                {
+                    ArrayPool<byte>.Shared.Return(_cache);
+                }
             }
+            _cache = null;
             _cacheOffset = 0;
             _cacheCount = 0;
         }

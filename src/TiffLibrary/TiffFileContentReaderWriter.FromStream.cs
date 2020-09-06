@@ -286,7 +286,10 @@ namespace TiffLibrary
         {
             if (!_leaveOpen && !(_stream is null))
             {
-                _stream.Dispose();
+                if (disposing)
+                {
+                    _stream.Dispose();
+                }
                 _stream = null;
             }
         }

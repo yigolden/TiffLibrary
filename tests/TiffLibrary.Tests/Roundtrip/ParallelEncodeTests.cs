@@ -42,7 +42,7 @@ namespace TiffLibrary.Tests.Roundtrip
                 builder.PhotometricInterpretation = TiffPhotometricInterpretation.BlackIsZero;
                 builder.Predictor = TiffPredictor.HorizontalDifferencing;
             }
-            
+
             builder.Compression = TiffCompression.Lzw;
             builder.IsTiled = isTile;
             builder.RowsPerStrip = 64;

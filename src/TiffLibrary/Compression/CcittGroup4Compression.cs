@@ -2,8 +2,8 @@
 using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
-using ReferenceScanline = TiffLibrary.Compression.CcittTwoDimensionalReferenceScanline;
 using CodingScanline = TiffLibrary.Compression.CcittTwoDimensionalCodingScanline;
+using ReferenceScanline = TiffLibrary.Compression.CcittTwoDimensionalReferenceScanline;
 
 namespace TiffLibrary.Compression
 {

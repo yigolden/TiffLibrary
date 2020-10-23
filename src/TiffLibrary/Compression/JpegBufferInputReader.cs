@@ -48,6 +48,11 @@ namespace TiffLibrary.Compression
             int blockWidth = Math.Min(width - x, 8);
             int blockHeight = Math.Min(_height - y, 8);
 
+            if (blockWidth != 8 || blockHeight != 8)
+            {
+                Unsafe.As<short, JpegBlock8x8>(ref blockRef) = default;
+            }
+            
             for (int offsetY = 0; offsetY < blockHeight; offsetY++)
             {
                 int sourceRowOffset = (y + offsetY) * width + x;

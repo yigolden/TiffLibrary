@@ -290,6 +290,7 @@ namespace TiffLibrary.Compression
 
         class TiffJpegEncoder : JpegEncoder
         {
+            public TiffJpegEncoder() { }
             public TiffJpegEncoder(int minimumBufferSegmentSize) : base(minimumBufferSegmentSize) { }
 
             public void WriteTables(IBufferWriter<byte> buffer, bool writeHuffmanTables, bool writeQuantizationTables)

@@ -78,7 +78,7 @@ namespace TiffLibrary.ImageSharpAdapter
             try
             {
                 await decoder.DecodeAsync(image, cancellationToken).ConfigureAwait(false);
-                return Interlocked.Exchange(ref image, null)!;
+                return Interlocked.Exchange<Image<TPixel>?>(ref image, null)!;
             }
             finally
             {

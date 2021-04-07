@@ -369,12 +369,12 @@ namespace TiffLibrary
         /// <param name="values">The element collection.</param>
         /// <param name="array">The underlying array if there is one.</param>
         /// <returns>True if the array is returned; false if there is no array backing the collection.</returns>
-        public static bool UnsafeTryGetArray<T>(TiffValueCollection<T> values, [NotNullWhen(true)] out T[] array)
+        public static bool UnsafeTryGetArray<T>(TiffValueCollection<T> values, [NotNullWhen(true)] out T[]? array)
         {
             T[]? underlying = values._values;
             if (underlying is null || underlying.Length == 0)
             {
-                array = null!;
+                array = null;
                 return false;
             }
             array = underlying;

@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <CopyTiffTestAssets>true</CopyTiffTestAssets>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

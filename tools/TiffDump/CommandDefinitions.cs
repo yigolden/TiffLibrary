@@ -18,15 +18,9 @@ namespace TiffDump
                 Arity = ArgumentArity.ExactlyOne
             }.ExistingOnly());
 
-            command.AddOption(new Option<long>("--offset")
+            command.AddOption(new Option<long?>("--offset", "The offset of the IFD.")
             {
-                Name = "offset",
-                Description = "The offset of the ifd.",
-                Required = false,
-                Argument = new Argument<long>()
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                Arity = ArgumentArity.ZeroOrOne
             });
 
             command.Handler = CommandHandler.Create<FileInfo, long?, CancellationToken>(DumpAction.Dump);

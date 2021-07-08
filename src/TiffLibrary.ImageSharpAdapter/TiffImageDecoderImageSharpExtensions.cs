@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
@@ -307,41 +308,41 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(destinationFrame));
             }
 
-            if (destinationFrame is ImageFrame<L8> frameOfGray8)
+            if (typeof(TPixel) == typeof(L8))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(frameOfGray8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(Unsafe.As<ImageFrame<L8>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<L16> frameOfGray16)
+            else if (typeof(TPixel) == typeof(L16))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(frameOfGray16));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(Unsafe.As<ImageFrame<L16>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<A8> frameOfAlpha8)
+            else if (typeof(TPixel) == typeof(A8))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(frameOfAlpha8));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(Unsafe.As<ImageFrame<A8>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<Rgb24> frameOfRgb24)
+            else if (typeof(TPixel) == typeof(Rgb24))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(frameOfRgb24));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(Unsafe.As<ImageFrame<Rgb24>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<Rgba32> frameOfRgba32)
+            else if (typeof(TPixel) == typeof(Rgba32))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(frameOfRgba32));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(Unsafe.As<ImageFrame<Rgba32>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<Rgba64> frameOfRgba64)
+            else if (typeof(TPixel) == typeof(Rgba64))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(frameOfRgba64));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(Unsafe.As<ImageFrame<Rgba64>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<Bgr24> frameOfBgr24)
+            else if (typeof(TPixel) == typeof(Bgr24))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(frameOfBgr24));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(Unsafe.As<ImageFrame<Bgr24>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<Bgra32> frameOfBgra32)
+            else if (typeof(TPixel) == typeof(Bgra32))
             {
-                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(frameOfBgra32));
+                decoder.Decode(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(Unsafe.As<ImageFrame<Bgra32>>(destinationFrame)));
             }
-            else if (destinationFrame is ImageFrame<Rgb48> frameOfRgb48)
+            else if (typeof(TPixel) == typeof(Rgb48))
             {
-                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(frameOfRgb48);
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(Unsafe.As<ImageFrame<Rgb48>>(destinationFrame));
                 decoder.Decode(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer));
             }
             else
@@ -416,41 +417,41 @@ namespace TiffLibrary
                 throw new ArgumentNullException(nameof(destinationFrame));
             }
 
-            if (destinationFrame is ImageFrame<L8> frameOfGray8)
+            if (typeof(TPixel) == typeof(L8))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(frameOfGray8), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L8, TiffGray8>(Unsafe.As<ImageFrame<L8>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<L16> frameOfGray16)
+            else if (typeof(TPixel) == typeof(L16))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(frameOfGray16), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<L16, TiffGray16>(Unsafe.As<ImageFrame<L16>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<A8> frameOfAlpha8)
+            else if (typeof(TPixel) == typeof(A8))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(frameOfAlpha8), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<A8, TiffMask>(Unsafe.As<ImageFrame<A8>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<Rgb24> frameOfRgb24)
+            else if (typeof(TPixel) == typeof(Rgb24))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(frameOfRgb24), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgb24, TiffRgb24>(Unsafe.As<ImageFrame<Rgb24>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<Rgba32> frameOfRgba32)
+            else if (typeof(TPixel) == typeof(Rgba32))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(frameOfRgba32), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba32, TiffRgba32>(Unsafe.As<ImageFrame<Rgba32>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<Rgba64> frameOfRgba64)
+            else if (typeof(TPixel) == typeof(Rgba64))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(frameOfRgba64), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Rgba64, TiffRgba64>(Unsafe.As<ImageFrame<Rgba64>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<Bgr24> frameOfBgr24)
+            else if (typeof(TPixel) == typeof(Bgr24))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(frameOfBgr24), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgr24, TiffBgr24>(Unsafe.As<ImageFrame<Bgr24>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<Bgra32> frameOfBgra32)
+            else if (typeof(TPixel) == typeof(Bgra32))
             {
-                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(frameOfBgra32), cancellationToken);
+                return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpPixelBufferWriter<Bgra32, TiffBgra32>(Unsafe.As<ImageFrame<Bgra32>>(destinationFrame)), cancellationToken);
             }
-            else if (destinationFrame is ImageFrame<Rgb48> frameOfRgb48)
+            else if (typeof(TPixel) == typeof(Rgb48))
             {
-                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(frameOfRgb48);
+                var writer = new ImageSharpPixelBufferWriter<Rgb48, Rgb48>(Unsafe.As<ImageFrame<Rgb48>>(destinationFrame));
                 return decoder.DecodeAsync(offset, readSize, destinationOffset, new ImageSharpConversionPixelBufferWriter2<TiffRgba64, Rgba64, Rgb48>(writer), cancellationToken);
             }
             else

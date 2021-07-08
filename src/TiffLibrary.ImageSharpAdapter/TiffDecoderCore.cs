@@ -82,7 +82,9 @@ namespace TiffLibrary.ImageSharpAdapter
             }
             finally
             {
+#pragma warning disable CA1508 // Avoid dead conditional code
                 image?.Dispose();
+#pragma warning restore CA1508
             }
         }
     }

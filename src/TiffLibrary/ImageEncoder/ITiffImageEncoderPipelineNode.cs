@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace TiffLibrary.ImageEncoder
 {
@@ -6,6 +7,7 @@ namespace TiffLibrary.ImageEncoder
     /// A node in the encoder pipeline.
     /// </summary>
     /// <typeparam name="TPixel"></typeparam>
+    [CLSCompliant(false)]
     public interface ITiffImageEncoderPipelineNode<TPixel> where TPixel : unmanaged
     {
         /// <summary>

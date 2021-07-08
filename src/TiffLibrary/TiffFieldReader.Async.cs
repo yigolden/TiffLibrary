@@ -200,6 +200,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSByteFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
@@ -211,6 +212,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSByteFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
@@ -223,6 +225,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values are read.</returns>
+        [CLSCompliant(false)]
         public ValueTask ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<sbyte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSByteFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
@@ -454,6 +457,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadShortFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
@@ -465,6 +469,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadShortFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
@@ -477,6 +482,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values are read.</returns>
+        [CLSCompliant(false)]
         public ValueTask ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<ushort> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadShortFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
@@ -892,6 +898,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLongFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
@@ -903,6 +910,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLongFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
@@ -915,6 +923,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values are read.</returns>
+        [CLSCompliant(false)]
         public ValueTask ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<uint> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLongFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
@@ -1473,6 +1482,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLong8FieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
@@ -1484,6 +1494,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLong8FieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
@@ -1496,6 +1507,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values are read.</returns>
+        [CLSCompliant(false)]
         public ValueTask ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<ulong> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLong8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
@@ -2611,6 +2623,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadRationalFieldAsync(GetAsyncReader(), entry, int.MaxValue, skipTypeValidation, cancellationToken);
 
@@ -2622,6 +2635,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask{TiffValueCollection}"/> that completes when the values are read and return the read values.</returns>
+        [CLSCompliant(false)]
         public ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadRationalFieldAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
@@ -2634,6 +2648,7 @@ namespace TiffLibrary
         /// <param name="skipTypeValidation">Set to true to skip validation of the type field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user want to stop the current task.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values are read.</returns>
+        [CLSCompliant(false)]
         public ValueTask ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadRationalFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 

@@ -117,7 +117,9 @@ namespace TiffLibrary
         [DoesNotReturn]
         private static T ThrowIndexOutOfRangeException()
         {
+#pragma warning disable CA2201 // Do not raise reserved exception types
             throw new IndexOutOfRangeException();
+#pragma warning restore CA2201
         }
 
         /// <summary>
@@ -240,7 +242,9 @@ namespace TiffLibrary
     /// <summary>
     /// Helper methods for <see cref="TiffValueCollection{T}"/>.
     /// </summary>
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
     public static class TiffValueCollection
+#pragma warning restore CA1711
     {
         /// <summary>
         /// Creates a list and use <paramref name="array"/> as the underlying storage. However, if <paramref name="array"/> has only 1 elements, the element value is copied and the array reference is discarded.

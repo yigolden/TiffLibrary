@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The precision of the information contained in the GrayResponseCurve.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffGrayResponseUnit : ushort
     {
         /// <summary>

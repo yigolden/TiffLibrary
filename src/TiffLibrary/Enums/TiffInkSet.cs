@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The set of inks used in a separated (PhotometricInterpretation=5) image.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffInkSet : ushort
     {
         /// <summary>

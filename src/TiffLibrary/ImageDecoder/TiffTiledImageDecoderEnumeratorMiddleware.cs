@@ -31,6 +31,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="tileOffsets">The TileOffsets tag.</param>
         /// <param name="tileByteCounts">The TileByteCounts tag.</param>
         /// <param name="planeCount">The plane count.</param>
+        [CLSCompliant(false)]
         public TiffTiledImageDecoderEnumeratorMiddleware(int tileWidth, int tileHeight, TiffValueCollection<ulong> tileOffsets, TiffValueCollection<ulong> tileByteCounts, int planeCount)
         {
             _tileWidth = tileWidth;

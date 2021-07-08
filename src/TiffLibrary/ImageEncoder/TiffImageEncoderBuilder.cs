@@ -19,11 +19,13 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the photometric interpretation to use for the input image.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffPhotometricInterpretation PhotometricInterpretation { get; set; }
 
         /// <summary>
         /// Gets or sets the compression method to use when compressing input image.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffCompression Compression { get; set; }
 
         /// <summary>
@@ -44,6 +46,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the predictor to use on the image.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffPredictor Predictor { get; set; }
 
         /// <summary>
@@ -54,6 +57,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets or sets the orientation in the output TIFF file.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffOrientation Orientation { get; set; }
 
         /// <summary>

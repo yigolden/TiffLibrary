@@ -19,6 +19,7 @@ namespace TiffLibrary.ImageEncoder
         /// </summary>
         /// <param name="compression">The compression method.</param>
         /// <param name="compressionAlgorithm">A instance the handles the actual compression.</param>
+        [CLSCompliant(false)]
         public TiffImageCompressionMiddleware(TiffCompression compression, ITiffCompressionAlgorithm compressionAlgorithm)
         {
             _compression = compression;
@@ -31,6 +32,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">The encoder context.</param>
         /// <param name="next">The next middleware.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been encoded.</returns>
+        [CLSCompliant(false)]
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             if (context is null)

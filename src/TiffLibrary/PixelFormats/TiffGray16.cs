@@ -5,6 +5,7 @@ namespace TiffLibrary.PixelFormats
     /// <summary>
     /// Pixel type containing a single 16 bit intensity value ranging from 0 to 255. The order of bytes is in machine-endian.
     /// </summary>
+    [CLSCompliant(false)]
     public struct TiffGray16 : IEquatable<TiffGray16>
     {
         /// <summary>

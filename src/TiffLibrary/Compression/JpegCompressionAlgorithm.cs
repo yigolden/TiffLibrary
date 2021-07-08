@@ -31,6 +31,7 @@ namespace TiffLibrary.Compression
         /// </summary>
         /// <param name="photometricInterpretation">The expected photometric interpretation.</param>
         /// <param name="quality">The quality factor to use when generating quantization table.</param>
+        [CLSCompliant(false)]
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int quality)
         {
             if ((uint)quality > 100)
@@ -53,6 +54,7 @@ namespace TiffLibrary.Compression
         /// <param name="horizontalSubsampling">The horizontal subsampling factor for YCbCr image.</param>
         /// <param name="verticalSubsampling">The vertical subsampling factor for YCbCr image.</param>
         /// <param name="options">Options to use when encoding with JPEG compression.</param>
+        [CLSCompliant(false)]
         public JpegCompressionAlgorithm(TiffPhotometricInterpretation photometricInterpretation, int horizontalSubsampling, int verticalSubsampling, TiffJpegEncodingOptions? options)
         {
             options = options ?? TiffJpegEncodingOptions.Default;
@@ -225,6 +227,7 @@ namespace TiffLibrary.Compression
         /// </summary>
         /// <typeparam name="TPixel">The pixel type.</typeparam>
         /// <returns>The middleware to write JPEGTables field</returns>
+        [CLSCompliant(false)]
         public ITiffImageEncoderMiddleware<TPixel> GetTableWriter<TPixel>() where TPixel : unmanaged
         {
             if (_encoder is null)

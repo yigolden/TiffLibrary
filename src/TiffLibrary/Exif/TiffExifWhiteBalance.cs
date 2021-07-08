@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the white balance mode set when the image was shot.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifWhiteBalance : ushort
     {
         /// <summary>

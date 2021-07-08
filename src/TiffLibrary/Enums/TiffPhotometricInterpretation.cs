@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The color space of the image data.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffPhotometricInterpretation : ushort
     {
         /// <summary>

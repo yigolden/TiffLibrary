@@ -27,6 +27,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <param name="undoColorPreMultiplying">Whether to undo color pre-multiplying.</param>
         /// <param name="bitsPerSample">The BitsPerSample flags.</param>
         /// <param name="fillOrder">The FillOrder tag.</param>
+        [CLSCompliant(false)]
         public TiffChunkyRgbaAny16161616Interpreter(bool isAlphaAssociated, bool undoColorPreMultiplying, TiffValueCollection<ushort> bitsPerSample, TiffFillOrder fillOrder = TiffFillOrder.HigherOrderBitsFirst)
         {
             _isAlphaAssociated = isAlphaAssociated;

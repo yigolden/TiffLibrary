@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the image sensor type on the camera or input device.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifSensingMethod : ushort
     {
         /// <summary>

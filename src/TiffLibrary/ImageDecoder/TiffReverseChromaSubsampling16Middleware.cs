@@ -20,6 +20,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="horizontalSubsampling">The horizontal subsampling factor.</param>
         /// <param name="verticalSubsampling">The vertical subsampling factor.</param>
         /// <param name="isPlanar">Whether thid IFD is planar configuration.</param>
+        [CLSCompliant(false)]
         public TiffReverseChromaSubsampling16Middleware(ushort horizontalSubsampling, ushort verticalSubsampling, bool isPlanar)
         {
             if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)

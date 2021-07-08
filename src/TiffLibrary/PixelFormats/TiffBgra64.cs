@@ -11,6 +11,7 @@ namespace TiffLibrary.PixelFormats
     /// Each component is stored in machine-endian.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [CLSCompliant(false)]
     public struct TiffBgra64 : IEquatable<TiffBgra64>
     {
         /// <summary>

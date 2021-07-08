@@ -11,6 +11,7 @@ namespace TiffLibrary.ImageEncoder
     /// Information of the current encoding process.
     /// </summary>
     /// <typeparam name="TPixel">The pixel type.</typeparam>
+    [CLSCompliant(false)]
     public class TiffDefaultImageEncoderContext<TPixel> : TiffImageEncoderContext<TPixel> where TPixel : unmanaged
     {
         private Dictionary<Type, object?>? _services;
@@ -39,11 +40,13 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// The photometric interpretation of the current image.
         /// </summary>
+        [CLSCompliant(false)]
         public override TiffPhotometricInterpretation PhotometricInterpretation { get; set; }
 
         /// <summary>
         /// Bits per sample of the current image.
         /// </summary>
+        [CLSCompliant(false)]
         public override TiffValueCollection<ushort> BitsPerSample { get; set; }
 
         /// <summary>

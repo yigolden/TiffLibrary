@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The logical order of bits within a byte.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffFillOrder : ushort
     {
         /// <summary>

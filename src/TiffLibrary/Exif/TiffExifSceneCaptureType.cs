@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the type of scene that was shot.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifSceneCaptureType : ushort
     {
         /// <summary>

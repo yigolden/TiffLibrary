@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the degree of overall image gain adjustment.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifGainControl : ushort
     {
         /// <summary>

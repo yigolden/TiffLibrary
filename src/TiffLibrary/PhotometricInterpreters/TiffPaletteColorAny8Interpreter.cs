@@ -23,6 +23,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <param name="colorMap">The color map.</param>
         /// <param name="bitCount">The bit count.</param>
         /// <param name="fillOrder">The FillOrder tag.</param>
+        [CLSCompliant(false)]
         public TiffPaletteColorAny8Interpreter(ushort[] colorMap, int bitCount, TiffFillOrder fillOrder = TiffFillOrder.HigherOrderBitsFirst)
         {
             if ((uint)bitCount > 32)

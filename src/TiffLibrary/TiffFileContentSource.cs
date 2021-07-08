@@ -141,7 +141,8 @@ namespace TiffLibrary
         /// <inheritdoc />
         public virtual ValueTask DisposeAsync()
         {
-            Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
             return default;
         }
 

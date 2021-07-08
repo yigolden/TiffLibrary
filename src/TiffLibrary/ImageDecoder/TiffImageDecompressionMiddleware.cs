@@ -24,6 +24,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="bitsPerSample">Bits per sample.</param>
         /// <param name="bytesPerScanlines">Byte count per scanline.</param>
         /// <param name="decompressionAlgorithm">The decompression algorithm.</param>
+        [CLSCompliant(false)]
         public TiffImageDecompressionMiddleware(TiffPhotometricInterpretation photometricInterpretation, TiffValueCollection<ushort> bitsPerSample, TiffValueCollection<int> bytesPerScanlines, ITiffDecompressionAlgorithm decompressionAlgorithm)
         {
             if (bytesPerScanlines.IsEmpty)

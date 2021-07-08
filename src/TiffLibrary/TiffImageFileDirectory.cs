@@ -5,12 +5,10 @@ using System.Collections.Generic;
 namespace TiffLibrary
 {
 
-#pragma warning disable CA1710 // CA1710: Identifiers should have correct suffix
     /// <summary>
     /// A image file directory in the TIFF file.
     /// </summary>
     public sealed class TiffImageFileDirectory : IReadOnlyList<TiffImageFileDirectoryEntry>
-#pragma warning restore CA1710 // CA1710: Identifiers should have correct suffix
     {
         private TiffImageFileDirectoryEntry[] _entries;
         internal long _nextOffset;
@@ -62,6 +60,7 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <returns>True is entries of this IFD contains the specified tag; otherwise, false.</returns>
+        [CLSCompliant(false)]
         public bool Contains(TiffTag tag)
         {
             foreach (TiffImageFileDirectoryEntry entry in _entries)
@@ -80,6 +79,7 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="tag">The specified tag.</param>
         /// <returns>The entry of the specified tag. Returns default(TiffImageFileDirectoryEntry) is the entry is not found.</returns>
+        [CLSCompliant(false)]
         public TiffImageFileDirectoryEntry FindEntry(TiffTag tag)
         {
             foreach (TiffImageFileDirectoryEntry entry in _entries)

@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The tiff tag.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffTag : ushort
     {
         /// <summary>

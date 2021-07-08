@@ -30,6 +30,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="stripOffsets">The StripOffsets tag.</param>
         /// <param name="stripsByteCount">The StripsByteCount tag.</param>
         /// <param name="planeCount">The number of planes.</param>
+        [CLSCompliant(false)]
         public TiffStrippedImageDecoderEnumeratorMiddleware(int rowsPerStrip, TiffValueCollection<ulong> stripOffsets, TiffValueCollection<ulong> stripsByteCount, int planeCount)
         {
             _rowsPerStrip = rowsPerStrip;

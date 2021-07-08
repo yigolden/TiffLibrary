@@ -53,11 +53,11 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             int dataCodeCount = litLenCodeCount + distanceCodeCount;
 
             if (litLenCodeCount > LITLEN_MAX)
-                throw new Exception(nameof(litLenCodeCount));
+                throw new InvalidDataException();
             if (distanceCodeCount > DIST_MAX)
-                throw new Exception(nameof(distanceCodeCount));
+                throw new InvalidDataException();
             if (metaCodeCount > META_MAX)
-                throw new Exception(nameof(metaCodeCount));
+                throw new InvalidDataException();
 
             // Load code lengths for the meta tree from the header bits
             for (int i = 0; i < metaCodeCount; i++)

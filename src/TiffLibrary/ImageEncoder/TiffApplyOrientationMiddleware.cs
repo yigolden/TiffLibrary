@@ -16,6 +16,7 @@ namespace TiffLibrary.ImageEncoder
         /// Initialize the middleware with the specified orientation.
         /// </summary>
         /// <param name="orientation">The orientation tag.</param>
+        [CLSCompliant(false)]
         public TiffApplyOrientationMiddleware(TiffOrientation orientation)
         {
             _orientation = orientation;
@@ -27,6 +28,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">The encoder context.</param>
         /// <param name="next">The next middleware.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been encoded.</returns>
+        [CLSCompliant(false)]
         public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             if (context is null)

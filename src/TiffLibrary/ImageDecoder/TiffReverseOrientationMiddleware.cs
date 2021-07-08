@@ -14,6 +14,7 @@ namespace TiffLibrary.ImageDecoder
         /// Initialize the middleware with the specified orientation.
         /// </summary>
         /// <param name="orientation">The orientation tag.</param>
+        [CLSCompliant(false)]
         public TiffReverseOrientationMiddleware(TiffOrientation orientation)
         {
             _orientation = orientation;

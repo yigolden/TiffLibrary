@@ -23,6 +23,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// </summary>
         /// <param name="coefficients">The YCbCrCoefficients tag.</param>
         /// <param name="referenceBlackWhite">The ReferenceBlackWhite tag.</param>
+        [CLSCompliant(false)]
         public TiffPlanarYCbCr888Interpreter(TiffValueCollection<TiffRational> coefficients, TiffValueCollection<TiffRational> referenceBlackWhite)
         {
             if (!coefficients.IsEmpty && coefficients.Count != 3)

@@ -10,6 +10,7 @@ namespace TiffLibrary.PixelFormats
     /// Each component is stored in machine-endian.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [CLSCompliant(false)]
     public struct TiffCmyk64 : IEquatable<TiffCmyk64>
     {
         /// <summary>

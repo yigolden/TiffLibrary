@@ -22,6 +22,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// </summary>
         /// <param name="bitsPerSample">The BitsPerSample flags.</param>
         /// <param name="fillOrder">The FillOrder tag.</param>
+        [CLSCompliant(false)]
         public TiffPlanarRgbAny323232Interpreter(TiffValueCollection<ushort> bitsPerSample, TiffFillOrder fillOrder = TiffFillOrder.HigherOrderBitsFirst)
         {
             if (bitsPerSample.Count != 3)

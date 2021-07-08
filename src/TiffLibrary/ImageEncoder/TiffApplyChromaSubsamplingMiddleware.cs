@@ -34,6 +34,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">The encoder context.</param>
         /// <param name="next">The next middleware.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been encoded.</returns>
+        [CLSCompliant(false)]
         public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             if (context is null)
@@ -151,6 +152,7 @@ namespace TiffLibrary.ImageEncoder
         /// The middleware that can be used to write YCbCrSubSampling field.
         /// </summary>
         /// <returns>The middleware to write YCbCrSubSampling field</returns>
+        [CLSCompliant(false)]
         public ITiffImageEncoderMiddleware<TPixel> GetFieldWriter()
         {
             return new FieldWriter(_horizontalSubsampling, _verticalSubsampling);

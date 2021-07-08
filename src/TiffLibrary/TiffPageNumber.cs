@@ -6,6 +6,7 @@ namespace TiffLibrary
     /// <summary>
     /// Contains page number of a page in the TIFF as well as the total page count.
     /// </summary>
+    [CLSCompliant(false)]
     public readonly struct TiffPageNumber : IEquatable<TiffPageNumber>
     {
         /// <summary>

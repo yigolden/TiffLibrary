@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 
 namespace TiffLibrary.Compression
 {
@@ -15,11 +16,13 @@ namespace TiffLibrary.Compression
         /// <summary>
         /// The photometric interpretation.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffPhotometricInterpretation PhotometricInterpretation { get; set; }
 
         /// <summary>
         /// Bits per sample.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffValueCollection<ushort> BitsPerSample { get; set; }
 
         /// <summary>

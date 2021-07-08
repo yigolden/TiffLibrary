@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// The kind of light source.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifLightSource : ushort
     {
         /// <summary>

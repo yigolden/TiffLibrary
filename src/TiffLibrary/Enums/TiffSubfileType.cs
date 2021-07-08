@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// A general indication of the kind of data contained in this subfile.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffSubfileType : ushort
     {
         /// <summary>

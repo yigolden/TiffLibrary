@@ -20,6 +20,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="bytesPerScanlines">Byte count per scanline.</param>
         /// <param name="bitsPerSample">Bits per sample.</param>
         /// <param name="predictor">The predictor tag.</param>
+        [CLSCompliant(false)]
         public TiffReversePredictorMiddleware(TiffValueCollection<int> bytesPerScanlines, TiffValueCollection<ushort> bitsPerSample, TiffPredictor predictor)
         {
             _bytesPerScanlines = bytesPerScanlines;

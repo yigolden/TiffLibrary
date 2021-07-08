@@ -16,6 +16,7 @@ namespace TiffLibrary
         /// <summary>
         /// The Tag that identifies the field.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffTag Tag { get; }
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace TiffLibrary
         /// <param name="type">The field type of the values.</param>
         /// <param name="valueCount">The number of elements.</param>
         /// <param name="valueOffset">The offset in the TIFF stream.</param>
+        [CLSCompliant(false)]
         public TiffImageFileDirectoryEntry(TiffTag tag, TiffFieldType type, long valueCount, long valueOffset)
         {
             Tag = tag;

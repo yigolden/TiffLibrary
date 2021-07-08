@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// The class of the program used by the camera to set exposure when the picture is taken.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifExposureProgram : ushort
     {
         /// <summary>

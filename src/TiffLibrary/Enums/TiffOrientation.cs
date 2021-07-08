@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The orientation of the image with respect to the rows and columns.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffOrientation : ushort
     {
         /// <summary>

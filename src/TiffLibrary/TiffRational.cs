@@ -7,6 +7,7 @@ namespace TiffLibrary
     /// <summary>
     /// Represents a unsigned rational.
     /// </summary>
+    [CLSCompliant(false)]
     public readonly struct TiffRational : IEquatable<TiffRational>, IEquatable<TiffSRational>
     {
         /// <summary>

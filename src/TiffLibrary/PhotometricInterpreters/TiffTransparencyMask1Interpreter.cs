@@ -18,6 +18,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// Initialize the middleware with the specified fill order.
         /// </summary>
         /// <param name="fillOrder">The FillOrder tag.</param>
+        [CLSCompliant(false)]
         public TiffTransparencyMask1Interpreter(TiffFillOrder fillOrder)
         {
             _shouldReverseBits = fillOrder == TiffFillOrder.LowerOrderBitsFirst;

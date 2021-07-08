@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// How the components of each pixel are stored. Default is 1 (Chunky). See also BitsPerSample, SamplesPerPixel.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffPlanarConfiguration : ushort
     {
         /// <summary>

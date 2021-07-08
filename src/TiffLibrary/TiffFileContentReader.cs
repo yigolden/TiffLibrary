@@ -54,9 +54,7 @@ namespace TiffLibrary
         public virtual ValueTask DisposeAsync()
         {
             Dispose(true);
-#pragma warning disable CA1816 // CA1816: Call GC.SuppressFinalize correctly
             GC.SuppressFinalize(this);
-#pragma warning restore CA1816
             return default;
         }
 

@@ -55,6 +55,7 @@ namespace TiffLibrary
         }
 
         /// <inheritdoc />
+        [CLSCompliant(false)]
         public bool Equals(TiffRational other)
         {
             return Numerator == other.Numerator && Denominator == other.Denominator;
@@ -88,6 +89,7 @@ namespace TiffLibrary
         /// <param name="left">The object on the left side of the operand.</param>
         /// <param name="right">The object on the right side of the operand.</param>
         /// <returns>True if the <paramref name="left"/> parameter is equal to the <paramref name="right"/> parameter; otherwise, false.</returns>
+        [CLSCompliant(false)]
         public static bool operator ==(TiffSRational left, TiffRational right) => left.Equals(right);
 
         /// <summary>
@@ -96,6 +98,7 @@ namespace TiffLibrary
         /// <param name="left">The object on the left side of the operand.</param>
         /// <param name="right">The object on the right side of the operand.</param>
         /// <returns>True if the <paramref name="left"/> parameter is not equal to the <paramref name="right"/> parameter; otherwise, false.</returns>
+        [CLSCompliant(false)]
         public static bool operator !=(TiffSRational left, TiffRational right) => !left.Equals(right);
 
         /// <inheritdoc />

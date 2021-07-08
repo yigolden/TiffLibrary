@@ -18,6 +18,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// Initialize the middleware with the specified color map.
         /// </summary>
         /// <param name="colorMap">The color map.</param>
+        [CLSCompliant(false)]
         public TiffPaletteColor8Interpreter(ushort[] colorMap)
         {
             _colorMap = colorMap ?? throw new ArgumentNullException(nameof(colorMap));

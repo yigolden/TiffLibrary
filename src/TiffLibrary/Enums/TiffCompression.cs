@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// Compression type.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffCompression : ushort
     {
         /// <summary>

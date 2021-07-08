@@ -92,6 +92,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -131,6 +132,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
             => WriteTagAsync(tag, TiffFieldType.Byte, values, cancellationToken);
 
@@ -142,6 +144,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -189,6 +192,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<string> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -269,6 +273,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ushort> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -324,6 +329,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<short> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -379,6 +385,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<uint> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -434,6 +441,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<int> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -482,6 +490,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ulong> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -529,6 +538,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<long> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -576,6 +586,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<float> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -623,6 +634,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<double> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -670,6 +682,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffRational> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -717,6 +730,7 @@ namespace TiffLibrary
         /// <param name="values">The values to write.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
+        [CLSCompliant(false)]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffSRational> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();

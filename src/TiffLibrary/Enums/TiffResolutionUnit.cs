@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// The unit of measurement for XResolution and YResolution.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffResolutionUnit : ushort
     {
         /// <summary>

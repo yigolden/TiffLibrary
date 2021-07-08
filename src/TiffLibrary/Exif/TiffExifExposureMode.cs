@@ -1,9 +1,12 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the exposure mode set when the image was shot.
     /// In auto-bracketing mode, the camera shoots a series of frames of the same scene at different exposure settings.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifExposureMode : ushort
     {
         /// <summary>

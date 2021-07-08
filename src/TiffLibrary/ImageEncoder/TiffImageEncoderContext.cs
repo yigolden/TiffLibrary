@@ -8,6 +8,7 @@ namespace TiffLibrary.ImageEncoder
     /// Information of the current encoding process.
     /// </summary>
     /// <typeparam name="TPixel">The pixel type.</typeparam>
+    [CLSCompliant(false)]
     public abstract class TiffImageEncoderContext<TPixel> where TPixel : unmanaged
     {
         /// <summary>

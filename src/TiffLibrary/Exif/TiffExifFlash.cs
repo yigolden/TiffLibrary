@@ -10,12 +10,14 @@ namespace TiffLibrary.Exif
         /// <summary>
         /// The value of the Flash tag.
         /// </summary>
+        [CLSCompliant(false)]
         public ushort Value { get; }
 
         /// <summary>
         /// Initialize with the specified Flash tag value.
         /// </summary>
         /// <param name="value">The Flash tag value.</param>
+        [CLSCompliant(false)]
         public TiffExifFlash(ushort value)
         {
             Value = value;
@@ -58,12 +60,14 @@ namespace TiffLibrary.Exif
         /// Gets the underlying value。
         /// </summary>
         /// <param name="flash"></param>
+        [CLSCompliant(false)]
         public static implicit operator ushort(TiffExifFlash flash) => flash.Value;
 
         /// <summary>
         /// Gets the underlying value。
         /// </summary>
         /// <returns>The value of the Flash tag.</returns>
+        [CLSCompliant(false)]
         public ushort ToUInt16() => Value;
 
         /// <inheritdoc />

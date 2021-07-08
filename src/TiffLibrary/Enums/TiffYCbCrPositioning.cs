@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// Positioning of chrominance component samples relative to the luminance samples
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffYCbCrPositioning : ushort
     {
         /// <summary>

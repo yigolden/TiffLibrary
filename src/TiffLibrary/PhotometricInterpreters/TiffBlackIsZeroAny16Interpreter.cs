@@ -22,6 +22,7 @@ namespace TiffLibrary.PhotometricInterpreters
         /// </summary>
         /// <param name="bitCount">The bit count.</param>
         /// <param name="fillOrder">The FillOrder tag.</param>
+        [CLSCompliant(false)]
         public TiffBlackIsZeroAny16Interpreter(int bitCount, TiffFillOrder fillOrder = TiffFillOrder.HigherOrderBitsFirst)
         {
             if ((uint)bitCount > 16)

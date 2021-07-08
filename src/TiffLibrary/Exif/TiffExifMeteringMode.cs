@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// The metering mode.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifMeteringMode : ushort
     {
         /// <summary>

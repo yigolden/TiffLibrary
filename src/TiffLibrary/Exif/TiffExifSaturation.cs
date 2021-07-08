@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the direction of saturation processing applied by the camera when the image was shot.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifSaturation : ushort
     {
         /// <summary>

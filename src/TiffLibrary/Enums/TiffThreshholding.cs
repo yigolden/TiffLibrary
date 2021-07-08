@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary
+﻿using System;
+
+namespace TiffLibrary
 {
     /// <summary>
     /// For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffThreshholding : ushort
     {
 

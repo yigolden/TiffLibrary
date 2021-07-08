@@ -6,9 +6,8 @@ namespace TiffLibrary
     /// A general indication of the kind of data contained in this subfile.
     /// </summary>
     [Flags]
-#pragma warning disable CA1714 // CA1714: Flags enums should have plural names
+    [CLSCompliant(false)]
     public enum TiffNewSubfileType : uint
-#pragma warning restore CA1714 // CA1714: Flags enums should have plural names
     {
         /// <summary>
         /// None.

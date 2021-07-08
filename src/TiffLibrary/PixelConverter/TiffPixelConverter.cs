@@ -27,14 +27,14 @@ namespace TiffLibrary.PixelConverter
         /// Wraps <paramref name="writer"/> as the underlying storage.
         /// </summary>
         /// <param name="writer">The wrapped writer.</param>
-        public TiffPixelConverter(ITiffPixelBufferWriter<TDestination> writer) : this(writer, allowInPlaceConvert: Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TDestination>()) { }
+        protected TiffPixelConverter(ITiffPixelBufferWriter<TDestination> writer) : this(writer, allowInPlaceConvert: Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TDestination>()) { }
 
         /// <summary>
         /// Wraps <paramref name="writer"/> as the underlying storage.
         /// </summary>
         /// <param name="writer">The wrapped writer.</param>
         /// <param name="allowInPlaceConvert">If the size of two pixel formats are the same, set this flag to allow conversion to happen on the same buffer without allocating temporary buffer.</param>
-        public TiffPixelConverter(ITiffPixelBufferWriter<TDestination> writer, bool allowInPlaceConvert)
+        protected TiffPixelConverter(ITiffPixelBufferWriter<TDestination> writer, bool allowInPlaceConvert)
         {
             _writer = writer ?? throw new ArgumentNullException(nameof(writer));
             _canInPlaceConvert = allowInPlaceConvert && Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TDestination>();

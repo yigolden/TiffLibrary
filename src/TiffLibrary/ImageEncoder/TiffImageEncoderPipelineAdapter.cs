@@ -22,6 +22,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="memoryPool">The memory pool to use when allocating large chunk of memory.</param>
         /// <param name="imageEncoder">The pipeline to use for encoding a single image.</param>
         /// <param name="ifdEncoder">The pipeline to use for encoding an IFD.</param>
+        [CLSCompliant(false)]
         public TiffImageEncoderPipelineAdapter(MemoryPool<byte>? memoryPool, ITiffImageEncoderPipelineNode<TPixel> imageEncoder, ITiffImageEncoderPipelineNode<TPixel> ifdEncoder)
         {
             _memoryPool = memoryPool;

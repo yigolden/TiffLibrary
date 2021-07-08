@@ -3,7 +3,6 @@
   <PropertyGroup Label="Package Versions">
     <JpegLibraryPackageVersion>0.3.30</JpegLibraryPackageVersion>
 
-    <MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>3.3.0</MicrosoftCodeAnalysisFxCopAnalyzersPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
     <NerdbankGitVersioningPackageVersion>3.4.220</NerdbankGitVersioningPackageVersion>

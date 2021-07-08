@@ -29,6 +29,7 @@ namespace TiffLibrary.Compression
         /// </summary>
         /// <param name="fillOrder">The FillOrder tag specified in the image file directory.</param>
         /// <returns>A cached instance of <see cref="CcittGroup3TwoDimensionalCompressionAlgorithm"/>.</returns>
+        [CLSCompliant(false)]
         public static CcittGroup3TwoDimensionalCompressionAlgorithm GetSharedInstance(TiffFillOrder fillOrder)
         {
             if (fillOrder != TiffFillOrder.LowerOrderBitsFirst)

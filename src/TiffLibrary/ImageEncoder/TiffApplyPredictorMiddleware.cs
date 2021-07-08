@@ -18,6 +18,7 @@ namespace TiffLibrary.ImageEncoder
         /// Initialize the middleware with the specified predictor.
         /// </summary>
         /// <param name="predictor"></param>
+        [CLSCompliant(false)]
         public TiffApplyPredictorMiddleware(TiffPredictor predictor)
         {
             _predictor = predictor;
@@ -29,6 +30,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="context">The encoder context.</param>
         /// <param name="next">The next middleware.</param>
         /// <returns>A <see cref="Task"/> that completes when the image has been encoded.</returns>
+        [CLSCompliant(false)]
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
             if (context is null)

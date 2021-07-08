@@ -61,7 +61,9 @@ namespace TiffLibrary
         [DoesNotReturn]
         private static T ThrowIndexOutOfRangeException()
         {
+#pragma warning disable CA2201 // Do not raise reserved exception types
             throw new IndexOutOfRangeException();
+#pragma warning restore CA2201
         }
 
         public readonly bool IsEmpty => _values is null;

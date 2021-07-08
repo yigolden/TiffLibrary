@@ -7,6 +7,7 @@ namespace TiffLibrary.ImageEncoder
     /// A builder that builds the encoder pipeline by connecting all the middlewares added to this builder.
     /// </summary>
     /// <typeparam name="TPixel">The pixel type.</typeparam>
+    [CLSCompliant(false)]
     public sealed class TiffImageEncoderPipelineBuilder<TPixel> where TPixel : unmanaged
     {
         private List<ITiffImageEncoderMiddleware<TPixel>> _middlewares;

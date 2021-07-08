@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using TiffLibrary.PixelConverter;
 
 namespace TiffLibrary.ImageDecoder
@@ -41,6 +42,7 @@ namespace TiffLibrary.ImageDecoder
         /// <summary>
         /// The orientation defined in the Orientation tag.
         /// </summary>
+        [CLSCompliant(false)]
         public TiffOrientation Orientation { get; set; }
     }
 }

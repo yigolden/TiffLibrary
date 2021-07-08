@@ -208,29 +208,26 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
             public override void Dispose()
             {
-                if (_parent is null)
+                TiffMemoryPixelBufferWriter<TPixel>? parent = _parent;
+                if (parent is null)
                 {
                     return;
                 }
 
                 // Copy pixels into this column
                 int colIndex = _colIndex;
-                int width = _parent.Width;
+                int width = parent.Width;
                 Span<TPixel> sourceSpan = MemoryMarshal.Cast<byte, TPixel>(_buffer.Span.Slice(0, _length * Unsafe.SizeOf<TPixel>()));
-                Span<TPixel> destinationSpan = _parent.GetSpan().Slice(_start * width);
+                Span<TPixel> destinationSpan = parent.GetSpan().Slice(_start * width);
                 for (int i = 0; i < sourceSpan.Length; i++)
                 {
                     destinationSpan[colIndex + i * width] = sourceSpan[i];
                 }
 
-                if (_parent != null)
+                _parent = null;
+                if (Interlocked.CompareExchange(ref parent._cachedColHandle, this, null) != null)
                 {
-                    TiffMemoryPixelBufferWriter<TPixel> parent = _parent;
-                    _parent = null;
-                    if (Interlocked.CompareExchange(ref parent._cachedColHandle, this, null) != null)
-                    {
-                        ReleaseBuffer();
-                    }
+                    ReleaseBuffer();
                 }
             }
 

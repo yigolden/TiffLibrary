@@ -1,8 +1,11 @@
-﻿namespace TiffLibrary.Exif
+﻿using System;
+
+namespace TiffLibrary.Exif
 {
     /// <summary>
     /// Indicates the distance to the subject.
     /// </summary>
+    [CLSCompliant(false)]
     public enum TiffExifSubjectDistanceRange : ushort
     {
         /// <summary>

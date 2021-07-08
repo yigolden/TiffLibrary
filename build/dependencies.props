@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
+  <PropertyGroup Label="Validation Versions">
+    <PreviouslyPublishedPackageVersion>0.5.260</PreviouslyPublishedPackageVersion>
+  </PropertyGroup>
   <PropertyGroup Label="Package Versions">
     <JpegLibraryPackageVersion>0.3.30</JpegLibraryPackageVersion>
 
+    <MicrosoftDotNetPackageValidationPackageVersion>1.0.0-preview.5.21302.8</MicrosoftDotNetPackageValidationPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
     <NerdbankGitVersioningPackageVersion>3.4.220</NerdbankGitVersioningPackageVersion>

@@ -129,7 +129,8 @@ namespace TiffLibrary
                 }
 
                 // An IFD can be at any location in the file after the header but must begin on a word boundary.
-                if (imageFileDirectoryOffset32 < 8 || (imageFileDirectoryOffset32 & 0b1) == 1)
+                // But some writers don't conform to this, so we don't do the check here. 
+                if (imageFileDirectoryOffset32 < 8)
                 {
                     header = default;
                     return false;
@@ -173,7 +174,8 @@ namespace TiffLibrary
                 }
 
                 // An IFD can be at any location in the file after the header but must begin on a word boundary.
-                if (imageFileDirectoryOffset64 < 16 || (imageFileDirectoryOffset64 & 0b1) == 1)
+                // But some writers don't conform to this, so we don't do the check here. 
+                if (imageFileDirectoryOffset64 < 16)
                 {
                     header = default;
                     return false;

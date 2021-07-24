@@ -19,8 +19,9 @@ namespace TiffLibrary.Tests.ImageDecode
         public void Test(string fileName)
         {
             using var tiff = TiffFileReader.Open(fileName);
-
-            TiffImageFileDirectory ifd = tiff.ReadImageFileDirectory();
+            TiffStreamOffset ifdOffset = tiff.FirstImageFileDirectoryOffset;
+            Assert.Equal(1, ifdOffset.ToInt64() & 1);
+            TiffImageFileDirectory ifd = tiff.ReadImageFileDirectory(ifdOffset);
             TiffImageDecoder decoder = tiff.CreateImageDecoder(ifd);
 
             Assert.Equal(16, decoder.Width);
@@ -31,8 +32,10 @@ namespace TiffLibrary.Tests.ImageDecode
             decoder.Decode(testImage);
             AssertEqual(refImage, testImage);
 
-            Assert.False(ifd.NextOffset.IsZero);
-            ifd = tiff.ReadImageFileDirectory(ifd.NextOffset);
+            ifdOffset = ifd.NextOffset;
+            Assert.Equal(1, ifdOffset.ToInt64() & 1);
+            Assert.False(ifdOffset.IsZero);
+            ifd = tiff.ReadImageFileDirectory(ifdOffset);
             decoder = tiff.CreateImageDecoder(ifd);
 
             Assert.Equal(16, decoder.Width);
@@ -51,7 +54,8 @@ namespace TiffLibrary.Tests.ImageDecode
         public async Task TestAsync(string fileName)
         {
             await using TiffFileReader tiff = await TiffFileReader.OpenAsync(fileName);
-
+            TiffStreamOffset ifdOffset = tiff.FirstImageFileDirectoryOffset;
+            Assert.Equal(1, ifdOffset.ToInt64() & 1);
             TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync();
             TiffImageDecoder decoder = await tiff.CreateImageDecoderAsync(ifd);
 
@@ -63,8 +67,10 @@ namespace TiffLibrary.Tests.ImageDecode
             await decoder.DecodeAsync(testImage);
             AssertEqual(refImage, testImage);
 
-            Assert.False(ifd.NextOffset.IsZero);
-            ifd = await tiff.ReadImageFileDirectoryAsync(ifd.NextOffset);
+            ifdOffset = ifd.NextOffset;
+            Assert.Equal(1, ifdOffset.ToInt64() & 1);
+            Assert.False(ifdOffset.IsZero);
+            ifd = await tiff.ReadImageFileDirectoryAsync(ifdOffset);
             decoder = await tiff.CreateImageDecoderAsync(ifd);
 
             Assert.Equal(16, decoder.Width);

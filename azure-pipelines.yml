@@ -4,11 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+- main
 - release/*
-
-pr:
-- master
 
 pool:
   vmImage: 'Ubuntu-18.04'

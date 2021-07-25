@@ -121,7 +121,7 @@ namespace TiffLibrary.ImageSharpAdapter
             try
             {
                 await decoder.DecodeAsync(new ImageSharpPixelBufferWriter<TImageSharpPixel, TTiffPixel>(image), cancellationToken).ConfigureAwait(false);
-                return Interlocked.Exchange(ref image, null)!;
+                return Interlocked.Exchange<Image<TImageSharpPixel>?>(ref image, null)!;
             }
             finally
             {
@@ -139,7 +139,7 @@ namespace TiffLibrary.ImageSharpAdapter
             {
                 var writer = new ImageSharpPixelBufferWriter<TImageSharpPixel, TImageSharpPixel>(image);
                 await decoder.DecodeAsync(new ImageSharpConversionPixelBufferWriter2<TiffRgba32, Rgba32, TImageSharpPixel>(writer), cancellationToken).ConfigureAwait(false);
-                return Interlocked.Exchange(ref image, null)!;
+                return Interlocked.Exchange<Image<TImageSharpPixel>?>(ref image, null)!;
             }
             finally
             {

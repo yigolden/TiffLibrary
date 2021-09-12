@@ -76,7 +76,7 @@ namespace TiffLibrary.ImageEncoder
 
             int blockCols = (width + _horizontalSubsampling - 1) / _horizontalSubsampling;
             int blockRows = (height + _verticalSubsampling - 1) / _verticalSubsampling;
-            int subsampledDataLength = width * height + blockCols * blockRows * 2;
+            int subsampledDataLength = (_horizontalSubsampling * _verticalSubsampling + 2) * (blockCols * blockRows);
 
             using IMemoryOwner<byte> subsampledDataHandle = (context.MemoryPool ?? MemoryPool<byte>.Shared).Rent(subsampledDataLength);
             Memory<byte> subsampledData = subsampledDataHandle.Memory.Slice(0, subsampledDataLength);
@@ -97,7 +97,7 @@ namespace TiffLibrary.ImageEncoder
             int blockByteCount = horizontalSubsampling * verticalSubsampling + 2;
 
             Debug.Assert(source.Length >= width * height * 3);
-            Debug.Assert(destination.Length == width * height + blockCols * blockRows * 2);
+            Debug.Assert(destination.Length == blockByteCount * blockCols * blockRows);
 
             ref byte sourceRef = ref MemoryMarshal.GetReference(source);
             ref byte destinationRef = ref MemoryMarshal.GetReference(destination);
@@ -106,6 +106,7 @@ namespace TiffLibrary.ImageEncoder
             {
                 for (int blockCol = 0; blockCol < blockCols; blockCol++)
                 {
+                    byte lastY = 0;
                     int cb = 0;
                     int cr = 0;
                     int pixelCount = 0;
@@ -121,20 +122,21 @@ namespace TiffLibrary.ImageEncoder
                         {
                             int actualCol = blockCol * horizontalSubsampling + col;
 
-                            ref byte pixelRef = ref Unsafe.Add(ref sourceRef, 3 * (actualRow * width + actualCol));
-
                             // Make sure we are in the bound of the image
                             if (actualRow < height && actualCol < width)
                             {
+                                ref byte pixelRef = ref Unsafe.Add(ref sourceRef, 3 * (actualRow * width + actualCol));
+
                                 // Copy luminance component
-                                Unsafe.Add(ref destBlockRef, index++) = pixelRef;
+                                lastY = pixelRef;
+                                Unsafe.Add(ref destBlockRef, index++) = lastY;
                                 cb += Unsafe.Add(ref pixelRef, 1);
                                 cr += Unsafe.Add(ref pixelRef, 2);
                                 pixelCount++;
                             }
                             else
                             {
-                                Unsafe.Add(ref destBlockRef, index++) = 0;
+                                Unsafe.Add(ref destBlockRef, index++) = lastY;
                             }
                         }
                     }

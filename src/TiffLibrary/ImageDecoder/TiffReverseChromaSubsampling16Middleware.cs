@@ -95,8 +95,8 @@ namespace TiffLibrary.ImageDecoder
             int horizontalSubsampling = _horizontalSubsampling;
             int verticalSubsampling = _verticalSubsampling;
 
-            int blockWidth = width / horizontalSubsampling;
-            int blockHeight = height / verticalSubsampling;
+            int blockWidth = (width + horizontalSubsampling - 1) / horizontalSubsampling;
+            int blockHeight = (height + verticalSubsampling - 1) / verticalSubsampling;
             int cbCrOffsetInBlock = horizontalSubsampling * verticalSubsampling;
             int blockByteCount = cbCrOffsetInBlock + 2;
 
@@ -113,10 +113,15 @@ namespace TiffLibrary.ImageDecoder
                     {
                         for (int col = horizontalSubsampling - 1; col >= 0; col--)
                         {
-                            int offset = 3 * ((blockRow * verticalSubsampling + row) * width + blockCol * horizontalSubsampling + col);
-                            destination[offset + 2] = cr;
-                            destination[offset + 1] = cb;
-                            destination[offset] = blockData[row * horizontalSubsampling + col];
+                            int imageRow = blockRow * verticalSubsampling + row;
+                            int imageCol = blockCol * horizontalSubsampling + col;
+                            if (imageRow < height && imageCol < width)
+                            {
+                                int offset = 3 * (imageRow * width + imageCol);
+                                destination[offset + 2] = cr;
+                                destination[offset + 1] = cb;
+                                destination[offset] = blockData[row * horizontalSubsampling + col];
+                            }
                         }
                     }
                 }

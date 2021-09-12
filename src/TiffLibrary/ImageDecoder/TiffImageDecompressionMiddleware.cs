@@ -90,51 +90,94 @@ namespace TiffLibrary.ImageDecoder
                 return;
             }
 
-            // allocate the raw data buffer and the uncompressed data buffer
-            MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
-            using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength);
-            int planarUncompressedByteCount = 0;
             TiffFileContentReader? reader = context.ContentReader;
             if (reader is null)
             {
                 throw new InvalidOperationException("Failed to acquire ContentReader.");
             }
 
-            using (IMemoryOwner<byte> rawBuffer = memoryPool.Rent(readCount))
+            // allocate the raw data buffer and the uncompressed data buffer
+            MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
+            IMemoryOwner<byte>? bufferMemory = null;
+            try
             {
-                TiffDecompressionContext decompressionContext = new TiffDecompressionContext();
+                bufferMemory = memoryPool.Rent(uncompressedDataLength);
+                int planarUncompressedByteCount = 0;
 
-                // decompress each plane
-                for (int i = 0; i < planeCount; i++)
+                using (IMemoryOwner<byte> rawBuffer = memoryPool.Rent(readCount))
                 {
-                    TiffStreamRegion region = context.PlanarRegions[i];
+                    TiffDecompressionContext decompressionContext = new TiffDecompressionContext();
 
-                    // Read from stream
-                    readCount = await reader.ReadAsync(region.Offset, rawBuffer.Memory.Slice(0, region.Length), context.CancellationToken).ConfigureAwait(false);
-                    if (readCount != region.Length)
+                    // decompress each plane
+                    Memory<byte> memory = bufferMemory.Memory;
+                    for (int i = 0; i < planeCount; i++)
                     {
-                        throw new InvalidDataException();
+                        TiffStreamRegion region = context.PlanarRegions[i];
+
+                        // Read from stream
+                        readCount = await reader.ReadAsync(region.Offset, rawBuffer.Memory.Slice(0, region.Length), context.CancellationToken).ConfigureAwait(false);
+                        if (readCount != region.Length)
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        // Make sure our buffer is large enough
+                        int bytesPerScanline = _bytesPerScanlines[i];
+                        int expectedSize = bytesPerScanline * imageHeight;
+                        if ((planarUncompressedByteCount + expectedSize) > memory.Length)
+                        {
+                            IMemoryOwner<byte> replaceMemoryOwner = memoryPool.Rent(planarUncompressedByteCount + (planeCount - i) * expectedSize);
+                            memory.Slice(0, planarUncompressedByteCount).CopyTo(replaceMemoryOwner.Memory);
+                            bufferMemory.Dispose();
+                            bufferMemory = replaceMemoryOwner;
+                            memory = replaceMemoryOwner.Memory;
+                        }
+
+                        // Decompress this plane
+                        decompressionContext.MemoryPool = memoryPool;
+                        decompressionContext.PhotometricInterpretation = _photometricInterpretation;
+                        decompressionContext.BitsPerSample = _bitsPerSample;
+                        decompressionContext.ImageSize = context.SourceImageSize;
+                        decompressionContext.BytesPerScanline = bytesPerScanline;
+                        decompressionContext.SkippedScanlines = context.SourceReadOffset.Y;
+                        decompressionContext.RequestedScanlines = context.ReadSize.Height;
+                        _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), memory.Slice(planarUncompressedByteCount, bytesPerScanline * imageHeight));
+                        if (decompressionContext.ReplacedBuffer != null)
+                        {
+                            if ((planarUncompressedByteCount + decompressionContext.ReplacedBufferSize) > memory.Length)
+                            {
+                                IMemoryOwner<byte> replaceMemoryOwner = memoryPool.Rent(planarUncompressedByteCount + decompressionContext.ReplacedBufferSize + (planeCount - i - 1) * expectedSize);
+                                memory.Slice(0, planarUncompressedByteCount).CopyTo(replaceMemoryOwner.Memory);
+                                bufferMemory.Dispose();
+                                memory = replaceMemoryOwner.Memory;
+                                bufferMemory = replaceMemoryOwner;
+                                decompressionContext.ReplacedBuffer.Memory.Slice(0, decompressionContext.ReplacedBufferSize).CopyTo(memory.Slice(planarUncompressedByteCount));
+                                decompressionContext.ReplacedBuffer.Dispose();
+                                planarUncompressedByteCount += decompressionContext.ReplacedBufferSize;
+                            }
+                            else
+                            {
+                                decompressionContext.ReplacedBuffer.Memory.Slice(0, decompressionContext.ReplacedBufferSize).CopyTo(memory);
+                                planarUncompressedByteCount += decompressionContext.ReplacedBufferSize;
+                                decompressionContext.ReplacedBuffer.Dispose();
+                            }
+                        }
+                        else
+                        {
+                            planarUncompressedByteCount += bytesPerScanline * imageHeight;
+                        }
                     }
-
-                    // Decompress this plane
-                    int bytesPerScanline = _bytesPerScanlines[i];
-                    decompressionContext.MemoryPool = memoryPool;
-                    decompressionContext.PhotometricInterpretation = _photometricInterpretation;
-                    decompressionContext.BitsPerSample = _bitsPerSample;
-                    decompressionContext.ImageSize = context.SourceImageSize;
-                    decompressionContext.BytesPerScanline = bytesPerScanline;
-                    decompressionContext.SkippedScanlines = context.SourceReadOffset.Y;
-                    decompressionContext.RequestedScanlines = context.ReadSize.Height;
-                    _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(planarUncompressedByteCount, bytesPerScanline * imageHeight));
-                    planarUncompressedByteCount += bytesPerScanline * imageHeight;
                 }
+
+                // Pass down the data
+                context.UncompressedData = bufferMemory.Memory.Slice(0, planarUncompressedByteCount);
+                await next.RunAsync(context).ConfigureAwait(false);
+                context.UncompressedData = default;
             }
-
-            // Pass down the data
-            context.UncompressedData = bufferMemory.Memory.Slice(0, uncompressedDataLength);
-            await next.RunAsync(context).ConfigureAwait(false);
-            context.UncompressedData = default;
-
+            finally
+            {
+                bufferMemory?.Dispose();
+            }
         }
     }
 }

@@ -8,9 +8,6 @@ namespace TiffLibrary.Compression
     /// </summary>
     public class TiffDecompressionContext
     {
-        internal IMemoryOwner<byte>? ReplacedBuffer { get; set; }
-        internal int ReplacedBufferSize { get; set; }
-
         /// <summary>
         /// The memory pool to use when allocating large chunk of memory.
         /// </summary>
@@ -47,17 +44,5 @@ namespace TiffLibrary.Compression
         /// The number of scanlines that are actually required to be decompressed.
         /// </summary>
         public int RequestedScanlines { get; set; }
-
-        internal Memory<byte> ReplaceBuffer(int size)
-        {
-            if (ReplacedBuffer != null)
-            {
-                throw new InvalidOperationException();
-            }
-            MemoryPool<byte> memoryPool = MemoryPool ?? MemoryPool<byte>.Shared;
-            ReplacedBuffer = memoryPool.Rent(size);
-            ReplacedBufferSize = size;
-            return ReplacedBuffer.Memory.Slice(0, size);
-        }
     }
 }

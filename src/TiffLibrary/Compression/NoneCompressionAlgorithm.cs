@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
 
 namespace TiffLibrary.Compression
 {
@@ -34,27 +33,7 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
-            if (input.Length <= output.Length)
-            {
-                input.CopyTo(output);
-            }
-            else
-            {
-                DecompressSlow(context, input, output.Length);
-            }
-        }
-
-        private void DecompressSlow(TiffDecompressionContext context, ReadOnlyMemory<byte> input, int outputLength)
-        {
-            const int GrowthLimit = 1024;
-
-            Memory<byte> replacedBuffer;
-            if ((input.Length - outputLength) > GrowthLimit)
-            {
-                throw new InvalidDataException("The input buffer contains too many data.");
-            }
-            replacedBuffer = context.ReplaceBuffer(input.Length);
-            input.CopyTo(replacedBuffer);
+            input.CopyTo(output);
         }
     }
 }

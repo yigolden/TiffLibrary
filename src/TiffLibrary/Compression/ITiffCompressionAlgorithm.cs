@@ -14,7 +14,8 @@ namespace TiffLibrary.Compression
         /// <param name="context">Information about the TIFF file.</param>
         /// <param name="input">The input data.</param>
         /// <param name="output">The output data.</param>
-        void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output);
+        /// <returns>The number of bytes written to <paramref name="output"/>.</returns>
+        int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output);
     }
 
     /// <summary>

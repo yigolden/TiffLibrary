@@ -74,7 +74,7 @@ namespace TiffLibrary.Compression
 
 
         /// <inheritdoc />
-        public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
+        public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             var inflater = new Inflater(noHeader: false);
 
@@ -86,6 +86,7 @@ namespace TiffLibrary.Compression
 
                 if (inflater.IsFinished)
                 {
+                    destination = destination.Slice(bytesWritten);
                     break;
                 }
 
@@ -93,7 +94,7 @@ namespace TiffLibrary.Compression
                 {
                     if (input.IsEmpty)
                     {
-                        throw new InvalidDataException();
+                        throw new InvalidDataException("Expecting input data.");
                     }
 
                     inflater.SetInput(input);
@@ -101,11 +102,13 @@ namespace TiffLibrary.Compression
                 }
                 else if (bytesWritten == 0)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidDataException("Destination buffer is too small.");
                 }
 
                 destination = destination.Slice(bytesWritten);
             }
+
+            return output.Length - destination.Length;
         }
 
     }

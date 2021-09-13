@@ -15,6 +15,7 @@ namespace TiffLibrary.ImageDecoder
         private readonly TiffPhotometricInterpretation _photometricInterpretation;
         private readonly TiffValueCollection<ushort> _bitsPerSample;
         private readonly TiffValueCollection<int> _bytesPerScanlines;
+        private readonly bool _useYCbCrLayout;
         private readonly ITiffDecompressionAlgorithm _decompressionAlgorithm;
 
         /// <summary>
@@ -23,9 +24,10 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="photometricInterpretation">The photometric interpretation of the image.</param>
         /// <param name="bitsPerSample">Bits per sample.</param>
         /// <param name="bytesPerScanlines">Byte count per scanline.</param>
+        /// <param name="useYCbCrLayout">Whether YCbCr buffer layout should be used.</param>
         /// <param name="decompressionAlgorithm">The decompression algorithm.</param>
         [CLSCompliant(false)]
-        public TiffImageDecompressionMiddleware(TiffPhotometricInterpretation photometricInterpretation, TiffValueCollection<ushort> bitsPerSample, TiffValueCollection<int> bytesPerScanlines, ITiffDecompressionAlgorithm decompressionAlgorithm)
+        public TiffImageDecompressionMiddleware(TiffPhotometricInterpretation photometricInterpretation, TiffValueCollection<ushort> bitsPerSample, TiffValueCollection<int> bytesPerScanlines, bool useYCbCrLayout, ITiffDecompressionAlgorithm decompressionAlgorithm)
         {
             if (bytesPerScanlines.IsEmpty)
             {
@@ -35,6 +37,7 @@ namespace TiffLibrary.ImageDecoder
             _photometricInterpretation = photometricInterpretation;
             _bitsPerSample = bitsPerSample;
             _bytesPerScanlines = bytesPerScanlines;
+            _useYCbCrLayout = useYCbCrLayout;
             _decompressionAlgorithm = decompressionAlgorithm;
         }
 
@@ -90,10 +93,17 @@ namespace TiffLibrary.ImageDecoder
                 return;
             }
 
+            // make room for extra data in YCbCr image
+            int extraSpace = 0;
+            if (_useYCbCrLayout)
+            {
+                extraSpace = (context.SourceImageSize.Width + context.SourceImageSize.Height + 1) * 6 + 15;
+            }
+
             // allocate the raw data buffer and the uncompressed data buffer
             MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
-            using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength);
-            int planarUncompressedByteCount = 0;
+            using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength + extraSpace);
+            int totalBytesWritten = 0;
             TiffFileContentReader? reader = context.ContentReader;
             if (reader is null)
             {
@@ -125,13 +135,25 @@ namespace TiffLibrary.ImageDecoder
                     decompressionContext.BytesPerScanline = bytesPerScanline;
                     decompressionContext.SkippedScanlines = context.SourceReadOffset.Y;
                     decompressionContext.RequestedScanlines = context.ReadSize.Height;
-                    _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(planarUncompressedByteCount, bytesPerScanline * imageHeight));
-                    planarUncompressedByteCount += bytesPerScanline * imageHeight;
+                    if (_useYCbCrLayout)
+                    {
+                        totalBytesWritten += _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(totalBytesWritten));
+                    }
+                    else
+                    {
+                        int bytesWritten = _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(totalBytesWritten, bytesPerScanline * imageHeight));
+                        if (bytesWritten != (bytesPerScanline * imageHeight))
+                        {
+                            throw new InvalidDataException();
+                        }
+                        totalBytesWritten += bytesWritten;
+                    }
+
                 }
             }
 
             // Pass down the data
-            context.UncompressedData = bufferMemory.Memory.Slice(0, uncompressedDataLength);
+            context.UncompressedData = bufferMemory.Memory.Slice(0, Math.Max(uncompressedDataLength, totalBytesWritten));
             await next.RunAsync(context).ConfigureAwait(false);
             context.UncompressedData = default;
 

@@ -33,24 +33,24 @@ namespace TiffLibrary.Compression
 
 
         /// <inheritdoc />
-        public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
+        public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             ReadOnlySpan<byte> inputSpan = input.Span;
             Span<byte> scanlinesBufferSpan = output.Span;
 
             if (inputSpan.IsEmpty)
             {
-                return;
+                return 0;
             }
 
             byte first = inputSpan[0];
             if (first == 0)
             {
-                DecompressLeastSignificantBitFirst(inputSpan, scanlinesBufferSpan);
+                return DecompressLeastSignificantBitFirst(inputSpan, scanlinesBufferSpan);
             }
             else if (first == 128)
             {
-                DecompressMostSignificantBitFirst(inputSpan, scanlinesBufferSpan);
+                return DecompressMostSignificantBitFirst(inputSpan, scanlinesBufferSpan);
             }
             else
             {

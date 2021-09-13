@@ -101,7 +101,7 @@ namespace TiffLibrary.Compression
             _scanHeader = new JpegScanHeader((byte)scanComponents.Length, scanComponents, 0, 0, 0, 0);
         }
 
-        public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
+        public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             // Copy frame header
             JpegFrameHeader frameHeader = _frameHeader;
@@ -125,6 +125,8 @@ namespace TiffLibrary.Compression
 
             var reader = new JpegReader(input);
             decoder.ProcessScan(ref reader, _scanHeader);
+
+            return context.BytesPerScanline * context.ImageSize.Height;
         }
 
         readonly struct ComponentInfo

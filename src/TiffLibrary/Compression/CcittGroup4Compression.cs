@@ -163,7 +163,7 @@ namespace TiffLibrary.Compression
         }
 
         /// <inheritdoc />
-        public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
+        public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             if (context is null)
             {
@@ -200,6 +200,8 @@ namespace TiffLibrary.Compression
 
                 referenceScanline = new ReferenceScanline(whiteIsZero, scanline);
             }
+
+            return context.BytesPerScanline * context.ImageSize.Height;
         }
 
         private static void Decode2DScanline(ref BitReader bitReader, bool whiteIsZero, ReferenceScanline referenceScanline, Span<byte> scanline)

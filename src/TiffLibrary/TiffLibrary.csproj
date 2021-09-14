@@ -39,6 +39,9 @@
   <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0' AND '$(TargetFramework)' != 'netstandard2.1'">
     <DefineConstants>$(DefineConstants);NO_NULLABLE_REFERENCE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0'">
+    <DefineConstants>$(DefineConstants);NO_BIT_OPERATIONS</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="JpegLibrary" Version="$(JpegLibraryPackageVersion)" />

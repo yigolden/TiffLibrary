@@ -223,13 +223,11 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
                     0x5b, 0x7b,
                     0x9b, 0xbb,
                     0xdb, 0xfb,
-                    0, 0, 0, 0, 0, 0, 0, 0,
 
                     0x1c, 0x3c,
                     0x5c, 0x7c,
                     0x9c, 0xbc,
                     0xdc, 0xfc,
-                    0, 0, 0, 0, 0, 0, 0, 0,
                 },
                 // output
                 new byte[]
@@ -265,11 +263,9 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
 
                     0x1b, 0x2b, 0x3b, 0x4b,
                     0x9b, 0xab, 0xbb, 0xcb,
-                    0, 0, 0, 0, 0, 0, 0, 0,
 
                     0x1c, 0x2c, 0x3c, 0x4c,
                     0x9c, 0xac, 0xbc, 0xcc,
-                    0, 0, 0, 0, 0, 0, 0, 0,
                 },
                 // output
                 new byte[]
@@ -307,13 +303,9 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
 
                     0x1b, 0x3b,
                     0x9b, 0xbb,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
 
                     0x1c, 0x3c,
                     0x9c, 0xbc,
-                    0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
                 },
                 // output
                 new byte[]
@@ -349,8 +341,7 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
                 UncompressedData = buffer,
                 SourceImageSize = new TiffSize(width, height)
             };
-            await middleware.InvokeAsync(context, new EmptyPipelineNode());
-            Assert.True(buffer.AsSpan(0, output.Length).SequenceEqual(output));
+            await middleware.InvokeAsync(context, new UncompressedDataValidator(output));
         }
 
 
@@ -367,8 +358,7 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
                 UncompressedData = buffer,
                 SourceImageSize = new TiffSize(width, height)
             };
-            await middleware.InvokeAsync(context, new EmptyPipelineNode());
-            Assert.True(buffer.AsSpan().SequenceEqual(output));
+            await middleware.InvokeAsync(context, new UncompressedDataValidator(output));
         }
 
         internal class TestDecoderContext : TiffImageDecoderContext
@@ -403,6 +393,22 @@ namespace TiffLibrary.Tests.ImageDecoderMiddlewares
         {
             public ValueTask RunAsync(TiffImageDecoderContext context)
             {
+                return default;
+            }
+        }
+
+        internal class UncompressedDataValidator : ITiffImageDecoderPipelineNode
+        {
+            private readonly ReadOnlyMemory<byte> _expected;
+
+            public UncompressedDataValidator(ReadOnlyMemory<byte> expected)
+            {
+                _expected = expected;
+            }
+
+            public ValueTask RunAsync(TiffImageDecoderContext context)
+            {
+                Assert.True(context.UncompressedData.Span.Slice(0, _expected.Length).SequenceEqual(_expected.Span));
                 return default;
             }
         }

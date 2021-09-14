@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Buffers;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
+using TiffLibrary.Utils;
 
 namespace TiffLibrary.ImageDecoder
 {
@@ -60,43 +63,48 @@ namespace TiffLibrary.ImageDecoder
 
             if (_isPlanar)
             {
-                ProcessPlanarData(context);
+                return ProcessPlanarData(context, horizontalSubsampling, verticalSubsampling, next);
             }
             else
             {
-                ProcessChunkyData(context);
+                return ProcessChunkyData(context, next);
             }
-
-            return next.RunAsync(context);
         }
 
-        private void ProcessChunkyData(TiffImageDecoderContext context)
+        private ValueTask ProcessChunkyData(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
-
-            Memory<byte> decompressedData = context.UncompressedData;
-            if (_horizontalSubsampling >= _verticalSubsampling)
+            Memory<byte> uncompressedData = context.UncompressedData;
+            if (_horizontalSubsampling >= _verticalSubsampling && _verticalSubsampling <= 2)
             {
-                ProcessChunkyData(context.SourceImageSize, MemoryMarshal.Cast<byte, ushort>(decompressedData.Span), MemoryMarshal.Cast<byte, ushort>(decompressedData.Span));
+                ProcessChunkyData(context.SourceImageSize, _horizontalSubsampling, _verticalSubsampling, MemoryMarshal.Cast<byte, ushort>(uncompressedData.Span), MemoryMarshal.Cast<byte, ushort>(uncompressedData.Span));
+                return next.RunAsync(context);
             }
             else
             {
-                using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(decompressedData.Length);
+                return ProcessCoreAsync(context, _horizontalSubsampling, _verticalSubsampling, next);
+            }
 
-                decompressedData.CopyTo(bufferMemory.Memory);
-                ProcessChunkyData(context.SourceImageSize, MemoryMarshal.Cast<byte, ushort>(bufferMemory.Memory.Span.Slice(0, decompressedData.Length)), MemoryMarshal.Cast<byte, ushort>(decompressedData.Span));
+            static async ValueTask ProcessCoreAsync(TiffImageDecoderContext context, int horizontalSubsampling, int verticalSubsampling, ITiffImageDecoderPipelineNode next)
+            {
+                Memory<byte> uncompressedData = context.UncompressedData;
+                using IMemoryOwner<byte> bufferMemory = (context.MemoryPool ?? MemoryPool<byte>.Shared).Rent(uncompressedData.Length);
+
+                uncompressedData.CopyTo(bufferMemory.Memory);
+                ProcessChunkyData(context.SourceImageSize, horizontalSubsampling, verticalSubsampling, MemoryMarshal.Cast<byte, ushort>(bufferMemory.Memory.Span.Slice(0, uncompressedData.Length)), MemoryMarshal.Cast<byte, ushort>(uncompressedData.Span));
+
+                await next.RunAsync(context).ConfigureAwait(false);
             }
         }
 
-        private void ProcessChunkyData(TiffSize size, ReadOnlySpan<ushort> source, Span<ushort> destination)
+        private static void ProcessChunkyData(TiffSize size, int horizontalSubsampling, int verticalSubsampling, ReadOnlySpan<ushort> source, Span<ushort> destination)
         {
             int width = size.Width;
             int height = size.Height;
-            int horizontalSubsampling = _horizontalSubsampling;
-            int verticalSubsampling = _verticalSubsampling;
 
             int blockWidth = (width + horizontalSubsampling - 1) / horizontalSubsampling;
             int blockHeight = (height + verticalSubsampling - 1) / verticalSubsampling;
+            int horizontalSubsamplingShift = TiffMathHelper.Log2((uint)horizontalSubsampling);
+            int verticalSubsamplingShift = TiffMathHelper.Log2((uint)verticalSubsampling);
             int cbCrOffsetInBlock = horizontalSubsampling * verticalSubsampling;
             int blockByteCount = cbCrOffsetInBlock + 2;
 
@@ -113,14 +121,14 @@ namespace TiffLibrary.ImageDecoder
                     {
                         for (int col = horizontalSubsampling - 1; col >= 0; col--)
                         {
-                            int imageRow = blockRow * verticalSubsampling + row;
-                            int imageCol = blockCol * horizontalSubsampling + col;
+                            int imageRow = (blockRow << verticalSubsamplingShift) + row;
+                            int imageCol = (blockCol << horizontalSubsamplingShift) + col;
                             if (imageRow < height && imageCol < width)
                             {
                                 int offset = 3 * (imageRow * width + imageCol);
                                 destination[offset + 2] = cr;
                                 destination[offset + 1] = cb;
-                                destination[offset] = blockData[row * horizontalSubsampling + col];
+                                destination[offset] = blockData[(row << horizontalSubsamplingShift) + col];
                             }
                         }
                     }
@@ -128,26 +136,56 @@ namespace TiffLibrary.ImageDecoder
             }
         }
 
-        private void ProcessPlanarData(TiffImageDecoderContext context)
+        private static async ValueTask ProcessPlanarData(TiffImageDecoderContext context, int horizontalSubsampling, int verticalSubsampling, ITiffImageDecoderPipelineNode next)
         {
-            int width = context.SourceImageSize.Width;
-            int height = context.SourceImageSize.Height;
-            int horizontalSubsampling = _horizontalSubsampling;
-            int verticalSubsampling = _verticalSubsampling;
+            using IMemoryOwner<byte> bufferOwner = ProcessCore(context, horizontalSubsampling, verticalSubsampling);
+            context.UncompressedData = bufferOwner.Memory;
+            await next.RunAsync(context).ConfigureAwait(false);
 
-            int planarByteCount = sizeof(ushort) * width * height;
-            Span<byte> decompressedData = context.UncompressedData.Span;
-            Span<ushort> planarCb = MemoryMarshal.Cast<byte, ushort>(decompressedData.Slice(planarByteCount, planarByteCount));
-            Span<ushort> planarCr = MemoryMarshal.Cast<byte, ushort>(decompressedData.Slice(2 * planarByteCount, planarByteCount));
-
-            for (int row = height - 1; row >= 0; row--)
+            static IMemoryOwner<byte> ProcessCore(TiffImageDecoderContext context, int horizontalSubsampling, int verticalSubsampling)
             {
-                for (int col = width - 1; col >= 0; col--)
+                int imageWidth = context.SourceImageSize.Width;
+                int imageHeight = context.SourceImageSize.Height;
+                int blockCols = (imageWidth + horizontalSubsampling - 1) / horizontalSubsampling;
+                int blockRows = (imageHeight + verticalSubsampling - 1) / verticalSubsampling;
+                ReadOnlySpan<ushort> uncompressedData = MemoryMarshal.Cast<byte, ushort>(context.UncompressedData.Span);
+                int luminanceDataLength = blockCols * blockRows * horizontalSubsampling * verticalSubsampling;
+                int chrominanceLength = blockCols * blockRows;
+                if (uncompressedData.Length < (luminanceDataLength + chrominanceLength * 2))
                 {
-                    int offset = row * width + col;
-                    int subsampleOffset = (row / verticalSubsampling) * (width / horizontalSubsampling) + col / horizontalSubsampling;
-                    planarCb[offset] = planarCb[subsampleOffset];
-                    planarCr[offset] = planarCr[subsampleOffset];
+                    throw new InvalidDataException();
+                }
+
+                ReadOnlySpan<ushort> planarY = uncompressedData.Slice(0, luminanceDataLength);
+                ReadOnlySpan<ushort> planarCb = uncompressedData.Slice(luminanceDataLength, chrominanceLength);
+                ReadOnlySpan<ushort> planarCr = uncompressedData.Slice(luminanceDataLength + chrominanceLength, chrominanceLength);
+
+                int horizontalLuminanceDataLength = blockCols * horizontalSubsampling;
+                int horizontalSubsamplingShift = TiffMathHelper.Log2((uint)horizontalSubsampling);
+                int verticalSubsamplingShift = TiffMathHelper.Log2((uint)verticalSubsampling);
+
+                IMemoryOwner<byte>? bufferMemory = null;
+                try
+                {
+                    bufferMemory = (context.MemoryPool ?? MemoryPool<byte>.Shared).Rent(imageWidth * imageHeight * 6);
+                    Span<ushort> destinationSpan = MemoryMarshal.Cast<byte, ushort>(bufferMemory.Memory.Span);
+
+                    int planarSize = imageWidth * imageHeight;
+                    for (int row = 0; row < imageHeight; row++)
+                    {
+                        int destinationRowOffset = row * imageWidth;
+                        for (int col = 0; col < imageWidth; col++)
+                        {
+                            destinationSpan[destinationRowOffset + col] = planarY[row * horizontalLuminanceDataLength + col];
+                            destinationSpan[planarSize + destinationRowOffset + col] = planarCb[(row >> verticalSubsamplingShift) * blockCols + (col >> horizontalSubsamplingShift)];
+                            destinationSpan[planarSize * 2 + destinationRowOffset + col] = planarCr[(row >> verticalSubsamplingShift) * blockCols + (col >> horizontalSubsamplingShift)];
+                        }
+                    }
+                    return Interlocked.Exchange<IMemoryOwner<byte>?>(ref bufferMemory, null)!;
+                }
+                finally
+                {
+                    bufferMemory?.Dispose();
                 }
             }
         }

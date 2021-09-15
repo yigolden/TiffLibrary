@@ -6,8 +6,8 @@
   <PropertyGroup>
     <Title>TiffLibrary</Title>
     <Description>A .NET library for decoding and encoding TIFF files.</Description>
-    <TargetFrameworks>net46;net472;netstandard1.3;netstandard2.0;netcoreapp2.1;netstandard2.1;netcoreapp3.0</TargetFrameworks>
-    <NoWarn>$(NoWarn);CA1008;CA1024;CA1027;CA1028;CA1051;CA1303;CA1716;CA1720;CA2000;CA2119;CA2213</NoWarn>
+    <TargetFrameworks>net461;netstandard2.0;netstandard2.1;netcoreapp3.1</TargetFrameworks>
+    <NoWarn>$(NoWarn);CA1008;CA1024;CA1027;CA1028;CA1051;CA1303;CA1716;CA1720;CA2000;CA2213</NoWarn>
     <!-- CA1008: Enums should have zero value (TODO Can we fix this?)-->
     <!-- CA1024: Use properties where appropriate -->
     <!-- CA1027: Mark enums with FlagsAttribute -->
@@ -17,7 +17,6 @@
     <!-- CA1716: Identifiers should not match keywords -->
     <!-- CA1720: Identifiers should not contain type names -->
     <!-- CA2000: Dispose objects before losing scope -->
-    <!-- CA2119: Seal methods that satisfy private interfaces (This should be removed when we drop net46/net472/netstandard1.3 support) -->
     <!-- CA2213: Disposable fields should be disposed -->
 
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -27,16 +26,13 @@
     <!-- <PackageValidationBaselineVersion>$(PreviouslyPublishedPackageVersion)</PackageValidationBaselineVersion> -->
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP;NO_MATHF_ROUND</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3'">
-    <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_INTERFACE;NO_HASHCODE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp2.1'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_ON_STREAM</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0' AND '$(TargetFramework)' != 'netstandard2.1'">
+  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1' AND '$(TargetFramework)' != 'netstandard2.1'">
     <DefineConstants>$(DefineConstants);NO_NULLABLE_REFERENCE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0'">
@@ -46,23 +42,16 @@
   <ItemGroup>
     <PackageReference Include="JpegLibrary" Version="$(JpegLibraryPackageVersion)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'netstandard2.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="$(SystemRuntimeCompilerServicesUnsafePackageVersion)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netcoreapp2.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesPackageVersion)" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472'">
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodePackageVersion)" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsPackageVersion)" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <PackageReference Include="System.IO.MemoryMappedFiles" Version="$(SystemIOMemoryMappedFilesPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

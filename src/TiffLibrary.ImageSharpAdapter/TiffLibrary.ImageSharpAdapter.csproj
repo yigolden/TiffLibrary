@@ -2,11 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Microsoft.DotNet.PackageValidation" Version="$(MicrosoftDotNetPackageValidationPackageVersion)" />
-  
+
   <PropertyGroup>
     <Title>TiffLibrary.ImageSharpAdapter</Title>
     <Description>An adapter that enables SixLabors.ImageSharp to decode and encode TIFF files using TiffLibrary package.</Description>
-    <TargetFrameworks>netstandard1.3;netstandard2.0;net472;netcoreapp2.1;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CA1001;CA1303;CA2000;CA2213</NoWarn>
     <!-- CA1001: Types that own disposable fields should be disposable -->
     <!-- CA1303: Do not pass literals as localized parameters -->
@@ -17,15 +17,14 @@
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <AnalysisLevel>latest</AnalysisLevel>
 
-    <PackageValidationBaselineVersion>$(PreviouslyPublishedPackageVersion)</PackageValidationBaselineVersion>
+    <!-- <PackageValidationBaselineVersion>$(PreviouslyPublishedPackageVersion)</PackageValidationBaselineVersion> -->
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="$(SixLaborsImageSharpPackageVersion)" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="$(SystemRuntimeCompilerServicesUnsafePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

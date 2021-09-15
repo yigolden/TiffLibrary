@@ -6,14 +6,13 @@
   <PropertyGroup Label="Package Versions">
     <JpegLibraryPackageVersion>0.3.30</JpegLibraryPackageVersion>
 
-    <MicrosoftDotNetPackageValidationPackageVersion>1.0.0-preview.5.21302.8</MicrosoftDotNetPackageValidationPackageVersion>
+    <MicrosoftDotNetPackageValidationPackageVersion>1.0.0-preview.7.21379.12</MicrosoftDotNetPackageValidationPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
-    <NerdbankGitVersioningPackageVersion>3.4.220</NerdbankGitVersioningPackageVersion>
+    <NerdbankGitVersioningPackageVersion>3.4.231</NerdbankGitVersioningPackageVersion>
 
     <MicrosoftBclAsyncInterfacesPackageVersion>1.1.1</MicrosoftBclAsyncInterfacesPackageVersion>
     <MicrosoftBclHashCodePackageVersion>1.1.0</MicrosoftBclHashCodePackageVersion>
-    <SystemIOMemoryMappedFilesPackageVersion>4.3.0</SystemIOMemoryMappedFilesPackageVersion>
     <SystemMemoryPackageVersion>4.5.4</SystemMemoryPackageVersion>
     <SystemRuntimeCompilerServicesUnsafePackageVersion>4.7.1</SystemRuntimeCompilerServicesUnsafePackageVersion>
     <SystemThreadingTasksExtensionsPackageVersion>4.5.4</SystemThreadingTasksExtensionsPackageVersion>

@@ -134,7 +134,7 @@ Note that when the `TiffFieldReader` is created, a `TiffFileContentReader` insta
 Each IFD contains at most one image. The following code decode the image from the first IFD into an array.
 
 ``` csharp
-using TiffLibray.PixelFormats;
+using TiffLibrary.PixelFormats;
 
 using TiffFileReader tiff = await TiffFileReader.OpenAsync(stream, leaveOpen: false);
 TiffImageFileDirectory ifd = await tiff.ReadImageFileDirectoryAsync();

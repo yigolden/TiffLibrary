@@ -92,7 +92,7 @@ namespace TiffLibrary.ImageDecoder
             // allocate the raw data buffer and the uncompressed data buffer
             MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
             using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength);
-            int planarUncompressedByteCount = 0;
+            int totalBytesWritten = 0;
             TiffFileContentReader? reader = context.ContentReader;
             if (reader is null)
             {
@@ -124,13 +124,14 @@ namespace TiffLibrary.ImageDecoder
                     decompressionContext.BytesPerScanline = bytesPerScanline;
                     decompressionContext.SkippedScanlines = context.SourceReadOffset.Y;
                     decompressionContext.RequestedScanlines = context.ReadSize.Height;
-                    _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(planarUncompressedByteCount, bytesPerScanline * imageHeight));
-                    planarUncompressedByteCount += bytesPerScanline * imageHeight;
+                    _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(totalBytesWritten, bytesPerScanline * imageHeight));
+                    totalBytesWritten += bytesPerScanline * imageHeight;
+
                 }
             }
 
             // Pass down the data
-            context.UncompressedData = bufferMemory.Memory.Slice(0, uncompressedDataLength);
+            context.UncompressedData = bufferMemory.Memory.Slice(0, Math.Max(uncompressedDataLength, totalBytesWritten));
             await next.RunAsync(context).ConfigureAwait(false);
             context.UncompressedData = default;
 

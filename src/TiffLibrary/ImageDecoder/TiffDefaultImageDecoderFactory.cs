@@ -657,6 +657,7 @@ namespace TiffLibrary.ImageDecoder
             ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync(cancellationToken).ConfigureAwait(false);
             if (subsampling.Length == 0)
             {
+                builder.Add(new TiffReverseChromaSubsampling8Middleware(2, 2, planarConfiguration == TiffPlanarConfiguration.Planar));
                 return;
             }
             if (subsampling.Length != 2)

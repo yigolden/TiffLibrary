@@ -85,7 +85,7 @@ namespace TiffLibrary.ImageDecoder
                 throw new ArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
             }
 
-            bool isParallel = !(context.GetService(typeof(TiffParallelDecodingState)) is null);
+            bool isParallel = context.GetService(typeof(TiffParallelDecodingState)) is not null;
 
             // Initialize the cache
             TiffFieldReader? reader = null;

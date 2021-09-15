@@ -121,7 +121,7 @@ namespace TiffLibrary
             finally
             {
 #pragma warning disable CA1508 // Avoid dead conditional code
-                if (!leaveOpen && !(disposeInstance is null))
+                if (!leaveOpen && disposeInstance is not null)
 #pragma warning restore CA1508
                 {
                     await disposeInstance.DisposeAsync().ConfigureAwait(false);
@@ -840,7 +840,7 @@ namespace TiffLibrary
         /// <inheritdoc />
         public async ValueTask DisposeAsync()
         {
-            if (!_leaveOpen && !(_writer is null))
+            if (!_leaveOpen && _writer is not null)
             {
                 await _writer.DisposeAsync().ConfigureAwait(false);
             }

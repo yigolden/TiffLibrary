@@ -31,7 +31,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
             }
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-            if (!(ifdWriter is null))
+            if (ifdWriter is not null)
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {

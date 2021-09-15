@@ -9,7 +9,7 @@ namespace TiffLibrary.ImageDecoder
         {
             IDisposable? lockObj = null;
             var mutexService = context.GetService(typeof(ITiffParallelMutexService)) as ITiffParallelMutexService;
-            if (!(mutexService is null))
+            if (mutexService is not null)
             {
                 lockObj = await mutexService.LockAsync(context.CancellationToken).ConfigureAwait(false);
             }
@@ -20,7 +20,7 @@ namespace TiffLibrary.ImageDecoder
             }
             finally
             {
-                if (!(lockObj is null))
+                if (lockObj is not null)
                 {
                     lockObj.Dispose();
                 }

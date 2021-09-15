@@ -33,7 +33,7 @@ namespace TiffLibrary
                     throw new ObjectDisposedException(nameof(TiffFileStreamContentSource));
                 }
                 FileStream? fs = _fileStream;
-                if (!(fs is null) && fs.IsAsync == useAsync)
+                if (fs is not null && fs.IsAsync == useAsync)
                 {
                     _fileStream = null;
                     return fs;
@@ -63,7 +63,7 @@ namespace TiffLibrary
                     fs.Dispose();
                     return;
                 }
-                if (!(_fileStream is null))
+                if (_fileStream is not null)
                 {
                     fs.Dispose();
                     return;
@@ -88,7 +88,7 @@ namespace TiffLibrary
                 {
                     disposeTask = fs.DisposeAsync();
                 }
-                else if (!(_fileStream is null))
+                else if (_fileStream is not null)
                 {
                     disposeTask = fs.DisposeAsync();
                 }
@@ -130,7 +130,7 @@ namespace TiffLibrary
                 _fileStream = null;
             }
 
-            if (!(fs is null))
+            if (fs is not null)
             {
                 await fs.DisposeAsync().ConfigureAwait(false);
             }
@@ -154,11 +154,11 @@ namespace TiffLibrary
             public override async ValueTask DisposeAsync()
             {
                 FileStream? fs = Interlocked.Exchange(ref _stream, null);
-                if (!(fs is null))
+                if (fs is not null)
                 {
                     await _parent.ReturnStreamAsync(fs).ConfigureAwait(false);
                 }
-                if (!(_semaphore is null))
+                if (_semaphore is not null)
                 {
                     _semaphore.Dispose();
                     _semaphore = null;
@@ -171,11 +171,11 @@ namespace TiffLibrary
                 if (disposing)
                 {
                     FileStream? fs = Interlocked.Exchange(ref _stream, null);
-                    if (!(fs is null))
+                    if (fs is not null)
                     {
                         _parent.ReturnStream(fs);
                     }
-                    if (!(_semaphore is null))
+                    if (_semaphore is not null)
                     {
                         _semaphore.Dispose();
                         _semaphore = null;

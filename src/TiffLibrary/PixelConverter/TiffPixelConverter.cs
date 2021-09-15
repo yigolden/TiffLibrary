@@ -115,13 +115,13 @@ namespace TiffLibrary.PixelConverter
         public void Dispose()
 #pragma warning restore CA1816 // CA1816: Call GC.SuppressFinalize correctly
         {
-            if (!(_cachedHandle is null))
+            if (_cachedHandle is not null)
             {
                 _cachedHandle.ReleaseBuffer();
             }
             _cachedHandle = null;
 
-            if (!(_writer is null))
+            if (_writer is not null)
             {
                 _writer.Dispose();
             }
@@ -176,7 +176,7 @@ namespace TiffLibrary.PixelConverter
 
             internal void ReleaseBuffer()
             {
-                if (!(_buffer is null))
+                if (_buffer is not null)
                 {
                     ArrayPool<byte>.Shared.Return(_buffer);
                     _buffer = null;

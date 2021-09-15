@@ -255,7 +255,7 @@ namespace TiffLibrary.Compression
             public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
             {
                 TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-                if (!(ifdWriter is null) && (_useSharedHuffmanTables || _useSharedQuantizationTables))
+                if (ifdWriter is not null && (_useSharedHuffmanTables || _useSharedQuantizationTables))
                 {
                     return new ValueTask(WriteTablesAndContinueAsync(context, next));
                 }
@@ -332,7 +332,7 @@ namespace TiffLibrary.Compression
                 JpegBlockAllocator? allocator = optimizeCoding ? new JpegBlockAllocator(MemoryPool) : null;
                 try
                 {
-                    if (!(allocator is null))
+                    if (allocator is not null)
                     {
                         allocator.Allocate(frameHeader);
                         TransformBlocks(allocator);

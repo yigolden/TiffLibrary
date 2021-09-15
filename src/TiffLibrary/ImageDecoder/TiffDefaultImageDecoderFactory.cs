@@ -153,7 +153,7 @@ namespace TiffLibrary.ImageDecoder
             builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, useYCbCrLayout, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
 
             // For JPEG: Sample Expansion
-            if (!(jpegBitsExpansionMiddleware is null))
+            if (jpegBitsExpansionMiddleware is not null)
             {
                 builder.Add(jpegBitsExpansionMiddleware);
             }
@@ -289,7 +289,7 @@ namespace TiffLibrary.ImageDecoder
             builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, useYCbCrLayout, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
 
             // For JPEG: Sample Expansion
-            if (!(jpegBitsExpansionMiddleware is null))
+            if (jpegBitsExpansionMiddleware is not null)
             {
                 builder.Add(jpegBitsExpansionMiddleware);
             }

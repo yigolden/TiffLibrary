@@ -178,13 +178,13 @@ namespace TiffLibrary.Utils
 
         public void Dispose()
         {
-            if (!(_outputWriter is null))
+            if (_outputWriter is not null)
             {
                 _accumulators = default;
                 _input = default;
                 _outputWriter = default;
             }
-            if (!(_buffer is null))
+            if (_buffer is not null)
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
                 _buffer = default;

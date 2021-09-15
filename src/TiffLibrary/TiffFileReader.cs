@@ -70,7 +70,7 @@ namespace TiffLibrary
 
         internal TiffFileReader(ITiffFileContentSource contentSource, in TiffFileHeader header, bool leaveOpen)
         {
-            Debug.Assert(!(contentSource is null));
+            Debug.Assert(contentSource is not null);
             _contentSource = contentSource!;
             _operationContext = header.CreateOperationContext(out long ifdOffset);
             _imageFileDirectoryOffset = ifdOffset;
@@ -264,7 +264,7 @@ namespace TiffLibrary
             }
             finally
             {
-                if (!leaveOpen && !(contentSource is null))
+                if (!leaveOpen && contentSource is not null)
                 {
                     await contentSource.DisposeAsync().ConfigureAwait(false);
                 }
@@ -374,7 +374,7 @@ namespace TiffLibrary
             }
             finally
             {
-                if (!(smallBuffer is null))
+                if (smallBuffer is not null)
                 {
                     ArrayPool<byte>.Shared.Return(smallBuffer);
                 }
@@ -702,7 +702,7 @@ namespace TiffLibrary
         public void Dispose()
         {
             ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null!);
-            if (!(contentSource is null) && !_leaveOpen)
+            if (contentSource is not null && !_leaveOpen)
             {
                 contentSource.Dispose();
             }
@@ -713,7 +713,7 @@ namespace TiffLibrary
         public async ValueTask DisposeAsync()
         {
             ITiffFileContentSource contentSource = Interlocked.Exchange(ref _contentSource, null!);
-            if (!(contentSource is null) && !_leaveOpen)
+            if (contentSource is not null && !_leaveOpen)
             {
                 await contentSource.DisposeAsync().ConfigureAwait(false);
             }

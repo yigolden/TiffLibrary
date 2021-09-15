@@ -284,7 +284,7 @@ namespace TiffLibrary
 
         protected override void Dispose(bool disposing)
         {
-            if (!_leaveOpen && !(_stream is null))
+            if (!_leaveOpen && _stream is not null)
             {
                 if (disposing)
                 {
@@ -296,7 +296,7 @@ namespace TiffLibrary
 
         public override async ValueTask DisposeAsync()
         {
-            if (!_leaveOpen && !(_stream is null))
+            if (!_leaveOpen && _stream is not null)
             {
                 await _stream.DisposeAsync().ConfigureAwait(false);
                 _stream = null;

@@ -50,11 +50,11 @@ namespace TiffLibrary
 
         protected override void Dispose(bool disposing)
         {
-            if (!(_stream is null) && !_leaveOpen)
+            if (_stream is not null && !_leaveOpen)
             {
                 _stream.Dispose();
             }
-            if (!(_semaphore is null))
+            if (_semaphore is not null)
             {
                 _semaphore.Dispose();
                 _semaphore = null;
@@ -67,12 +67,12 @@ namespace TiffLibrary
 
         public override async ValueTask DisposeAsync()
         {
-            if (!(_stream is null) && !_leaveOpen)
+            if (_stream is not null && !_leaveOpen)
             {
                 await _stream.DisposeAsync().ConfigureAwait(false);
                 _stream = null;
             }
-            if (!(_semaphore is null))
+            if (_semaphore is not null)
             {
                 _semaphore.Dispose();
                 _semaphore = null;

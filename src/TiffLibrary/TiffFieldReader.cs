@@ -56,7 +56,7 @@ namespace TiffLibrary
         public void Dispose()
         {
             _context = null;
-            if (!(_reader is null) && !_leaveOpen)
+            if (_reader is not null && !_leaveOpen)
             {
                 _reader.Dispose();
             }
@@ -67,7 +67,7 @@ namespace TiffLibrary
         public async ValueTask DisposeAsync()
         {
             _context = null;
-            if (!(_reader is null) && !_leaveOpen)
+            if (_reader is not null && !_leaveOpen)
             {
                 await _reader.DisposeAsync().ConfigureAwait(false);
             }

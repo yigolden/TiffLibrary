@@ -88,7 +88,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
         protected override void Dispose(bool disposing)
         {
-            if (!(_cachedColHandle is null))
+            if (_cachedColHandle is not null)
             {
                 _cachedColHandle.ReleaseBuffer();
             }
@@ -189,7 +189,7 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
 
             internal void ReleaseBuffer()
             {
-                if (!(_bufferHandle is null))
+                if (_bufferHandle is not null)
                 {
                     _bufferHandle.Dispose();
                     _bufferHandle = null;

@@ -87,7 +87,7 @@ namespace TiffLibrary.ImageDecoder
                 }
             }
 
-            if (!(emptyWriter is null))
+            if (emptyWriter is not null)
             {
                 emptyWriter.Write(context);
                 return;

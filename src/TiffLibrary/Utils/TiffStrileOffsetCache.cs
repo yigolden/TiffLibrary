@@ -140,7 +140,7 @@ namespace TiffLibrary.Utils
         {
             if (disposing)
             {
-                if (!(_cache is null))
+                if (_cache is not null)
                 {
                     ArrayPool<byte>.Shared.Return(_cache);
                 }

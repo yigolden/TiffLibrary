@@ -91,7 +91,7 @@ namespace TiffLibrary.PixelBuffer
         /// <inheritdoc />
         public void Dispose()
         {
-            if (!(_cachedColHandle is null))
+            if (_cachedColHandle is not null)
             {
                 _cachedColHandle.ReleaseBuffer();
             }
@@ -175,7 +175,7 @@ namespace TiffLibrary.PixelBuffer
 
             internal void ReleaseBuffer()
             {
-                if (!(_buffer is null))
+                if (_buffer is not null)
                 {
                     ArrayPool<byte>.Shared.Return(_buffer);
                     _buffer = null;

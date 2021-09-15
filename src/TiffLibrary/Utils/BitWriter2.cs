@@ -65,7 +65,7 @@ namespace TiffLibrary
 
         private void FlushBuffer()
         {
-            Debug.Assert(!(_writer is null));
+            Debug.Assert(_writer is not null);
 
             if (_bufferConsunmed != 0)
             {

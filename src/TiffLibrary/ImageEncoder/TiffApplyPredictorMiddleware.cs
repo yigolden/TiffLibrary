@@ -76,7 +76,7 @@ namespace TiffLibrary.ImageEncoder
             await next.RunAsync(context).ConfigureAwait(false);
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-            if (!(ifdWriter is null))
+            if (ifdWriter is not null)
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {

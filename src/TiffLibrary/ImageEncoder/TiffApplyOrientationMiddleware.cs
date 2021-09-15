@@ -54,7 +54,7 @@ namespace TiffLibrary.ImageEncoder
             await next.RunAsync(new TiffOrientatedImageEncoderContext<TPixel>(context, _orientation)).ConfigureAwait(false);
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-            if (!(ifdWriter is null))
+            if (ifdWriter is not null)
             {
                 using (await context.LockAsync().ConfigureAwait(false))
                 {

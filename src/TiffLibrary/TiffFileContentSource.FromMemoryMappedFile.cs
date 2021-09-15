@@ -41,7 +41,7 @@ namespace TiffLibrary
 
         protected override void Dispose(bool disposing)
         {
-            if (!(_file is null) && !_leaveOpen)
+            if (_file is not null && !_leaveOpen)
             {
                 _file.Dispose();
             }
@@ -51,7 +51,7 @@ namespace TiffLibrary
 
         public void ReturnReader(ContentReader reader)
         {
-            if (!(_file is null))
+            if (_file is not null)
             {
                 Interlocked.Exchange(ref _readerCache, reader);
             }

@@ -84,14 +84,14 @@ namespace TiffLibrary.ImageEncoder
             }
 
             // Wait until all strips are written.
-            if (!(state is null))
+            if (state is not null)
             {
                 state.ReleaseTaskCompletion();
                 await state.Complete.Task.ConfigureAwait(false);
             }
 
             TiffImageFileDirectoryWriter? ifdWriter = context.IfdWriter;
-            if (!(ifdWriter is null))
+            if (ifdWriter is not null)
             {
                 CancellationToken cancellationToken = context.CancellationToken;
 

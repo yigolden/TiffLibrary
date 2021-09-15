@@ -14,7 +14,7 @@ namespace TiffLibrary.Tests.Roundtrip
 
         public static IEnumerable<object[]> GetTestData()
         {
-            foreach (TiffCompression compression in new TiffCompression[] { TiffCompression.NoCompression, TiffCompression.Lzw})
+            foreach (TiffCompression compression in new TiffCompression[] { TiffCompression.NoCompression, TiffCompression.Lzw, TiffCompression.Deflate })
             {
                 foreach (int horizontalChromaSubSampling in new int[] { 1, 2, 4 })
                 {

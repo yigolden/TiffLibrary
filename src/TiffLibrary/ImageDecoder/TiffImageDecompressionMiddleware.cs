@@ -94,15 +94,14 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // make room for extra data in YCbCr image
-            int extraSpace = 0;
             if (_useYCbCrLayout)
             {
-                extraSpace = (context.SourceImageSize.Width + context.SourceImageSize.Height + 1) * 6 + 15;
+                uncompressedDataLength = Math.Max(uncompressedDataLength, CalculateMinimumYCbCrByteCount(context.SourceImageSize));
             }
 
             // allocate the raw data buffer and the uncompressed data buffer
             MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
-            using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength + extraSpace);
+            using IMemoryOwner<byte> bufferMemory = memoryPool.Rent(uncompressedDataLength);
             int totalBytesWritten = 0;
             TiffFileContentReader? reader = context.ContentReader;
             if (reader is null)
@@ -156,7 +155,16 @@ namespace TiffLibrary.ImageDecoder
             context.UncompressedData = bufferMemory.Memory.Slice(0, Math.Max(uncompressedDataLength, totalBytesWritten));
             await next.RunAsync(context).ConfigureAwait(false);
             context.UncompressedData = default;
+        }
 
+        private static int CalculateMinimumYCbCrByteCount(TiffSize imageSize)
+        {
+            const int MaximumHorizontalSubsampling = 4;
+            const int MaximumVerticalSubsampling = 4;
+
+            return ((imageSize.Width + MaximumHorizontalSubsampling - 1) / MaximumVerticalSubsampling) *
+                ((imageSize.Height + MaximumHorizontalSubsampling - 1) / MaximumVerticalSubsampling) *
+                (MaximumHorizontalSubsampling * MaximumVerticalSubsampling + 2);
         }
     }
 }

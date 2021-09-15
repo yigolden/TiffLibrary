@@ -14,65 +14,74 @@ namespace TiffLibrary.Tests.Roundtrip
 
         public static IEnumerable<object[]> GetTestData()
         {
-            foreach (int horizontalChromaSubSampling in new int[] { 1, 2, 4 })
+            foreach (TiffCompression compression in new TiffCompression[] { TiffCompression.NoCompression, TiffCompression.Lzw})
             {
-                foreach (int verticalChromaSubSampling in new int[] { 1, 2, 4 })
+                foreach (int horizontalChromaSubSampling in new int[] { 1, 2, 4 })
                 {
-                    yield return new object[]
+                    foreach (int verticalChromaSubSampling in new int[] { 1, 2, 4 })
                     {
+                        yield return new object[]
+                        {
+                            compression,
                             // width, height
                             1, 1,
                             horizontalChromaSubSampling, verticalChromaSubSampling,
                             // isTile, strileSize
                             false, 100
-                    };
-                    yield return new object[]
-                    {
+                        };
+                        yield return new object[]
+                        {
+                            compression,
                             // width, height
                             2, 2,
                             horizontalChromaSubSampling, verticalChromaSubSampling,
                             // isTile, strileSize
                             false, 100
-                    };
-                    yield return new object[]
-                    {
+                        };
+                        yield return new object[]
+                        {
+                            compression,
                             // width, height
                             3, 3,
                             horizontalChromaSubSampling, verticalChromaSubSampling,
                             // isTile, strileSize
                             false, 100
-                    };
-                    yield return new object[]
-                    {
+                        };
+                        yield return new object[]
+                        {
+                            compression,
                             // width, height
                             4, 4,
                             horizontalChromaSubSampling, verticalChromaSubSampling,
                             // isTile, strileSize
                             false, 100
-                    };
-                    yield return new object[]
-                    {
+                        };
+                        yield return new object[]
+                        {
+                            compression,
                             // width, height
                             17, 17,
                             horizontalChromaSubSampling, verticalChromaSubSampling,
                             // isTile, strileSize
                             false, 100
-                    };
-                    yield return new object[]
-                    {
+                        };
+                        yield return new object[]
+                        {
+                            compression,
                             // width, height
                             32, 32,
                             horizontalChromaSubSampling, verticalChromaSubSampling,
                             // isTile, strileSize
                             true, 16
-                    };
+                        };
+                    }
                 }
             }
         }
 
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public async Task TestStripRoundTripAsync(int width, int height, int horizontalChromaSubSampling, int vorizontalChromaSubSampling, bool isTile, int strileSize)
+        public async Task TestStripRoundTripAsync(TiffCompression compression, int width, int height, int horizontalChromaSubSampling, int vorizontalChromaSubSampling, bool isTile, int strileSize)
         {
             TiffRgb24[] original = new TiffRgb24[width * height];
             Array.Fill(original, s_color);
@@ -83,7 +92,7 @@ namespace TiffLibrary.Tests.Roundtrip
             {
                 var builder = new TiffImageEncoderBuilder();
                 builder.PhotometricInterpretation = TiffPhotometricInterpretation.YCbCr;
-                builder.Compression = TiffCompression.NoCompression;
+                builder.Compression = compression;
                 builder.HorizontalChromaSubSampling = horizontalChromaSubSampling;
                 builder.VerticalChromaSubSampling = vorizontalChromaSubSampling;
                 if (isTile)

@@ -149,7 +149,8 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // Middleware: Decompression
-            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
+            bool useYCbCrLayout = photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.Jpeg;
+            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, useYCbCrLayout, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
 
             // For JPEG: Sample Expansion
             if (!(jpegBitsExpansionMiddleware is null))
@@ -284,7 +285,8 @@ namespace TiffLibrary.ImageDecoder
             }
 
             // Middleware: Decompression
-            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
+            bool useYCbCrLayout = photometricInterpretation == TiffPhotometricInterpretation.YCbCr && compression != TiffCompression.Jpeg;
+            builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation, bitsPerSample, bytesPerScanline, useYCbCrLayout, await ResolveDecompressionAlgorithmAsync(compression, tagReader, cancellationToken).ConfigureAwait(false)));
 
             // For JPEG: Sample Expansion
             if (!(jpegBitsExpansionMiddleware is null))
@@ -506,9 +508,8 @@ namespace TiffLibrary.ImageDecoder
                     await BuildTiledImageEnumerator(builder, tagReader, bytesPerScanline.Count, cancellationToken).ConfigureAwait(false);
                 }
 
-
                 // Middleware: Decompression
-                builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation.GetValueOrDefault(), bitsPerSample, bytesPerScanline, await ResolveLegacyJpegDecompressionAlgorithmAsync(tagReader, contentReader, memoryPool, cancellationToken).ConfigureAwait(false)));
+                builder.Add(new TiffImageDecompressionMiddleware(photometricInterpretation.GetValueOrDefault(), bitsPerSample, bytesPerScanline, false, await ResolveLegacyJpegDecompressionAlgorithmAsync(tagReader, contentReader, memoryPool, cancellationToken).ConfigureAwait(false)));
             }
 
             // Middleware: Photometric Interpretation
@@ -658,6 +659,7 @@ namespace TiffLibrary.ImageDecoder
             ushort[] subsampling = await tagReader.ReadYCbCrSubSamplingAsync(cancellationToken).ConfigureAwait(false);
             if (subsampling.Length == 0)
             {
+                builder.Add(new TiffReverseChromaSubsampling8Middleware(2, 2, planarConfiguration == TiffPlanarConfiguration.Planar));
                 return;
             }
             if (subsampling.Length != 2)

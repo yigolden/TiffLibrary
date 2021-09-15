@@ -101,7 +101,7 @@ namespace TiffLibrary.Compression
         }
 
         /// <inheritdoc />
-        public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
+        public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             if (context is null)
             {
@@ -177,6 +177,8 @@ namespace TiffLibrary.Compression
 
                 bitReader.AdvanceAlignByte();
             }
+
+            return context.BytesPerScanline * context.ImageSize.Height;
         }
     }
 }

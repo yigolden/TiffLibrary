@@ -147,6 +147,25 @@ namespace TiffLibrary
                     throw new InvalidOperationException("VerticalChromaSubSampling can only be 1, 2, or 4.");
                 }
 
+                if (IsTiled)
+                {
+                    if ((TileSize.Width % horizontalSubsampling) != 0)
+                    {
+                        throw new InvalidOperationException("TileWidth must be an integer multiple of HorizontalChromaSubSampling.");
+                    }
+                    if ((TileSize.Height % verticalSubsampling) != 0)
+                    {
+                        throw new InvalidOperationException("TileLength must be an integer multiple of VerticalChromaSubSampling.");
+                    }
+                }
+                else
+                {
+                    if (RowsPerStrip != 0 && (RowsPerStrip % verticalSubsampling) != 0)
+                    {
+                        throw new InvalidOperationException("RowsPerStrip is required to be an integer multiple of VerticalChromaSubSampling.");
+                    }
+                }
+
                 var chromaSubsamplingMiddleware = new TiffApplyChromaSubsamplingMiddleware<TPixel>(horizontalSubsampling, verticalSubsampling);
                 if (Compression != TiffCompression.Jpeg && (horizontalSubsampling > 1 || verticalSubsampling > 1))
                 {

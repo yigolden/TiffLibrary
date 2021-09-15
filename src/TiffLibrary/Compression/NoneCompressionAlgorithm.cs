@@ -31,9 +31,10 @@ namespace TiffLibrary.Compression
         }
 
         /// <inheritdoc />
-        public void Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
+        public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
             input.CopyTo(output);
+            return input.Length;
         }
     }
 }

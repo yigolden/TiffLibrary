@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using TiffLibrary.PixelConverter;
+using TiffLibrary.Utils;
 
 namespace TiffLibrary.PixelFormats.Converters
 {
@@ -43,10 +44,7 @@ namespace TiffLibrary.PixelFormats.Converters
                 ReadOnlySpan<byte> sourceSpan = MemoryMarshal.AsBytes(source);
                 Span<byte> destinationSpan = MemoryMarshal.AsBytes(destination);
 
-                for (int i = 0; i < sourceSpan.Length; i++)
-                {
-                    destinationSpan[i] = (byte)~sourceSpan[i];
-                }
+                TiffMathHelper.InvertCopy(sourceSpan, destinationSpan);
             }
         }
     }

@@ -142,5 +142,44 @@ namespace TiffLibrary.Utils
                 (IntPtr)(int)((value * 0x07C4ACDDu) >> 27));
         }
 #endif
+
+        public static void InvertCopy(ReadOnlySpan<byte> source, Span<byte> destination)
+        {
+            if (destination.Length < source.Length)
+            {
+                ThrowHelper.ThrowInvalidOperationException("destination too short.");
+            }
+
+#if !NO_VECTOR_SPAN
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<byte> oneVector = Vector.Negate(Vector<byte>.One);
+                while (source.Length >= Vector<byte>.Count)
+                {
+                    var sourceVector = new Vector<byte>(source);
+                    sourceVector = Vector.Xor(sourceVector, oneVector);
+                    sourceVector.CopyTo(destination);
+
+                    source = source.Slice(Vector<byte>.Count);
+                    destination = destination.Slice(Vector<byte>.Count);
+                }
+            }
+#endif
+
+            while (source.Length >= 8)
+            {
+                ref byte sourceRef = ref MemoryMarshal.GetReference(source);
+                ref byte destinationRef = ref MemoryMarshal.GetReference(destination);
+                Unsafe.WriteUnaligned(ref destinationRef, ~Unsafe.ReadUnaligned<ulong>(ref sourceRef));
+
+                source = source.Slice(8);
+                destination = destination.Slice(8);
+            }
+
+            for (int i = 0; i < source.Length; i++)
+            {
+                destination[i] = (byte)~source[i];
+            }
+        }
     }
 }

@@ -30,7 +30,7 @@
     <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP;NO_MATHF_ROUND;NO_ASYNC_DISPOSABLE_ON_STREAM;NO_NULLABLE_REFERENCE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1'">
-    <DefineConstants>$(DefineConstants);NO_BIT_OPERATIONS;NO_CALLER_ARGUMENT_EXPRESSION_ATTRIBUTE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_BIT_OPERATIONS;NO_CALLER_ARGUMENT_EXPRESSION_ATTRIBUTE;NO_VECTOR_SPAN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

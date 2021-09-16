@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TiffLibrary.ImageDecoder;
 using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelFormats;
+using TiffLibrary.Utils;
 
 namespace TiffLibrary.PhotometricInterpreters
 {
@@ -53,33 +54,12 @@ namespace TiffLibrary.PhotometricInterpreters
                 {
                     using TiffPixelSpanHandle<TiffGray16> pixelSpanHandle = writer.GetRowSpan(row);
                     Span<byte> rowDestinationSpan = MemoryMarshal.AsBytes(pixelSpanHandle.GetSpan());
-                    InvertCopy(sourceSpan.Slice(sizeof(ushort) * context.SourceReadOffset.X, sizeof(ushort) * context.ReadSize.Width), rowDestinationSpan);
+                    TiffMathHelper.InvertCopy(sourceSpan.Slice(sizeof(ushort) * context.SourceReadOffset.X, sizeof(ushort) * context.ReadSize.Width), rowDestinationSpan);
                     sourceSpan = sourceSpan.Slice(bytesPerScanline);
                 }
             }
 
             return next.RunAsync(context);
-        }
-
-        private static unsafe void InvertCopy(ReadOnlySpan<byte> source, Span<byte> destination)
-        {
-            if (destination.Length < source.Length)
-            {
-                ThrowHelper.ThrowInvalidOperationException("destination too short.");
-            }
-
-            int count8 = source.Length / 8;
-            ReadOnlySpan<ulong> source8 = MemoryMarshal.Cast<byte, ulong>(source.Slice(0, 8 * count8));
-            Span<ulong> destination8 = MemoryMarshal.Cast<byte, ulong>(destination.Slice(0, 8 * count8));
-            for (int i = 0; i < source8.Length; i++)
-            {
-                destination8[i] = ~source8[i];
-            }
-
-            for (int i = 8 * count8; i < source.Length; i++)
-            {
-                destination[i] = (byte)~source[i];
-            }
         }
     }
 }

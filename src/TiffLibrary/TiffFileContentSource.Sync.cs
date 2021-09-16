@@ -17,7 +17,7 @@ namespace TiffLibrary
             ITiffFileContentSource? contentSource = _contentSource;
             if (contentSource is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFileContentSource));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFileContentSource));
             }
             return new SyncContentReader(contentSource.OpenReader());
         }
@@ -33,10 +33,7 @@ namespace TiffLibrary
 
         public static TiffFileContentSource WrapSource(ITiffFileContentSource source)
         {
-            if (source is null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
+            ThrowHelper.ThrowIfNull(source);
             if (source is TiffSyncFileContentSource syncSource)
             {
                 return syncSource;
@@ -46,10 +43,7 @@ namespace TiffLibrary
 
         public static TiffFileContentReader WrapReader(TiffFileContentReader reader)
         {
-            if (reader is null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            ThrowHelper.ThrowIfNull(reader);
             if (reader is SyncContentReader)
             {
                 return reader;
@@ -71,7 +65,7 @@ namespace TiffLibrary
                 TiffFileContentReader? reader = _reader;
                 if (reader is null)
                 {
-                    throw new ObjectDisposedException(nameof(SyncContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(SyncContentReader));
                 }
                 return reader.Read(offset, buffer);
             }
@@ -81,7 +75,7 @@ namespace TiffLibrary
                 TiffFileContentReader? reader = _reader;
                 if (reader is null)
                 {
-                    throw new ObjectDisposedException(nameof(SyncContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(SyncContentReader));
                 }
                 return reader.Read(offset, buffer);
             }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
 using TiffLibrary.Utils;
 
 namespace TiffLibrary.Compression
@@ -54,7 +53,8 @@ namespace TiffLibrary.Compression
             }
             else
             {
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
+                return default;
             }
         }
 

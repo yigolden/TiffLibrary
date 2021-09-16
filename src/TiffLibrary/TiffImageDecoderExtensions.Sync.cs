@@ -16,10 +16,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (buffer.IsEmpty)
             {
                 return;
@@ -38,10 +36,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (buffer.IsEmpty)
             {
                 return;
@@ -61,10 +57,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (buffer.IsEmpty)
             {
                 return;
@@ -86,10 +80,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, TiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (buffer.IsEmpty)
             {
                 return;
@@ -126,15 +118,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
             decoder.Decode(default, new TiffSize(buffer.Width, buffer.Height), default, adapter);
@@ -149,15 +134,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
             decoder.Decode(offset, new TiffSize(buffer.Width, buffer.Height), default, adapter);
@@ -173,15 +151,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
             decoder.Decode(offset, readSize, default, adapter);
@@ -198,15 +169,8 @@ namespace TiffLibrary
         /// <param name="buffer">The pixel buffer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBuffer<TPixel> buffer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             decoder.Decode(offset, readSize, destinationOffset, new TiffPixelBufferWriterAdapter<TPixel>(buffer));
         }
@@ -223,10 +187,8 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return;
@@ -245,10 +207,8 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return;
@@ -268,10 +228,8 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return;
@@ -292,10 +250,8 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, TiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return;
@@ -332,14 +288,8 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, ITiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(writer);
 
             decoder.Decode(default, new TiffSize(writer.Width, writer.Height), default, writer);
         }
@@ -353,14 +303,8 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(writer);
 
             decoder.Decode(offset, new TiffSize(writer.Width, writer.Height), default, writer);
         }
@@ -375,10 +319,7 @@ namespace TiffLibrary
         /// <param name="writer">The pixel buffer writer to write pixels into.</param>
         public static void Decode<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
 
             decoder.Decode(offset, readSize, default, writer);
         }

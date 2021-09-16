@@ -26,7 +26,7 @@ namespace TiffLibrary.PhotometricInterpreters
         {
             if ((uint)bitCount > 8)
             {
-                throw new ArgumentOutOfRangeException(nameof(bitCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitCount));
             }
             if (fillOrder == 0)
             {
@@ -39,15 +39,8 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             int bitCount = _bitCount;
             bool isHigherOrderBitsFirst = _fillOrder != TiffFillOrder.LowerOrderBitsFirst;

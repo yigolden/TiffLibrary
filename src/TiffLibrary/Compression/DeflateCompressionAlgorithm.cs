@@ -25,7 +25,7 @@ namespace TiffLibrary.Compression
         {
             if ((int)compressionLevel != -1 && (uint)compressionLevel > 9)
             {
-                throw new ArgumentOutOfRangeException(nameof(compressionLevel));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(compressionLevel));
             }
             _compressionLevel = compressionLevel;
         }
@@ -34,15 +34,8 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (outputWriter is null)
-            {
-                throw new ArgumentNullException(nameof(outputWriter));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(outputWriter);
 
             var deflater = new Deflater((int)_compressionLevel, noZlibHeaderOrFooter: false);
 
@@ -94,7 +87,7 @@ namespace TiffLibrary.Compression
                 {
                     if (input.IsEmpty)
                     {
-                        throw new InvalidDataException("Expecting input data.");
+                        ThrowHelper.ThrowInvalidDataException("Expecting input data.");
                     }
 
                     inflater.SetInput(input);
@@ -102,7 +95,7 @@ namespace TiffLibrary.Compression
                 }
                 else if (bytesWritten == 0)
                 {
-                    throw new InvalidDataException("Destination buffer is too small.");
+                    ThrowHelper.ThrowInvalidDataException("Destination buffer is too small.");
                 }
 
                 destination = destination.Slice(bytesWritten);

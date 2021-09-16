@@ -17,7 +17,7 @@ namespace TiffLibrary
         {
             if (_reader is null)
             {
-                throw new ObjectDisposedException(nameof(TiffMemoryContentSource));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffMemoryContentSource));
             }
             return _reader;
         }
@@ -28,7 +28,7 @@ namespace TiffLibrary
 
             if (_reader is null)
             {
-                throw new ObjectDisposedException(nameof(TiffMemoryContentSource));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffMemoryContentSource));
             }
             return new ValueTask<TiffFileContentReader>(_reader);
         }

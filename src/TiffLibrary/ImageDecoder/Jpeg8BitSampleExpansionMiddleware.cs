@@ -17,15 +17,8 @@ namespace TiffLibrary.ImageDecoder
 
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             int bitCount = _bitCount;
             Span<byte> uncompressedData = context.UncompressedData.Span;

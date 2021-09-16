@@ -76,7 +76,7 @@ namespace TiffLibrary.Utils
 
                 if (code >= next)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
                 // otherwise check for a CLEAR_CODE to start over early
                 if (code == ClearCode)

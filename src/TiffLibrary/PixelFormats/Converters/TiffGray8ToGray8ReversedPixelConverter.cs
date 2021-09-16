@@ -30,7 +30,7 @@ namespace TiffLibrary.PixelFormats.Converters
             {
                 if (typeof(TSource) != typeof(TiffGray8) || typeof(TDestination) != typeof(TiffGray8Reversed))
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 return Unsafe.As<ITiffPixelBufferWriter<TSource>>(new TiffGray8ToGray8ReversedPixelConverter(Unsafe.As<ITiffPixelBufferWriter<TiffGray8Reversed>>(buffer)));
             }

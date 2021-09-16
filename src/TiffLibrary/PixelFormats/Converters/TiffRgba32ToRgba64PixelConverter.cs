@@ -30,7 +30,7 @@ namespace TiffLibrary.PixelFormats.Converters
             {
                 if (typeof(TSource) != typeof(TiffRgba32) || typeof(TDestination) != typeof(TiffRgba64))
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 return Unsafe.As<ITiffPixelBufferWriter<TSource>>(new TiffRgba32ToRgba64PixelConverter(Unsafe.As<ITiffPixelBufferWriter<TiffRgba64>>(buffer)));
             }

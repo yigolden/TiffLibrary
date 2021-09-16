@@ -187,13 +187,13 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         {
             if (length < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             if ((bitsInBuffer_ & 7) != 0)
             {
                 // bits_in_buffer may only be 0 or a multiple of 8
-                throw new InvalidOperationException("Bit buffer is not byte aligned!");
+                ThrowHelper.ThrowInvalidOperationException("Bit buffer is not byte aligned!");
             }
 
             int count = 0;
@@ -249,17 +249,17 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         {
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset), "Cannot be negative");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset), "Cannot be negative");
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count), "Cannot be negative");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count), "Cannot be negative");
             }
 
             if (windowStart_ < windowEnd_)
             {
-                throw new InvalidOperationException("Old input was not completely processed");
+                ThrowHelper.ThrowInvalidOperationException("Old input was not completely processed");
             }
 
             ReadOnlySpan<byte> bufferSpan = buffer.Span;
@@ -269,7 +269,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
             // Note the check also handles integer wrap around.
             if ((offset > end) || (end > buffer.Length))
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             if ((count & 1) != 0)

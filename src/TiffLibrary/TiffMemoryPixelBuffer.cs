@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace TiffLibrary
@@ -24,15 +26,15 @@ namespace TiffLibrary
         {
             if (width < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(width));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(width));
             }
             if (height < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(height));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(height));
             }
             if (buffer.Length < width * height)
             {
-                throw new ArgumentException("buffer is too small.");
+                ThrowHelper.ThrowArgumentException("buffer is too small.");
             }
             _buffer = MemoryMarshal.AsMemory(buffer).Slice(0, width * height);
             _width = width;
@@ -51,15 +53,15 @@ namespace TiffLibrary
         {
             if (width < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(width));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(width));
             }
             if (height < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(height));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(height));
             }
             if (buffer.Length < width * height)
             {
-                throw new ArgumentException("buffer is too small.");
+                ThrowHelper.ThrowArgumentException("buffer is too small.");
             }
             _buffer = buffer.Slice(0, width * height);
             _width = width;
@@ -89,9 +91,11 @@ namespace TiffLibrary
             return _buffer.Span.Slice(0, _width * _height);
         }
 
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowWriteToReadOnlyPixelBuffer()
         {
-            throw new InvalidOperationException("Can not write to a read-only pixel buffer.");
+            ThrowHelper.ThrowInvalidOperationException("Can not write to a read-only pixel buffer.");
         }
     }
 }

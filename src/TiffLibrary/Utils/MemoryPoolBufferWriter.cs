@@ -119,11 +119,11 @@ namespace TiffLibrary
             BufferSegment? current = _current;
             if (current is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             if (count > current.AvailableLength)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             current.Advance(count);

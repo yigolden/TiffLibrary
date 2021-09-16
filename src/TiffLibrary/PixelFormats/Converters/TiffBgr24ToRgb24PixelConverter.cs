@@ -29,7 +29,7 @@ namespace TiffLibrary.PixelFormats.Converters
             {
                 if (typeof(TSource) != typeof(TiffBgr24) || typeof(TDestination) != typeof(TiffRgb24))
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 return Unsafe.As<ITiffPixelBufferWriter<TSource>>(new TiffBgr24ToRgb24PixelConverter(Unsafe.As<ITiffPixelBufferWriter<TiffRgb24>>(buffer)));
             }

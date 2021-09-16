@@ -31,7 +31,7 @@ namespace TiffLibrary.ImageDecoder
         {
             if (bytesPerScanlines.IsEmpty)
             {
-                throw new ArgumentException("BytesPerScanlines not specified.");
+                ThrowHelper.ThrowArgumentException("BytesPerScanlines not specified.");
             }
 
             _photometricInterpretation = photometricInterpretation;
@@ -44,19 +44,12 @@ namespace TiffLibrary.ImageDecoder
         /// <inheritdoc />
         public async ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             if (_bytesPerScanlines.Count != context.PlanarRegions.Count)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
 
             int planeCount = _bytesPerScanlines.Count;
@@ -106,7 +99,7 @@ namespace TiffLibrary.ImageDecoder
             TiffFileContentReader? reader = context.ContentReader;
             if (reader is null)
             {
-                throw new InvalidOperationException("Failed to acquire ContentReader.");
+                ThrowHelper.ThrowInvalidOperationException("Failed to acquire ContentReader.");
             }
 
             using (IMemoryOwner<byte> rawBuffer = memoryPool.Rent(readCount))
@@ -122,7 +115,7 @@ namespace TiffLibrary.ImageDecoder
                     readCount = await reader.ReadAsync(region.Offset, rawBuffer.Memory.Slice(0, region.Length), context.CancellationToken).ConfigureAwait(false);
                     if (readCount != region.Length)
                     {
-                        throw new InvalidDataException();
+                        ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                     }
 
                     // Decompress this plane
@@ -143,7 +136,7 @@ namespace TiffLibrary.ImageDecoder
                         int bytesWritten = _decompressionAlgorithm.Decompress(decompressionContext, rawBuffer.Memory.Slice(0, readCount), bufferMemory.Memory.Slice(totalBytesWritten, bytesPerScanline * imageHeight));
                         if (bytesWritten != (bytesPerScanline * imageHeight))
                         {
-                            throw new InvalidDataException();
+                            ThrowHelper.ThrowInvalidDataException("The number of bytes decoded is not expected.");
                         }
                         totalBytesWritten += bytesWritten;
                     }

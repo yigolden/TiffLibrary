@@ -19,7 +19,8 @@ namespace TiffLibrary.PixelBuffer
         /// <param name="buffer">The pixel buffer to wrap.</param>
         public TiffPixelBufferReaderAdapter(ITiffPixelBuffer<TPixel> buffer)
         {
-            _buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
+            ThrowHelper.ThrowIfNull(buffer);
+            _buffer = buffer;
             _size = new TiffSize(buffer.Width, buffer.Height);
         }
 
@@ -34,7 +35,7 @@ namespace TiffLibrary.PixelBuffer
         {
             if (offset.X >= (uint)_size.Width || offset.Y >= (uint)_size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
 
             int width = Math.Min(_size.Width - offset.X, destination.Width);

@@ -30,7 +30,7 @@ namespace TiffLibrary.PixelFormats.Converters
             {
                 if (typeof(TSource) != typeof(TiffGray16) || typeof(TDestination) != typeof(TiffRgba64))
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 return Unsafe.As<ITiffPixelBufferWriter<TSource>>(new TiffGray16ToRgba64PixelConverter(Unsafe.As<ITiffPixelBufferWriter<TiffRgba64>>(buffer)));
             }

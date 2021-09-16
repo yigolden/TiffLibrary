@@ -31,7 +31,7 @@ namespace TiffLibrary.PixelFormats.Converters
             {
                 if (typeof(TSource) != typeof(TiffMask) || typeof(TDestination) != typeof(TiffGray8))
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 return Unsafe.As<ITiffPixelBufferWriter<TSource>>(new TiffPassthroughPixelBufferWriter<TiffMask, TiffGray8>(Unsafe.As<ITiffPixelBufferWriter<TiffGray8>>(buffer)));
             }

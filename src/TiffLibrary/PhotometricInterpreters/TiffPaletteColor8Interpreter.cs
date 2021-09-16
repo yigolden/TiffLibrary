@@ -21,25 +21,19 @@ namespace TiffLibrary.PhotometricInterpreters
         [CLSCompliant(false)]
         public TiffPaletteColor8Interpreter(ushort[] colorMap)
         {
-            _colorMap = colorMap ?? throw new ArgumentNullException(nameof(colorMap));
+            ThrowHelper.ThrowIfNull(colorMap);
+            _colorMap = colorMap;
             if (_colorMap.Length < 3 * SingleColorCount)
             {
-                throw new ArgumentException($"Color map requires {3 * SingleColorCount} elements.", nameof(colorMap));
+                ThrowHelper.ThrowArgumentException($"Color map requires {3 * SingleColorCount} elements.", nameof(colorMap));
             }
         }
 
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             // Colormap array is read using TiffTagReader, its elements should be in machine-endian.
             ushort[] colorMap = _colorMap;

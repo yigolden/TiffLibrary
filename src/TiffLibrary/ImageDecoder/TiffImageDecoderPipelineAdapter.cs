@@ -25,8 +25,11 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="pipeline">The pipeline to use for decoding the IFD.</param>
         public TiffImageDecoderPipelineAdapter(TiffImageDecoderParameters parameters, ITiffImageDecoderPipelineNode pipeline)
         {
-            _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-            _pipeline = pipeline ?? throw new ArgumentNullException(nameof(pipeline));
+            ThrowHelper.ThrowIfNull(parameters);
+            ThrowHelper.ThrowIfNull(pipeline);
+
+            _parameters = parameters;
+            _pipeline = pipeline;
             CalculateOrientedSize();
         }
 
@@ -61,10 +64,8 @@ namespace TiffLibrary.ImageDecoder
         /// <inheritdoc />
         public override void Decode<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer)
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(writer);
+
             readSize = new TiffSize(Math.Max(0, Math.Min(writer.Width - destinationOffset.X, readSize.Width)), Math.Max(0, Math.Min(writer.Height - destinationOffset.Y, readSize.Height)));
             readSize = new TiffSize(Math.Max(0, Math.Min(Width - offset.X, readSize.Width)), Math.Max(0, Math.Min(Height - offset.Y, readSize.Height)));
             if (readSize.IsAreaEmpty)
@@ -74,7 +75,7 @@ namespace TiffLibrary.ImageDecoder
 
             if (_parameters.ContentSource is null)
             {
-                throw new InvalidOperationException("Failed to acquire ContentSource.");
+                ThrowHelper.ThrowInvalidOperationException("Failed to acquire ContentSource.");
             }
 
             using TiffFileContentReader reader = TiffSyncFileContentSource.WrapReader(_parameters.ContentSource.OpenReader());
@@ -97,10 +98,8 @@ namespace TiffLibrary.ImageDecoder
         /// <inheritdoc />
         public override async Task DecodeAsync<TPixel>(TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default)
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(writer);
+
             readSize = new TiffSize(Math.Max(0, Math.Min(writer.Width - destinationOffset.X, readSize.Width)), Math.Max(0, Math.Min(writer.Height - destinationOffset.Y, readSize.Height)));
             readSize = new TiffSize(Math.Max(0, Math.Min(Width - offset.X, readSize.Width)), Math.Max(0, Math.Min(Height - offset.Y, readSize.Height)));
             if (readSize.IsAreaEmpty)
@@ -110,7 +109,7 @@ namespace TiffLibrary.ImageDecoder
 
             if (_parameters.ContentSource is null)
             {
-                throw new InvalidOperationException("Failed to acquire ContentSource.");
+                ThrowHelper.ThrowInvalidOperationException("Failed to acquire ContentSource.");
             }
 
             TiffFileContentReader reader = await _parameters.ContentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);

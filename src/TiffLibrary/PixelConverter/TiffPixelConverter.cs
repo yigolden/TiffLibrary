@@ -36,37 +36,38 @@ namespace TiffLibrary.PixelConverter
         /// <param name="allowInPlaceConvert">If the size of two pixel formats are the same, set this flag to allow conversion to happen on the same buffer without allocating temporary buffer.</param>
         protected TiffPixelConverter(ITiffPixelBufferWriter<TDestination> writer, bool allowInPlaceConvert)
         {
-            _writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            ThrowHelper.ThrowIfNull(writer);
+            _writer = writer;
             _canInPlaceConvert = allowInPlaceConvert && Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TDestination>();
         }
 
         /// <inheritdoc />
-        public int Width => _writer?.Width ?? ThrowObjectDisposedException();
+        public int Width => _writer?.Width ?? ThrowHelper.ThrowObjectDisposedException<int>(GetType().FullName);
 
         /// <inheritdoc />
-        public int Height => _writer?.Height ?? ThrowObjectDisposedException();
+        public int Height => _writer?.Height ?? ThrowHelper.ThrowObjectDisposedException<int>(GetType().FullName);
 
         /// <inheritdoc />
         public TiffPixelSpanHandle<TSource> GetRowSpan(int rowIndex, int start, int length)
         {
             if (_writer is null)
             {
-                ThrowObjectDisposedException();
+                ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
             }
 
             int width = _writer.Width;
             int height = _writer.Height;
             if ((uint)rowIndex >= (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(rowIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             }
             if ((uint)start > (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if (length < 0 || (uint)(start + length) > (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             ConverterHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
@@ -83,22 +84,22 @@ namespace TiffLibrary.PixelConverter
         {
             if (_writer is null)
             {
-                ThrowObjectDisposedException();
+                ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
             }
 
             int width = _writer.Width;
             int height = _writer.Height;
             if ((uint)colIndex >= (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(colIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(colIndex));
             }
             if ((uint)start > (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if (length < 0 || (uint)(start + length) > (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             ConverterHandle? handle = Interlocked.Exchange(ref _cachedHandle, null);
@@ -126,12 +127,6 @@ namespace TiffLibrary.PixelConverter
                 _writer.Dispose();
             }
             _writer = null;
-        }
-
-        [DoesNotReturn]
-        private int ThrowObjectDisposedException()
-        {
-            throw new ObjectDisposedException(GetType().FullName);
         }
 
         /// <inheritdoc />
@@ -189,7 +184,7 @@ namespace TiffLibrary.PixelConverter
             {
                 if (_innerHandle is null)
                 {
-                    throw new ObjectDisposedException(GetType().FullName);
+                    ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
                 }
                 if (_useInplaceConvert)
                 {

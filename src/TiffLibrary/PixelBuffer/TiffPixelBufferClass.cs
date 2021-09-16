@@ -30,15 +30,15 @@ namespace TiffLibrary
         {
             if (width < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(width));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(width));
             }
             if (height < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(height));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(height));
             }
             if (buffer.Length < width * height)
             {
-                throw new ArgumentException("Pixel buffer is too small.", nameof(buffer));
+                ThrowHelper.ThrowArgumentException("Pixel buffer is too small.", nameof(buffer));
             }
 
             return new TiffPixelBuffer<TPixel>(new TiffMemoryPixelBuffer<TPixel>(buffer, width, height, writable: true));
@@ -67,15 +67,15 @@ namespace TiffLibrary
         {
             if (width < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(width));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(width));
             }
             if (height < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(height));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(height));
             }
             if (buffer.Length < width * height)
             {
-                throw new ArgumentException("Pixel buffer is too small.", nameof(buffer));
+                ThrowHelper.ThrowArgumentException("Pixel buffer is too small.", nameof(buffer));
             }
 
             return new TiffPixelBuffer<TPixel>(new TiffMemoryPixelBuffer<TPixel>(buffer, width, height));

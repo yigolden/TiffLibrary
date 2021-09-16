@@ -36,7 +36,7 @@ namespace TiffLibrary.Compression
         {
             if ((uint)quality > 100)
             {
-                throw new ArgumentOutOfRangeException(nameof(quality));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(quality));
             }
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = 1;
@@ -60,7 +60,7 @@ namespace TiffLibrary.Compression
             options = options ?? TiffJpegEncodingOptions.Default;
             if ((uint)options.Quality > 100)
             {
-                throw new ArgumentException("Quality should be between 0 and 100.");
+                ThrowHelper.ThrowArgumentException("Quality should be between 0 and 100.");
             }
             _photometricInterpretation = photometricInterpretation;
             _horizontalSubsampling = horizontalSubsampling;
@@ -154,7 +154,8 @@ namespace TiffLibrary.Compression
                     encoder.AddComponent(2, 1, 1, 1, 1, 1); // Cr component
                     break;
                 default:
-                    throw new NotSupportedException("JPEG compression only supports BlackIsZero, WhiteIsZero, RGB, YCbCr and CMYK photometric interpretation.");
+                    ThrowHelper.ThrowNotSupportedException("JPEG compression only supports BlackIsZero, WhiteIsZero, RGB, YCbCr and CMYK photometric interpretation.");
+                    return;
             }
             _encoder = encoder;
         }
@@ -163,14 +164,14 @@ namespace TiffLibrary.Compression
         {
             if (bitsPerSample.Count != _componentCount)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             // Currently only 8 bit is supported.
             foreach (ushort item in bitsPerSample)
             {
                 if (item != 8)
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
             }
         }
@@ -178,24 +179,17 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (outputWriter is null)
-            {
-                throw new ArgumentNullException(nameof(outputWriter));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(outputWriter);
 
             if (_encoder is null)
             {
-                throw new InvalidOperationException("JPEG encoder is not initialized.");
+                ThrowHelper.ThrowInvalidOperationException("JPEG encoder is not initialized.");
             }
 
             if (context.PhotometricInterpretation != _photometricInterpretation)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             CheckBitsPerSample(context.BitsPerSample);
 
@@ -232,7 +226,7 @@ namespace TiffLibrary.Compression
         {
             if (_encoder is null)
             {
-                throw new InvalidOperationException("JPEG encoder is not initialized.");
+                ThrowHelper.ThrowInvalidOperationException("JPEG encoder is not initialized.");
             }
 
             return new JpegTableWriter<TPixel>(_encoder, _useSharedHuffmanTables, _useSharedQuantizationTables);
@@ -298,10 +292,7 @@ namespace TiffLibrary.Compression
 
             public void WriteTables(IBufferWriter<byte> buffer, bool writeHuffmanTables, bool writeQuantizationTables)
             {
-                if (buffer is null)
-                {
-                    throw new ArgumentNullException(nameof(buffer));
-                }
+                ThrowHelper.ThrowIfNull(buffer);
 
                 var writer = new JpegWriter(buffer, minimumBufferSize: MinimumBufferSegmentSize);
 

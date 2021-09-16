@@ -18,7 +18,7 @@ namespace TiffLibrary
         {
             if (count <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
             _values = count == 1 ? Array.Empty<T>() : new T[count];
             _firstValue = default!;
@@ -30,19 +30,19 @@ namespace TiffLibrary
             {
                 if (_values is null)
                 {
-                    ThrowIndexOutOfRangeException();
+                    ThrowHelper.ThrowIndexOutOfRangeException();
                 }
 
                 if (_values.Length == 0)
                 {
                     if (index != 0)
                     {
-                        ThrowIndexOutOfRangeException();
+                        ThrowHelper.ThrowIndexOutOfRangeException();
                     }
                 }
                 else if ((uint)index >= (uint)_values.Length)
                 {
-                    ThrowIndexOutOfRangeException();
+                    ThrowHelper.ThrowIndexOutOfRangeException();
                 }
                 else
                 {
@@ -55,15 +55,7 @@ namespace TiffLibrary
                 }
 
             }
-            get => _values is null ? ThrowIndexOutOfRangeException() : (index == 0 ? _firstValue : _values[index]);
-        }
-
-        [DoesNotReturn]
-        private static T ThrowIndexOutOfRangeException()
-        {
-#pragma warning disable CA2201 // Do not raise reserved exception types
-            throw new IndexOutOfRangeException();
-#pragma warning restore CA2201
+            get => _values is null ? ThrowHelper.ThrowIndexOutOfRangeException<T>() : (index == 0 ? _firstValue : _values[index]);
         }
 
         public readonly bool IsEmpty => _values is null;

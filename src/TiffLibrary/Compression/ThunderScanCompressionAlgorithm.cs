@@ -23,19 +23,16 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("ThunderScan compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("ThunderScan compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 8)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             context.BitsPerSample = TiffValueCollection.Single<ushort>(4);
@@ -59,19 +56,16 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("ThunderScan compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("ThunderScan compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 4)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             ReadOnlySpan<sbyte> twoBitDiffs = MemoryMarshal.Cast<byte, sbyte>(TwoBitDiffDecodeTable);
@@ -187,7 +181,7 @@ namespace TiffLibrary.Compression
                 int bytesPerScanline = (width + 1) / 2;
                 if (outputSpan.Length < (bytesPerScanline * height))
                 {
-                    throw new ArgumentException("Destination is too small.");
+                    ThrowHelper.ThrowArgumentException("Destination is too small.");
                 }
 
                 _outputSpan = outputSpan;
@@ -260,7 +254,7 @@ namespace TiffLibrary.Compression
                 _remainingRowCount--;
                 if (_remainingRowCount < 0)
                 {
-                    throw new InvalidDataException("Too much data are unpacked.");
+                    ThrowHelper.ThrowInvalidDataException("Too much data are unpacked.");
                 }
             }
         }

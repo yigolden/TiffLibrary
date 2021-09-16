@@ -66,21 +66,21 @@ namespace TiffLibrary
         {
             if ((uint)offset.X > (uint)reader._size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((uint)offset.Y > (uint)reader._size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             int offsetX = reader._offset.X + offset.X;
             int offsetY = reader._offset.Y + offset.Y;
             if ((uint)offsetX > (uint)reader._size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((uint)offsetY > (uint)reader._size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             int sizeWidth = reader._size.Width - offset.X;
             int sizeHeight = reader._size.Height - offset.Y;
@@ -99,31 +99,31 @@ namespace TiffLibrary
         {
             if ((uint)offset.X > (uint)reader._size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((uint)offset.Y > (uint)reader._size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             int offsetX = reader._offset.X + offset.X;
             int offsetY = reader._offset.Y + offset.Y;
             if ((uint)offsetX > (uint)reader._size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((uint)offsetY > (uint)reader._size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             int sizeWidth = reader._size.Width - offset.X;
             int sizeHeight = reader._size.Height - offset.Y;
             if ((uint)size.Width > (uint)sizeWidth)
             {
-                throw new ArgumentOutOfRangeException(nameof(size));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(size));
             }
             if ((uint)size.Height > (uint)sizeHeight)
             {
-                throw new ArgumentOutOfRangeException(nameof(size));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(size));
             }
             return new TiffPixelBufferReader<TPixel>(reader._reader, new TiffPoint(offsetX, offsetY), size);
         }

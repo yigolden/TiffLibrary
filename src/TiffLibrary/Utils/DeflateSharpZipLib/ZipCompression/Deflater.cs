@@ -184,7 +184,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             }
             else if (level < NO_COMPRESSION || level > BEST_COMPRESSION)
             {
-                throw new ArgumentOutOfRangeException(nameof(level));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(level));
             }
 
             pending = new DeflaterPending();
@@ -333,7 +333,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         {
             if ((state & IS_FINISHING) != 0)
             {
-                throw new InvalidOperationException("Finish() already called");
+                ThrowHelper.ThrowInvalidOperationException("Finish() already called");
             }
             engine.SetInput(input, offset, count);
         }
@@ -355,7 +355,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             }
             else if (level < NO_COMPRESSION || level > BEST_COMPRESSION)
             {
-                throw new ArgumentOutOfRangeException(nameof(level));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(level));
             }
 
             if (this.level != level)
@@ -439,7 +439,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
             if (state == CLOSED_STATE)
             {
-                throw new InvalidOperationException("Deflater closed");
+                ThrowHelper.ThrowInvalidOperationException("Deflater closed");
             }
 
             if (state < BUSY_STATE)
@@ -569,7 +569,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         {
             if (state != INIT_STATE)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
 
             state = SETDICT_STATE;

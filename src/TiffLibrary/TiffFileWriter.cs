@@ -27,7 +27,8 @@ namespace TiffLibrary
 
         internal TiffFileWriter(TiffFileContentReaderWriter writer, bool leaveOpen, bool useBigTiff)
         {
-            _writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            ThrowHelper.ThrowIfNull(writer);
+            _writer = writer;
             _leaveOpen = leaveOpen;
 
             _position = useBigTiff ? 16 : 8;
@@ -36,8 +37,8 @@ namespace TiffLibrary
             _operationContext = useBigTiff ? TiffOperationContext.BigTIFF : TiffOperationContext.StandardTIFF;
         }
 
-        internal TiffOperationContext OperationContext => _operationContext ?? ThrowObjectDisposedException<TiffOperationContext>();
-        internal TiffFileContentReaderWriter InnerWriter => _writer ?? ThrowObjectDisposedException<TiffFileContentReaderWriter>();
+        internal TiffOperationContext OperationContext => _operationContext ?? ThrowHelper.ThrowObjectDisposedException<TiffOperationContext>(GetType().FullName);
+        internal TiffFileContentReaderWriter InnerWriter => _writer ?? ThrowHelper.ThrowObjectDisposedException<TiffFileContentReaderWriter>(GetType().FullName);
 
         /// <summary>
         /// Gets whether to use BigTIFF format.
@@ -59,18 +60,15 @@ namespace TiffLibrary
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
         public static Task<TiffFileWriter> OpenAsync(Stream stream, bool leaveOpen, bool useBigTiff = false, CancellationToken cancellationToken = default)
         {
-            if (stream is null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
+            ThrowHelper.ThrowIfNull(stream);
 
             if (!stream.CanSeek)
             {
-                throw new ArgumentException("Stream must be seekable.", nameof(stream));
+                ThrowHelper.ThrowArgumentException("Stream must be seekable.", nameof(stream));
             }
             if (!stream.CanWrite)
             {
-                throw new ArgumentException("Stream must be writable.", nameof(stream));
+                ThrowHelper.ThrowArgumentException("Stream must be writable.", nameof(stream));
             }
 
             return OpenAsync(new TiffStreamContentReaderWriter(stream, leaveOpen), false, useBigTiff, cancellationToken);
@@ -85,10 +83,7 @@ namespace TiffLibrary
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
         public static Task<TiffFileWriter> OpenAsync(string fileName, bool useBigTiff = false, CancellationToken cancellationToken = default)
         {
-            if (fileName is null)
-            {
-                throw new ArgumentNullException(nameof(fileName));
-            }
+            ThrowHelper.ThrowIfNull(fileName);
 
             var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
             return OpenAsync(new TiffStreamContentReaderWriter(fs, false), false, useBigTiff, cancellationToken);
@@ -104,10 +99,7 @@ namespace TiffLibrary
         /// <returns>The create <see cref="TiffFileWriter"/>.</returns>
         public static async Task<TiffFileWriter> OpenAsync(TiffFileContentReaderWriter writer, bool leaveOpen, bool useBigTiff = false, CancellationToken cancellationToken = default)
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(writer);
 
             TiffFileContentReaderWriter? disposeInstance = writer;
             byte[] smallBuffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
@@ -243,7 +235,7 @@ namespace TiffLibrary
                 int rwCount = await _writer!.ReadAsync(target, new ArraySegment<byte>(buffer, 0, 8), cancellationToken).ConfigureAwait(false);
                 if (!(_useBigTiff && rwCount == 8) && !(!_useBigTiff && rwCount >= 4))
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
                 int count = ParseImageFileDirectoryCount(buffer.AsSpan(0, 8));
 
@@ -293,10 +285,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
         public async Task<TiffStreamOffset> WriteBytesAsync(byte[] buffer, CancellationToken cancellationToken = default)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
             EnsureNotDisposed();
             cancellationToken.ThrowIfCancellationRequested();
@@ -320,17 +309,14 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
         public async Task<TiffStreamOffset> WriteBytesAsync(byte[] buffer, int index, int count, CancellationToken cancellationToken = default)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
             if ((uint)index >= (uint)buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
             }
             if ((uint)(index + count) > (uint)buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             EnsureNotDisposed();
@@ -393,10 +379,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
         public Task<TiffStreamOffset> WriteAlignedBytesAsync(byte[] buffer, CancellationToken cancellationToken = default)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
             return WriteAlignedBytesAsync(buffer, 0, buffer.Length, cancellationToken);
         }
@@ -411,17 +394,14 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the bytes have been written.</returns>
         public async Task<TiffStreamOffset> WriteAlignedBytesAsync(byte[] buffer, int index, int count, CancellationToken cancellationToken = default)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
             if ((uint)index >= (uint)buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
             }
             if ((uint)(index + count) > (uint)buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             EnsureNotDisposed();
@@ -783,7 +763,7 @@ namespace TiffLibrary
             Debug.Assert(_writer != null);
             if (_requireBigTiff && !_useBigTiff)
             {
-                throw new InvalidOperationException("Must use BigTIFF format. But it is disabled.");
+                ThrowHelper.ThrowInvalidOperationException("Must use BigTIFF format. But it is disabled.");
             }
 
             byte[] buffer = ArrayPool<byte>.Shared.Rent(SmallBufferSize);
@@ -809,21 +789,10 @@ namespace TiffLibrary
         {
             if (_writer is null)
             {
-                ThrowObjectDisposedException();
+                ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
             }
         }
 
-        [DoesNotReturn]
-        private static void ThrowObjectDisposedException()
-        {
-            throw new ObjectDisposedException(nameof(TiffFileWriter));
-        }
-
-        [DoesNotReturn]
-        private static T ThrowObjectDisposedException<T>()
-        {
-            throw new ObjectDisposedException(nameof(TiffFileWriter));
-        }
 
         /// <inheritdoc />
         public void Dispose()

@@ -95,7 +95,7 @@ namespace TiffLibrary
         /// </summary>
         /// <param name="index">A 0-based index.</param>
         /// <returns>The element value.</returns>
-        public T this[int index] => _values is null ? ThrowIndexOutOfRangeException() : (index == 0 ? _firstValue : _values[index]);
+        public T this[int index] => _values is null ? ThrowHelper.ThrowIndexOutOfRangeException<T>() : (index == 0 ? _firstValue : _values[index]);
 
         /// <summary>
         /// Gets whether the list is empty.
@@ -113,14 +113,6 @@ namespace TiffLibrary
         /// <returns></returns>
         [return: MaybeNull]
         public T GetFirstOrDefault() => _firstValue;
-
-        [DoesNotReturn]
-        private static T ThrowIndexOutOfRangeException()
-        {
-#pragma warning disable CA2201 // Do not raise reserved exception types
-            throw new IndexOutOfRangeException();
-#pragma warning restore CA2201
-        }
 
         /// <summary>
         /// The enumerator for <see cref="TiffValueCollection{T}"/>.
@@ -254,10 +246,7 @@ namespace TiffLibrary
         /// <returns>The created list.</returns>
         public static TiffValueCollection<T> UnsafeWrap<T>(T[] array)
         {
-            if (array is null)
-            {
-                throw new ArgumentNullException(nameof(array));
-            }
+            ThrowHelper.ThrowIfNull(array);
 
             return new TiffValueCollection<T>(array);
         }
@@ -351,7 +340,7 @@ namespace TiffLibrary
             {
                 if (destination.IsEmpty)
                 {
-                    throw new ArgumentException("Destination span is too small.", nameof(destination));
+                    ThrowHelper.ThrowArgumentException("Destination span is too small.", nameof(destination));
                 }
                 else
                 {
@@ -361,7 +350,7 @@ namespace TiffLibrary
             }
             if (source.Length > destination.Length)
             {
-                throw new ArgumentException("Destination span is too small.", nameof(destination));
+                ThrowHelper.ThrowArgumentException("Destination span is too small.", nameof(destination));
             }
             source.CopyTo(destination);
         }

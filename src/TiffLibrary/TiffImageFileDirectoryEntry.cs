@@ -142,7 +142,7 @@ namespace TiffLibrary
         {
             if (destination.Length < 12)
             {
-                throw new ArgumentException("Destination too short.", nameof(destination));
+                ThrowHelper.ThrowArgumentException("Destination too short.", nameof(destination));
             }
 
             ushort tag = (ushort)Tag, type = (ushort)Type;
@@ -172,7 +172,7 @@ namespace TiffLibrary
             {
                 if (destination.Length < 16)
                 {
-                    throw new ArgumentException("Destination too short.", nameof(destination));
+                    ThrowHelper.ThrowArgumentException("Destination too short.", nameof(destination));
                 }
 
                 ulong count64 = (ulong)ValueCount, offset64 = (ulong)ValueOffset;
@@ -188,7 +188,8 @@ namespace TiffLibrary
             }
             else
             {
-                throw new NotSupportedException();
+                ThrowHelper.ThrowNotSupportedException();
+                return default;
             }
         }
 
@@ -264,10 +265,7 @@ namespace TiffLibrary
 
         internal bool TryDetermineInlined(TiffOperationContext context, out bool isInlined)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (!TryDetermineValueLength(out long bytesLength))
             {
@@ -286,14 +284,11 @@ namespace TiffLibrary
         /// <param name="destination">The destination buffer.</param>
         public void RestoreRawOffsetBytes(TiffOperationContext context, Span<byte> destination)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (destination.Length < context.ByteCountOfValueOffsetField)
             {
-                throw new ArgumentException($"Destination requires at least {context.ByteCountOfValueOffsetField} bytes.", nameof(destination));
+                ThrowHelper.ThrowArgumentException($"Destination requires at least {context.ByteCountOfValueOffsetField} bytes.", nameof(destination));
             }
 
             if (context.ByteCountOfValueOffsetField == 4)

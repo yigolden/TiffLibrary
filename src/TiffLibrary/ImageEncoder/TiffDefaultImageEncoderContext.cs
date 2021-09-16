@@ -94,7 +94,7 @@ namespace TiffLibrary.ImageEncoder
             ITiffPixelConverterFactory? pixelConverterFactory = PixelConverterFactory;
             if (pixelConverterFactory is null)
             {
-                throw new InvalidOperationException("Failed to acquire PixelConverterFactory");
+                ThrowHelper.ThrowInvalidOperationException("Failed to acquire PixelConverterFactory");
             }
 
             ITiffPixelBufferWriter<TBuffer> innerWriter = TiffPixelBufferUnsafeMarshal.GetBuffer(writer, out TiffPoint offset, out TiffSize size);
@@ -105,10 +105,7 @@ namespace TiffLibrary.ImageEncoder
         /// <inheritdoc />
         public override void RegisterService(Type serviceType, object? service)
         {
-            if (serviceType is null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
+            ThrowHelper.ThrowIfNull(serviceType);
 
             bool lockTaken = false;
             try
@@ -134,10 +131,7 @@ namespace TiffLibrary.ImageEncoder
         /// <inheritdoc />
         public override object? GetService(Type serviceType)
         {
-            if (serviceType is null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
+            ThrowHelper.ThrowIfNull(serviceType);
 
             bool lockTaken = false;
             try

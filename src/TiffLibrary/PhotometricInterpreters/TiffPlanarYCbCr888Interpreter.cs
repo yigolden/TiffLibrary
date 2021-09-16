@@ -28,11 +28,11 @@ namespace TiffLibrary.PhotometricInterpreters
         {
             if (!coefficients.IsEmpty && coefficients.Count != 3)
             {
-                throw new ArgumentException("coefficient should have 3 none-zero elements.");
+                ThrowHelper.ThrowArgumentException("coefficient should have 3 none-zero elements.");
             }
             if (!referenceBlackWhite.IsEmpty && referenceBlackWhite.Count != 6)
             {
-                throw new ArgumentException("referenceWhiteBlack should have 6 elements.");
+                ThrowHelper.ThrowArgumentException("referenceWhiteBlack should have 6 elements.");
             }
             _converter = TiffYCbCrConverter8.Create(coefficients.GetOrCreateArray(), referenceBlackWhite.GetOrCreateArray());
         }
@@ -40,15 +40,8 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             TiffYCbCrConverter8 converter = _converter;
 

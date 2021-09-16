@@ -32,13 +32,13 @@ namespace TiffLibrary.Compression
             int bytesConsumed = 0;
             if (!JpegHuffmanDecodingTable.TryParse(0, (byte)componentIndex, dcTableBytes, out JpegHuffmanDecodingTable? dcTable, ref bytesConsumed))
             {
-                throw new InvalidDataException("Corrupted DC table is encountered.");
+                ThrowHelper.ThrowInvalidDataException("Corrupted DC table is encountered.");
             }
 
             // Build AC Table
             if (!JpegHuffmanDecodingTable.TryParse(1, (byte)componentIndex, acTableBytes, out JpegHuffmanDecodingTable? acTable, ref bytesConsumed))
             {
-                throw new InvalidDataException("Corrupted DC table is encountered.");
+                ThrowHelper.ThrowInvalidDataException("Corrupted DC table is encountered.");
             }
 
             _components[componentIndex] = new ComponentInfo(quantizationTable, dcTable, acTable);
@@ -51,13 +51,13 @@ namespace TiffLibrary.Compression
             // Make sure everything is initialized
             if (_components.Length == 0)
             {
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             }
             foreach (ComponentInfo component in _components)
             {
                 if (!component.IsInitialized)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
             }
 
@@ -69,15 +69,15 @@ namespace TiffLibrary.Compression
                 if (frameComponents.Length != 3)
                 {
                     // YCbCr image must have 3 components.
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
                 if (subsamplingFactors[0] != 1 && subsamplingFactors[0] != 2 && subsamplingFactors[0] != 4)
                 {
-                    throw new InvalidDataException("Subsampling factor other than 1,2,4 is not supported.");
+                    ThrowHelper.ThrowInvalidDataException("Subsampling factor other than 1,2,4 is not supported.");
                 }
                 if (subsamplingFactors[1] != 1 && subsamplingFactors[1] != 2 && subsamplingFactors[1] != 4)
                 {
-                    throw new InvalidDataException("Subsampling factor other than 1,2,4 is not supported.");
+                    ThrowHelper.ThrowInvalidDataException("Subsampling factor other than 1,2,4 is not supported.");
                 }
                 ushort maxFactor = Math.Max(subsamplingFactors[0], subsamplingFactors[1]);
                 frameComponents[0] = new JpegFrameComponentSpecificationParameters(0, (byte)maxFactor, (byte)maxFactor, 0);

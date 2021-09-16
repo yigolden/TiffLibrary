@@ -19,16 +19,16 @@ namespace TiffLibrary.Compression
         {
             if (skippedWidth % 8 != 0)
             {
-                throw new ArgumentException("must be a multiple of 8.", nameof(skippedWidth));
+                ThrowHelper.ThrowArgumentException("must be a multiple of 8.", nameof(skippedWidth));
             }
             if (skippedHeight % 8 != 0)
             {
-                throw new ArgumentException("must be a multiple of 8.", nameof(skippedHeight));
+                ThrowHelper.ThrowArgumentException("must be a multiple of 8.", nameof(skippedHeight));
             }
 
             if (output.Length < (bufferWidth * bufferHeight * componentCount))
             {
-                throw new ArgumentException("buffer is too small.", nameof(output));
+                ThrowHelper.ThrowArgumentException("buffer is too small.", nameof(output));
             }
 
             _skippedWidth = skippedWidth;

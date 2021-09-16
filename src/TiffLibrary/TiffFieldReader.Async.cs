@@ -52,7 +52,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -83,24 +83,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<byte>>(SlowReadByteFieldAsync<byte>(reader, entry, sizeLimit, null, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<byte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -133,7 +134,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, null, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private static async Task<TiffValueCollection<TDest>> SlowReadByteFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<byte, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -165,7 +167,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + offset, Unsafe.As<Memory<TDest>, Memory<byte>>(ref destination), cancellationToken).ConfigureAwait(false);
                 if (readCount != destination.Length)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 return;
@@ -178,7 +180,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyByteValues(buffer, destination.Span, convertFunc);
@@ -233,7 +235,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -264,24 +266,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<sbyte>>(SlowReadByteFieldAsync<sbyte>(reader, entry, sizeLimit, null, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<sbyte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -314,7 +317,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, null, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
 
@@ -347,7 +351,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -366,14 +370,15 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<string>>(SlowReadASCIIFieldAsync(reader, entry, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask<string> ReadASCIIFieldFirstStringAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
             if (sizeLimit < 0)
             {
@@ -401,7 +406,8 @@ namespace TiffLibrary
                 return new ValueTask<string>(SlowReadASCIIFieldFirstStringAsync(reader, entry, sizeLimit, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private static async Task<TiffValueCollection<string>> SlowReadASCIIFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, CancellationToken cancellationToken)
@@ -413,7 +419,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != entry.ValueCount)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 return ParseASCIIArray(new ReadOnlySpan<byte>(buffer, 0, readCount));
@@ -435,7 +441,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != entry.ValueCount)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 return ParseASCIIString(new ReadOnlySpan<byte>(buffer, 0, readCount));
@@ -490,7 +496,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -543,24 +549,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<ushort>>(SlowReadByteFieldAsync<ushort>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<ushort> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -622,7 +629,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadShortFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<short, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -656,7 +664,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyInt16Values(buffer, destination.Span, convertFunc);
@@ -708,7 +716,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -779,24 +787,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<short>>(SlowReadByteFieldAsync<short>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadSShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<short> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -884,7 +893,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         #endregion
@@ -931,7 +941,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1004,24 +1014,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<uint>>(SlowReadByteFieldAsync<uint>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<uint> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1110,7 +1121,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadLongFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<int, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -1144,7 +1156,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyInt32Values(buffer, destination.Span, convertFunc);
@@ -1196,7 +1208,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1308,24 +1320,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<int>>(SlowReadByteFieldAsync<int>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadSLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<int> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1468,7 +1481,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         #endregion
@@ -1515,7 +1529,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1609,24 +1623,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<ulong>>(SlowReadByteFieldAsync<ulong>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<ulong> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1743,7 +1758,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadLong8FieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<long, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -1777,7 +1793,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyInt64Values(buffer, destination.Span, convertFunc);
@@ -1829,7 +1845,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -1983,24 +1999,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<long>>(SlowReadByteFieldAsync<long>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadSLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<long> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2199,7 +2216,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         #endregion
@@ -2243,7 +2261,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2279,24 +2297,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<float>>(SlowReadFloatFieldAsync<float>(reader, entry, sizeLimit, null, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadFloatFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<float> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2335,7 +2354,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadFloatFieldAsync(reader, entry, offset, destination, null, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadFloatFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<float, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -2369,7 +2389,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyFloatValues(buffer, destination.Span, convertFunc);
@@ -2421,7 +2441,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2480,24 +2500,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<double>>(SlowReadFloatFieldAsync<double>(reader, entry, sizeLimit, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadDoubleFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<double> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2567,7 +2588,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadFloatFieldAsync(reader, entry, offset, destination, v => v, cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadDoubleFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<double, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -2601,7 +2623,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyDoubleValues(buffer, destination.Span, convertFunc);
@@ -2656,7 +2678,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2750,24 +2772,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffRational>>(SlowReadByteFieldAsync(reader, entry, sizeLimit, v => new TiffRational(v, 1), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -2879,7 +2902,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => new TiffRational(v, 1), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private async Task<TiffValueCollection<TDest>> SlowReadRationalFieldAsync<TDest>(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, Func<TiffRational, TDest>? convertFunc, CancellationToken cancellationToken) where TDest : struct
@@ -2913,7 +2937,7 @@ namespace TiffLibrary
                 int readCount = await reader.ReadAsync(entry.ValueOffset + sizeOfElement * offset, new ArraySegment<byte>(buffer, 0, fieldLength), cancellationToken).ConfigureAwait(false);
                 if (readCount != fieldLength)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("The number of bytes read from file is less than expected.");
                 }
 
                 InternalCopyRationalValues(buffer, destination.Span, convertFunc);
@@ -2965,7 +2989,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -3097,24 +3121,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffSRational>>(SlowReadByteFieldAsync(reader, entry, sizeLimit, v => new TiffSRational(v, 1), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadSRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffSRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -3281,7 +3306,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadByteFieldAsync(reader, entry, offset, destination, v => new TiffSRational(v, 1), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         #endregion
@@ -3325,7 +3351,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -3361,24 +3387,25 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, sizeLimit, offset => new TiffStreamOffset(offset), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         private ValueTask ReadIFDFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -3415,7 +3442,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadLongFieldAsync(reader, entry, offset, destination, offset => new TiffStreamOffset(offset), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
         #endregion
@@ -3459,7 +3487,7 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -3516,7 +3544,8 @@ namespace TiffLibrary
                 return new ValueTask<TiffValueCollection<TiffStreamOffset>>(SlowReadLongFieldAsync(reader, entry, sizeLimit, v => new TiffStreamOffset((uint)v), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
 
@@ -3524,17 +3553,17 @@ namespace TiffLibrary
         {
             if (_context is null)
             {
-                throw new ObjectDisposedException(nameof(TiffFieldReader));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
             }
 
             long valueCount = entry.ValueCount;
             if ((ulong)offset > (ulong)valueCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
             if ((ulong)destination.Length > (ulong)(valueCount - offset))
             {
-                throw new ArgumentOutOfRangeException(nameof(destination));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(destination));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -3600,7 +3629,8 @@ namespace TiffLibrary
                 return new ValueTask(SlowReadLongFieldAsync(reader, entry, offset, destination, v => new TiffStreamOffset((uint)v), cancellationToken));
             }
 
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
+            return default;
         }
 
 

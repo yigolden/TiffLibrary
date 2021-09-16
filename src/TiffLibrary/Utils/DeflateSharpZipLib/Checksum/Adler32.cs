@@ -110,21 +110,6 @@ namespace ICSharpCode.SharpZipLib.Checksum
         }
 
         /// <summary>
-        /// Updates the Adler32 data checksum with the bytes taken from
-        /// a block of data.
-        /// </summary>
-        /// <param name="buffer">Contains the data to update the checksum with.</param>
-        public void Update(byte[] buffer)
-        {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
-            Update(buffer.AsSpan());
-        }
-
-        /// <summary>
         /// Update Adler32 data checksum based on a portion of a block of data
         /// </summary>
         /// <param name = "span">

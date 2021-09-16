@@ -63,7 +63,7 @@ namespace TiffLibrary
         {
             if ((uint)rowIndex >= (uint)_size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(rowIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             }
             if (_writer is null)
             {
@@ -84,15 +84,15 @@ namespace TiffLibrary
         {
             if ((uint)rowIndex >= (uint)_size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(rowIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             }
             if ((uint)start > (uint)_size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if ((uint)(start + length) > (uint)_size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             if (_writer is null)
@@ -115,15 +115,15 @@ namespace TiffLibrary
         {
             if ((uint)colIndex >= (uint)_size.Width)
             {
-                throw new ArgumentOutOfRangeException(nameof(colIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(colIndex));
             }
             if ((uint)start > (uint)_size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if ((uint)(start + length) > (uint)_size.Height)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             if (_writer is null)

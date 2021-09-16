@@ -37,27 +37,20 @@ namespace TiffLibrary.ImageEncoder
         [CLSCompliant(false)]
         public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             // Make sure we are operating on YCbCr data.
             TiffValueCollection<ushort> bitsPerSample = context.BitsPerSample;
             if (bitsPerSample.Count != 3)
             {
-                throw new InvalidOperationException("Chroma subsampling can not be applied to this image.");
+                ThrowHelper.ThrowInvalidOperationException("Chroma subsampling can not be applied to this image.");
             }
             for (int i = 0; i < bitsPerSample.Count; i++)
             {
                 if (bitsPerSample[i] != 8)
                 {
-                    throw new InvalidOperationException("Chroma subsampling can not be applied to this image.");
+                    ThrowHelper.ThrowInvalidOperationException("Chroma subsampling can not be applied to this image.");
                 }
             }
 

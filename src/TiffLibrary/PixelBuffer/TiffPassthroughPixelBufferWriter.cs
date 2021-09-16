@@ -69,7 +69,7 @@ namespace TiffLibrary.PixelBuffer
             {
                 if (_innerHandle is null)
                 {
-                    throw new ObjectDisposedException(GetType().FullName);
+                    ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
                 }
                 return MemoryMarshal.Cast<TDestination, TSource>(_innerHandle.GetSpan());
             }

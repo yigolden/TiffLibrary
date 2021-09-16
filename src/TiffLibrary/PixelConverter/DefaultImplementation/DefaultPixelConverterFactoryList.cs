@@ -147,7 +147,7 @@ namespace TiffLibrary.PixelConverter
         {
             if (!factory.IsConvertible<TSource, TDestination>())
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             _factories.Add(new ConverterFactoryDescriptor(typeof(TSource), typeof(TDestination), factory));
         }

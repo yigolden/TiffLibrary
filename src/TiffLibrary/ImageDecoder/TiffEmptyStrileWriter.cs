@@ -15,10 +15,7 @@ namespace TiffLibrary.ImageDecoder
 
         public void Write(TiffImageDecoderContext context)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             TiffRgba32 fillColor = _fillColor;
             using TiffPixelBufferWriter<TiffRgba32> writer = context.GetWriter<TiffRgba32>();

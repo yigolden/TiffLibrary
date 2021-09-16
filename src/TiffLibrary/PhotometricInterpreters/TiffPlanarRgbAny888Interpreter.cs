@@ -26,11 +26,11 @@ namespace TiffLibrary.PhotometricInterpreters
         {
             if (bitsPerSample.Count != 3)
             {
-                throw new ArgumentOutOfRangeException(nameof(bitsPerSample));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsPerSample));
             }
             if ((uint)bitsPerSample[0] > 8 || (uint)bitsPerSample[1] > 8 || (uint)bitsPerSample[2] > 8)
             {
-                throw new ArgumentOutOfRangeException(nameof(bitsPerSample));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsPerSample));
             }
             if (fillOrder == 0)
             {
@@ -43,15 +43,8 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             Span<ushort> bitsPerSample = stackalloc ushort[3];
             _bitsPerSample.CopyTo(bitsPerSample);

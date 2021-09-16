@@ -133,7 +133,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                         break;
 
                     default:
-                        throw new InvalidOperationException("unknown compressionFunction");
+                        ThrowHelper.ThrowInvalidOperationException("unknown compressionFunction");
+                        progress = false;
+                        break;
                 }
             } while (pending.IsFlushed && progress); // repeat while we have no pending output and progress was made
             return progress;
@@ -150,17 +152,17 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         {
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(offset));
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             if (inputOff < inputEnd)
             {
-                throw new InvalidOperationException("Old input was not completely processed");
+                ThrowHelper.ThrowInvalidOperationException("Old input was not completely processed");
             }
 
             int end = offset + count;
@@ -170,7 +172,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             */
             if ((offset > end) || (end > buffer.Length))
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             inputBuf = buffer;
@@ -303,7 +305,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         {
             if ((level < 0) || (level > 9))
             {
-                throw new ArgumentOutOfRangeException(nameof(level));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(level));
             }
 
             goodLength = DeflaterConstants.GOOD_LENGTH[level];

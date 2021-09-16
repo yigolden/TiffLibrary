@@ -17,7 +17,8 @@ namespace TiffLibrary
 
         public TiffFileStreamContentSource(string fileName, bool preferAsync)
         {
-            _fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+            ThrowHelper.ThrowIfNull(fileName);
+            _fileName = fileName;
             _preferAsync = preferAsync;
             _lock = new object();
             _fileStream = GetOrCreateStream(preferAsync);
@@ -30,7 +31,7 @@ namespace TiffLibrary
                 string? fileName = _fileName;
                 if (fileName is null)
                 {
-                    throw new ObjectDisposedException(nameof(TiffFileStreamContentSource));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(TiffFileStreamContentSource));
                 }
                 FileStream? fs = _fileStream;
                 if (fs is not null && fs.IsAsync == useAsync)
@@ -188,7 +189,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {
@@ -216,7 +217,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {
@@ -266,7 +267,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {
@@ -298,7 +299,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {

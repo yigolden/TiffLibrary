@@ -17,8 +17,10 @@ namespace TiffLibrary.PixelConverter
         public TiffCombinedPixelConverter(ITiffPixelBufferWriter<TDestination> writer, ITiffPixelSpanConverter<TSource, TIntermediate> converter1, ITiffPixelSpanConverter<TIntermediate, TDestination> converter2, bool allowInPlaceConvert = true)
             : base(writer, allowInPlaceConvert && Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TIntermediate>())
         {
-            _converter1 = converter1 ?? throw new ArgumentNullException(nameof(converter1));
-            _converter2 = converter2 ?? throw new ArgumentNullException(nameof(converter2));
+            ThrowHelper.ThrowIfNull(converter1);
+            ThrowHelper.ThrowIfNull(converter2);
+            _converter1 = converter1;
+            _converter2 = converter2;
             _canInPlaceConvert = allowInPlaceConvert && Unsafe.SizeOf<TSource>() == Unsafe.SizeOf<TIntermediate>() && Unsafe.SizeOf<TIntermediate>() == Unsafe.SizeOf<TDestination>();
 
             // Temparary buffer
@@ -29,7 +31,7 @@ namespace TiffLibrary.PixelConverter
         {
             if (_writer is null)
             {
-                throw new ObjectDisposedException(GetType().FullName);
+                ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
             }
 
             if (_canInPlaceConvert)

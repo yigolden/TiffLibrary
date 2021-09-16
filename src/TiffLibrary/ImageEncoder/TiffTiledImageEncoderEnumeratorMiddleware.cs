@@ -20,11 +20,11 @@ namespace TiffLibrary.ImageEncoder
         {
             if (tileSize.Width < 16 || tileSize.Height < 16)
             {
-                throw new ArgumentOutOfRangeException(nameof(tileSize));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(tileSize));
             }
             if ((tileSize.Width % 16 != 0) || (tileSize.Height % 16 != 0))
             {
-                throw new ArgumentOutOfRangeException(nameof(tileSize));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(tileSize));
             }
             _tileSize = tileSize;
         }
@@ -38,15 +38,8 @@ namespace TiffLibrary.ImageEncoder
         [CLSCompliant(false)]
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             var state = context.GetService(typeof(TiffParallelEncodingState)) as TiffParallelEncodingState;
             TiffCroppedImageEncoderContext<TPixel>? wrappedContext = null;

@@ -7,10 +7,8 @@ namespace TiffLibrary.ImageEncoder
     {
         public static async Task<IDisposable> LockAsync<T>(this TiffImageEncoderContext<T> context) where T : unmanaged
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
+
             ITiffParallelMutexService? mutexService = context.GetService(typeof(ITiffParallelMutexService)) as ITiffParallelMutexService;
             if (mutexService is null)
             {

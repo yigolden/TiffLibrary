@@ -31,7 +31,7 @@ namespace TiffLibrary
         {
             if (_writer is null)
             {
-                throw new InvalidOperationException("Writer is not initialized.");
+                ThrowHelper.ThrowInvalidOperationException("Writer is not initialized.");
             }
 
             FlushBuffer();
@@ -50,7 +50,7 @@ namespace TiffLibrary
         {
             if (_writer is null)
             {
-                throw new InvalidOperationException("Writer is not initialized.");
+                ThrowHelper.ThrowInvalidOperationException("Writer is not initialized.");
             }
 
             FlushBuffer();
@@ -109,7 +109,7 @@ namespace TiffLibrary
         {
             if ((uint)bitLength > 32u)
             {
-                throw new ArgumentOutOfRangeException(nameof(bitLength));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitLength));
             }
 
             if (_bitsInRegister > 32)

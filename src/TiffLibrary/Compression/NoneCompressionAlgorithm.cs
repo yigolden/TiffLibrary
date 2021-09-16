@@ -16,15 +16,8 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (outputWriter is null)
-            {
-                throw new ArgumentNullException(nameof(outputWriter));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(outputWriter);
 
             input.CopyTo(outputWriter.GetMemory(input.Length));
             outputWriter.Advance(input.Length);

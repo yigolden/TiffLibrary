@@ -42,19 +42,16 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("T4 compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("T4 compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 1)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             ReadOnlySpan<byte> inputSpan = input.Span;
@@ -72,7 +69,7 @@ namespace TiffLibrary.Compression
             {
                 if (scanlinesBufferSpan.Length < width)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("Destination buffer is too small.");
                 }
                 Span<byte> scanline = scanlinesBufferSpan.Slice(0, width);
                 scanlinesBufferSpan = scanlinesBufferSpan.Slice(width);
@@ -88,14 +85,14 @@ namespace TiffLibrary.Compression
                     int filledBits = 8 - (bitReader.ConsumedBits + 12) % 8;
                     if (bitReader.Peek(filledBits) != 0)
                     {
-                        throw new InvalidDataException();
+                        ThrowHelper.ThrowInvalidDataException();
                     }
 
                     // Confirm it is indeed an EOL code.
                     int value = (int)bitReader.Read(filledBits + 12);
                     if (value != 0b000000000001)
                     {
-                        throw new InvalidDataException();
+                        ThrowHelper.ThrowInvalidDataException();
                     }
                 }
 
@@ -110,7 +107,7 @@ namespace TiffLibrary.Compression
                 {
                     if (referenceScanline.IsEmpty)
                     {
-                        throw new InvalidDataException();
+                        ThrowHelper.ThrowInvalidDataException();
                     }
                     Decode2DScanline(ref bitReader, whiteIsZero, referenceScanline, scanline);
                 }
@@ -134,7 +131,7 @@ namespace TiffLibrary.Compression
                 int runLength = currentTable.DecodeRun(ref bitReader);
                 if ((uint)runLength > (uint)scanline.Length)
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
                 scanline.Slice(0, runLength).Fill(fillValue);
                 scanline = scanline.Slice(runLength);
@@ -183,7 +180,7 @@ namespace TiffLibrary.Compression
                 // Look up in the table and advance past this code.
                 if (!decodingTable.TryLookup(value, out tableEntry))
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
                 bitReader.Advance(tableEntry.BitsRequired);
 
@@ -204,7 +201,7 @@ namespace TiffLibrary.Compression
                         int runLength = currentTable.DecodeRun(ref bitReader);
                         if ((uint)runLength > (uint)(scanline.Length - unpacked))
                         {
-                            throw new InvalidOperationException();
+                            ThrowHelper.ThrowInvalidDataException();
                         }
                         scanline.Slice(unpacked, runLength).Fill(fillByte);
                         unpacked += runLength;
@@ -214,7 +211,7 @@ namespace TiffLibrary.Compression
                         runLength = currentTable.DecodeRun(ref bitReader);
                         if ((uint)runLength > (uint)(scanline.Length - unpacked))
                         {
-                            throw new InvalidOperationException();
+                            ThrowHelper.ThrowInvalidDataException();
                         }
                         scanline.Slice(unpacked, runLength).Fill(fillByte);
                         unpacked += runLength;
@@ -280,7 +277,8 @@ namespace TiffLibrary.Compression
                         CcittHelper.SwapTable(ref currentTable, ref otherTable);
                         break;
                     default:
-                        throw new NotSupportedException("1D and 2D Extensions not supportted.");
+                        ThrowHelper.ThrowNotSupportedException("1D and 2D Extensions not supportted.");
+                        break;
                 }
 
                 // This line is fully unpacked. Should exit and process next line.
@@ -290,7 +288,7 @@ namespace TiffLibrary.Compression
                 }
                 else if (unpacked > width)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
             }
 

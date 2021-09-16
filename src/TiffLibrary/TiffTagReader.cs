@@ -18,8 +18,10 @@ namespace TiffLibrary
         /// <param name="imageFileDirectory">The IFD to read.</param>
         public TiffTagReader(TiffFieldReader reader, TiffImageFileDirectory imageFileDirectory)
         {
-            Reader = reader ?? throw new ArgumentNullException(nameof(reader));
-            ImageFileDirectory = imageFileDirectory ?? throw new ArgumentNullException(nameof(imageFileDirectory));
+            ThrowHelper.ThrowIfNull(reader);
+            ThrowHelper.ThrowIfNull(imageFileDirectory);
+            Reader = reader;
+            ImageFileDirectory = imageFileDirectory;
         }
 
         /// <summary>
@@ -56,12 +58,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -93,12 +95,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -136,12 +138,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -173,12 +175,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -205,12 +207,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -232,12 +234,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -261,12 +263,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -289,12 +291,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -332,12 +334,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -369,12 +371,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -412,12 +414,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -449,12 +451,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -492,12 +494,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -529,12 +531,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -572,12 +574,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -599,12 +601,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -627,12 +629,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -670,12 +672,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -707,12 +709,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -750,12 +752,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -787,12 +789,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -830,12 +832,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -867,12 +869,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -910,12 +912,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -947,12 +949,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -990,12 +992,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -1027,12 +1029,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -1070,12 +1072,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);
@@ -1107,12 +1109,12 @@ namespace TiffLibrary
         {
             if (Reader is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             if (ImageFileDirectory is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException("This instance is not initialized.");
             }
 
             TiffImageFileDirectoryEntry entry = ImageFileDirectory.FindEntry(tag);

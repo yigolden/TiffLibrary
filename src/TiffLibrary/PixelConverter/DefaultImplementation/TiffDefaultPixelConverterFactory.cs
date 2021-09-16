@@ -24,10 +24,7 @@ namespace TiffLibrary.PixelConverter
                     where TSource : unmanaged
                     where TDestination : unmanaged
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(writer);
 
             if (typeof(TSource) == typeof(TDestination))
             {
@@ -50,7 +47,7 @@ namespace TiffLibrary.PixelConverter
 
             if (factory is null)
             {
-                throw new InvalidOperationException($"No converter from {typeof(TSource).FullName} to {typeof(TDestination).FullName} is found.");
+                ThrowHelper.ThrowInvalidOperationException($"No converter from {typeof(TSource).FullName} to {typeof(TDestination).FullName} is found.");
             }
 
             ITiffPixelBufferWriter<TSource> converter = factory.CreateConverter<TSource, TDestination>(writer);
@@ -60,7 +57,8 @@ namespace TiffLibrary.PixelConverter
                 return converter;
             }
 
-            throw new InvalidOperationException($"No converter from {typeof(TSource).FullName} to {typeof(TDestination).FullName} is found.");
+            ThrowHelper.ThrowInvalidOperationException($"No converter from {typeof(TSource).FullName} to {typeof(TDestination).FullName} is found.");
+            return null!;
         }
 
         /// <summary>

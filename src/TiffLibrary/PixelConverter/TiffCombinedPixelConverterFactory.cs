@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace TiffLibrary.PixelConverter
 {
@@ -21,8 +20,10 @@ namespace TiffLibrary.PixelConverter
 
         public TiffCombinedPixelConverterFactory(ITiffPixelSpanConverter<TSource, TIntermediate> converter1, ITiffPixelSpanConverter<TIntermediate, TDestination> converter2, bool allowInPlaceConvert = true)
         {
-            _converter1 = converter1 ?? throw new ArgumentNullException(nameof(converter1));
-            _converter2 = converter2 ?? throw new ArgumentNullException(nameof(converter2));
+            ThrowHelper.ThrowIfNull(converter1);
+            ThrowHelper.ThrowIfNull(converter2);
+            _converter1 = converter1;
+            _converter2 = converter2;
             _allowInPlaceConvert = allowInPlaceConvert;
         }
 
@@ -37,7 +38,7 @@ namespace TiffLibrary.PixelConverter
         {
             if (typeof(TSource) != typeof(TSource1) || typeof(TDestination) != typeof(TDestination1))
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
 
             return Unsafe.As<ITiffPixelBufferWriter<TSource1>>(new TiffCombinedPixelConverter<TSource, TIntermediate, TDestination>(Unsafe.As<ITiffPixelBufferWriter<TDestination>>(buffer), _converter1, _converter2, _allowInPlaceConvert));

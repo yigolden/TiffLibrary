@@ -26,9 +26,10 @@ namespace TiffLibrary.PhotometricInterpreters
         [CLSCompliant(false)]
         public TiffPaletteColorAny8Interpreter(ushort[] colorMap, int bitCount, TiffFillOrder fillOrder = TiffFillOrder.HigherOrderBitsFirst)
         {
+            ThrowHelper.ThrowIfNull(colorMap);
             if ((uint)bitCount > 32)
             {
-                throw new ArgumentOutOfRangeException(nameof(bitCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitCount));
             }
             if (fillOrder == 0)
             {
@@ -36,25 +37,18 @@ namespace TiffLibrary.PhotometricInterpreters
             }
             _bitCount = bitCount;
             _fillOrder = fillOrder;
-            _colorMap = colorMap ?? throw new ArgumentNullException(nameof(colorMap));
+            _colorMap = colorMap;
             if (_colorMap.Length < 3 * SingleColorCount)
             {
-                throw new ArgumentException($"Color map requires {3 * SingleColorCount} elements.", nameof(colorMap));
+                ThrowHelper.ThrowArgumentException($"Color map requires {3 * SingleColorCount} elements.", nameof(colorMap));
             }
         }
 
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             // Colormap array is read using TiffTagReader, its elements should be in machine-endian.
             ushort[] colorMap = _colorMap;

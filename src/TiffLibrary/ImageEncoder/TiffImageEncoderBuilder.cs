@@ -123,7 +123,8 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new YCbCr24Encoder<TPixel>());
                     break;
                 default:
-                    throw new NotSupportedException("The selected photometric interpretation is not supported.");
+                    ThrowHelper.ThrowNotSupportedException("The selected photometric interpretation is not supported.");
+                    break;
             }
 
             if (useHorizontalDifferencingPredictor)
@@ -140,29 +141,29 @@ namespace TiffLibrary
 
                 if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)
                 {
-                    throw new InvalidOperationException("HorizontalChromaSubSampling can only be 1, 2, or 4.");
+                    ThrowHelper.ThrowInvalidOperationException("HorizontalChromaSubSampling can only be 1, 2, or 4.");
                 }
                 if (verticalSubsampling != 1 && verticalSubsampling != 2 && verticalSubsampling != 4)
                 {
-                    throw new InvalidOperationException("VerticalChromaSubSampling can only be 1, 2, or 4.");
+                    ThrowHelper.ThrowInvalidOperationException("HorizontalChromaSubSampling can only be 1, 2, or 4.");
                 }
 
                 if (IsTiled)
                 {
                     if ((TileSize.Width % horizontalSubsampling) != 0)
                     {
-                        throw new InvalidOperationException("TileWidth must be an integer multiple of HorizontalChromaSubSampling.");
+                        ThrowHelper.ThrowInvalidOperationException("TileWidth must be an integer multiple of HorizontalChromaSubSampling.");
                     }
                     if ((TileSize.Height % verticalSubsampling) != 0)
                     {
-                        throw new InvalidOperationException("TileLength must be an integer multiple of VerticalChromaSubSampling.");
+                        ThrowHelper.ThrowInvalidOperationException("TileLength must be an integer multiple of VerticalChromaSubSampling.");
                     }
                 }
                 else
                 {
                     if (RowsPerStrip != 0 && (RowsPerStrip % verticalSubsampling) != 0)
                     {
-                        throw new InvalidOperationException("RowsPerStrip is required to be an integer multiple of VerticalChromaSubSampling.");
+                        ThrowHelper.ThrowInvalidOperationException("RowsPerStrip is required to be an integer multiple of VerticalChromaSubSampling.");
                     }
                 }
 
@@ -199,7 +200,7 @@ namespace TiffLibrary
                     TiffJpegEncodingOptions jpegOptions = JpegOptions ?? TiffJpegEncodingOptions.Default;
                     if ((uint)jpegOptions.Quality > 100)
                     {
-                        throw new InvalidOperationException("JpegQuality should be set between 0 and 100.");
+                        ThrowHelper.ThrowInvalidOperationException("JpegQuality should be set between 0 and 100.");
                     }
                     var jpegCompressionAlgorithm = new JpegCompressionAlgorithm(PhotometricInterpretation, horizontalSubsampling, verticalSubsampling, jpegOptions);
                     pipelineBuilder.Add(jpegCompressionAlgorithm.GetTableWriter<TPixel>());
@@ -215,11 +216,14 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new TiffImageCompressionMiddleware<TPixel>(Compression, NeXTCompressionAlgorithm.Instance));
                     break;
                 case TiffCompression.OldDeflate:
-                    throw new NotSupportedException("Legacy Deflate compression is not supported. Use TiffCompression.Deflate instead.");
+                    ThrowHelper.ThrowNotSupportedException("Legacy Deflate compression is not supported. Use TiffCompression.Deflate instead.");
+                    break;
                 case TiffCompression.OldJpeg:
-                    throw new NotSupportedException("Legacy JPEG compression is not supported. Use TiffCompression.Jpeg instead.");
+                    ThrowHelper.ThrowNotSupportedException("Legacy JPEG compression is not supported. Use TiffCompression.Jpeg instead.");
+                    break;
                 default:
-                    throw new NotSupportedException("The selected compression algorithm is not supported.");
+                    ThrowHelper.ThrowNotSupportedException("The selected compression algorithm is not supported.");
+                    break;
             }
 
             ITiffImageEncoderPipelineNode<TPixel> imageEncoder = pipelineBuilder.Build();

@@ -12,7 +12,7 @@ namespace TiffLibrary.ImageDecoder
         {
             if (maxDegreeOfParallelism <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxDegreeOfParallelism));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(maxDegreeOfParallelism));
             }
             _maxDegreeOfParallelism = maxDegreeOfParallelism;
         }

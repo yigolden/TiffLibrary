@@ -31,14 +31,8 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             if (!_isAlphaAssociated)
             {
@@ -79,11 +73,11 @@ namespace TiffLibrary.PhotometricInterpreters
         {
             if (source.Length < 8 * count)
             {
-                throw new ArgumentException("source too short.", nameof(source));
+                ThrowHelper.ThrowArgumentException("source too short.", nameof(source));
             }
             if (destination.Length < 8 * count)
             {
-                throw new ArgumentException("destination too short.", nameof(destination));
+                ThrowHelper.ThrowArgumentException("destination too short.", nameof(destination));
             }
 
             if (endiannessMatches)

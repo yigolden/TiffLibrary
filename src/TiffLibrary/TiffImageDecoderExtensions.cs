@@ -23,10 +23,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
             if (buffer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -47,10 +44,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
             if (buffer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -72,10 +66,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
             if (buffer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -99,10 +90,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
             if (buffer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -141,15 +129,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static async Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
             await decoder.DecodeAsync(default, new TiffSize(buffer.Width, buffer.Height), default, adapter, cancellationToken).ConfigureAwait(false);
@@ -166,15 +147,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static async Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
             await decoder.DecodeAsync(offset, new TiffSize(buffer.Width, buffer.Height), default, adapter, cancellationToken).ConfigureAwait(false);
@@ -192,15 +166,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static async Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             using var adapter = new TiffPixelBufferWriterAdapter<TPixel>(buffer);
             await decoder.DecodeAsync(offset, readSize, default, adapter, cancellationToken).ConfigureAwait(false);
@@ -219,15 +186,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(buffer);
 
             return decoder.DecodeAsync(offset, readSize, destinationOffset, new TiffPixelBufferWriterAdapter<TPixel>(buffer), cancellationToken);
         }
@@ -246,10 +206,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -270,10 +228,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -295,10 +251,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -321,10 +275,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, TiffPoint destinationOffset, TiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+
             if (writer.IsEmpty)
             {
                 return Task.CompletedTask;
@@ -363,14 +315,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(writer);
 
             return decoder.DecodeAsync(default, new TiffSize(writer.Width, writer.Height), default, writer, cancellationToken);
         }
@@ -386,14 +332,8 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
+            ThrowHelper.ThrowIfNull(writer);
 
             return decoder.DecodeAsync(offset, new TiffSize(writer.Width, writer.Height), default, writer, cancellationToken);
         }
@@ -410,10 +350,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image has been decoded.</returns>
         public static Task DecodeAsync<TPixel>(this TiffImageDecoder decoder, TiffPoint offset, TiffSize readSize, ITiffPixelBufferWriter<TPixel> writer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (decoder is null)
-            {
-                throw new ArgumentNullException(nameof(decoder));
-            }
+            ThrowHelper.ThrowIfNull(decoder);
 
             return decoder.DecodeAsync(offset, readSize, default, writer, cancellationToken);
         }

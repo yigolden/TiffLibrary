@@ -17,11 +17,11 @@ namespace TiffLibrary
         {
             if (width < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(width));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(width));
             }
             if (height < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(height));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(height));
             }
             Width = width;
             Height = height;

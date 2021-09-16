@@ -26,10 +26,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="middleware">The middleware to add.</param>
         public void Add(ITiffImageEncoderMiddleware<TPixel> middleware)
         {
-            if (middleware is null)
-            {
-                throw new ArgumentNullException(nameof(middleware));
-            }
+            ThrowHelper.ThrowIfNull(middleware);
 
             _middlewares.Add(middleware);
         }
@@ -40,10 +37,7 @@ namespace TiffLibrary.ImageEncoder
         /// <param name="middleware">The middleware to add.</param>
         public void InsertFirst(ITiffImageEncoderMiddleware<TPixel> middleware)
         {
-            if (middleware is null)
-            {
-                throw new ArgumentNullException(nameof(middleware));
-            }
+            ThrowHelper.ThrowIfNull(middleware);
 
             _middlewares.Insert(0, middleware);
         }
@@ -58,7 +52,7 @@ namespace TiffLibrary.ImageEncoder
             int count = middleware.Count;
             if (count == 0)
             {
-                throw new InvalidOperationException("No middleware is set up.");
+                ThrowHelper.ThrowInvalidOperationException("No middleware is set up.");
             }
 
             var nodes = new TiffImageEncoderPipelineNode<TPixel>[count];

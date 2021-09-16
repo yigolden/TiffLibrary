@@ -27,11 +27,11 @@ namespace TiffLibrary.ImageDecoder
         {
             if (horizontalSubsampling != 1 && horizontalSubsampling != 2 && horizontalSubsampling != 4)
             {
-                throw new ArgumentOutOfRangeException(nameof(horizontalSubsampling), "Unsupported horizontal subsampling.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(horizontalSubsampling), "Unsupported horizontal subsampling.");
             }
             if (verticalSubsampling != 1 && verticalSubsampling != 2 && verticalSubsampling != 4)
             {
-                throw new ArgumentOutOfRangeException(nameof(verticalSubsampling), "Unsupported vertical subsampling.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(verticalSubsampling), "Unsupported vertical subsampling.");
             }
 
             _horizontalSubsampling = horizontalSubsampling;
@@ -42,15 +42,8 @@ namespace TiffLibrary.ImageDecoder
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             int horizontalSubsampling = _horizontalSubsampling;
             int verticalSubsampling = _verticalSubsampling;
@@ -152,7 +145,7 @@ namespace TiffLibrary.ImageDecoder
                 int chrominanceLength = blockCols * blockRows;
                 if (uncompressedData.Length < (luminanceDataLength + chrominanceLength * 2))
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
 
                 ReadOnlySpan<byte> planarY = uncompressedData.Slice(0, luminanceDataLength);

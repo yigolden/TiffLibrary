@@ -49,7 +49,7 @@ namespace TiffLibrary
         [DoesNotReturn]
         private static void ThrowObjectDisposedException()
         {
-            throw new ObjectDisposedException(nameof(TiffFieldReader));
+            ThrowHelper.ThrowObjectDisposedException(nameof(TiffFieldReader));
         }
 
         /// <inheritdoc />
@@ -101,10 +101,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -144,10 +141,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -187,10 +181,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -215,10 +206,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -253,10 +241,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -296,10 +281,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -367,10 +349,7 @@ namespace TiffLibrary
             }
             else
             {
-                if (convertFunc is null)
-                {
-                    throw new ArgumentNullException(nameof(convertFunc));
-                }
+                ThrowHelper.ThrowIfNull(convertFunc);
 
                 for (int i = 0; i < values.Length; i++)
                 {

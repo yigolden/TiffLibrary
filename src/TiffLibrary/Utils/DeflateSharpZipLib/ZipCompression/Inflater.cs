@@ -224,12 +224,12 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             header = ((header << 8) | (header >> 8)) & 0xffff;
             if (header % 31 != 0)
             {
-                throw new InvalidDataException("Header checksum illegal");
+                ThrowHelper.ThrowInvalidDataException("Header checksum illegal");
             }
 
             if ((header & 0x0f00) != (Deflater.DEFLATED << 8))
             {
-                throw new InvalidDataException("Compression Method unknown");
+                ThrowHelper.ThrowInvalidDataException("Compression Method unknown");
             }
 
             /* Maximum size of the backwards window in bits.
@@ -328,7 +328,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                         }
                         catch (Exception)
                         {
-                            throw new InvalidDataException("Illegal rep length code");
+                            ThrowHelper.ThrowInvalidDataException("Illegal rep length code");
                         }
                         goto case DECODE_HUFFMAN_LENBITS; // fall through
 
@@ -361,7 +361,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                         }
                         catch (Exception)
                         {
-                            throw new InvalidDataException("Illegal rep dist code");
+                            ThrowHelper.ThrowInvalidDataException("Illegal rep dist code");
                         }
 
                         goto case DECODE_HUFFMAN_DISTBITS; // fall through
@@ -385,7 +385,8 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                         break;
 
                     default:
-                        throw new InvalidDataException("Inflater unknown mode");
+                        ThrowHelper.ThrowInvalidDataException("Inflater unknown mode");
+                        break;
                 }
             }
             return true;
@@ -418,7 +419,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             {
                 if ((int)adler.Value != readAdler)
                 {
-                    throw new InvalidDataException("Adler chksum doesn't match: " + (int)adler.Value + " vs. " + readAdler);
+                    ThrowHelper.ThrowInvalidDataException($"Adler chksum doesn't match: {(int)adler.Value} vs. {readAdler}");
                 }
             }
 
@@ -492,7 +493,8 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                             break;
 
                         default:
-                            throw new InvalidDataException("Unknown block type " + type);
+                            ThrowHelper.ThrowInvalidDataException($"Unknown block type {type}");
+                            break;
                     }
                     return true;
 
@@ -517,7 +519,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                         input.DropBits(16);
                         if (nlen != (uncomprLen ^ 0xffff))
                         {
-                            throw new InvalidDataException("broken uncompressed block");
+                            ThrowHelper.ThrowInvalidDataException("broken uncompressed block");
                         }
                         mode = DECODE_STORED;
                     }
@@ -557,7 +559,8 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     return false;
 
                 default:
-                    throw new InvalidDataException("Inflater.Decode unknown mode");
+                    ThrowHelper.ThrowInvalidDataException("Inflater.Decode unknown mode");
+                    return false;
             }
         }
 
@@ -598,33 +601,33 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </exception>
         public void SetDictionary(byte[] buffer, int index, int count)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
 
             if (!IsNeedingDictionary)
             {
-                throw new InvalidOperationException("Dictionary is not needed");
+                ThrowHelper.ThrowInvalidOperationException("Dictionary is not needed");
             }
 
-            adler?.Update(buffer.AsSpan(index, count));
-
-            if (adler != null && (int)adler.Value != readAdler)
+            if (adler is not null)
             {
-                throw new InvalidDataException("Wrong adler checksum");
+                adler.Update(buffer.AsSpan(index, count));
+                if ((int)adler.Value != readAdler)
+                {
+                    ThrowHelper.ThrowInvalidDataException("Wrong adler checksum");
+                }
+                adler.Reset();
             }
-            adler?.Reset();
+
             outputWindow.CopyDict(buffer, index, count);
             mode = DECODE_BLOCKS;
         }
@@ -687,10 +690,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </exception>
         public int Inflate(byte[] buffer)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
             return Inflate(buffer.AsSpan());
         }
@@ -734,7 +734,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
             if (offset + count > buffer.Length)
             {
-                throw new ArgumentException("count exceeds buffer bounds");
+                ThrowHelper.ThrowArgumentException("count exceeds buffer bounds");
             }
 
             // Special case: count may be zero

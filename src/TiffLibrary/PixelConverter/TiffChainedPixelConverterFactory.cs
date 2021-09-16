@@ -41,7 +41,7 @@ namespace TiffLibrary.PixelConverter
         {
             if (typeof(TSource) != typeof(TSource1) || typeof(TDestination) != typeof(TDestination1))
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
 
             return Unsafe.As<ITiffPixelBufferWriter<TSource1>>(_factory1.CreateConverter<TSource, TIntermediate>(_factory2.CreateConverter<TIntermediate, TDestination>(Unsafe.As<ITiffPixelBufferWriter<TDestination>>(buffer))));

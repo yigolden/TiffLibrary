@@ -30,15 +30,8 @@ namespace TiffLibrary.ImageEncoder
         [CLSCompliant(false)]
         public ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             TiffSize size = context.ImageSize;
             if (size.Width < _paddingSize.Width || size.Height < _paddingSize.Height)
@@ -59,12 +52,12 @@ namespace TiffLibrary.ImageEncoder
                 TiffSize originalSize = context.ImageSize;
                 if (size.Width < originalSize.Width || size.Height < originalSize.Height)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(context));
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(context));
                 }
                 _size = size;
             }
 
-            public override TiffSize ImageSize { get => _size; set => throw new NotSupportedException(); }
+            public override TiffSize ImageSize { get => _size; set => ThrowHelper.ThrowNotSupportedException(); }
 
             public override TiffPixelBufferReader<TPixel> GetReader()
             {

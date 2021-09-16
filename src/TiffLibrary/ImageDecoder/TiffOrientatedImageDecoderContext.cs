@@ -74,7 +74,8 @@ namespace TiffLibrary.ImageDecoder
                     _flipTopBottom = true;
                     break;
                 default:
-                    throw new InvalidDataException("Unknown orientation tag.");
+                    ThrowHelper.ThrowInvalidDataException("Unknown orientation tag.");
+                    break;
             }
         }
 

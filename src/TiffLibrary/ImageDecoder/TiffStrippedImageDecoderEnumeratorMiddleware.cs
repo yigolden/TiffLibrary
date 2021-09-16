@@ -42,7 +42,7 @@ namespace TiffLibrary.ImageDecoder
 
             if (stripOffsets.Count != stripsByteCount.Count)
             {
-                throw new ArgumentException("stripsByteCount does not have the same element count as stripsOffsets.", nameof(stripsByteCount));
+                ThrowHelper.ThrowArgumentException("stripsByteCount does not have the same element count as stripsOffsets.", nameof(stripsByteCount));
             }
             _stripCount = stripOffsets.Count;
         }
@@ -58,7 +58,7 @@ namespace TiffLibrary.ImageDecoder
 
             if (stripOffsetsEntry.ValueCount != stripsByteCountEntry.ValueCount)
             {
-                throw new ArgumentException("stripOffsetsEntry does not have the same element count as stripsByteCountEntry.", nameof(stripsByteCountEntry));
+                ThrowHelper.ThrowArgumentException("stripOffsetsEntry does not have the same element count as stripsByteCountEntry.", nameof(stripsByteCountEntry));
             }
             _stripCount = (int)_stripOffsetsEntry.ValueCount;
         }
@@ -66,23 +66,16 @@ namespace TiffLibrary.ImageDecoder
         /// <inheritdoc />
         public async ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             if (context.ContentReader is null)
             {
-                throw new ArgumentException("ContentReader is not provided in the TiffImageDecoderContext instance.");
+                ThrowHelper.ThrowArgumentException("ContentReader is not provided in the TiffImageDecoderContext instance.");
             }
             if (context.OperationContext is null)
             {
-                throw new ArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
+                ThrowHelper.ThrowArgumentException("OperationContext is not provided in the TiffImageDecoderContext instance.");
             }
 
             bool isParallel = context.GetService(typeof(TiffParallelDecodingState)) is not null;

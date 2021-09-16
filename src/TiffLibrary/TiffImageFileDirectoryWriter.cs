@@ -2,7 +2,6 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace TiffLibrary
         /// <summary>
         /// Gets the TIFF file writer.
         /// </summary>
-        public TiffFileWriter FileWriter => _writer ?? ThrowObjectDisposedException<TiffFileWriter>();
+        public TiffFileWriter FileWriter => _writer ?? ThrowHelper.ThrowObjectDisposedException<TiffFileWriter>(GetType().FullName);
 
         internal TiffImageFileDirectoryWriter(TiffFileWriter writer)
         {
@@ -123,20 +122,8 @@ namespace TiffLibrary
         {
             if (_writer is null)
             {
-                ThrowObjectDisposedException();
+                ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
             }
-        }
-
-        [DoesNotReturn]
-        private static void ThrowObjectDisposedException()
-        {
-            throw new ObjectDisposedException(nameof(TiffImageFileDirectoryWriter));
-        }
-
-        [DoesNotReturn]
-        private static T ThrowObjectDisposedException<T>()
-        {
-            throw new ObjectDisposedException(nameof(TiffImageFileDirectoryWriter));
         }
 
         /// <inheritdoc />

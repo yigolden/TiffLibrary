@@ -31,7 +31,7 @@ namespace TiffLibrary
         {
             if ((uint)bitsCount > 32)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             if (_availableBufferBits >= bitsCount)
             {
@@ -46,7 +46,7 @@ namespace TiffLibrary
         {
             if ((uint)bitsCount > 32)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             int availableBufferBits = _availableBufferBits;
             ulong value = _bitsBuffer & (((ulong)1 << availableBufferBits) - 1);
@@ -105,7 +105,7 @@ namespace TiffLibrary
         {
             if ((uint)bitsCount > 32)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             int availableBufferBits = _availableBufferBits;
             ulong value = _bitsBuffer & (((ulong)1 << availableBufferBits) - 1);
@@ -122,7 +122,7 @@ namespace TiffLibrary
             FillBuffer();
             if (_availableBufferBits < bitsCount)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             value = value << bitsCount | (_bitsBuffer >> (_availableBufferBits - bitsCount));
             _availableBufferBits -= (byte)bitsCount;
@@ -185,7 +185,7 @@ namespace TiffLibrary
         {
             if (bitsCount < 0)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             if (bitsCount <= _availableBufferBits)
             {
@@ -204,7 +204,7 @@ namespace TiffLibrary
             int qwordCount = TiffMathHelper.DivRem64(bitsCount, out int remainingBits);
             if (_source.Length <= 8 * qwordCount)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             _source = _source.Slice(8 * qwordCount);
             _totalConsumedBits += 64 * qwordCount;
@@ -212,7 +212,7 @@ namespace TiffLibrary
             FillBufferSlow(8);
             if (_availableBufferBits < remainingBits)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             _availableBufferBits -= (byte)remainingBits;
             _totalConsumedBits += remainingBits;
@@ -224,11 +224,6 @@ namespace TiffLibrary
             int availableBufferBits = (int)((uint)oldAvailableBufferBits / 8 * 8);
             _totalConsumedBits += oldAvailableBufferBits - availableBufferBits;
             _availableBufferBits = (byte)availableBufferBits;
-        }
-
-        private static void ThrowArgumentOutOfRangeException(string paramName)
-        {
-            throw new ArgumentOutOfRangeException(paramName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

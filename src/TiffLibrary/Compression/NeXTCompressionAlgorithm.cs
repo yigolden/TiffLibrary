@@ -2,7 +2,9 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace TiffLibrary.Compression
 {
@@ -19,19 +21,16 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("NeXT compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("NeXT compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 8)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             context.BitsPerSample = TiffValueCollection.Single<ushort>(2);
@@ -53,19 +52,16 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("ThunderScan compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("ThunderScan compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 2)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             int width = context.ImageSize.Width;
@@ -116,7 +112,7 @@ namespace TiffLibrary.Compression
 
                     if (offset > scanline.Length || (offset + count) > scanline.Length)
                     {
-                        throw new InvalidDataException("Incorrect offset and count for literal span.");
+                        ThrowHelper.ThrowInvalidDataException("Incorrect offset and count for literal span.");
                     }
 
                     scanline.Slice(0, offset).Fill(0xff);
@@ -144,9 +140,11 @@ namespace TiffLibrary.Compression
             return context.BytesPerScanline * context.ImageSize.Height;
         }
 
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowMoreDataIsExpected()
         {
-            throw new InvalidDataException("More data is expected.");
+            ThrowHelper.ThrowInvalidDataException("More data is expected.");
         }
 
         ref struct RunLengthWriter
@@ -213,9 +211,11 @@ namespace TiffLibrary.Compression
                 }
             }
 
+            [DoesNotReturn]
+            [MethodImpl(MethodImplOptions.NoInlining)]
             private static void ThrowIncorrectRunLength()
             {
-                throw new InvalidDataException("Incorredt run length encountered.");
+                ThrowHelper.ThrowInvalidDataException("Incorredt run length encountered.");
             }
         }
 

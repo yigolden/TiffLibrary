@@ -17,15 +17,8 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (outputWriter is null)
-            {
-                throw new ArgumentNullException(nameof(outputWriter));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(outputWriter);
 
             int height = context.ImageSize.Height;
             int bytesPerScanline = context.BytesPerScanline;
@@ -106,10 +99,7 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             int bytesPerScanline = context.BytesPerScanline;
             ReadOnlySpan<byte> inputSpan = input.Span;
@@ -120,7 +110,7 @@ namespace TiffLibrary.Compression
             {
                 if (scanlinesBufferSpan.Length < bytesPerScanline)
                 {
-                    throw new ArgumentException("destination too short.", nameof(output));
+                    ThrowHelper.ThrowArgumentException("destination too short.", nameof(output));
                 }
                 Span<byte> scanline = scanlinesBufferSpan.Slice(0, bytesPerScanline);
                 scanlinesBufferSpan = scanlinesBufferSpan.Slice(bytesPerScanline);

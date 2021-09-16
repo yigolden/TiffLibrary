@@ -20,15 +20,8 @@ namespace TiffLibrary.PhotometricInterpreters
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             int bytesPerScanline = context.SourceImageSize.Width;
             Memory<byte> source = context.UncompressedData.Slice(context.SourceReadOffset.Y * bytesPerScanline);
@@ -53,7 +46,7 @@ namespace TiffLibrary.PhotometricInterpreters
         {
             if (destination.Length < source.Length)
             {
-                throw new InvalidOperationException("destination too short.");
+                ThrowHelper.ThrowInvalidOperationException("destination too short.");
             }
 
             int count8 = source.Length / 8;

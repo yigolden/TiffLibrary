@@ -22,7 +22,7 @@ namespace TiffLibrary.ImageDecoder
         /// <summary>
         /// Gets whether the uncompressed data is little endian.
         /// </summary>
-        public virtual bool IsLittleEndian => OperationContext?.IsLittleEndian ?? throw new InvalidOperationException("Operation context is not specified.");
+        public virtual bool IsLittleEndian => OperationContext?.IsLittleEndian ?? ThrowHelper.ThrowInvalidOperationException<bool>("Operation context is not specified.");
 
         /// <summary>
         /// Parameters of how the TIFF file should be parsed.

@@ -44,17 +44,17 @@ namespace TiffLibrary.Compression
         {
             if (context is null)
             {
-                throw new ArgumentNullException(nameof(context));
+                ThrowHelper.ThrowIfNull(context);
             }
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("Modified Huffman compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("Modified Huffman compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 8)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             context.BitsPerSample = TiffValueCollection.Single<ushort>(1);
@@ -113,19 +113,16 @@ namespace TiffLibrary.Compression
         /// <inheritdoc />
         public int Decompress(TiffDecompressionContext context, ReadOnlyMemory<byte> input, Memory<byte> output)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ThrowHelper.ThrowIfNull(context);
 
             if (context.PhotometricInterpretation != TiffPhotometricInterpretation.WhiteIsZero && context.PhotometricInterpretation != TiffPhotometricInterpretation.BlackIsZero)
             {
-                throw new NotSupportedException("T4 compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("T4 compression does not support this photometric interpretation.");
             }
 
             if (context.BitsPerSample.Count != 1 || context.BitsPerSample[0] != 1)
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
 
             ReadOnlySpan<byte> inputSpan = input.Span;
@@ -151,7 +148,7 @@ namespace TiffLibrary.Compression
             {
                 if (scanlinesBufferSpan.Length < width)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException("Destination buffer is too small.");
                 }
                 Span<byte> scanline = scanlinesBufferSpan.Slice(0, width);
                 scanlinesBufferSpan = scanlinesBufferSpan.Slice(width);
@@ -167,7 +164,7 @@ namespace TiffLibrary.Compression
                     uint value = bitReader.Peek(16);
                     if (!currentTable.TryLookup(value, out tableEntry))
                     {
-                        throw new InvalidDataException();
+                        ThrowHelper.ThrowInvalidDataException();
                     }
 
                     if (tableEntry.IsEndOfLine)
@@ -185,7 +182,7 @@ namespace TiffLibrary.Compression
                         int filledBits = 8 - (bitReader.ConsumedBits + 12) % 8;
                         if (bitReader.Peek(filledBits) != 0)
                         {
-                            throw new InvalidDataException();
+                            ThrowHelper.ThrowInvalidDataException();
                         }
 
                         // Confirm it is indeed an EOL code.
@@ -197,7 +194,7 @@ namespace TiffLibrary.Compression
                             break;
                         }
 
-                        throw new InvalidDataException();
+                        ThrowHelper.ThrowInvalidDataException();
                     }
 
                     // Process normal code.

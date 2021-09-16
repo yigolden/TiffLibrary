@@ -34,7 +34,7 @@ namespace TiffLibrary.Utils
 
             if (offsets.Count != counts.Count)
             {
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             }
             _entryCount = offsets.Count;
         }
@@ -49,7 +49,7 @@ namespace TiffLibrary.Utils
 
             if (offsets.ValueCount != counts.ValueCount)
             {
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             }
             _entryCount = (int)offsets.ValueCount;
         }
@@ -58,7 +58,7 @@ namespace TiffLibrary.Utils
         {
             if (index >= _entryCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
             }
 
             if (!_cacheEnabled)

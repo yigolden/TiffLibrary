@@ -33,14 +33,8 @@ namespace TiffLibrary.ImageEncoder
         [CLSCompliant(false)]
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             if (_predictor == TiffPredictor.None)
             {
@@ -49,7 +43,7 @@ namespace TiffLibrary.ImageEncoder
             }
             if (_predictor != TiffPredictor.HorizontalDifferencing)
             {
-                throw new NotSupportedException("Predictor not supportted.");
+                ThrowHelper.ThrowNotSupportedException("Predictor not supportted.");
             }
 
             TiffValueCollection<ushort> bitsPerSample = context.BitsPerSample;
@@ -58,7 +52,7 @@ namespace TiffLibrary.ImageEncoder
             {
                 if (bitsPerSample[i] % 8 != 0)
                 {
-                    throw new InvalidOperationException("Horizontal differencing predictor can not be applied to this image.");
+                    ThrowHelper.ThrowInvalidOperationException("Horizontal differencing predictor can not be applied to this image.");
                 }
                 totalBits += bitsPerSample[i];
             }
@@ -95,7 +89,7 @@ namespace TiffLibrary.ImageEncoder
             int sampleCount = bitsPerSample.Count;
             if (sampleCount > 8)
             {
-                throw new NotSupportedException("Too many samples.");
+                ThrowHelper.ThrowNotSupportedException("Too many samples.");
             }
 
             Span<ushort> bitsPerSampleSpan = stackalloc ushort[8];
@@ -114,7 +108,7 @@ namespace TiffLibrary.ImageEncoder
                 int bits = Unsafe.Add(ref bitsPerSampleSpanRef, sampleIndex);
                 if (bits > 32)
                 {
-                    throw new NotSupportedException("Bits too large.");
+                    ThrowHelper.ThrowNotSupportedException("Bits too large.");
                 }
                 uint value = reader.Read(bits);
                 Unsafe.Add(ref samplesRef, sampleIndex) = value;

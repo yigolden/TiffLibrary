@@ -37,15 +37,15 @@ namespace TiffLibrary.PixelBuffer
 
             if ((uint)colIndex >= (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(rowIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             }
             if ((uint)start >= (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if (length < 0 || (uint)(start + length) > (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             if (_flipLeftRight)
@@ -76,15 +76,15 @@ namespace TiffLibrary.PixelBuffer
 
             if ((uint)rowIndex >= (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(colIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(colIndex));
             }
             if ((uint)start >= (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if (length < 0 || (uint)(start + length) > (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             if (_flipTopBottom)
@@ -126,7 +126,7 @@ namespace TiffLibrary.PixelBuffer
             {
                 if (_innerHandle is null)
                 {
-                    throw new ObjectDisposedException(GetType().FullName);
+                    ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
                 }
 
                 return _innerHandle.GetSpan();

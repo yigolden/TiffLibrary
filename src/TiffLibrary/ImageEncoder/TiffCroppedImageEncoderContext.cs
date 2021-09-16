@@ -13,7 +13,7 @@ namespace TiffLibrary.ImageEncoder
         public override TiffSize ImageSize { get; set; }
 
         public bool ExposeIfdWriter { get; set; }
-        public override TiffImageFileDirectoryWriter? IfdWriter { get => ExposeIfdWriter ? InnerContext.IfdWriter : null; set => throw new NotSupportedException(); }
+        public override TiffImageFileDirectoryWriter? IfdWriter { get => ExposeIfdWriter ? InnerContext.IfdWriter : null; set => ThrowHelper.ThrowNotSupportedException(); }
 
         // Don't delegate UncompressedData into the underlying context.
         // We don't want it to be shared across differten strips/tiles when decoding in parallel.

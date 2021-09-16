@@ -24,7 +24,8 @@ namespace TiffLibrary.PixelBuffer
         /// <param name="buffer">The pixel buffer to wrap.</param>
         public TiffPixelBufferWriterAdapter(ITiffPixelBuffer<TPixel> buffer)
         {
-            _buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
+            ThrowHelper.ThrowIfNull(buffer);
+            _buffer = buffer;
             _size = new TiffSize(buffer.Width, buffer.Height);
         }
 
@@ -41,15 +42,15 @@ namespace TiffLibrary.PixelBuffer
             int height = _size.Height;
             if ((uint)rowIndex >= (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(rowIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             }
             if ((uint)start > (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if (length < 0 || (uint)(start + length) > (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             RowSpanHandle? handle = Interlocked.Exchange(ref _cachedRowHandle, null);
@@ -68,15 +69,15 @@ namespace TiffLibrary.PixelBuffer
             int height = _size.Height;
             if ((uint)colIndex >= (uint)width)
             {
-                throw new ArgumentOutOfRangeException(nameof(colIndex));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(colIndex));
             }
             if ((uint)start > (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(start));
             }
             if (length < 0 || (uint)(start + length) > (uint)height)
             {
-                throw new ArgumentOutOfRangeException(nameof(length));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             }
 
             ColumnSpanHandle? handle = Interlocked.Exchange(ref _cachedColHandle, null);
@@ -118,7 +119,7 @@ namespace TiffLibrary.PixelBuffer
             {
                 if (_pixelBuffer is null)
                 {
-                    throw new ObjectDisposedException(GetType().FullName);
+                    ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
                 }
                 return _pixelBuffer.GetSpan().Slice(_start, _length);
             }
@@ -186,7 +187,7 @@ namespace TiffLibrary.PixelBuffer
             {
                 if (_pixelBuffer is null)
                 {
-                    throw new ObjectDisposedException(GetType().FullName);
+                    ThrowHelper.ThrowObjectDisposedException(GetType().FullName);
                 }
                 return MemoryMarshal.Cast<byte, TPixel>(_buffer.AsSpan(0, _length * Unsafe.SizeOf<TPixel>()));
             }

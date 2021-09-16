@@ -33,26 +33,19 @@ namespace TiffLibrary.ImageEncoder
         /// <inheritdoc />
         public override async Task<TiffStreamRegion> EncodeAsync(TiffFileWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken)
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-
-            if (reader is null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(reader);
 
             if (_imageEncoder is null)
             {
-                throw new InvalidOperationException("Image encoder is not configured.");
+                ThrowHelper.ThrowInvalidOperationException("Image encoder is not configured.");
             }
 
             TiffPixelBufferReader<TPixel> structReader = reader.AsPixelBufferReader();
             size = new TiffSize(Math.Max(0, Math.Min(structReader.Width - offset.X, size.Width)), Math.Max(0, Math.Min(structReader.Height - offset.Y, size.Height)));
             if (size.IsAreaEmpty)
             {
-                throw new ArgumentOutOfRangeException(nameof(size), "The image size is zero.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(size), "The image size is zero.");
             }
 
             var context = new TiffDefaultImageEncoderContext<TPixel>
@@ -73,26 +66,19 @@ namespace TiffLibrary.ImageEncoder
         /// <inheritdoc />
         public override async Task EncodeAsync(TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken)
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-
-            if (reader is null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(reader);
 
             if (_ifdEncoder is null)
             {
-                throw new InvalidOperationException("Ifd encoder is not configured.");
+                ThrowHelper.ThrowInvalidOperationException("IFD encoder is not configured.");
             }
 
             TiffPixelBufferReader<TPixel> structReader = reader.AsPixelBufferReader();
             size = new TiffSize(Math.Max(0, Math.Min(structReader.Width - offset.X, structReader.Width)), Math.Max(0, Math.Min(structReader.Height - offset.Y, structReader.Height)));
             if (size.IsAreaEmpty)
             {
-                throw new ArgumentOutOfRangeException(nameof(size), "The image size is zero.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(size), "The image size is zero.");
             }
 
             var context = new TiffDefaultImageEncoderContext<TPixel>

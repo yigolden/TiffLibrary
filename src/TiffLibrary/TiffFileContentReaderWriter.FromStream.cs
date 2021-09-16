@@ -23,7 +23,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
             if (offset.Offset > stream.Length)
             {
@@ -65,7 +65,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
             if (offset.Offset > stream.Length)
             {
@@ -85,7 +85,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
             if (offset.Offset > stream.Length)
             {
@@ -128,7 +128,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
             if (offset.Offset > stream.Length)
             {
@@ -152,7 +152,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
             if (buffer.Array is null)
             {
@@ -168,7 +168,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
 
             stream.Seek(offset, SeekOrigin.Begin);
@@ -206,7 +206,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
             if (buffer.Array is null)
             {
@@ -227,7 +227,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
 
             stream.Seek(offset, SeekOrigin.Begin);
@@ -265,7 +265,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
 
             stream.Flush();
@@ -276,7 +276,7 @@ namespace TiffLibrary
             Stream? stream = _stream;
             if (stream is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentReaderWriter));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentReaderWriter));
             }
 
             await stream.FlushAsync(cancellationToken).ConfigureAwait(false);

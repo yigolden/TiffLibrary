@@ -27,16 +27,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP;NO_MATHF_ROUND</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_FAST_SPAN;NO_MATH_CLAMP;NO_MATHF_ROUND;NO_ASYNC_DISPOSABLE_ON_STREAM;NO_NULLABLE_REFERENCE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>$(DefineConstants);NO_ASYNC_DISPOSABLE_ON_STREAM</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1' AND '$(TargetFramework)' != 'netstandard2.1'">
-    <DefineConstants>$(DefineConstants);NO_NULLABLE_REFERENCE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0'">
-    <DefineConstants>$(DefineConstants);NO_BIT_OPERATIONS</DefineConstants>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>$(DefineConstants);NO_BIT_OPERATIONS;NO_CALLER_ARGUMENT_EXPRESSION_ATTRIBUTE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

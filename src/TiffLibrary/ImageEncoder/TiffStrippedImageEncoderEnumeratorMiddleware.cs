@@ -30,15 +30,8 @@ namespace TiffLibrary.ImageEncoder
         [CLSCompliant(false)]
         public async ValueTask InvokeAsync(TiffImageEncoderContext<TPixel> context, ITiffImageEncoderPipelineNode<TPixel> next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             var state = context.GetService(typeof(TiffParallelEncodingState)) as TiffParallelEncodingState;
             TiffCroppedImageEncoderContext<TPixel>? wrappedContext = null;

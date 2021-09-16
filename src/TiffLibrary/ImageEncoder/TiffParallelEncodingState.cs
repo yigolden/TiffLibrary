@@ -16,7 +16,7 @@ namespace TiffLibrary.ImageEncoder
         {
             if (maxDegreeOfParallelism < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxDegreeOfParallelism));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(maxDegreeOfParallelism));
             }
             _semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
             _tcs = new TaskCompletionSource<object?>();

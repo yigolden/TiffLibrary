@@ -53,11 +53,11 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             int dataCodeCount = litLenCodeCount + distanceCodeCount;
 
             if (litLenCodeCount > LITLEN_MAX)
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             if (distanceCodeCount > DIST_MAX)
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             if (metaCodeCount > META_MAX)
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
 
             // Load code lengths for the meta tree from the header bits
             for (int i = 0; i < metaCodeCount; i++)
@@ -90,7 +90,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     if (symbol == 16) // Repeat last code length 3..6 times
                     {
                         if (index == 0)
-                            throw new InvalidDataException("Cannot repeat previous code length when no other code length has been read");
+                            ThrowHelper.ThrowInvalidDataException("Cannot repeat previous code length when no other code length has been read");
 
                         codeLength = codeLengths[index - 1];
 
@@ -116,7 +116,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                     }
 
                     if (index + repeatCount > dataCodeCount)
-                        throw new InvalidDataException("Cannot repeat code lengths past total number of data code lengths");
+                        ThrowHelper.ThrowInvalidDataException("Cannot repeat code lengths past total number of data code lengths");
 
                     while (repeatCount-- > 0)
                         codeLengths[index++] = codeLength;
@@ -124,10 +124,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
             }
 
             if (codeLengths[256] == 0)
-                throw new InvalidDataException("Inflater dynamic header end-of-block code missing");
+                ThrowHelper.ThrowInvalidDataException("Inflater dynamic header end-of-block code missing");
 
-            litLenTree = new InflaterHuffmanTree(new ArraySegment<byte>(codeLengths, 0, litLenCodeCount));
-            distTree = new InflaterHuffmanTree(new ArraySegment<byte>(codeLengths, litLenCodeCount, distanceCodeCount));
+            litLenTree = new InflaterHuffmanTree(codeLengths.AsSpan(0, litLenCodeCount));
+            distTree = new InflaterHuffmanTree(codeLengths.AsSpan(litLenCodeCount, distanceCodeCount));
 
             yield return true;
         }
@@ -137,14 +137,14 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
         /// </summary>
         /// <exception cref="InvalidDataException">If hader has not been successfully read by the state machine</exception>
         public InflaterHuffmanTree LiteralLengthTree
-            => litLenTree ?? throw new InvalidDataException("Header properties were accessed before header had been successfully read");
+            => litLenTree ?? ThrowHelper.ThrowInvalidDataException<InflaterHuffmanTree>("Header properties were accessed before header had been successfully read");
 
         /// <summary>
         /// Get distance huffman tree, must not be used before <see cref="AttemptRead"/> has returned true
         /// </summary>
         /// <exception cref="InvalidDataException">If hader has not been successfully read by the state machine</exception>
         public InflaterHuffmanTree DistanceTree
-            => distTree ?? throw new InvalidDataException("Header properties were accessed before header had been successfully read");
+            => distTree ?? ThrowHelper.ThrowInvalidDataException<InflaterHuffmanTree>("Header properties were accessed before header had been successfully read");
 
         #region Instance Fields
 

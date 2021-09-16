@@ -52,10 +52,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the <see cref="FileStream"/> of this file.</returns>
         public static TiffFileContentSource Create(string fileName, bool preferAsync = true)
         {
-            if (fileName is null)
-            {
-                throw new ArgumentNullException(nameof(fileName));
-            }
+            ThrowHelper.ThrowIfNull(fileName);
 
             return new TiffFileStreamContentSource(fileName, preferAsync);
         }
@@ -68,10 +65,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the <see cref="Stream"/> instance specified.</returns>
         public static TiffFileContentSource Create(Stream stream, bool leaveOpen)
         {
-            if (stream is null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
+            ThrowHelper.ThrowIfNull(stream);
 
             return new TiffStreamContentSource(stream, leaveOpen);
         }
@@ -95,17 +89,14 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the buffer.</returns>
         public static TiffFileContentSource Create(byte[] buffer, int offset, int count)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
             if ((uint)offset >= (uint)buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(buffer));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(buffer));
             }
             if ((uint)(offset + count) > (uint)buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(count));
             }
             return new TiffMemoryContentSource(buffer.AsMemory(offset, count));
         }
@@ -118,10 +109,7 @@ namespace TiffLibrary
         /// <returns>A <see cref="TiffFileContentSource"/> that provides bytes from the <see cref="MemoryMappedFile"/> instance specified.</returns>
         public static TiffFileContentSource Create(MemoryMappedFile memoryMappedFile, bool leaveOpen)
         {
-            if (memoryMappedFile is null)
-            {
-                throw new ArgumentNullException(nameof(memoryMappedFile));
-            }
+            ThrowHelper.ThrowIfNull(memoryMappedFile);
 
             return new TiffMemoryMappedFileContentSource(memoryMappedFile, leaveOpen);
         }

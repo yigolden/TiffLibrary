@@ -24,10 +24,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="middleware">The middleware to add.</param>
         public void Add(ITiffImageDecoderMiddleware middleware)
         {
-            if (middleware is null)
-            {
-                throw new ArgumentNullException(nameof(middleware));
-            }
+            ThrowHelper.ThrowIfNull(middleware);
 
             _middlewares.Add(middleware);
         }
@@ -38,10 +35,7 @@ namespace TiffLibrary.ImageDecoder
         /// <param name="middleware">The middleware to add.</param>
         public void InsertFirst(ITiffImageDecoderMiddleware middleware)
         {
-            if (middleware is null)
-            {
-                throw new ArgumentNullException(nameof(middleware));
-            }
+            ThrowHelper.ThrowIfNull(middleware);
 
             _middlewares.Insert(0, middleware);
         }
@@ -56,7 +50,7 @@ namespace TiffLibrary.ImageDecoder
             int count = middleware.Count;
             if (count == 0)
             {
-                throw new InvalidOperationException("No middleware is set up.");
+                ThrowHelper.ThrowInvalidOperationException("No middleware is set up.");
             }
 
             var nodes = new TiffImageDecoderPipelineNode[count];

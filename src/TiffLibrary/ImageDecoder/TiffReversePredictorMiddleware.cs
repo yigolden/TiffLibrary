@@ -31,15 +31,8 @@ namespace TiffLibrary.ImageDecoder
         /// <inheritdoc />
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (next is null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            ThrowHelper.ThrowIfNull(context);
+            ThrowHelper.ThrowIfNull(next);
 
             if (_predictor == TiffPredictor.None)
             {
@@ -47,7 +40,7 @@ namespace TiffLibrary.ImageDecoder
             }
             if (_predictor != TiffPredictor.HorizontalDifferencing)
             {
-                throw new NotSupportedException("Predictor not supportted.");
+                ThrowHelper.ThrowNotSupportedException("Predictor not supportted.");
             }
 
             int skipped = 0;
@@ -86,7 +79,7 @@ namespace TiffLibrary.ImageDecoder
             int sampleCount = bitsPerSample.Count;
             if (sampleCount > 8)
             {
-                throw new NotSupportedException("Too many samples.");
+                ThrowHelper.ThrowNotSupportedException("Too many samples.");
             }
 
             Span<ushort> bitsPerSampleSpan = stackalloc ushort[8];
@@ -104,7 +97,7 @@ namespace TiffLibrary.ImageDecoder
                 int bits = Unsafe.Add(ref bitsPerSampleSpanRef, sampleIndex);
                 if (bits > 32)
                 {
-                    throw new NotSupportedException("Bits too large.");
+                    ThrowHelper.ThrowNotSupportedException("Bits too large.");
                 }
                 uint value = reader.Read(bits);
                 Unsafe.Add(ref samplesRef, sampleIndex) = value;

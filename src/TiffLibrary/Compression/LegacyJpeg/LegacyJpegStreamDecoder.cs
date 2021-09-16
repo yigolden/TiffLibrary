@@ -18,7 +18,10 @@ namespace TiffLibrary.Compression
         public async ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
             MemoryPool<byte> memoryPool = context.MemoryPool ?? MemoryPool<byte>.Shared;
-            TiffFileContentReader contentReader = context.ContentReader ?? throw new InvalidOperationException();
+            if (context.ContentReader is null)
+            {
+                ThrowHelper.ThrowInvalidOperationException();
+            }
 
             IMemoryOwner<byte>? dataHandle = null;
             Memory<byte> data;
@@ -34,7 +37,7 @@ namespace TiffLibrary.Compression
                         int readSize = Math.Min(streamRegion.Length, BufferSize);
                         Memory<byte> memory = bufferWriter.GetMemory(readSize);
                         memory = memory.Slice(0, Math.Min(streamRegion.Length, memory.Length));
-                        readSize = await contentReader.ReadAsync(streamRegion.Offset, memory, context.CancellationToken).ConfigureAwait(false);
+                        readSize = await context.ContentReader.ReadAsync(streamRegion.Offset, memory, context.CancellationToken).ConfigureAwait(false);
                         bufferWriter.Advance(readSize);
                         streamRegion = new TiffStreamRegion(streamRegion.Offset + readSize, streamRegion.Length - readSize);
                     } while (streamRegion.Length > 0);
@@ -46,11 +49,11 @@ namespace TiffLibrary.Compression
                     decoder.Identify();
                     if (decoder.Width != context.SourceImageSize.Width || decoder.Height != context.SourceImageSize.Height)
                     {
-                        throw new InvalidOperationException("The image size does not match.");
+                        ThrowHelper.ThrowInvalidOperationException("The image size does not match.");
                     }
                     if (decoder.Precision != 8)
                     {
-                        throw new InvalidOperationException("Only 8-bit JPEG is supported.");
+                        ThrowHelper.ThrowInvalidOperationException("Only 8-bit JPEG is supported.");
                     }
 
                     // Adjust buffer size and reading region to reduce buffer size

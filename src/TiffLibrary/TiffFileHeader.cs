@@ -209,7 +209,7 @@ namespace TiffLibrary
             {
                 if (destination.Length < 16)
                 {
-                    throw new ArgumentException("Destination too short.", nameof(destination));
+                    ThrowHelper.ThrowArgumentException("Destination too short.", nameof(destination));
                 }
 
                 version = BigTiffVersion;
@@ -232,12 +232,12 @@ namespace TiffLibrary
             {
                 if (imageFileDirectoryOffset > uint.MaxValue)
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException("Can not write IFD to this location.");
                 }
 
                 if (destination.Length < 8)
                 {
-                    throw new ArgumentException("Destination too short.", nameof(destination));
+                    ThrowHelper.ThrowArgumentException("Destination too short.", nameof(destination));
                 }
 
                 version = StandardTiffVersion;

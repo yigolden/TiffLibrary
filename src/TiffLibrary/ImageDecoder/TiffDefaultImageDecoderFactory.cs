@@ -24,8 +24,6 @@ namespace TiffLibrary.ImageDecoder
             {
                 await reader.DisposeAsync().ConfigureAwait(false);
             }
-
-            throw new InvalidDataException("Failed to determine offsets to the image data.");
         }
 
         public static async Task<TiffImageDecoder> CreateImageDecoderAsync(TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffFileContentReader reader, TiffImageFileDirectory ifd, TiffImageDecoderOptions? options, CancellationToken cancellationToken)
@@ -44,7 +42,7 @@ namespace TiffLibrary.ImageDecoder
 
                 if (!ifd.Contains(TiffTag.PhotometricInterpretation))
                 {
-                    throw new InvalidDataException("PhotometricInterpretation tag is missing.");
+                    ThrowHelper.ThrowInvalidDataException("PhotometricInterpretation tag is missing.");
                 }
                 if (ifd.Contains(TiffTag.TileWidth) && ifd.Contains(TiffTag.TileLength))
                 {
@@ -60,7 +58,8 @@ namespace TiffLibrary.ImageDecoder
                 await fieldReader.DisposeAsync().ConfigureAwait(false);
             }
 
-            throw new InvalidDataException("Failed to determine offsets to the image data.");
+            ThrowHelper.ThrowInvalidDataException("Failed to determine offsets to the image data.");
+            return null!;
         }
 
         public static async Task<TiffImageDecoder> CreateStrippedImageDecoderAsync(TiffTagReader tagReader, TiffOperationContext operationContext, ITiffFileContentSource contentSource, TiffImageDecoderOptions options, CancellationToken cancellationToken)
@@ -80,14 +79,14 @@ namespace TiffLibrary.ImageDecoder
                 // First, make sure all the componenets have the same bit depth
                 if (bitsPerSample.IsEmpty)
                 {
-                    throw new NotSupportedException("BitsPerSample tag it not specified.");
+                    ThrowHelper.ThrowNotSupportedException("BitsPerSample tag it not specified.");
                 }
                 ushort firstBitsPerSample = bitsPerSample.GetFirstOrDefault();
                 foreach (ushort bits in bitsPerSample)
                 {
                     if (bits != firstBitsPerSample)
                     {
-                        throw new NotSupportedException("Components have different bits.");
+                        ThrowHelper.ThrowNotSupportedException("Components have different bits.");
                     }
                 }
 
@@ -116,7 +115,7 @@ namespace TiffLibrary.ImageDecoder
                 }
                 else if (firstBitsPerSample > 16)
                 {
-                    throw new NotSupportedException($"JPEG compression does not support {firstBitsPerSample} bits image.");
+                    ThrowHelper.ThrowNotSupportedException($"JPEG compression does not support {firstBitsPerSample} bits image.");
                 }
             }
 
@@ -216,14 +215,14 @@ namespace TiffLibrary.ImageDecoder
                 // First, make sure all the componenets have the same bit depth
                 if (bitsPerSample.IsEmpty)
                 {
-                    throw new NotSupportedException("BitsPerSample tag it not specified.");
+                    ThrowHelper.ThrowNotSupportedException("BitsPerSample tag it not specified.");
                 }
                 ushort firstBitsPerSample = bitsPerSample.GetFirstOrDefault();
                 foreach (ushort bits in bitsPerSample)
                 {
                     if (bits != firstBitsPerSample)
                     {
-                        throw new NotSupportedException("Components have different bits.");
+                        ThrowHelper.ThrowNotSupportedException("Components have different bits.");
                     }
                 }
 
@@ -252,7 +251,7 @@ namespace TiffLibrary.ImageDecoder
                 }
                 else if (firstBitsPerSample > 16)
                 {
-                    throw new NotSupportedException($"JPEG compression does not support {firstBitsPerSample} bits image.");
+                    ThrowHelper.ThrowNotSupportedException($"JPEG compression does not support {firstBitsPerSample} bits image.");
                 }
             }
 
@@ -349,11 +348,11 @@ namespace TiffLibrary.ImageDecoder
                 photometricInterpretation.GetValueOrDefault() != TiffPhotometricInterpretation.RGB &&
                 photometricInterpretation.GetValueOrDefault() != TiffPhotometricInterpretation.YCbCr)
             {
-                throw new NotSupportedException("Unsupported photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported photometric interpretation.");
             }
             if (planarConfiguration != TiffPlanarConfiguration.Chunky)
             {
-                throw new NotSupportedException("Unsupported planar configuration.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported planar configuration.");
             }
 
             // Try find the JPEG stream.
@@ -400,7 +399,7 @@ namespace TiffLibrary.ImageDecoder
 
                     if (decoder.Precision != 8)
                     {
-                        throw new NotSupportedException("Only 8-bit JPEG is supported.");
+                        ThrowHelper.ThrowNotSupportedException("Only 8-bit JPEG is supported.");
                     }
 
                     // Try deduce photometric interpretation
@@ -418,7 +417,8 @@ namespace TiffLibrary.ImageDecoder
                                 photometricInterpretation = TiffPhotometricInterpretation.Seperated;
                                 break;
                             default:
-                                throw new NotSupportedException("Unsupported photometric interpretation.");
+                                ThrowHelper.ThrowNotSupportedException("Unsupported photometric interpretation.");
+                                break;
                         }
                     }
 
@@ -436,7 +436,7 @@ namespace TiffLibrary.ImageDecoder
                     {
                         if (bitsPerSample.Count != decoder.NumberOfComponents)
                         {
-                            throw new NotSupportedException("Bits per sample does not match.");
+                            ThrowHelper.ThrowNotSupportedException("Bits per sample does not match.");
                         }
                     }
 
@@ -460,13 +460,13 @@ namespace TiffLibrary.ImageDecoder
             // Validate photometric interpretation
             if (!photometricInterpretation.HasValue)
             {
-                throw new NotSupportedException("Unsupported photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported photometric interpretation.");
             }
 
             // Validate width and height.
             if (width == 0 || height == 0)
             {
-                throw new NotSupportedException("Can not determine image size.");
+                ThrowHelper.ThrowNotSupportedException("Can not determine image size.");
             }
 
             // Validate BitsPerSample tag.
@@ -474,7 +474,7 @@ namespace TiffLibrary.ImageDecoder
             {
                 if (item != 8)
                 {
-                    throw new NotSupportedException("Only 8-bit JPEG is supported.");
+                    ThrowHelper.ThrowNotSupportedException("Only 8-bit JPEG is supported.");
                 }
             }
 
@@ -539,16 +539,12 @@ namespace TiffLibrary.ImageDecoder
 
             if (stripOffsetsEntry.ValueCount == 0)
             {
-                throw new InvalidDataException("No strips are found.");
+                ThrowHelper.ThrowInvalidDataException("No strips are found.");
             }
 
             TiffValueCollection<ulong> inferredStripByteCounts = default;
 
             long stripCount = stripOffsetsEntry.ValueCount;
-            if (stripCount == 0)
-            {
-                throw new InvalidDataException();
-            }
 
             // Special case for mailformed file.
             if (stripCount == 1 && rowsPerStrip <= 0)
@@ -561,7 +557,7 @@ namespace TiffLibrary.ImageDecoder
                 inferredStripByteCounts = InferStripsByteCount();
                 if (stripCount != inferredStripByteCounts.Count)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
             }
 
@@ -627,11 +623,11 @@ namespace TiffLibrary.ImageDecoder
             // Validate
             if (tileOffsetsEntry.ValueCount == 0 || tileOffsetsEntry.ValueCount != tileByteCountsEntry.ValueCount)
             {
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             }
             if (tileWidth % 16 != 0 || tileHeight % 16 != 0)
             {
-                throw new InvalidDataException();
+                ThrowHelper.ThrowInvalidDataException();
             }
 
             if (tileOffsetsEntry.ValueCount > 256)
@@ -664,7 +660,7 @@ namespace TiffLibrary.ImageDecoder
             }
             if (subsampling.Length != 2)
             {
-                throw new InvalidDataException("YCbCrSubSampling should contains 2 elements.");
+                ThrowHelper.ThrowInvalidDataException("YCbCrSubSampling should contains exactly 2 elements.");
             }
             if (bitsPerSample.GetFirstOrDefault() == 8)
             {
@@ -676,7 +672,7 @@ namespace TiffLibrary.ImageDecoder
             }
             else
             {
-                throw new NotSupportedException("Unsupported bits per sample.");
+                ThrowHelper.ThrowNotSupportedException("Unsupported bits per sample.");
             }
         }
 
@@ -743,7 +739,8 @@ namespace TiffLibrary.ImageDecoder
                     }
                     break;
             }
-            throw new NotSupportedException("Photometric interpretation not supported.");
+            ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+            return default;
         }
 
         private static TiffValueCollection<int> CalculatePlanarBytesPerScanline(TiffPhotometricInterpretation photometricInterpretation, TiffValueCollection<ushort> bitsPerSample, int width)
@@ -785,7 +782,8 @@ namespace TiffLibrary.ImageDecoder
                     }
                     break;
             }
-            throw new NotSupportedException("Photometric interpretation not supported.");
+            ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+            return default;
         }
 
         private static ValueTask<ITiffDecompressionAlgorithm> ResolveDecompressionAlgorithmAsync(TiffCompression compression, TiffTagReader tagReader, CancellationToken cancellationToken)
@@ -823,7 +821,8 @@ namespace TiffLibrary.ImageDecoder
                     decompressionAlgorithm = NeXTCompressionAlgorithm.Instance;
                     break;
                 default:
-                    throw new NotSupportedException("Compression algorithm not supported.");
+                    ThrowHelper.ThrowNotSupportedException("Compression algorithm not supported.");
+                    return default;
             }
 
             return new ValueTask<ITiffDecompressionAlgorithm>(decompressionAlgorithm);
@@ -840,7 +839,7 @@ namespace TiffLibrary.ImageDecoder
                 TiffT4Options t4Options = await tagReader.ReadT4OptionsAsync(cancellationToken).ConfigureAwait(false);
                 if (t4Options.HasFlag(TiffT4Options.UseUncompressedMode))
                 {
-                    throw new NotSupportedException("Uncompressed mode is not supported.");
+                    ThrowHelper.ThrowNotSupportedException("Uncompressed mode is not supported.");
                 }
                 if (t4Options.HasFlag(TiffT4Options.Is2DimensionalCoding))
                 {
@@ -855,7 +854,7 @@ namespace TiffLibrary.ImageDecoder
                 TiffT6Options t6Options = await tagReader.ReadT6OptionsAsync(cancellationToken).ConfigureAwait(false);
                 if (t6Options.HasFlag(TiffT6Options.AllowUncompressedMode))
                 {
-                    throw new NotSupportedException("Uncompressed mode is not supported.");
+                    ThrowHelper.ThrowNotSupportedException("Uncompressed mode is not supported.");
                 }
                 return CcittGroup4Compression.GetSharedInstance(fillOrder);
             }
@@ -873,7 +872,7 @@ namespace TiffLibrary.ImageDecoder
             ushort jpegProc = await tagReader.ReadJPEGProcAsync(cancellationToken).ConfigureAwait(false);
             if (jpegProc != 1)
             {
-                throw new NotSupportedException("Only baseline JPEG is supported.");
+                ThrowHelper.ThrowNotSupportedException("Only baseline JPEG is supported.");
             }
 
             // JPEG decoding parameters
@@ -887,15 +886,15 @@ namespace TiffLibrary.ImageDecoder
             int componentCount = jpegQTablesOffset.Length;
             if (componentCount == 0)
             {
-                throw new InvalidDataException("Invalid JPEG quantization tables.");
+                ThrowHelper.ThrowInvalidDataException("Invalid JPEG quantization tables.");
             }
             if (jpegDcTablesOffset.Length != componentCount)
             {
-                throw new InvalidDataException("Invalid JPEG DC Tables.");
+                ThrowHelper.ThrowInvalidDataException("Invalid JPEG DC Tables.");
             }
             if (jpegAcTablesOffset.Length != componentCount)
             {
-                throw new InvalidDataException("Invalid JPEG AC Tables.");
+                ThrowHelper.ThrowInvalidDataException("Invalid JPEG AC Tables.");
             }
 
             // Initialize the decompression algorithm instance.
@@ -911,19 +910,19 @@ namespace TiffLibrary.ImageDecoder
                     readCount = await reader.ReadAsync(jpegQTablesOffset[i], buffer.Slice(0, 64), cancellationToken).ConfigureAwait(false);
                     if (readCount != 64)
                     {
-                        throw new InvalidDataException("Corrupted quantization table is encountered.");
+                        ThrowHelper.ThrowInvalidDataException("Corrupted quantization table is encountered.");
                     }
                     // DC Tables
                     readCount = await reader.ReadAsync(jpegDcTablesOffset[i], buffer.Slice(64, 33), cancellationToken).ConfigureAwait(false);
                     if (readCount < 16)
                     {
-                        throw new InvalidDataException("Corrupted DC table is encountered.");
+                        ThrowHelper.ThrowInvalidDataException("Corrupted DC table is encountered.");
                     }
                     // AC Tables
                     readCount = await reader.ReadAsync(jpegAcTablesOffset[i], buffer.Slice(97, 272), cancellationToken).ConfigureAwait(false);
                     if (readCount < 16)
                     {
-                        throw new InvalidDataException("Corrupted AC table is encountered.");
+                        ThrowHelper.ThrowInvalidDataException("Corrupted AC table is encountered.");
                     }
                     // Initialize this component
                     algorithm.SetComponent(i, buffer.Span.Slice(0, 64), buffer.Span.Slice(64, 33), buffer.Span.Slice(97, 272));
@@ -953,7 +952,8 @@ namespace TiffLibrary.ImageDecoder
                         }
                         break;
                 }
-                throw new NotSupportedException(compression.ToString() + " compression does not support this photometric interpretation.");
+                ThrowHelper.ThrowNotSupportedException(compression.ToString() + " compression does not support this photometric interpretation.");
+                return default;
             }
 
             switch (photometricInterpretation)
@@ -1006,7 +1006,8 @@ namespace TiffLibrary.ImageDecoder
                     break;
             }
 
-            throw new NotSupportedException("Photometric interpretation not supported.");
+            ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+            return default;
 
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveWhiteIsZeroAsync(int bitCount, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1042,7 +1043,8 @@ namespace TiffLibrary.ImageDecoder
                     return new TiffWhiteIsZeroAny32Interpreter(bitCount, fillOrder);
                 }
 
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveBlackIsZeroAsync(int bitCount, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1078,7 +1080,8 @@ namespace TiffLibrary.ImageDecoder
                     return new TiffBlackIsZeroAny32Interpreter(bitCount, fillOrder);
                 }
 
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
 
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
@@ -1111,7 +1114,8 @@ namespace TiffLibrary.ImageDecoder
                     return new TiffChunkyRgbAny323232Interpreter(bitsPerSample, fillOrder);
                 }
 
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbaAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
             {
@@ -1145,7 +1149,8 @@ namespace TiffLibrary.ImageDecoder
                         return new TiffChunkyRgbaAny32323232Interpreter(extraSamples[0] == TiffExtraSample.AssociatedAlphaData, options.UndoColorPreMultiplying, bitsPerSample, fillOrder);
                     }
                 }
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolvePaletteColorAsync(int bitCount, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1166,7 +1171,8 @@ namespace TiffLibrary.ImageDecoder
                     return new TiffPaletteColorAny8Interpreter(await tagReader.ReadColorMapAsync(cancellationToken).ConfigureAwait(false), bitCount, fillOrder);
                 }
 
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveTransparencyMaskAsync(TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1188,7 +1194,8 @@ namespace TiffLibrary.ImageDecoder
                         return TiffChunkyCmyk16161616Interpreter.Instance;
                     }
                 }
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveYCbCrAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1205,7 +1212,8 @@ namespace TiffLibrary.ImageDecoder
                     TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync(cancellationToken).ConfigureAwait(false);
                     return new TiffChunkyYCbCr161616Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
         }
 
@@ -1237,7 +1245,8 @@ namespace TiffLibrary.ImageDecoder
                     break;
             }
 
-            throw new NotSupportedException("Photometric interpretation not supported.");
+            ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+            return default;
 
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1269,7 +1278,8 @@ namespace TiffLibrary.ImageDecoder
                     return new TiffPlanarRgbAny323232Interpreter(bitsPerSample, fillOrder);
                 }
 
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
 
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveRgbaAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, TiffImageDecoderOptions options, CancellationToken cancellationToken)
@@ -1287,7 +1297,8 @@ namespace TiffLibrary.ImageDecoder
                     return new TiffPlanarRgbaAny32323232Interpreter(extraSamples[0] == TiffExtraSample.AssociatedAlphaData, options.UndoColorPreMultiplying, bitsPerSample, fillOrder);
                 }
 
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveCmykAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1304,7 +1315,8 @@ namespace TiffLibrary.ImageDecoder
                         return TiffPlanarCmyk16161616Interpreter.Instance;
                     }
                 }
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
             static async ValueTask<ITiffImageDecoderMiddleware> ResolveYCbCrAsync(TiffValueCollection<ushort> bitsPerSample, TiffTagReader tagReader, CancellationToken cancellationToken)
             {
@@ -1315,7 +1327,8 @@ namespace TiffLibrary.ImageDecoder
                     TiffRational[] referenceBlackWhite = await tagReader.ReadReferenceBlackWhiteAsync(cancellationToken).ConfigureAwait(false);
                     return new TiffPlanarYCbCr888Interpreter(TiffValueCollection.UnsafeWrap(coefficients), TiffValueCollection.UnsafeWrap(referenceBlackWhite));
                 }
-                throw new NotSupportedException("Photometric interpretation not supported.");
+                ThrowHelper.ThrowNotSupportedException("Photometric interpretation not supported.");
+                return default;
             }
         }
     }

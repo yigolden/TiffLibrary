@@ -29,7 +29,7 @@ namespace TiffLibrary
             MemoryMappedFile? file = _file;
             if (file is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentSource));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentSource));
             }
             ContentReader? reader = Interlocked.Exchange(ref _readerCache, null);
             if (reader is null)
@@ -73,7 +73,7 @@ namespace TiffLibrary
                 MemoryMappedFile? file = Volatile.Read(ref _file);
                 if (file is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
 
                 if (offset.Offset + buffer.Length > _capacity)

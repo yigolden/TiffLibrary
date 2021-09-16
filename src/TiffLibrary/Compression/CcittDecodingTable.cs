@@ -381,12 +381,12 @@ namespace TiffLibrary.Compression
                 // Read next code word
                 if (!TryLookup(reader.Peek(16), out CcittCodeValue tableEntry))
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
 
                 if (tableEntry.IsEndOfLine)
                 {
-                    throw new InvalidDataException();
+                    ThrowHelper.ThrowInvalidDataException();
                 }
 
                 // Record run length

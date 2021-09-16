@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TiffLibrary.PixelBuffer
+﻿namespace TiffLibrary.PixelBuffer
 {
     internal sealed class TiffEmptyPixelBufferWriter<TPixel> : ITiffPixelBufferWriter<TPixel> where TPixel : unmanaged
     {
@@ -14,12 +12,14 @@ namespace TiffLibrary.PixelBuffer
 
         public TiffPixelSpanHandle<TPixel> GetRowSpan(int rowIndex, int start, int length)
         {
-            throw new ArgumentOutOfRangeException(nameof(rowIndex));
+            ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
+            return null!;
         }
 
         public TiffPixelSpanHandle<TPixel> GetColumnSpan(int colIndex, int start, int length)
         {
-            throw new ArgumentOutOfRangeException(nameof(colIndex));
+            ThrowHelper.ThrowArgumentOutOfRangeException(nameof(colIndex));
+            return null!;
         }
     }
 

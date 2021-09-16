@@ -24,6 +24,12 @@ namespace System.Diagnostics.CodeAnalysis
     {
         public MaybeNullAttribute() { }
     }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.ReturnValue, Inherited = false)]
+    internal sealed class NotNullAttribute : Attribute
+    {
+        public NotNullAttribute() { }
+    }
 }
 
 #endif

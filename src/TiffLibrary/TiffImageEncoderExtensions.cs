@@ -21,18 +21,9 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
         public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-            if (reader is null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(reader);
 
             return encoder.EncodeAsync(writer, default, new TiffSize(reader.Width, reader.Height), reader, cancellationToken);
         }
@@ -48,18 +39,9 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
         public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, ITiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-            if (reader is null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(reader);
 
             return encoder.EncodeAsync(writer, default, new TiffSize(reader.Width, reader.Height), reader, cancellationToken);
         }
@@ -75,17 +57,12 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
         public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+
             if (reader.IsEmpty)
             {
-                throw new ArgumentException("No image data is provided.", nameof(reader));
+                ThrowHelper.ThrowArgumentException("No image data is provided.", nameof(reader));
             }
             ITiffPixelBufferReader<TPixel> innerReader = TiffPixelBufferUnsafeMarshal.GetBuffer(reader, out TiffPoint offset, out TiffSize size);
             return encoder.EncodeAsync(writer, offset, size, innerReader, cancellationToken);
@@ -102,17 +79,12 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
         public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPixelBufferReader<TPixel> reader, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+
             if (reader.IsEmpty)
             {
-                throw new ArgumentException("No image data is provided.", nameof(reader));
+                ThrowHelper.ThrowArgumentException("No image data is provided.", nameof(reader));
             }
             ITiffPixelBufferReader<TPixel> innerReader = TiffPixelBufferUnsafeMarshal.GetBuffer(reader, out TiffPoint offset, out TiffSize size);
             return encoder.EncodeAsync(writer, offset, size, innerReader, cancellationToken);
@@ -129,17 +101,12 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
         public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+
             if (buffer.IsEmpty)
             {
-                throw new ArgumentException("No image data is provided.", nameof(buffer));
+                ThrowHelper.ThrowArgumentException("No image data is provided.", nameof(buffer));
             }
             ITiffPixelBuffer<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(buffer, out TiffPoint offset, out TiffSize size);
             var reader = new TiffPixelBufferReaderAdapter<TPixel>(innerBuffer);
@@ -157,17 +124,12 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
         public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+
             if (buffer.IsEmpty)
             {
-                throw new ArgumentException("No image data is provided.", nameof(buffer));
+                ThrowHelper.ThrowArgumentException("No image data is provided.", nameof(buffer));
             }
             ITiffPixelBuffer<TPixel> innerBuffer = TiffPixelBufferUnsafeMarshal.GetBuffer(buffer, out TiffPoint offset, out TiffSize size);
             var reader = new TiffPixelBufferReaderAdapter<TPixel>(innerBuffer);
@@ -185,18 +147,9 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
         public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(buffer);
 
             return encoder.EncodeAsync(writer, default, new TiffSize(buffer.Width, buffer.Height), new TiffPixelBufferReaderAdapter<TPixel>(buffer), cancellationToken);
         }
@@ -212,18 +165,9 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
         public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(buffer);
 
             return encoder.EncodeAsync(writer, default, new TiffSize(buffer.Width, buffer.Height), new TiffPixelBufferReaderAdapter<TPixel>(buffer), cancellationToken);
         }
@@ -241,18 +185,9 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task{TiffStreamRegion}"/> that completes and return the position and length written into the stream when the image has been encoded.</returns>
         public static Task<TiffStreamRegion> EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffFileWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(buffer);
 
             return encoder.EncodeAsync(writer, offset, size, new TiffPixelBufferReaderAdapter<TPixel>(buffer), cancellationToken);
         }
@@ -270,18 +205,9 @@ namespace TiffLibrary
         /// <returns>A <see cref="Task"/> that completes when the image and fields have been encoded.</returns>
         public static Task EncodeAsync<TPixel>(this TiffImageEncoder<TPixel> encoder, TiffImageFileDirectoryWriter writer, TiffPoint offset, TiffSize size, ITiffPixelBuffer<TPixel> buffer, CancellationToken cancellationToken = default) where TPixel : unmanaged
         {
-            if (encoder is null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(encoder);
+            ThrowHelper.ThrowIfNull(writer);
+            ThrowHelper.ThrowIfNull(buffer);
 
             return encoder.EncodeAsync(writer, offset, size, new TiffPixelBufferReaderAdapter<TPixel>(buffer), cancellationToken);
         }

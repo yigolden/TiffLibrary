@@ -15,10 +15,7 @@ namespace TiffLibrary.PixelBuffer
         /// <returns></returns>
         public static ITiffPixelBufferWriter<TPixel> Wrap<TPixel>(ITiffPixelBufferWriter<TPixel> writer) where TPixel : unmanaged
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            ThrowHelper.ThrowIfNull(writer);
 
             if (writer is TiffNoopDisposablePixelBufferWriter<TPixel> noopWriter)
             {
@@ -43,7 +40,8 @@ namespace TiffLibrary.PixelBuffer
         /// <param name="writer">The writer to wrap.</param>
         public TiffNoopDisposablePixelBufferWriter(ITiffPixelBufferWriter<TPixel> writer)
         {
-            _writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            ThrowHelper.ThrowIfNull(writer);
+            _writer = writer;
         }
 
         /// <summary>

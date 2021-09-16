@@ -62,7 +62,7 @@ namespace TiffLibrary
 
             if (rawData.Length > _writer!.OperationContext.ByteCountOfValueOffsetField)
             {
-                throw new ArgumentException("rawData too big.", nameof(rawData));
+                ThrowHelper.ThrowArgumentException("rawData too big.", nameof(rawData));
             }
 
             Span<byte> buffer = stackalloc byte[8];

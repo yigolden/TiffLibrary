@@ -37,7 +37,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         {
             if (windowFilled++ == WindowSize)
             {
-                throw new InvalidOperationException("Window full");
+                ThrowHelper.ThrowInvalidOperationException("Window full");
             }
             window[windowEnd++] = (byte)value;
             windowEnd &= WindowMask;
@@ -65,7 +65,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         {
             if ((windowFilled += length) > WindowSize)
             {
-                throw new InvalidOperationException("Window full");
+                ThrowHelper.ThrowInvalidOperationException("Window full");
             }
 
             int repStart = (windowEnd - distance) & WindowMask;
@@ -133,14 +133,11 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
         /// </exception>
         public void CopyDict(byte[] dictionary, int offset, int length)
         {
-            if (dictionary is null)
-            {
-                throw new ArgumentNullException(nameof(dictionary));
-            }
+            ThrowHelper.ThrowIfNull(dictionary);
 
             if (windowFilled > 0)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
 
             if (length > WindowSize)
@@ -206,7 +203,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
             windowFilled -= copied;
             if (windowFilled < 0)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             return copied;
         }

@@ -18,7 +18,7 @@ namespace TiffLibrary.Compression
         {
             if (output.Length < (width * height * componentsCount))
             {
-                throw new ArgumentException("Destination buffer is too small.");
+                ThrowHelper.ThrowArgumentException("Destination buffer is too small.");
             }
 
             _width = width;

@@ -136,7 +136,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
                 if (!empty)
                 {
-                    throw new InvalidDataException("!Empty");
+                    ThrowHelper.ThrowInvalidDataException("!Empty");
                 }
             }
 
@@ -329,7 +329,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 
                 if (heap[0] != childs.Length / 2 - 1)
                 {
-                    throw new InvalidDataException("Heap invariant violated");
+                    ThrowHelper.ThrowInvalidDataException("Heap invariant violated");
                 }
 
                 BuildLength(childs);

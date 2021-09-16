@@ -23,7 +23,7 @@ namespace TiffLibrary
         {
             if ((uint)bitsCount > 32)
             {
-                ThrowArgumentOutOfRangeException(nameof(bitsCount));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(bitsCount));
             }
             int availableBits = 64 - _usedBufferBits;
             value = value & (((uint)1 << bitsCount) - 1);
@@ -86,11 +86,6 @@ namespace TiffLibrary
                 }
             }
             _usedBufferBits = 0;
-        }
-
-        private static void ThrowArgumentOutOfRangeException(string paramName)
-        {
-            throw new ArgumentOutOfRangeException(paramName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

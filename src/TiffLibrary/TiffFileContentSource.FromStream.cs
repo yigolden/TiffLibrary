@@ -16,10 +16,11 @@ namespace TiffLibrary
 
         public TiffStreamContentSource(Stream stream, bool leaveOpen)
         {
-            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+            ThrowHelper.ThrowIfNull(stream);
+            _stream = stream;
             if (!stream.CanSeek)
             {
-                throw new ArgumentException("Stream must be seekable.", nameof(stream));
+                ThrowHelper.ThrowArgumentException("Stream must be seekable.", nameof(stream));
             }
             _semaphore = new SemaphoreSlim(1);
             _reader = new ContentReader(stream, _semaphore);
@@ -31,7 +32,7 @@ namespace TiffLibrary
             ContentReader? reader = _reader;
             if (reader is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentSource));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentSource));
             }
             return reader;
         }
@@ -43,7 +44,7 @@ namespace TiffLibrary
             ContentReader? reader = _reader;
             if (reader is null)
             {
-                throw new ObjectDisposedException(nameof(TiffStreamContentSource));
+                ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentSource));
             }
             return new ValueTask<TiffFileContentReader>(reader);
         }
@@ -100,7 +101,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {
@@ -128,7 +129,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {
@@ -178,7 +179,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {
@@ -210,7 +211,7 @@ namespace TiffLibrary
                 Stream? stream = _stream;
                 if (stream is null)
                 {
-                    throw new ObjectDisposedException(nameof(ContentReader));
+                    ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
                 if (offset.Offset > stream.Length)
                 {

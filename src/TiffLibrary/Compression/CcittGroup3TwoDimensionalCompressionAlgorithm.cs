@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using ReferenceScanline = TiffLibrary.Compression.CcittTwoDimensionalReferenceScanline;
 
 namespace TiffLibrary.Compression

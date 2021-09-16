@@ -1,5 +1,4 @@
-﻿using System;
-using TiffLibrary.PixelBuffer;
+﻿using TiffLibrary.PixelBuffer;
 using TiffLibrary.PixelFormats;
 
 namespace TiffLibrary.ImageDecoder

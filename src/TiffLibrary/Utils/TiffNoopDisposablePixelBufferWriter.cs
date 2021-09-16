@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TiffLibrary.PixelBuffer
+﻿namespace TiffLibrary.PixelBuffer
 {
     /// <summary>
     /// Provide methods to create <see cref="TiffNoopDisposablePixelBufferWriter{TPixel}"/>

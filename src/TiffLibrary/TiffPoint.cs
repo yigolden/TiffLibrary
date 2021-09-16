@@ -1,5 +1,4 @@
 ﻿using System;
-using TiffLibrary.Utils;
 
 namespace TiffLibrary
 {

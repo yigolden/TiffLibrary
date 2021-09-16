@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using TiffLibrary.Utils;
 
 namespace TiffLibrary
 {

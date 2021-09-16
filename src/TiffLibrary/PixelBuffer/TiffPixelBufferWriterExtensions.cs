@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TiffLibrary
+﻿namespace TiffLibrary
 {
     /// <summary>
     /// Contains extension methods to manipulate <see cref="TiffPixelBufferWriter{TPixel}"/> structure.

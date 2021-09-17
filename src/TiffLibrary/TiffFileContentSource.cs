@@ -54,7 +54,11 @@ namespace TiffLibrary
         {
             ThrowHelper.ThrowIfNull(fileName);
 
+#if NO_RANDOM_ACCESS
             return new TiffFileStreamContentSource(fileName, preferAsync);
+#else
+            return new TiffRandomAccessFileContentSource(fileName, preferAsync);
+#endif
         }
 
         /// <summary>

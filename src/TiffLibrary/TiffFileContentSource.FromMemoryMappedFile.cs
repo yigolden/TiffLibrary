@@ -91,7 +91,7 @@ namespace TiffLibrary
                     byte* pointer = null;
                     SafeMemoryMappedViewHandle handle = accessor.SafeMemoryMappedViewHandle;
 
-#if !NETSTANDARD1_3
+#if !NET6_0_OR_GREATER
                     System.Runtime.CompilerServices.RuntimeHelpers.PrepareConstrainedRegions();
 #endif
 

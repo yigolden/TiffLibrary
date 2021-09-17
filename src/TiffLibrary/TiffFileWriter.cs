@@ -84,8 +84,12 @@ namespace TiffLibrary
         {
             ThrowHelper.ThrowIfNull(fileName);
 
-            var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
+#if NO_RANDOM_ACCESS
+            var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 4096, true);
             return OpenAsync(new TiffStreamContentReaderWriter(fs, false), false, useBigTiff, cancellationToken);
+#else
+            return OpenAsync(new TiffRandomAccessFileContentReaderWriter(fileName, FileMode.Create), false, useBigTiff, cancellationToken);
+#endif
         }
 
         /// <summary>

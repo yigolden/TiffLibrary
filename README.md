@@ -12,17 +12,11 @@ A C# library for decoding and encoding images from and to TIFF files.
 * Supports both stripped TIFF and tiled TIFF.
 * Capable of reading and writing TIFF file of massive size.
 
-## Minimum Supported Runtimes
+## Supported Runtimes
 
-* .NET Framework 4.6
-* .NET Core 1.0
-* Runtimes compatible with .NET Standard 1.3
-
-## Recommanded Runtimes
-
-* .NET Framework 4.7.2 and higher
-* .NET Core 2.1 and higher
-* Runtimes compatible with at least .NET Standard 2.0
+* .NET Framework 4.6.1+
+* .NET Core 3.1+
+* Runtimes compatible with .NET Standard 2.0
 
 ## Getting Started
 

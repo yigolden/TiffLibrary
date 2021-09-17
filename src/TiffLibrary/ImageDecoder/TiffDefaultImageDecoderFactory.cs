@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using JpegLibrary;
 using TiffLibrary.Compression;
 using TiffLibrary.PhotometricInterpreters;
 
@@ -391,7 +390,7 @@ namespace TiffLibrary.ImageDecoder
                 } while (streamRegion.Length > 0);
 
                 // Identify JPEG stream.
-                var decoder = new JpegDecoder();
+                var decoder = new LegacyJpegIdentificationDecoder();
                 decoder.SetInput(bufferWriter.GetReadOnlySequence());
                 try
                 {
@@ -400,6 +399,19 @@ namespace TiffLibrary.ImageDecoder
                     if (decoder.Precision != 8)
                     {
                         ThrowHelper.ThrowNotSupportedException("Only 8-bit JPEG is supported.");
+                    }
+
+                    // Detect whether this is JFJF file
+                    if (decoder.IsJfifFile)
+                    {
+                        if (decoder.NumberOfComponents == 3)
+                        {
+                            photometricInterpretation = TiffPhotometricInterpretation.YCbCr;
+                        }
+                        else if (decoder.NumberOfComponents == 1)
+                        {
+                            photometricInterpretation = TiffPhotometricInterpretation.BlackIsZero;
+                        }
                     }
 
                     // Try deduce photometric interpretation

@@ -65,7 +65,7 @@ namespace TiffLibrary.PixelFormats.Converters
                         cmyk.M = (byte)(((cmy.G - K) * ushort.MaxValue / (ushort.MaxValue - K)) >> 8);
                         cmyk.Y = (byte)(((cmy.B - K) * ushort.MaxValue / (ushort.MaxValue - K)) >> 8);
                     }
-
+                    
                     Unsafe.Add(ref destinationRef, i) = cmyk;
                 }
             }

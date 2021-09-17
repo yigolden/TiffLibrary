@@ -8,70 +8,61 @@ namespace TiffLibrary
     internal sealed class TiffMemoryMappedFileContentSource : TiffFileContentSource
     {
         private MemoryMappedFile? _file;
+        private MemoryMappedViewAccessor? _accessor;
         private readonly bool _leaveOpen;
         private readonly long _capacity;
-
-        private ContentReader? _readerCache;
 
         public TiffMemoryMappedFileContentSource(MemoryMappedFile file, bool leaveOpen)
         {
             _file = file;
+            _accessor = file.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
             _leaveOpen = leaveOpen;
-
-            using (MemoryMappedViewAccessor? accessor = file.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read))
-            {
-                _capacity = accessor.Capacity;
-            }
+            _capacity = _accessor.Capacity;
         }
 
         public override TiffFileContentReader OpenReader()
         {
-            MemoryMappedFile? file = _file;
-            if (file is null)
+            MemoryMappedViewAccessor? accessor = _accessor;
+            if (accessor is null)
             {
                 ThrowHelper.ThrowObjectDisposedException(nameof(TiffStreamContentSource));
             }
-            ContentReader? reader = Interlocked.Exchange(ref _readerCache, null);
-            if (reader is null)
-            {
-                reader = new ContentReader(file, _capacity);
-            }
-            return reader;
+            return new ContentReader(accessor, _capacity);
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (_file is not null && !_leaveOpen)
+            if (disposing)
             {
-                _file.Dispose();
+                if (_accessor is not null)
+                {
+                    _accessor.Dispose();
+                }
+                if (_file is not null && !_leaveOpen)
+                {
+                    _file.Dispose();
+                }
             }
-            _file = null;
-            _readerCache = null;
-        }
 
-        public void ReturnReader(ContentReader reader)
-        {
-            if (_file is not null)
-            {
-                Interlocked.Exchange(ref _readerCache, reader);
-            }
+            _accessor = null;
+            _file = null;
         }
 
         internal sealed class ContentReader : TiffFileContentReader
         {
-            private MemoryMappedFile? _file;
+            private MemoryMappedViewAccessor? _accessor;
             private readonly long _capacity;
 
-            public ContentReader(MemoryMappedFile file, long capacity)
+            public ContentReader(MemoryMappedViewAccessor accessor, long capacity)
             {
-                _file = file;
+                _accessor = accessor;
                 _capacity = capacity;
             }
 
             public override unsafe int Read(TiffStreamOffset offset, Memory<byte> buffer)
             {
-                MemoryMappedFile? file = Volatile.Read(ref _file);
-                if (file is null)
+                MemoryMappedViewAccessor? accessor = Volatile.Read(ref _accessor);
+                if (accessor is null)
                 {
                     ThrowHelper.ThrowObjectDisposedException(nameof(ContentReader));
                 }
@@ -86,38 +77,35 @@ namespace TiffLibrary
                     return 0;
                 }
 
-                using (MemoryMappedViewAccessor accessor = file.CreateViewAccessor(offset, 0, MemoryMappedFileAccess.Read))
-                {
-                    byte* pointer = null;
-                    SafeMemoryMappedViewHandle handle = accessor.SafeMemoryMappedViewHandle;
+                byte* pointer = null;
+                SafeMemoryMappedViewHandle handle = accessor.SafeMemoryMappedViewHandle;
 
 #if !NET6_0_OR_GREATER
-                    System.Runtime.CompilerServices.RuntimeHelpers.PrepareConstrainedRegions();
+                System.Runtime.CompilerServices.RuntimeHelpers.PrepareConstrainedRegions();
 #endif
 
-                    try
+                try
+                {
+                    handle.AcquirePointer(ref pointer);
+                    if (pointer != null)
                     {
-                        handle.AcquirePointer(ref pointer);
-                        if (pointer != null)
-                        {
-                            new Span<byte>(pointer + accessor.PointerOffset, buffer.Length).CopyTo(buffer.Span);
-                        }
-
-                        return buffer.Length;
+                        new Span<byte>(pointer + accessor.PointerOffset + offset, buffer.Length).CopyTo(buffer.Span);
                     }
-                    finally
+
+                    return buffer.Length;
+                }
+                finally
+                {
+                    if (pointer != null)
                     {
-                        if (pointer != null)
-                        {
-                            handle.ReleasePointer();
-                        }
+                        handle.ReleasePointer();
                     }
                 }
             }
 
             protected override void Dispose(bool disposing)
             {
-                _file = null;
+                _accessor = null;
             }
         }
     }

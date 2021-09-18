@@ -101,11 +101,7 @@ namespace TiffLibrary
         /// <inheritdoc />
         public override int GetHashCode()
         {
-#if NO_HASHCODE
-            return HashHelpers.Combine(Numerator.GetHashCode(), Denominator.GetHashCode());
-#else
             return HashCode.Combine(Numerator, Denominator);
-#endif
         }
 
         /// <inheritdoc />

@@ -326,7 +326,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                             repLength = CPLENS[symbol - 257];
                             neededBits = CPLEXT[symbol - 257];
                         }
+#pragma warning disable CA1031 // Do not catch general exception types
                         catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
                         {
                             ThrowHelper.ThrowInvalidDataException("Illegal rep length code");
                         }
@@ -359,7 +361,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
                             repDist = CPDIST[symbol];
                             neededBits = CPDEXT[symbol];
                         }
+#pragma warning disable CA1031 // Do not catch general exception types
                         catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
                         {
                             ThrowHelper.ThrowInvalidDataException("Illegal rep dist code");
                         }

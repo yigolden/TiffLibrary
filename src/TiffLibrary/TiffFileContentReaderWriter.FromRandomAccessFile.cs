@@ -167,7 +167,7 @@ namespace TiffLibrary
         public override ValueTask DisposeAsync()
         {
             Interlocked.Exchange(ref _fileHandle, null)?.Dispose();
-            return default;
+            return base.DisposeAsync();
         }
     }
 }

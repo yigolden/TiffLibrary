@@ -236,7 +236,7 @@ namespace TiffLibrary
 
             try
             {
-                TiffFileContentReader reader = await contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
+                TiffFileContentReader? reader = await contentSource.OpenReaderAsync(cancellationToken).ConfigureAwait(false);
                 try
                 {
                     byte[] buffer = ArrayPool<byte>.Shared.Rent(16);
@@ -263,7 +263,9 @@ namespace TiffLibrary
             }
             finally
             {
+#pragma warning disable CA1508 // Avoid dead conditional code
                 if (!leaveOpen && contentSource is not null)
+#pragma warning restore CA1508 // Avoid dead conditional code
                 {
                     await contentSource.DisposeAsync().ConfigureAwait(false);
                 }

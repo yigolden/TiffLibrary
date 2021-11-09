@@ -11,10 +11,10 @@
     <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
     <NerdbankGitVersioningPackageVersion>3.4.231</NerdbankGitVersioningPackageVersion>
 
-    <MicrosoftBclAsyncInterfacesPackageVersion>1.1.1</MicrosoftBclAsyncInterfacesPackageVersion>
-    <MicrosoftBclHashCodePackageVersion>1.1.0</MicrosoftBclHashCodePackageVersion>
+    <MicrosoftBclAsyncInterfacesPackageVersion>6.0.0</MicrosoftBclAsyncInterfacesPackageVersion>
+    <MicrosoftBclHashCodePackageVersion>1.1.1</MicrosoftBclHashCodePackageVersion>
     <SystemMemoryPackageVersion>4.5.4</SystemMemoryPackageVersion>
-    <SystemRuntimeCompilerServicesUnsafePackageVersion>4.7.1</SystemRuntimeCompilerServicesUnsafePackageVersion>
+    <SystemRuntimeCompilerServicesUnsafePackageVersion>6.0.0</SystemRuntimeCompilerServicesUnsafePackageVersion>
     <SystemThreadingTasksExtensionsPackageVersion>4.5.4</SystemThreadingTasksExtensionsPackageVersion>
 
     <SixLaborsImageSharpPackageVersion>1.0.0</SixLaborsImageSharpPackageVersion>

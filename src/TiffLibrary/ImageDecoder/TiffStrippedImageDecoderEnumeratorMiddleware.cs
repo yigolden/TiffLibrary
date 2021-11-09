@@ -172,7 +172,10 @@ namespace TiffLibrary.ImageDecoder
             finally
             {
                 ((IDisposable)cache).Dispose();
-                reader?.Dispose();
+                if (reader is not null)
+                {
+                    await reader.DisposeAsync().ConfigureAwait(false);
+                }
             }
 
 

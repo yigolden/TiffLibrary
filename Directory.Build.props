@@ -9,7 +9,7 @@
   <PropertyGroup>
     <Product>TiffLibrary</Product>
     <Authors>YiGolden</Authors>
-    <Copyright>Copyright (c) 2018-2020 yigolden</Copyright>
+    <Copyright>Copyright (c) 2018-2021 yigolden</Copyright>
     <PackageTags>tiff</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/yigolden/TiffLibrary</PackageProjectUrl>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup Label="Validation Versions">
-    <PreviouslyPublishedPackageVersion>0.5.260</PreviouslyPublishedPackageVersion>
+    <PreviouslyPublishedPackageVersion>0.6.61</PreviouslyPublishedPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
     <JpegLibraryPackageVersion>0.4.26</JpegLibraryPackageVersion>

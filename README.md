@@ -22,17 +22,12 @@ A C# library for decoding and encoding images from and to TIFF files.
 
 ### **Install TiffLibrary Package**
 
-To install this library, add this feed to your nuget.config: https://www.myget.org/F/yigolden/api/v3/index.json . An example of nuget.config file can be found at the root directory of this repository.
-
-Install the latest version from the feed.
+Install the latest version from NuGet.
 
 NuGet: [![NuGet](https://img.shields.io/nuget/v/TiffLibrary.svg)](https://www.nuget.org/packages/TiffLibrary/)
 
-MyGet: [![MyGet](https://img.shields.io/myget/yigolden/v/TiffLibrary.svg)](https://www.myget.org/feed/yigolden/package/nuget/TiffLibrary)
-
-
 ```
-dotnet add package TiffLibrary --version <VERSION> --source https://www.myget.org/F/yigolden/api/v3/index.json
+dotnet add package TiffLibrary --version <VERSION>
 ```
 
 Add the following using statement to your source files.

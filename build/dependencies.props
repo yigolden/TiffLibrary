@@ -4,7 +4,7 @@
     <PreviouslyPublishedPackageVersion>0.5.260</PreviouslyPublishedPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
-    <JpegLibraryPackageVersion>0.3.30</JpegLibraryPackageVersion>
+    <JpegLibraryPackageVersion>0.4.26</JpegLibraryPackageVersion>
 
     <MicrosoftDotNetPackageValidationPackageVersion>1.0.0-preview.7.21379.12</MicrosoftDotNetPackageValidationPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>

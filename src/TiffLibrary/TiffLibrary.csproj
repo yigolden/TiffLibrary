@@ -22,6 +22,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <AnalysisLevel>latest</AnalysisLevel>
+    <IsTrimmable>true</IsTrimmable>
 
     <!-- <PackageValidationBaselineVersion>$(PreviouslyPublishedPackageVersion)</PackageValidationBaselineVersion> -->
   </PropertyGroup>

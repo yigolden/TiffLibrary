@@ -20,6 +20,7 @@ namespace TiffLibrary.Compression
         private static ReadOnlySpan<byte> ThreeBitDiffDecodeTable => new byte[] { 0, 1, 2, 3, 0, unchecked((byte)-3), unchecked((byte)-2), unchecked((byte)-1) };
 
         /// <inheritdoc />
+        [SkipLocalsInit]
         public void Compress(TiffCompressionContext context, ReadOnlyMemory<byte> input, IBufferWriter<byte> outputWriter)
         {
             ThrowHelper.ThrowIfNull(context);

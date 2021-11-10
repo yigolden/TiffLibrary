@@ -47,6 +47,7 @@ namespace TiffLibrary
         public ValueTask ReadByteFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<byte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadByteFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<byte>> ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -86,6 +87,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<byte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -230,6 +232,7 @@ namespace TiffLibrary
         public ValueTask ReadSByteFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<sbyte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSByteFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<sbyte>> ReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -269,6 +272,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadSByteFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<sbyte> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -346,6 +350,7 @@ namespace TiffLibrary
         public ValueTask<string> ReadASCIIFieldFirstStringAsync(TiffImageFileDirectoryEntry entry, int sizeLimit = -1, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
                 => ReadASCIIFieldFirstStringAsync(GetAsyncReader(), entry, sizeLimit, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<string>> ReadASCIIFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -373,6 +378,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask<string> ReadASCIIFieldFirstStringAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -491,6 +497,7 @@ namespace TiffLibrary
         public ValueTask ReadShortFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<ushort> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadShortFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<ushort>> ReadShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -552,6 +559,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<ushort> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -711,6 +719,7 @@ namespace TiffLibrary
         public ValueTask ReadSShortFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<short> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSShortFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<short>> ReadSShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -790,6 +799,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadSShortFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<short> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -936,6 +946,7 @@ namespace TiffLibrary
         public ValueTask ReadLongFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<uint> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLongFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<uint>> ReadLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -1017,6 +1028,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<uint> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -1203,6 +1215,7 @@ namespace TiffLibrary
         public ValueTask ReadSLongFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<int> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSLongFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<int>> ReadSLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -1323,6 +1336,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadSLongFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<int> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -1524,6 +1538,7 @@ namespace TiffLibrary
         public ValueTask ReadLong8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<ulong> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadLong8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<ulong>> ReadLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -1626,6 +1641,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<ulong> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -1840,6 +1856,7 @@ namespace TiffLibrary
         public ValueTask ReadSLong8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<long> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSLong8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<long>> ReadSLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2002,6 +2019,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadSLong8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<long> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2256,6 +2274,7 @@ namespace TiffLibrary
         public ValueTask ReadFloatFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<float> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadFloatFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<float>> ReadFloatFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2300,6 +2319,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadFloatFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<float> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2436,6 +2456,7 @@ namespace TiffLibrary
         public ValueTask ReadDoubleFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<double> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadDoubleFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<double>> ReadDoubleFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2503,6 +2524,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadDoubleFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<double> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2673,6 +2695,7 @@ namespace TiffLibrary
         public ValueTask ReadRationalFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadRationalFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<TiffRational>> ReadRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2775,6 +2798,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -2984,6 +3008,7 @@ namespace TiffLibrary
         public ValueTask ReadSRationalFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffSRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadSRationalFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<TiffSRational>> ReadSRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -3124,6 +3149,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadSRationalFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffSRational> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -3346,6 +3372,7 @@ namespace TiffLibrary
         public ValueTask ReadIFDFieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadIFDFieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFDFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -3390,6 +3417,7 @@ namespace TiffLibrary
             return default;
         }
 
+        [SkipLocalsInit]
         private ValueTask ReadIFDFieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -3482,6 +3510,7 @@ namespace TiffLibrary
         public ValueTask ReadIFD8FieldAsync(TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
             => ReadIFD8FieldAsync(GetAsyncReader(), entry, offset, destination, skipTypeValidation, cancellationToken);
 
+        [SkipLocalsInit]
         private ValueTask<TiffValueCollection<TiffStreamOffset>> ReadIFD8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int sizeLimit, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -3547,7 +3576,7 @@ namespace TiffLibrary
             return default;
         }
 
-
+        [SkipLocalsInit]
         private ValueTask ReadIFD8FieldAsync(TiffFileContentReader reader, TiffImageFileDirectoryEntry entry, int offset, Memory<TiffStreamOffset> destination, bool skipTypeValidation = false, CancellationToken cancellationToken = default)
         {
             if (_context is null)
@@ -3631,7 +3660,6 @@ namespace TiffLibrary
             ThrowHelper.ThrowInvalidOperationException($"Can read tag of type {entry.Type}.");
             return default;
         }
-
 
         #endregion
 

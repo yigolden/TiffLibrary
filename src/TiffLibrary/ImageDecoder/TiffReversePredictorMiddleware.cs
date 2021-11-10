@@ -70,6 +70,7 @@ namespace TiffLibrary.ImageDecoder
             return next.RunAsync(context);
         }
 
+        [SkipLocalsInit]
         private static void UndoHorizontalDifferencingForScanline(Span<byte> scanline, TiffValueCollection<ushort> bitsPerSample, int width)
         {
             if (width <= 1)

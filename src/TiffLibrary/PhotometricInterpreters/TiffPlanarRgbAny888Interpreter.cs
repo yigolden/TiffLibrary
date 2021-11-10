@@ -41,6 +41,7 @@ namespace TiffLibrary.PhotometricInterpreters
         }
 
         /// <inheritdoc />
+        [SkipLocalsInit]
         public ValueTask InvokeAsync(TiffImageDecoderContext context, ITiffImageDecoderPipelineNode next)
         {
             ThrowHelper.ThrowIfNull(context);

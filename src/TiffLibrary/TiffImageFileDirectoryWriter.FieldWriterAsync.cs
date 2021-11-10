@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -56,33 +57,6 @@ namespace TiffLibrary
 
         #region Raw
 
-        internal void AddInlineTag(TiffTag tag, TiffFieldType type, int count, ReadOnlySpan<byte> rawData)
-        {
-            Debug.Assert(_writer != null);
-
-            if (rawData.Length > _writer!.OperationContext.ByteCountOfValueOffsetField)
-            {
-                ThrowHelper.ThrowArgumentException("rawData too big.", nameof(rawData));
-            }
-
-            Span<byte> buffer = stackalloc byte[8];
-            rawData.CopyTo(buffer);
-
-            AddOrUpdateEntry(tag, type, count, buffer);
-        }
-
-        internal void AddPointerTag(TiffTag tag, TiffFieldType type, int count, TiffStreamOffset offset)
-        {
-            if (TryFindEntry(tag, out int i, out _))
-            {
-                _entries[i] = new TiffImageFileDirectoryEntry(tag, type, count, offset);
-            }
-            else
-            {
-                _entries.Add(new TiffImageFileDirectoryEntry(tag, type, count, offset));
-            }
-        }
-
         /// <summary>
         /// Write values of the specified type to the specified tag in this IFD.
         /// </summary>
@@ -93,6 +67,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, int valueCount, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -145,6 +120,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffFieldType type, TiffValueCollection<byte> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -193,6 +169,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<string> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -258,14 +235,6 @@ namespace TiffLibrary
 
         #region Short
 
-        internal void AddTag(TiffTag tag, ushort value)
-        {
-            Span<byte> stackBuffer = stackalloc byte[8];
-            MemoryMarshal.Write(stackBuffer, ref value);
-
-            AddOrUpdateEntry(tag, TiffFieldType.Short, 1, stackBuffer);
-        }
-
         /// <summary>
         /// Write values of <see cref="TiffFieldType.Short"/> to the specified tag in this IFD.
         /// </summary>
@@ -274,6 +243,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ushort> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -314,14 +284,6 @@ namespace TiffLibrary
 
         #region SShort
 
-        internal void AddTag(TiffTag tag, short value)
-        {
-            Span<byte> stackBuffer = stackalloc byte[8];
-            MemoryMarshal.Write(stackBuffer, ref value);
-
-            AddOrUpdateEntry(tag, TiffFieldType.SShort, 1, stackBuffer);
-        }
-
         /// <summary>
         /// Write values of <see cref="TiffFieldType.SShort"/> to the specified tag in this IFD.
         /// </summary>
@@ -330,6 +292,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<short> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -370,14 +333,6 @@ namespace TiffLibrary
 
         #region Long
 
-        internal void AddTag(TiffTag tag, uint value)
-        {
-            Span<byte> stackBuffer = stackalloc byte[8];
-            MemoryMarshal.Write(stackBuffer, ref value);
-
-            AddOrUpdateEntry(tag, TiffFieldType.Long, 1, stackBuffer);
-        }
-
         /// <summary>
         /// Write values of <see cref="TiffFieldType.Long"/> to the specified tag in this IFD.
         /// </summary>
@@ -386,6 +341,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<uint> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -426,14 +382,6 @@ namespace TiffLibrary
 
         #region SLong
 
-        internal void AddTag(TiffTag tag, int value)
-        {
-            Span<byte> stackBuffer = stackalloc byte[8];
-            MemoryMarshal.Write(stackBuffer, ref value);
-
-            AddOrUpdateEntry(tag, TiffFieldType.SLong, 1, stackBuffer);
-        }
-
         /// <summary>
         /// Write values of <see cref="TiffFieldType.SLong"/> to the specified tag in this IFD.
         /// </summary>
@@ -442,6 +390,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<int> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -491,6 +440,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<ulong> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -539,6 +489,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<long> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -587,6 +538,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<float> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -635,6 +587,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<double> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -683,6 +636,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffRational> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
@@ -731,6 +685,7 @@ namespace TiffLibrary
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> that fires if the user has requested to abort this operation.</param>
         /// <returns>A <see cref="ValueTask"/> that completes when the values have been written.</returns>
         [CLSCompliant(false)]
+        [SkipLocalsInit]
         public ValueTask WriteTagAsync(TiffTag tag, TiffValueCollection<TiffSRational> values, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();

@@ -80,6 +80,7 @@ namespace TiffLibrary.ImageEncoder
             }
         }
 
+        [SkipLocalsInit]
         private static void ApplyHorizontalDifferencingForScanline(Memory<byte> scanline, TiffValueCollection<ushort> bitsPerSample, int width)
         {
             if (width <= 1)

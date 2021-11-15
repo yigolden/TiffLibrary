@@ -429,6 +429,11 @@ namespace TiffLibrary
         JPEGTables = 0x15B,
 
         /// <summary>
+        /// Photoshop
+        /// </summary>
+        Photoshop = 0x8649,
+
+        /// <summary>
         /// ExifIfd
         /// </summary>
         ExifIfd = 0x8769,

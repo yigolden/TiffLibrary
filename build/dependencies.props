@@ -6,10 +6,9 @@
   <PropertyGroup Label="Package Versions">
     <JpegLibraryPackageVersion>0.4.26</JpegLibraryPackageVersion>
 
-    <MicrosoftDotNetPackageValidationPackageVersion>1.0.0-preview.7.21379.12</MicrosoftDotNetPackageValidationPackageVersion>
-    <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
-    <MicrosoftSourceLinkGitHubPackageVersion>1.0.0</MicrosoftSourceLinkGitHubPackageVersion>
-    <NerdbankGitVersioningPackageVersion>3.4.231</NerdbankGitVersioningPackageVersion>
+    <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.2</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
+    <MicrosoftSourceLinkGitHubPackageVersion>1.1.1</MicrosoftSourceLinkGitHubPackageVersion>
+    <NerdbankGitVersioningPackageVersion>3.4.244</NerdbankGitVersioningPackageVersion>
 
     <MicrosoftBclAsyncInterfacesPackageVersion>6.0.0</MicrosoftBclAsyncInterfacesPackageVersion>
     <MicrosoftBclHashCodePackageVersion>1.1.1</MicrosoftBclHashCodePackageVersion>

@@ -4,7 +4,7 @@
     <PreviouslyPublishedPackageVersion>0.6.61</PreviouslyPublishedPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
-    <JpegLibraryPackageVersion>0.4.26</JpegLibraryPackageVersion>
+    <JpegLibraryPackageVersion>0.4.32</JpegLibraryPackageVersion>
 
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.2</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftSourceLinkGitHubPackageVersion>1.1.1</MicrosoftSourceLinkGitHubPackageVersion>

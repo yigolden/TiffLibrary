@@ -123,27 +123,82 @@ namespace TiffLibrary.PhotometricInterpreters
             CodingRangeExpander expander = _expander;
             YCbCrToRgbConverter converter = _converterFrom;
             Vector3 vectorClampMax = new Vector3(255);
+            Vector3 roundVector = new Vector3(0.5f);
 
             ref byte sourceRef = ref MemoryMarshal.GetReference(ycbcr);
             ref TiffRgba32 destinationRef = ref MemoryMarshal.GetReference(destination);
-            Unsafe.SkipInit(out TiffRgba32 pixel);
-            pixel.A = byte.MaxValue;
+
+            while (count >= 4)
+            {
+                var vector1 = new Vector3(sourceRef, Unsafe.Add(ref sourceRef, 1), Unsafe.Add(ref sourceRef, 2));
+                var vector2 = new Vector3(Unsafe.Add(ref sourceRef, 3), Unsafe.Add(ref sourceRef, 4), Unsafe.Add(ref sourceRef, 5));
+                var vector3 = new Vector3(Unsafe.Add(ref sourceRef, 6), Unsafe.Add(ref sourceRef, 7), Unsafe.Add(ref sourceRef, 8));
+                var vector4 = new Vector3(Unsafe.Add(ref sourceRef, 9), Unsafe.Add(ref sourceRef, 10), Unsafe.Add(ref sourceRef, 11));
+
+                vector1 = expander.Expand(vector1);
+                vector2 = expander.Expand(vector2);
+                vector3 = expander.Expand(vector3);
+                vector4 = expander.Expand(vector4);
+
+                vector1 = converter.Convert(vector1);
+                vector2 = converter.Convert(vector2);
+                vector3 = converter.Convert(vector3);
+                vector4 = converter.Convert(vector4);
+
+                vector1 = vector1 + roundVector;
+                vector2 = vector2 + roundVector;
+                vector3 = vector3 + roundVector;
+                vector4 = vector4 + roundVector;
+
+                vector1 = Vector3.Clamp(vector1, Vector3.Zero, vectorClampMax);
+                vector2 = Vector3.Clamp(vector2, Vector3.Zero, vectorClampMax);
+                vector3 = Vector3.Clamp(vector3, Vector3.Zero, vectorClampMax);
+                vector4 = Vector3.Clamp(vector4, Vector3.Zero, vectorClampMax);
+
+                destinationRef.R = (byte)vector1.X;
+                destinationRef.G = (byte)vector1.Y;
+                destinationRef.B = (byte)vector1.Z;
+                destinationRef.A = byte.MaxValue;
+                destinationRef = Unsafe.Add(ref destinationRef, 1);
+
+                destinationRef.R = (byte)vector2.X;
+                destinationRef.G = (byte)vector2.Y;
+                destinationRef.B = (byte)vector2.Z;
+                destinationRef.A = byte.MaxValue;
+                destinationRef = Unsafe.Add(ref destinationRef, 1);
+
+                destinationRef.R = (byte)vector3.X;
+                destinationRef.G = (byte)vector3.Y;
+                destinationRef.B = (byte)vector3.Z;
+                destinationRef.A = byte.MaxValue;
+                destinationRef = Unsafe.Add(ref destinationRef, 1);
+
+                destinationRef.R = (byte)vector4.X;
+                destinationRef.G = (byte)vector4.Y;
+                destinationRef.B = (byte)vector4.Z;
+                destinationRef.A = byte.MaxValue;
+                destinationRef = Unsafe.Add(ref destinationRef, 1);
+
+                count -= 4;
+                sourceRef = ref Unsafe.Add(ref sourceRef, 12);
+            }
 
             for (int i = 0; i < count; i++)
             {
-                ref TiffRgba32 pixelRef = ref Unsafe.Add(ref destinationRef, i);
                 var vector = new Vector3(sourceRef, Unsafe.Add(ref sourceRef, 1), Unsafe.Add(ref sourceRef, 2));
 
                 vector = expander.Expand(vector);
                 vector = converter.Convert(vector);
+                vector = vector + new Vector3(0.5f);
                 vector = Vector3.Clamp(vector, Vector3.Zero, vectorClampMax);
 
-                pixel.R = (byte)TiffMathHelper.Round(vector.X);
-                pixel.G = (byte)TiffMathHelper.Round(vector.Y);
-                pixel.B = (byte)TiffMathHelper.Round(vector.Z);
-                pixelRef = pixel;
+                destinationRef.R = (byte)vector.X;
+                destinationRef.G = (byte)vector.Y;
+                destinationRef.B = (byte)vector.Z;
+                destinationRef.A = byte.MaxValue;
 
                 sourceRef = ref Unsafe.Add(ref sourceRef, 3);
+                destinationRef = Unsafe.Add(ref destinationRef, 1);
             }
         }
 
@@ -274,11 +329,16 @@ namespace TiffLibrary.PhotometricInterpreters
 
             public YCbCrToRgbConverter(TiffRational lumaRed, TiffRational lumaGreen, TiffRational lumaBlue)
             {
-                float cr2r = 2 - 2 * lumaRed.ToSingle();
-                float cb2b = 2 - 2 * lumaBlue.ToSingle();
-                float y2g = (1 - lumaBlue.ToSingle() - lumaRed.ToSingle()) / lumaGreen.ToSingle();
-                float cr2g = 2 * lumaRed.ToSingle() * (lumaRed.ToSingle() - 1) / lumaGreen.ToSingle();
-                float cb2g = 2 * lumaBlue.ToSingle() * (lumaBlue.ToSingle() - 1) / lumaGreen.ToSingle();
+                float lr = lumaRed.ToSingle();
+                float lg = lumaGreen.ToSingle();
+                float lb = lumaBlue.ToSingle();
+
+                float cr2r = 2 - 2 * lr;
+                float cb2b = 2 - 2 * lb;
+                float y2g = (1 - lb - lr) / lg;
+                float cr2g = 2 * lr * (lr - 1) / lg;
+                float cb2g = 2 * lb * (lb - 1) / lg;
+
                 _transform = new Matrix4x4(1, y2g, 1, 0, 0, cb2g, cb2b, 0, cr2r, cr2g, 0, 0, 0, 0, 0, 0);
             }
 

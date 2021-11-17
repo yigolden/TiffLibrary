@@ -29,7 +29,7 @@
     <DefineConstants>$(DefineConstants);NO_BIT_OPERATIONS;NO_CALLER_ARGUMENT_EXPRESSION_ATTRIBUTE;NO_VECTOR_SPAN</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>$(DefineConstants);NO_RANDOM_ACCESS;NO_SKIP_LOCALS_INIT</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_RANDOM_ACCESS;NO_SKIP_LOCALS_INIT;NO_SPAN_FORMATTABLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

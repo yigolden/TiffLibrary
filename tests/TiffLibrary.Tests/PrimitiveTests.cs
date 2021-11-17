@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 
 namespace TiffLibrary.Tests
 {
@@ -30,6 +31,23 @@ namespace TiffLibrary.Tests
             Assert.False(point1 != point2);
             Assert.False(point2 != point1);
             Assert.True(point1.GetHashCode() == point2.GetHashCode());
+
+#if NET6_0_OR_GREATER
+            Span<char> buffer = stackalloc char[64];
+            int charsWritten;
+
+            Assert.True(defaultPoint.TryFormat(buffer.Slice(0, 5), out charsWritten, default, default));
+            Assert.Equal(5, charsWritten);
+            Assert.Equal("(0,0)", buffer.Slice(0, 5).ToString());
+
+            Assert.True(point1.TryFormat(buffer.Slice(0, 5), out charsWritten, default, default));
+            Assert.Equal(5, charsWritten);
+            Assert.Equal("(1,2)", buffer.Slice(0, 5).ToString());
+
+            Assert.True(new TiffPoint(123, 4567).TryFormat(buffer.Slice(0, 10), out charsWritten, default, default));
+            Assert.Equal(10, charsWritten);
+            Assert.Equal("(123,4567)", buffer.Slice(0, 10).ToString());
+#endif
         }
 
         [Fact]
@@ -58,6 +76,23 @@ namespace TiffLibrary.Tests
             Assert.False(size1 != size2);
             Assert.False(size2 != size1);
             Assert.True(size1.GetHashCode() == size2.GetHashCode());
+
+#if NET6_0_OR_GREATER
+            Span<char> buffer = stackalloc char[64];
+            int charsWritten;
+
+            Assert.True(defaultSize.TryFormat(buffer.Slice(0, 5), out charsWritten, default, default));
+            Assert.Equal(5, charsWritten);
+            Assert.Equal("(0,0)", buffer.Slice(0, 5).ToString());
+
+            Assert.True(size1.TryFormat(buffer.Slice(0, 5), out charsWritten, default, default));
+            Assert.Equal(5, charsWritten);
+            Assert.Equal("(1,2)", buffer.Slice(0, 5).ToString());
+
+            Assert.True(new TiffSize(123, 4567).TryFormat(buffer.Slice(0, 10), out charsWritten, default, default));
+            Assert.Equal(10, charsWritten);
+            Assert.Equal("(123,4567)", buffer.Slice(0, 10).ToString());
+#endif
         }
 
         [Fact]
@@ -90,6 +125,23 @@ namespace TiffLibrary.Tests
             Assert.False(rational1 != rational2);
             Assert.False(rational2 != rational1);
             Assert.True(rational1.GetHashCode() == rational2.GetHashCode());
+
+#if NET6_0_OR_GREATER
+            Span<char> buffer = stackalloc char[64];
+            int charsWritten;
+
+            Assert.True(defaultRational.TryFormat(buffer.Slice(0, 3), out charsWritten, default, default));
+            Assert.Equal(3, charsWritten);
+            Assert.Equal("0/0", buffer.Slice(0, 3).ToString());
+
+            Assert.True(rational1.TryFormat(buffer.Slice(0, 3), out charsWritten, default, default));
+            Assert.Equal(3, charsWritten);
+            Assert.Equal("1/2", buffer.Slice(0, 3).ToString());
+
+            Assert.True(new TiffRational(123, 4567).TryFormat(buffer.Slice(0, 8), out charsWritten, default, default));
+            Assert.Equal(8, charsWritten);
+            Assert.Equal("123/4567", buffer.Slice(0, 8).ToString());
+#endif
         }
 
         [Fact]
@@ -122,6 +174,23 @@ namespace TiffLibrary.Tests
             Assert.False(srational1 != srational2);
             Assert.False(srational2 != srational1);
             Assert.True(srational1.GetHashCode() == srational2.GetHashCode());
+
+#if NET6_0_OR_GREATER
+            Span<char> buffer = stackalloc char[64];
+            int charsWritten;
+
+            Assert.True(defaultSRational.TryFormat(buffer.Slice(0, 3), out charsWritten, default, default));
+            Assert.Equal(3, charsWritten);
+            Assert.Equal("0/0", buffer.Slice(0, 3).ToString());
+
+            Assert.True(srational1.TryFormat(buffer.Slice(0, 4), out charsWritten, default, default));
+            Assert.Equal(4, charsWritten);
+            Assert.Equal("1/-2", buffer.Slice(0, 4).ToString());
+
+            Assert.True(new TiffSRational(123, 4567).TryFormat(buffer.Slice(0, 8), out charsWritten, default, default));
+            Assert.Equal(8, charsWritten);
+            Assert.Equal("123/4567", buffer.Slice(0, 8).ToString());
+#endif
         }
 
         [Fact]
@@ -150,6 +219,23 @@ namespace TiffLibrary.Tests
             Assert.False(pageNumber1 != pageNumber2);
             Assert.False(pageNumber2 != pageNumber1);
             Assert.True(pageNumber1.GetHashCode() == pageNumber2.GetHashCode());
+
+#if NET6_0_OR_GREATER
+            Span<char> buffer = stackalloc char[64];
+            int charsWritten;
+
+            Assert.True(defaultPageNumber.TryFormat(buffer.Slice(0, 5), out charsWritten, default, default));
+            Assert.Equal(5, charsWritten);
+            Assert.Equal("(0/0)", buffer.Slice(0, 5).ToString());
+
+            Assert.True(pageNumber1.TryFormat(buffer.Slice(0, 5), out charsWritten, default, default));
+            Assert.Equal(5, charsWritten);
+            Assert.Equal("(1/2)", buffer.Slice(0, 5).ToString());
+
+            Assert.True(new TiffPageNumber(123, 4567).TryFormat(buffer.Slice(0, 10), out charsWritten, default, default));
+            Assert.Equal(10, charsWritten);
+            Assert.Equal("(123/4567)", buffer.Slice(0, 10).ToString());
+#endif
         }
 
     }

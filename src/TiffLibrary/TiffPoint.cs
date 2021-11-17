@@ -5,7 +5,10 @@ namespace TiffLibrary
     /// <summary>
     /// Represents an ordered pair of integer x- and y-coordinates that defines a point in a two-dimensional plane.
     /// </summary>
-    public readonly struct TiffPoint : IEquatable<TiffPoint>
+    public readonly struct TiffPoint : IEquatable<TiffPoint>, IFormattable
+#if !NO_SPAN_FORMATTABLE
+        , ISpanFormattable
+#endif
     {
         /// <summary>
         /// Initializes a new instance with the specified coordinates.
@@ -67,5 +70,59 @@ namespace TiffLibrary
         {
             return $"({X},{Y})";
         }
+
+        /// <inheritdoc />
+        public string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            return $"({X.ToString(format, formatProvider)},{Y.ToString(format, formatProvider)})";
+        }
+
+#if !NO_SPAN_FORMATTABLE
+        /// <inheritdoc />
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            if (destination.Length < 5)
+            {
+                goto TryFormatError;
+            }
+
+            destination[0] = '(';
+            Span<char> remaining = destination.Slice(1);
+
+            if (!X.TryFormat(remaining, out int c, format, provider))
+            {
+                goto TryFormatError;
+            }
+            remaining = remaining.Slice(c);
+
+            if (remaining.Length < 3)
+            {
+                goto TryFormatError;
+            }
+
+            remaining[0] = ',';
+            remaining = remaining.Slice(1);
+
+            if (!Y.TryFormat(remaining, out c, format, provider))
+            {
+                goto TryFormatError;
+            }
+            remaining = remaining.Slice(c);
+
+            if (remaining.IsEmpty)
+            {
+                goto TryFormatError;
+            }
+            remaining[0] = ')';
+            remaining = remaining.Slice(1);
+
+            charsWritten = destination.Length - remaining.Length;
+            return true;
+
+        TryFormatError:
+            charsWritten = 0;
+            return false;
+        }
+#endif
     }
 }

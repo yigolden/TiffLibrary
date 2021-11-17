@@ -5,7 +5,10 @@ namespace TiffLibrary
     /// <summary>
     /// A value representing the offset from the begining of the TIFF file stream.
     /// </summary>
-    public readonly struct TiffStreamOffset : IEquatable<TiffStreamOffset>, IComparable<TiffStreamOffset>
+    public readonly struct TiffStreamOffset : IEquatable<TiffStreamOffset>, IComparable<TiffStreamOffset>, IFormattable
+#if !NO_SPAN_FORMATTABLE
+        , ISpanFormattable
+#endif
     {
         /// <summary>
         /// Gets the offset as <see cref="long"/>.
@@ -120,8 +123,6 @@ namespace TiffLibrary
         /// <inheritdoc />
         public override int GetHashCode() => Offset.GetHashCode();
 
-        /// <inheritdoc />
-        public override string ToString() => $"{Offset}";
 
         /// <summary>
         /// Converts the offset into <see cref="long"/>.
@@ -147,6 +148,17 @@ namespace TiffLibrary
         /// <param name="offset">The offset from the begining of the TIFF file stream.</param>
         /// <returns>The created <see cref="TiffStreamOffset"/>.</returns>
         public static TiffStreamOffset FromInt64(long offset) => new TiffStreamOffset(offset);
+
+        /// <inheritdoc />
+        public override string ToString() => $"{Offset}";
+
+        /// <inheritdoc />
+        public string ToString(string? format, IFormatProvider? formatProvider) => Offset.ToString(format, formatProvider);
+
+#if !NO_SPAN_FORMATTABLE
+        /// <inheritdoc />
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Offset.TryFormat(destination, out charsWritten, format, provider);
+#endif
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace TiffLibrary
 {
@@ -7,7 +8,10 @@ namespace TiffLibrary
     /// Represents a unsigned rational.
     /// </summary>
     [CLSCompliant(false)]
-    public readonly struct TiffRational : IEquatable<TiffRational>, IEquatable<TiffSRational>
+    public readonly struct TiffRational : IEquatable<TiffRational>, IEquatable<TiffSRational>, IFormattable
+#if !NO_SPAN_FORMATTABLE
+        , ISpanFormattable
+#endif
     {
         /// <summary>
         /// The numerator of the rational.
@@ -109,6 +113,56 @@ namespace TiffLibrary
         {
             return Numerator.ToString("G", CultureInfo.InvariantCulture) + "/" + Denominator.ToString("G", CultureInfo.InvariantCulture);
         }
+
+        /// <inheritdoc />
+        public string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            format ??= "G";
+            formatProvider ??= CultureInfo.InvariantCulture;
+            return $"{Numerator.ToString(format, formatProvider)}/{Denominator.ToString(format, formatProvider)}";
+        }
+
+#if !NO_SPAN_FORMATTABLE
+        /// <inheritdoc />
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            if (destination.Length < 3)
+            {
+                goto TryFormatError;
+            }
+
+            char defaultFormatChar = 'G';
+            format = format.IsEmpty ? MemoryMarshal.CreateReadOnlySpan(ref defaultFormatChar, 1) : format;
+            provider ??= CultureInfo.InvariantCulture;
+
+            if (!Numerator.TryFormat(destination, out int c, format, provider))
+            {
+                goto TryFormatError;
+            }
+            Span<char> remaining = destination.Slice(c);
+
+            if (remaining.Length < 2)
+            {
+                goto TryFormatError;
+            }
+
+            remaining[0] = '/';
+            remaining = remaining.Slice(1);
+
+            if (!Denominator.TryFormat(remaining, out c, format, provider))
+            {
+                goto TryFormatError;
+            }
+            remaining = remaining.Slice(c);
+
+            charsWritten = destination.Length - remaining.Length;
+            return true;
+
+        TryFormatError:
+            charsWritten = 0;
+            return false;
+        }
+#endif
     }
 
 }

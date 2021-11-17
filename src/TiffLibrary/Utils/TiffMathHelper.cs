@@ -46,44 +46,12 @@ namespace TiffLibrary.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ClampTo8Bit(long value)
-        {
-#if NO_MATH_CLAMP
-            return (byte)Math.Min(Math.Max(value, 0), 255);
-#else
-            return (byte)Math.Clamp(value, 0, 255);
-#endif
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte RoundAndClampTo8Bit(float value)
+        public static float Round(float value)
         {
 #if NO_MATHF_ROUND
-            int input = (int)Math.Round(value);
+            return (float)Math.Round(value);
 #else
-            int input = (int)MathF.Round(value);
-#endif
-
-#if NO_MATH_CLAMP
-            return (byte)Math.Min(Math.Max(input, 0), 255);
-#else
-            return (byte)Math.Clamp(input, 0, 255);
-#endif
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort RoundAndClampTo16Bit(float value)
-        {
-#if NO_MATHF_ROUND
-            int input = (int)Math.Round(value);
-#else
-            int input = (int)MathF.Round(value);
-#endif
-
-#if NO_MATH_CLAMP
-            return (ushort)Math.Min(Math.Max(input, 0), ushort.MaxValue);
-#else
-            return (ushort)Math.Clamp(input, 0, ushort.MaxValue);
+            return MathF.Round(value);
 #endif
         }
 

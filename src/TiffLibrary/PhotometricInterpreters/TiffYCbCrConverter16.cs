@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using TiffLibrary.PixelFormats;
@@ -9,9 +10,7 @@ namespace TiffLibrary.PhotometricInterpreters
 {
     internal sealed class TiffYCbCrConverter16
     {
-        private readonly CodingRangeExpander _expanderY;
-        private readonly CodingRangeExpander _expanderCb;
-        private readonly CodingRangeExpander _expanderCr;
+        private readonly CodingRangeExpander _expander;
         private readonly YCbCrToRgbConverter _converterFrom;
 
 
@@ -36,9 +35,7 @@ namespace TiffLibrary.PhotometricInterpreters
 
         private TiffYCbCrConverter16(TiffRational[] luma, TiffRational[] referenceBlackWhite)
         {
-            _expanderY = new CodingRangeExpander(referenceBlackWhite[0], referenceBlackWhite[1], ushort.MaxValue);
-            _expanderCb = new CodingRangeExpander(referenceBlackWhite[2], referenceBlackWhite[3], ushort.MaxValue / 2);
-            _expanderCr = new CodingRangeExpander(referenceBlackWhite[4], referenceBlackWhite[5], ushort.MaxValue / 2);
+            _expander = new CodingRangeExpander(referenceBlackWhite);
             _converterFrom = new YCbCrToRgbConverter(luma[0], luma[1], luma[2]);
         }
 
@@ -82,45 +79,50 @@ namespace TiffLibrary.PhotometricInterpreters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TiffRgba64 ConvertToRgba64(ushort y, ushort cb, ushort cr)
         {
-            CodingRangeExpander expanderY = _expanderY;
-            CodingRangeExpander expanderCb = _expanderCb;
-            CodingRangeExpander expanderCr = _expanderCr;
+            CodingRangeExpander expander = _expander;
             YCbCrToRgbConverter converter = _converterFrom;
 
-            float y64 = expanderY.Expand(y);
-            float cb64 = expanderCb.Expand(cb);
-            float cr64 = expanderCr.Expand(cr);
+            Vector3 vector = expander.Expand(new Vector3(y, cb, cr));
+            vector = converter.Convert(vector);
+            vector = Vector3.Clamp(vector, Vector3.Zero, new Vector3(ushort.MaxValue));
 
-            TiffRgba64 pixel = default; // TODO: SkipInit
-
-            converter.Convert(y64, cb64, cr64, ref pixel);
+            Unsafe.SkipInit(out TiffRgba64 pixel);
+            pixel.R = (ushort)TiffMathHelper.Round(vector.X);
+            pixel.G = (ushort)TiffMathHelper.Round(vector.Y);
+            pixel.B = (ushort)TiffMathHelper.Round(vector.Z);
+            pixel.A = ushort.MaxValue;
 
             return pixel;
         }
 
         public void ConvertToRgba64(ReadOnlySpan<ushort> ycbcr, Span<TiffRgba64> destination, int count)
         {
-            CodingRangeExpander expanderY = _expanderY;
-            CodingRangeExpander expanderCb = _expanderCb;
-            CodingRangeExpander expanderCr = _expanderCr;
+            CodingRangeExpander expander = _expander;
             YCbCrToRgbConverter converter = _converterFrom;
+            Vector3 vectorClampMax = new Vector3(ushort.MaxValue);
 
             ref ushort sourceRef = ref MemoryMarshal.GetReference(ycbcr);
             ref TiffRgba64 destinationRef = ref MemoryMarshal.GetReference(destination);
+            Unsafe.SkipInit(out TiffRgba64 pixel);
+            pixel.A = ushort.MaxValue;
 
             for (int i = 0; i < count; i++)
             {
                 ref TiffRgba64 pixelRef = ref Unsafe.Add(ref destinationRef, i);
+                var vector = new Vector3(sourceRef, Unsafe.Add(ref sourceRef, 1), Unsafe.Add(ref sourceRef, 2));
+
+                vector = expander.Expand(vector);
+                vector = converter.Convert(vector);
+                vector = Vector3.Clamp(vector, Vector3.Zero, vectorClampMax);
+
+                pixel.R = (ushort)TiffMathHelper.Round(vector.X);
+                pixel.G = (ushort)TiffMathHelper.Round(vector.Y);
+                pixel.B = (ushort)TiffMathHelper.Round(vector.Z);
+                pixelRef = pixel;
 
                 float y = sourceRef;
                 float cb = Unsafe.Add(ref sourceRef, 1);
                 float cr = Unsafe.Add(ref sourceRef, 2);
-
-                y = expanderY.Expand(y);
-                cb = expanderCb.Expand(cb);
-                cr = expanderCr.Expand(cr);
-
-                converter.Convert(y, cb, cr, ref pixelRef);
 
                 sourceRef = ref Unsafe.Add(ref sourceRef, 3);
             }
@@ -129,17 +131,25 @@ namespace TiffLibrary.PhotometricInterpreters
 
         readonly struct CodingRangeExpander
         {
-            public CodingRangeExpander(TiffRational referenceBlack, TiffRational referenceWhite, int codingRange)
+            private readonly Vector3 _f1;
+            private readonly Vector3 _f2;
+
+            public CodingRangeExpander(TiffRational[] referenceBlackWhite)
             {
-                _f1 = codingRange / (referenceWhite.ToSingle() - referenceBlack.ToSingle());
-                _f2 = _f1 * referenceBlack.ToSingle();
+                _f1 = new Vector3(
+                    (ushort.MaxValue) / (referenceBlackWhite[1].ToSingle() - referenceBlackWhite[0].ToSingle()),
+                    (ushort.MaxValue / 2) / (referenceBlackWhite[3].ToSingle() - referenceBlackWhite[2].ToSingle()),
+                    (ushort.MaxValue / 2) / (referenceBlackWhite[5].ToSingle() - referenceBlackWhite[4].ToSingle())
+                    );
+                _f2 = new Vector3(
+                    _f1.X * referenceBlackWhite[0].ToSingle(),
+                    _f1.Y * referenceBlackWhite[2].ToSingle(),
+                    _f1.Z * referenceBlackWhite[4].ToSingle()
+                    );
             }
 
-            private readonly float _f1;
-            private readonly float _f2;
-
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public float Expand(float code)
+            public Vector3 Expand(Vector3 code)
             {
                 return code * _f1 - _f2;
             }
@@ -147,28 +157,22 @@ namespace TiffLibrary.PhotometricInterpreters
 
         readonly struct YCbCrToRgbConverter
         {
-            private readonly float _cr2r;
-            private readonly float _cb2b;
-            private readonly float _y2g;
-            private readonly float _cr2g;
-            private readonly float _cb2g;
+            private readonly Matrix4x4 _transform;
 
             public YCbCrToRgbConverter(TiffRational lumaRed, TiffRational lumaGreen, TiffRational lumaBlue)
             {
-                _cr2r = 2 - 2 * lumaRed.ToSingle();
-                _cb2b = 2 - 2 * lumaBlue.ToSingle();
-                _y2g = (1 - lumaBlue.ToSingle() - lumaRed.ToSingle()) / lumaGreen.ToSingle();
-                _cr2g = 2 * lumaRed.ToSingle() * (lumaRed.ToSingle() - 1) / lumaGreen.ToSingle();
-                _cb2g = 2 * lumaBlue.ToSingle() * (lumaBlue.ToSingle() - 1) / lumaGreen.ToSingle();
+                float cr2r = 2 - 2 * lumaRed.ToSingle();
+                float cb2b = 2 - 2 * lumaBlue.ToSingle();
+                float y2g = (1 - lumaBlue.ToSingle() - lumaRed.ToSingle()) / lumaGreen.ToSingle();
+                float cr2g = 2 * lumaRed.ToSingle() * (lumaRed.ToSingle() - 1) / lumaGreen.ToSingle();
+                float cb2g = 2 * lumaBlue.ToSingle() * (lumaBlue.ToSingle() - 1) / lumaGreen.ToSingle();
+                _transform = new Matrix4x4(1, y2g, 1, 0, 0, cb2g, cb2b, 0, cr2r, cr2g, 0, 0, 0, 0, 0, 0);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Convert(float y, float cb, float cr, ref TiffRgba64 pixel)
+            public Vector3 Convert(Vector3 yCbCr)
             {
-                pixel.R = TiffMathHelper.RoundAndClampTo16Bit(cr * _cr2r + y);
-                pixel.G = TiffMathHelper.RoundAndClampTo16Bit(_y2g * y + _cr2g * cr + _cb2g * cb);
-                pixel.B = TiffMathHelper.RoundAndClampTo16Bit(cb * _cb2b + y);
-                pixel.A = ushort.MaxValue;
+                return Vector3.TransformNormal(yCbCr, _transform);
             }
         }
 

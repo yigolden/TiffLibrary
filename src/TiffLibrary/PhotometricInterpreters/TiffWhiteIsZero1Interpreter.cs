@@ -62,9 +62,10 @@ namespace TiffLibrary.PhotometricInterpreters
 
                 if (bitsOffset > 0)
                 {
+                    int count = Math.Min(8, remainingWidth + bitsOffset);
                     remainingWidth -= 8 - bitsOffset;
                     bits = MaybeReverseBits(bitsSpan[sourceIndex++]);
-                    for (; bitsOffset < 8; bitsOffset++)
+                    for (; bitsOffset < count; bitsOffset++)
                     {
                         bool isSet = (bits >> (7 - bitsOffset) & 1) != 0;
                         rowDestinationSpan[destinationIndex++] = isSet ? (byte)0 : (byte)255;

@@ -100,7 +100,7 @@ namespace TiffLibrary.PhotometricInterpreters
             float cb64 = expanderCb.Expand(cb);
             float cr64 = expanderCr.Expand(cr);
 
-            TiffRgba32 pixel = default; // TODO: SkipInit
+            Unsafe.SkipInit(out TiffRgba32 pixel);
 
             converter.Convert(y64, cb64, cr64, ref pixel);
 
@@ -119,7 +119,7 @@ namespace TiffLibrary.PhotometricInterpreters
             float cb64 = expanderCb.Expand(cb);
             float cr64 = expanderCr.Expand(cr);
 
-            TiffRgb24 pixel = default; // TODO: SkipInit
+            Unsafe.SkipInit(out TiffRgb24 pixel);
 
             converter.Convert(y64, cb64, cr64, ref pixel);
 
@@ -138,8 +138,6 @@ namespace TiffLibrary.PhotometricInterpreters
 
             for (int i = 0; i < count; i++)
             {
-                ref TiffRgba32 pixelRef = ref Unsafe.Add(ref destinationRef, i);
-
                 float y = sourceRef;
                 float cb = Unsafe.Add(ref sourceRef, 1);
                 float cr = Unsafe.Add(ref sourceRef, 2);
@@ -148,7 +146,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 cb = expanderCb.Expand(cb);
                 cr = expanderCr.Expand(cr);
 
-                converter.Convert(y, cb, cr, ref pixelRef);
+                converter.Convert(y, cb, cr, ref Unsafe.Add(ref destinationRef, i));
 
                 sourceRef = ref Unsafe.Add(ref sourceRef, 3);
             }
@@ -190,11 +188,11 @@ namespace TiffLibrary.PhotometricInterpreters
             CodingRangeShrinker shrinkerCr = _shrinkerCr;
             RgbToYCbCrConverter converter = _converterTo;
 
-            converter.Convert(rgb, out long ly, out long lcb, out long lcr);
+            converter.Convert(rgb, out float fy, out float fcb, out float fcr);
 
-            y = TiffMathHelper.ClampTo8Bit(shrinkerY.Shrink(ly));
-            cb = TiffMathHelper.ClampTo8Bit(shrinkerCb.Shrink(lcb));
-            cr = TiffMathHelper.ClampTo8Bit(shrinkerCr.Shrink(lcr));
+            y = TiffMathHelper.RoundAndClampTo8Bit(shrinkerY.Shrink(fy));
+            cb = TiffMathHelper.RoundAndClampTo8Bit(shrinkerCb.Shrink(fcb));
+            cr = TiffMathHelper.RoundAndClampTo8Bit(shrinkerCr.Shrink(fcr));
         }
 
         public void ConvertFromRgb24(ReadOnlySpan<TiffRgb24> rgb, Span<byte> destination, int count)
@@ -209,15 +207,15 @@ namespace TiffLibrary.PhotometricInterpreters
 
             for (int i = 0; i < count; i++)
             {
-                converter.Convert(Unsafe.Add(ref sourceRef, i), out long y, out long cb, out long cr);
+                converter.Convert(Unsafe.Add(ref sourceRef, i), out float y, out float cb, out float cr);
 
                 y = shrinkerY.Shrink(y);
                 cb = shrinkerCb.Shrink(cb);
                 cr = shrinkerCr.Shrink(cr);
 
-                destinationRef = TiffMathHelper.ClampTo8Bit(y);
-                Unsafe.Add(ref destinationRef, 1) = TiffMathHelper.ClampTo8Bit(cb);
-                Unsafe.Add(ref destinationRef, 2) = TiffMathHelper.ClampTo8Bit(cr);
+                destinationRef = TiffMathHelper.RoundAndClampTo8Bit(y);
+                Unsafe.Add(ref destinationRef, 1) = TiffMathHelper.RoundAndClampTo8Bit(cb);
+                Unsafe.Add(ref destinationRef, 2) = TiffMathHelper.RoundAndClampTo8Bit(cr);
 
                 destinationRef = ref Unsafe.Add(ref destinationRef, 3);
             }
@@ -243,21 +241,19 @@ namespace TiffLibrary.PhotometricInterpreters
 
         readonly struct CodingRangeShrinker
         {
-            private const int Shift = 16;
-
-            private readonly long _f1;
-            private readonly long _f2;
+            private readonly float _f1;
+            private readonly float _f2;
 
             public CodingRangeShrinker(TiffRational referenceBlack, TiffRational referenceWhite, int codingRange)
             {
-                _f1 = (1 << Shift) * (referenceWhite.Numerator * (long)referenceBlack.Denominator - referenceWhite.Denominator * (long)referenceBlack.Numerator) / referenceWhite.Denominator / referenceBlack.Denominator / codingRange;
-                _f2 = (1 << Shift) * (long)referenceWhite.Denominator * referenceBlack.Numerator / referenceWhite.Denominator / referenceBlack.Denominator;
+                _f1 = (referenceWhite.ToSingle() - referenceBlack.ToSingle()) / codingRange;
+                _f2 = referenceBlack.ToSingle();
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public long Shrink(long fullRangeValue)
+            public float Shrink(float fullRangeValue)
             {
-                return (_f1 * fullRangeValue + _f2) >> Shift;
+                return fullRangeValue * _f1 + _f2;
             }
         }
 
@@ -271,11 +267,15 @@ namespace TiffLibrary.PhotometricInterpreters
 
             public YCbCrToRgbConverter(TiffRational lumaRed, TiffRational lumaGreen, TiffRational lumaBlue)
             {
-                _cr2r = 2 - 2 * lumaRed.ToSingle();
-                _cb2b = 2 - 2 * lumaBlue.ToSingle();
-                _y2g = (1 - lumaBlue.ToSingle() - lumaRed.ToSingle()) / lumaGreen.ToSingle();
-                _cr2g = 2 * lumaRed.ToSingle() * (lumaRed.ToSingle() - 1) / lumaGreen.ToSingle();
-                _cb2g = 2 * lumaBlue.ToSingle() * (lumaBlue.ToSingle() - 1) / lumaGreen.ToSingle();
+                float lr = lumaRed.ToSingle();
+                float lg = lumaGreen.ToSingle();
+                float lb = lumaBlue.ToSingle();
+
+                _cr2r = 2 - 2 * lr;
+                _cb2b = 2 - 2 * lb;
+                _y2g = (1 - lb - lr) / lg;
+                _cr2g = 2 * lr * (lr - 1) / lg;
+                _cb2g = 2 * lb * (lb - 1) / lg;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -315,18 +315,14 @@ namespace TiffLibrary.PhotometricInterpreters
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Convert(TiffRgb24 rgb, out long y, out long cb, out long cr)
+            public void Convert(TiffRgb24 rgb, out float y, out float cb, out float cr)
             {
                 float lR = rgb.R;
                 float lB = rgb.B;
 
-                float fY = _r2y * lR + _g2y * rgb.G + _b2y * lB;
-                float fCr = (lR - fY) * _r2cr;
-                float fCb = (lB - fY) * _b2cb;
-
-                y = TiffMathHelper.RoundToInt64(fY);
-                cb = TiffMathHelper.RoundToInt64(fCb);
-                cr = TiffMathHelper.RoundToInt64(fCr);
+                y = _r2y * lR + _g2y * rgb.G + _b2y * lB;
+                cr = (lR - y) * _r2cr;
+                cb = (lB - y) * _b2cb;
             }
         }
 

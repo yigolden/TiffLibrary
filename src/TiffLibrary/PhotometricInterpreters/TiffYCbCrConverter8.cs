@@ -134,6 +134,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 var vector2 = new Vector3(Unsafe.Add(ref sourceRef, 3), Unsafe.Add(ref sourceRef, 4), Unsafe.Add(ref sourceRef, 5));
                 var vector3 = new Vector3(Unsafe.Add(ref sourceRef, 6), Unsafe.Add(ref sourceRef, 7), Unsafe.Add(ref sourceRef, 8));
                 var vector4 = new Vector3(Unsafe.Add(ref sourceRef, 9), Unsafe.Add(ref sourceRef, 10), Unsafe.Add(ref sourceRef, 11));
+                sourceRef = ref Unsafe.Add(ref sourceRef, 12);
 
                 vector1 = expander.Expand(vector1);
                 vector2 = expander.Expand(vector2);
@@ -159,28 +160,27 @@ namespace TiffLibrary.PhotometricInterpreters
                 destinationRef.G = (byte)vector1.Y;
                 destinationRef.B = (byte)vector1.Z;
                 destinationRef.A = byte.MaxValue;
-                destinationRef = Unsafe.Add(ref destinationRef, 1);
+                destinationRef = ref Unsafe.Add(ref destinationRef, 1);
 
                 destinationRef.R = (byte)vector2.X;
                 destinationRef.G = (byte)vector2.Y;
                 destinationRef.B = (byte)vector2.Z;
                 destinationRef.A = byte.MaxValue;
-                destinationRef = Unsafe.Add(ref destinationRef, 1);
+                destinationRef = ref Unsafe.Add(ref destinationRef, 1);
 
                 destinationRef.R = (byte)vector3.X;
                 destinationRef.G = (byte)vector3.Y;
                 destinationRef.B = (byte)vector3.Z;
                 destinationRef.A = byte.MaxValue;
-                destinationRef = Unsafe.Add(ref destinationRef, 1);
+                destinationRef = ref Unsafe.Add(ref destinationRef, 1);
 
                 destinationRef.R = (byte)vector4.X;
                 destinationRef.G = (byte)vector4.Y;
                 destinationRef.B = (byte)vector4.Z;
                 destinationRef.A = byte.MaxValue;
-                destinationRef = Unsafe.Add(ref destinationRef, 1);
+                destinationRef = ref Unsafe.Add(ref destinationRef, 1);
 
                 count -= 4;
-                sourceRef = ref Unsafe.Add(ref sourceRef, 12);
             }
 
             for (int i = 0; i < count; i++)
@@ -198,7 +198,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 destinationRef.A = byte.MaxValue;
 
                 sourceRef = ref Unsafe.Add(ref sourceRef, 3);
-                destinationRef = Unsafe.Add(ref destinationRef, 1);
+                destinationRef = ref Unsafe.Add(ref destinationRef, 1);
             }
         }
 

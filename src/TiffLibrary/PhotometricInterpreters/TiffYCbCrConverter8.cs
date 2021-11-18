@@ -189,7 +189,7 @@ namespace TiffLibrary.PhotometricInterpreters
 
                 vector = expander.Expand(vector);
                 vector = converter.Convert(vector);
-                vector = vector + new Vector3(0.5f);
+                vector = vector + roundVector;
                 vector = Vector3.Clamp(vector, Vector3.Zero, vectorClampMax);
 
                 destinationRef.R = (byte)vector.X;

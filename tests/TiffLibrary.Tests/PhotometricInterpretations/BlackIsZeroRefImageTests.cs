@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TiffLibrary.Tests.PhotometricInterpretations
 {
-    public class BlackIsZeroTests
+    public class BlackIsZeroRefImageTests
     {
         public static IEnumerable<object[]> GetTestFileList()
         {

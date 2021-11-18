@@ -74,7 +74,7 @@ namespace TiffLibrary.PhotometricInterpreters
 
                 while (remainingWidth >= 8)
                 {
-                    bits = (bitsSpan[sourceIndex++]);
+                    bits = MaybeReverseBits(bitsSpan[sourceIndex++]);
                     bool bit0 = (bits >> 7 & 1) != 0;
                     bool bit1 = (bits >> 6 & 1) != 0;
                     bool bit2 = (bits >> 5 & 1) != 0;

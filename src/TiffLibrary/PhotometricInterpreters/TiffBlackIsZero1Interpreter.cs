@@ -74,23 +74,17 @@ namespace TiffLibrary.PhotometricInterpreters
 
                 while (remainingWidth >= 8)
                 {
-                    bits = MaybeReverseBits(bitsSpan[sourceIndex++]);
-                    bool bit0 = (bits >> 7 & 1) != 0;
-                    bool bit1 = (bits >> 6 & 1) != 0;
-                    bool bit2 = (bits >> 5 & 1) != 0;
-                    bool bit3 = (bits >> 4 & 1) != 0;
-                    bool bit4 = (bits >> 3 & 1) != 0;
-                    bool bit5 = (bits >> 2 & 1) != 0;
-                    bool bit6 = (bits >> 1 & 1) != 0;
-                    bool bit7 = (bits & 1) != 0;
-                    rowDestinationSpan[destinationIndex++] = bit0 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit1 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit2 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit3 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit4 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit5 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit6 ? (byte)255 : (byte)0;
-                    rowDestinationSpan[destinationIndex++] = bit7 ? (byte)255 : (byte)0;
+                    int bits32 = MaybeReverseBits(bitsSpan[sourceIndex++]);
+
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 24) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 25) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 26) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 27) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 28) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 29) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 30) >> 31);
+                    rowDestinationSpan[destinationIndex++] = (byte)((bits32 << 31) >> 31);
+
                     remainingWidth -= 8;
                 }
 

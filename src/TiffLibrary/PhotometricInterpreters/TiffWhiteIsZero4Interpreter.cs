@@ -40,46 +40,62 @@ namespace TiffLibrary.PhotometricInterpreters
                 int sourceIndex = 0;
                 int destinationIndex = 0;
                 int remainingWidth = context.ReadSize.Width;
-                byte bits;
+                uint bits;
 
                 if (bitsOffset > 0)
                 {
                     remainingWidth--;
-                    bits = bitsSpan[sourceIndex++];
-                    bits = (byte)(~bits & 0xf);
+                    bits = ~(uint)bitsSpan[sourceIndex++];
+                    bits = bits & 0xf;
                     rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits);
                 }
 
-                // manual loop unrolling
-                for (; (remainingWidth >> 4) > 0; remainingWidth -= 16) // for (; remainingWidth >= 16; remainingWidth -= 16)
+                if (BitConverter.IsLittleEndian)
                 {
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
-                    bits = (byte)~bitsSpan[sourceIndex++];
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);
-                    rowDestinationSpan[destinationIndex++] = (byte)(bits << 4 | bits & 0xf);
+                    for (; remainingWidth >= 8; remainingWidth -= 8)
+                    {
+                        uint nbits = ~MemoryMarshal.Read<uint>(bitsSpan.Slice(sourceIndex));
+                        sourceIndex += 4;
+
+                        uint b1 = nbits & 0xf0f0f0f0;
+                        uint b2 = nbits & 0x0f0f0f0f;
+                        b1 = b1 | (b1 >> 4);
+                        b2 = b2 | (b2 << 4);
+
+                        rowDestinationSpan[destinationIndex++] = (byte)b1;
+                        rowDestinationSpan[destinationIndex++] = (byte)b2;
+                        rowDestinationSpan[destinationIndex++] = (byte)(b1 >> 8);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b2 >> 8);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b1 >> 16);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b2 >> 16);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b1 >> 24);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b2 >> 24);
+                    }
+                }
+                else
+                {
+                    for (; remainingWidth >= 8; remainingWidth -= 8)
+                    {
+                        uint nbits = ~MemoryMarshal.Read<uint>(bitsSpan.Slice(sourceIndex));
+                        sourceIndex += 4;
+
+                        uint b1 = nbits & 0xf0f0f0f0;
+                        uint b2 = nbits & 0x0f0f0f0f;
+                        b1 = b1 | (b1 >> 4);
+                        b2 = b2 | (b2 << 4);
+
+                        rowDestinationSpan[destinationIndex++] = (byte)(b1 >> 24);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b2 >> 24);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b1 >> 16);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b2 >> 16);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b1 >> 8);
+                        rowDestinationSpan[destinationIndex++] = (byte)(b2 >> 8);
+                        rowDestinationSpan[destinationIndex++] = (byte)b1;
+                        rowDestinationSpan[destinationIndex++] = (byte)b2;
+                    }
                 }
 
-                for (; (remainingWidth >> 1) > 0; remainingWidth -= 2) // for (; remainingWidth >= 2; remainingWidth -= 2)
+                for (; remainingWidth >= 2; remainingWidth -= 2)
                 {
                     bits = (byte)~bitsSpan[sourceIndex++];
                     rowDestinationSpan[destinationIndex++] = (byte)(bits & 0xf0 | bits >> 4);

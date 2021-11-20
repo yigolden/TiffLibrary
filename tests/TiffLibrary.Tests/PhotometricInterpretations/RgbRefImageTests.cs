@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TiffLibrary.Tests.PhotometricInterpretations
 {
-    public class RgbTests
+    public class RgbRefImageTests
     {
         public static IEnumerable<object[]> GetTestFileList()
         {

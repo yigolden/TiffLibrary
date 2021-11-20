@@ -23,9 +23,9 @@ namespace TiffLibrary.PhotometricInterpreters
         };
         private static TiffRational[] s_defaultReferenceBlackWhite = new TiffRational[]
         {
-            new TiffRational(0, 1), new TiffRational(255 << 8 | 255, 1),
-            new TiffRational(128 << 8 | 128, 1), new TiffRational(255 << 8 | 255, 1),
-            new TiffRational(128 << 8 | 128, 1), new TiffRational(255 << 8 | 255, 1)
+            new TiffRational(0, 1), new TiffRational(ushort.MaxValue, 1),
+            new TiffRational(ushort.MaxValue / 2, 1), new TiffRational(ushort.MaxValue / 2, 1),
+            new TiffRational(ushort.MaxValue / 2, 1), new TiffRational(ushort.MaxValue / 2, 1)
         };
 
         private static TiffYCbCrConverter16 Default { get; } = new TiffYCbCrConverter16(s_defaultLuma, s_defaultReferenceBlackWhite);
@@ -91,7 +91,7 @@ namespace TiffLibrary.PhotometricInterpreters
             float cb64 = expanderCb.Expand(cb);
             float cr64 = expanderCr.Expand(cr);
 
-            TiffRgba64 pixel = default; // TODO: SkipInit
+            Unsafe.SkipInit(out TiffRgba64 pixel);
 
             converter.Convert(y64, cb64, cr64, ref pixel);
 
@@ -110,8 +110,6 @@ namespace TiffLibrary.PhotometricInterpreters
 
             for (int i = 0; i < count; i++)
             {
-                ref TiffRgba64 pixelRef = ref Unsafe.Add(ref destinationRef, i);
-
                 float y = sourceRef;
                 float cb = Unsafe.Add(ref sourceRef, 1);
                 float cr = Unsafe.Add(ref sourceRef, 2);
@@ -120,7 +118,7 @@ namespace TiffLibrary.PhotometricInterpreters
                 cb = expanderCb.Expand(cb);
                 cr = expanderCr.Expand(cr);
 
-                converter.Convert(y, cb, cr, ref pixelRef);
+                converter.Convert(y, cb, cr, ref Unsafe.Add(ref destinationRef, i));
 
                 sourceRef = ref Unsafe.Add(ref sourceRef, 3);
             }
@@ -155,11 +153,15 @@ namespace TiffLibrary.PhotometricInterpreters
 
             public YCbCrToRgbConverter(TiffRational lumaRed, TiffRational lumaGreen, TiffRational lumaBlue)
             {
-                _cr2r = 2 - 2 * lumaRed.ToSingle();
-                _cb2b = 2 - 2 * lumaBlue.ToSingle();
-                _y2g = (1 - lumaBlue.ToSingle() - lumaRed.ToSingle()) / lumaGreen.ToSingle();
-                _cr2g = 2 * lumaRed.ToSingle() * (lumaRed.ToSingle() - 1) / lumaGreen.ToSingle();
-                _cb2g = 2 * lumaBlue.ToSingle() * (lumaBlue.ToSingle() - 1) / lumaGreen.ToSingle();
+                float lr = lumaRed.ToSingle();
+                float lg = lumaGreen.ToSingle();
+                float lb = lumaBlue.ToSingle();
+
+                _cr2r = 2 - 2 * lr;
+                _cb2b = 2 - 2 * lb;
+                _y2g = (1 - lb - lr) / lg;
+                _cr2g = 2 * lr * (lr - 1) / lg;
+                _cb2g = 2 * lb * (lb - 1) / lg;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

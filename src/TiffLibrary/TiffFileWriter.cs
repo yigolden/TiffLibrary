@@ -454,8 +454,16 @@ namespace TiffLibrary
             long offset = position;
             foreach (ReadOnlyMemory<byte> segment in buffer)
             {
-                await _writer!.WriteAsync(offset, segment, cancellationToken).ConfigureAwait(false);
-                offset = AdvancePosition(segment.Length);
+                var chunkSize = 4_000_000;
+                var written = 0;
+                while (written < segment.Length)
+                {
+                    chunkSize = Math.Min(chunkSize, segment.Length - written);
+                    var slice = segment.Slice(written, chunkSize);
+                    await _writer!.WriteAsync(offset, slice, cancellationToken).ConfigureAwait(false);
+                    offset = AdvancePosition(slice.Length);
+                    written += chunkSize;
+                }
             }
 
             return new TiffStreamOffset(position);

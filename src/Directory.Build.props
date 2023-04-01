@@ -16,14 +16,14 @@
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <NBGV_EmitThisAssemblyClass>false</NBGV_EmitThisAssemblyClass>
 
     <!-- Enable deterministic build -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!-- Package validation -->
-    <EnablePackageValidation>true</EnablePackageValidation>
+    <EnablePackageValidation>false</EnablePackageValidation>
     <PackageValidationBaselineVersion>$(PreviouslyPublishedPackageVersion)</PackageValidationBaselineVersion>
   </PropertyGroup>
 

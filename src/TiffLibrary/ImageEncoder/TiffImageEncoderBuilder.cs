@@ -3,6 +3,7 @@ using System.Buffers;
 using TiffLibrary.Compression;
 using TiffLibrary.ImageEncoder;
 using TiffLibrary.ImageEncoder.PhotometricEncoder;
+using TiffLibrary.PixelFormats;
 
 namespace TiffLibrary
 {
@@ -101,7 +102,7 @@ namespace TiffLibrary
                     pipelineBuilder.Add(new WhiteIsZero8Encoder<TPixel>());
                     break;
                 case TiffPhotometricInterpretation.BlackIsZero:
-                    pipelineBuilder.Add(new BlackIsZero8Encoder<TPixel>());
+                    pipelineBuilder.Add(new BlackIsZeroEncoder<TPixel>());
                     break;
                 case TiffPhotometricInterpretation.RGB:
                     if (EnableTransparencyForRgb)

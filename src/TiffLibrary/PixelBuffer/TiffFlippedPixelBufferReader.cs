@@ -5,11 +5,11 @@ namespace TiffLibrary.PixelBuffer
 {
     internal sealed class TiffFlippedPixelBufferReader<TPixel> : ITiffPixelBufferReader<TPixel> where TPixel : unmanaged
     {
-        private readonly TiffPixelBufferReader<TPixel> _reader;
+        private readonly ITiffPixelBufferReader<TPixel> _reader;
         private readonly bool _flipLeftRight;
         private readonly bool _flipTopBottom;
 
-        public TiffFlippedPixelBufferReader(TiffPixelBufferReader<TPixel> reader, bool flipLeftRight, bool flipTopBottom)
+        public TiffFlippedPixelBufferReader(ITiffPixelBufferReader<TPixel> reader, bool flipLeftRight, bool flipTopBottom)
         {
             _reader = reader;
             _flipLeftRight = flipLeftRight;

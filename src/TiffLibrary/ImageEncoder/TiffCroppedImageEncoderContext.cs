@@ -1,4 +1,5 @@
 ﻿using System;
+using TiffLibrary.PixelBuffer;
 
 namespace TiffLibrary.ImageEncoder
 {
@@ -33,8 +34,14 @@ namespace TiffLibrary.ImageEncoder
             ImageSize = size;
         }
 
-        public override TiffPixelBufferReader<TPixel> GetReader()
+        public override ITiffPixelBufferReader<TPixel> GetReader()
         {
+            if (InnerContext.GetReader() is TiffOptimizedPartialPixelBufferReaderAdapter<TPixel>)
+            {
+                var reader = (TiffOptimizedPartialPixelBufferReaderAdapter<TPixel>)InnerContext.GetReader();
+                reader.CacheCroppedRegion(ImageOffset, ImageSize);
+                return reader;
+            }
             return InnerContext.GetReader().Crop(ImageOffset, ImageSize);
         }
     }

@@ -40,9 +40,7 @@ namespace TiffLibrary.ImageEncoder
             {
                 ThrowHelper.ThrowInvalidOperationException("Image encoder is not configured.");
             }
-
-            TiffPixelBufferReader<TPixel> structReader = reader.AsPixelBufferReader();
-            size = new TiffSize(Math.Max(0, Math.Min(structReader.Width - offset.X, size.Width)), Math.Max(0, Math.Min(structReader.Height - offset.Y, size.Height)));
+            size = new TiffSize(Math.Max(0, Math.Min(reader.Width - offset.X, size.Width)), Math.Max(0, Math.Min(reader.Height - offset.Y, size.Height)));
             if (size.IsAreaEmpty)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(size), "The image size is zero.");
@@ -55,7 +53,7 @@ namespace TiffLibrary.ImageEncoder
                 FileWriter = writer,
                 ImageSize = size,
                 PixelConverterFactory = TiffDefaultPixelConverterFactory.Instance,
-                PixelBufferReader = structReader
+                PixelBufferReader = reader
             };
 
             await _imageEncoder.RunAsync(context).ConfigureAwait(false);
@@ -74,8 +72,7 @@ namespace TiffLibrary.ImageEncoder
                 ThrowHelper.ThrowInvalidOperationException("IFD encoder is not configured.");
             }
 
-            TiffPixelBufferReader<TPixel> structReader = reader.AsPixelBufferReader();
-            size = new TiffSize(Math.Max(0, Math.Min(structReader.Width - offset.X, structReader.Width)), Math.Max(0, Math.Min(structReader.Height - offset.Y, structReader.Height)));
+            size = new TiffSize(Math.Max(0, Math.Min(reader.Width - offset.X, reader.Width)), Math.Max(0, Math.Min(reader.Height - offset.Y, reader.Height)));
             if (size.IsAreaEmpty)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(size), "The image size is zero.");
@@ -89,7 +86,7 @@ namespace TiffLibrary.ImageEncoder
                 IfdWriter = writer,
                 ImageSize = size,
                 PixelConverterFactory = TiffDefaultPixelConverterFactory.Instance,
-                PixelBufferReader = structReader
+                PixelBufferReader = reader
             };
 
             await _ifdEncoder.RunAsync(context).ConfigureAwait(false);

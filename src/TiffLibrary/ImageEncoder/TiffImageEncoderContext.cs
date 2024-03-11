@@ -60,7 +60,7 @@ namespace TiffLibrary.ImageEncoder
         /// Gets the reader to read pixels from.
         /// </summary>
         /// <returns>The reader to read pixels from.</returns>
-        public abstract TiffPixelBufferReader<TPixel> GetReader();
+        public abstract ITiffPixelBufferReader<TPixel> GetReader();
 
         /// <summary>
         /// Converts pixel buffer writer of any pixel format <typeparamref name="TBuffer"/> into <see cref="TiffPixelBufferWriter{TPixel}"/>.

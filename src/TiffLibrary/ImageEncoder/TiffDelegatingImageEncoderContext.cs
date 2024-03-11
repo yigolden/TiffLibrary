@@ -32,7 +32,7 @@ namespace TiffLibrary.ImageEncoder
 
         public override TiffStreamRegion OutputRegion { get => _innerContext.OutputRegion; set => _innerContext.OutputRegion = value; }
 
-        public override TiffPixelBufferReader<TPixel> GetReader()
+        public override ITiffPixelBufferReader<TPixel> GetReader()
             => _innerContext.GetReader();
 
         public override TiffPixelBufferWriter<TPixel> ConvertWriter<TBuffer>(TiffPixelBufferWriter<TBuffer> writer)

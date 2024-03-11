@@ -197,7 +197,7 @@ namespace TiffLibrary.Tests.ImageEncoderMiddlewares
                 throw new NotSupportedException();
             }
 
-            public override TiffPixelBufferReader<TPixel> GetReader()
+            public override ITiffPixelBufferReader<TPixel> GetReader()
             {
                 throw new NotSupportedException();
             }

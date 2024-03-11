@@ -22,7 +22,17 @@ namespace TiffLibrary.ImageEncoder.PhotometricEncoder
                 using (var writer = new TiffMemoryPixelBufferWriter<TiffRgb24>(memoryPool, pixelDataMemory, imageSize.Width, imageSize.Height))
                 using (TiffPixelBufferWriter<TPixel> convertedWriter = context.ConvertWriter(writer.AsPixelBufferWriter()))
                 {
-                    await context.GetReader().ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
+                    if (context.GetReader() is TiffPixelBufferReader<TPixel>)
+                    {
+                        var reader = (TiffPixelBufferReader<TPixel>) context.GetReader();
+                        await reader.ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
+
+                    }
+                    else
+                    {
+                        var reader = new TiffPixelBufferReader<TPixel>(context.GetReader());
+                        await reader.ReadAsync(convertedWriter, context.CancellationToken).ConfigureAwait(false);
+                    }
                 }
 
                 TiffYCbCrConverter8.CreateDefault().ConvertFromRgb24(MemoryMarshal.Cast<byte, TiffRgb24>(pixelDataMemory.Span), pixelDataMemory.Span, imageSize.Width * imageSize.Height);

@@ -67,7 +67,7 @@ namespace TiffLibrary.ImageEncoder
         /// <summary>
         /// Gets or sets the reader to read pixels from.
         /// </summary>
-        public TiffPixelBufferReader<TPixel> PixelBufferReader { get; set; }
+        public ITiffPixelBufferReader<TPixel> PixelBufferReader { get; set; }
 
         /// <summary>
         /// A <see cref="ITiffPixelConverterFactory"/> implementation to create converters for <see cref="ITiffPixelBufferWriter{TPixel}"/>.
@@ -78,7 +78,7 @@ namespace TiffLibrary.ImageEncoder
         /// Gets the reader to read pixels from.
         /// </summary>
         /// <returns>The reader to read pixels from.</returns>
-        public override TiffPixelBufferReader<TPixel> GetReader()
+        public override ITiffPixelBufferReader<TPixel> GetReader()
         {
             return PixelBufferReader;
         }

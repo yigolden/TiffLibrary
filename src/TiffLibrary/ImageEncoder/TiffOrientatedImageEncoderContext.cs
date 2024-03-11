@@ -78,9 +78,9 @@ namespace TiffLibrary.ImageEncoder
             }
         }
 
-        public override TiffPixelBufferReader<TPixel> GetReader()
+        public override ITiffPixelBufferReader<TPixel> GetReader()
         {
-            TiffPixelBufferReader<TPixel> reader = InnerContext.GetReader();
+            ITiffPixelBufferReader<TPixel> reader = InnerContext.GetReader();
             if (_isFlipOrOrientation)
             {
                 return new TiffOrientedPixelBufferReader<TPixel>(reader, _flipLeftRigt, _flipTopBottom).AsPixelBufferReader();

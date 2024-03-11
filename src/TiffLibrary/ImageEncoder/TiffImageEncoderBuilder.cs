@@ -90,7 +90,7 @@ namespace TiffLibrary
         /// </summary>
         /// <typeparam name="TPixel">The pixel type of the input image.</typeparam>
         /// <returns>The <see cref="TiffImageEncoder{TPixel}"/> instance.</returns>
-        public TiffImageEncoder<TPixel> Build<TPixel>() where TPixel : unmanaged
+        public TiffImageEncoderPipelineAdapter<TPixel> Build<TPixel>() where TPixel : unmanaged
         {
             var pipelineBuilder = new TiffImageEncoderPipelineBuilder<TPixel>();
 

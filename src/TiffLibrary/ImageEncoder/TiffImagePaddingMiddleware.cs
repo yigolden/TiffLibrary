@@ -59,19 +59,19 @@ namespace TiffLibrary.ImageEncoder
 
             public override TiffSize ImageSize { get => _size; set => ThrowHelper.ThrowNotSupportedException(); }
 
-            public override TiffPixelBufferReader<TPixel> GetReader()
+            public override ITiffPixelBufferReader<TPixel> GetReader()
             {
-                return new PaddedPixelBufferReader(base.GetReader(), _size).AsPixelBufferReader();
+                return new PaddedPixelBufferReader(base.GetReader(), _size);
             }
 
         }
 
         internal class PaddedPixelBufferReader : ITiffPixelBufferReader<TPixel>
         {
-            private readonly TiffPixelBufferReader<TPixel> _reader;
+            private readonly ITiffPixelBufferReader<TPixel> _reader;
             private readonly TiffSize _size;
 
-            public PaddedPixelBufferReader(TiffPixelBufferReader<TPixel> reader, TiffSize size)
+            public PaddedPixelBufferReader(ITiffPixelBufferReader<TPixel> reader, TiffSize size)
             {
                 _reader = reader;
                 _size = size;
